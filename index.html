@@ -109,29 +109,23 @@
       
       <!-- Contextual Action Buttons -->
       <div class="flex items-center space-x-4">
-        <button id="deleteBtn" class="hidden text-red-500 active:opacity-50 p-1">
+        <button id="deleteBtn" class="hidden text-red-500 active:opacity-50 p-1 flex items-center justify-center min-w-[24px]">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
         </button>
         <button id="downloadBtn" class="hidden text-blue-400 active:opacity-50 p-1">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
         </button>
-        <button id="saveToLibraryBtn" class="text-yellow-400 font-bold text-lg active:opacity-50">Save</button>
+        <button id="saveToLibraryBtn" class="text-yellow-400 font-bold text-lg active:opacity-50 min-w-[40px]">Save</button>
       </div>
     </div>
     
     <div class="flex-1 flex items-center justify-center p-4">
-      
-      <!-- NEW BUG-FREE SLIDER ARCHITECTURE -->
+      <!-- BUG-FREE SLIDER ARCHITECTURE -->
       <div id="compareContainer" class="relative mx-auto rounded-2xl select-none bg-gray-900 shadow-2xl" style="touch-action: none;">
-        <!-- Base Image (Original) -->
         <img id="imgOriginal" class="block rounded-2xl w-full h-full pointer-events-none" draggable="false" />
-        
-        <!-- Overlay Wrapper (Generated) -->
         <div id="imgOverlayWrapper" class="absolute top-0 left-0 h-full overflow-hidden rounded-2xl z-10" style="width: 50%;">
           <img id="imgGenerated" class="block rounded-2xl h-full pointer-events-none max-w-none" draggable="false" />
         </div>
-
-        <!-- Slider Handle (Positioned absolutely so it NEVER gets clipped) -->
         <div id="sliderHandle" class="absolute top-0 bottom-0 flex flex-col items-center justify-center cursor-ew-resize z-20" style="left: 50%; transform: translateX(-50%); width: 40px;">
           <div class="absolute top-0 bottom-0 w-1 bg-white shadow-md z-10"></div>
           <div class="relative w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center z-20">
@@ -139,7 +133,6 @@
           </div>
         </div>
       </div>
-
     </div>
     <p class="text-center text-xs text-gray-500 pb-10 uppercase tracking-widest font-medium">Slide to compare</p>
   </div>
@@ -396,15 +389,12 @@
         const finalW = Math.round(imgW * scale);
         const finalH = Math.round(imgH * scale);
 
-        // Set container and image sizes
         container.style.width = finalW + "px";
         container.style.height = finalH + "px";
         
         origImg.style.width = finalW + "px";
         origImg.style.height = finalH + "px";
         
-        // Critical: The generated image MUST remain the full width of the container, 
-        // even though its wrapper (imgOverlayWrapper) shrinks during sliding.
         genImg.style.width = finalW + "px";
         genImg.style.height = finalH + "px";
 
@@ -413,7 +403,6 @@
         comparisonView.classList.remove('hidden');
         comparisonView.classList.add('fade-in');
         
-        // Initialize the slider logic
         setTimeout(initComparisons, 50);
       };
 
@@ -440,30 +429,25 @@
 
       let isSliding = false;
       
-      // Start exactly in the middle
       const initialWidth = container.offsetWidth / 2;
       overlay.style.width = initialWidth + "px";
       slider.style.left = initialWidth + "px";
 
       function slide(e) {
         if (!isSliding) return;
-        if(e.cancelable) e.preventDefault(); // Stop page scrolling on mobile
+        if(e.cancelable) e.preventDefault(); 
 
-        // Get exact X coordinate relative to the container
         let clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
         const rect = container.getBoundingClientRect();
         let x = clientX - rect.left;
 
-        // Cap to container bounds exactly
         if (x < 0) x = 0;
         if (x > rect.width) x = rect.width;
 
-        // Apply width to overlay and left position to slider
         overlay.style.width = x + "px";
         slider.style.left = x + "px";
       }
 
-      // Attach events to the entire container (makes it easy to tap anywhere to snap)
       container.addEventListener('mousedown', (e) => { isSliding = true; slide(e); });
       window.addEventListener('mouseup', () => { isSliding = false; });
       window.addEventListener('mousemove', slide);
@@ -477,7 +461,7 @@
     async function convertToWebP(src) {
       return new Promise((resolve, reject) => {
         const img = new Image();
-        img.crossOrigin = 'Anonymous'; // Required for external Supabase URLs
+        img.crossOrigin = 'Anonymous'; 
         img.onload = () => {
           const canvas = document.createElement('canvas');
           canvas.width = img.width;
@@ -496,7 +480,9 @@
     // --- SAVE / DELETE / DOWNLOAD / CLOSE ---
     document.getElementById('saveToLibraryBtn').addEventListener('click', async () => {
       const btn = document.getElementById('saveToLibraryBtn');
-      btn.textContent = "Saving...";
+      const originalHTML = btn.innerHTML;
+      btn.innerHTML = `<div class="w-5 h-5 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin"></div>`;
+      
       try {
         const timestamp = Date.now();
         const origPath = `original_${timestamp}.webp`;
@@ -505,7 +491,6 @@
         const origSrc = document.getElementById('imgOriginal').src;
         const genSrc = document.getElementById('imgGenerated').src;
 
-        // Convert both to WebP locally before uploading
         const origBlob = await convertToWebP(origSrc);
         const genBlob = await convertToWebP(genSrc);
 
@@ -516,34 +501,42 @@
 
         await supabaseClient.from('gallery').insert([{ original_image_path: origPath, generated_image_path: genPath }]);
 
-        btn.textContent = "Save";
         comparisonView.classList.add('hidden');
         loadGalleryThumbnail();
       } catch (err) {
-        btn.textContent = "Error";
-        setTimeout(() => { btn.textContent = "Save"; }, 2000);
+        alert("Failed to save: " + err.message);
+      } finally {
+        btn.innerHTML = originalHTML;
       }
     });
 
     document.getElementById('deleteBtn').addEventListener('click', async () => {
       if(!confirm("Delete this image forever?")) return;
       
+      const btn = document.getElementById('deleteBtn');
+      const originalHTML = btn.innerHTML;
+      btn.innerHTML = `<div class="w-5 h-5 border-2 border-red-500 border-t-transparent rounded-full animate-spin"></div>`;
+
       try {
-        await supabaseClient.from('gallery').delete().eq('id', currentActiveDocId);
-        await supabaseClient.storage.from('photos').remove([currentActiveOrigPath, currentActiveGenPath]);
+        const { error: dbError } = await supabaseClient.from('gallery').delete().eq('id', currentActiveDocId);
+        if (dbError) throw dbError;
+
+        const { error: storageError } = await supabaseClient.storage.from('photos').remove([currentActiveOrigPath, currentActiveGenPath]);
+        if (storageError) throw storageError;
         
         comparisonView.classList.add('hidden');
         libraryView.classList.remove('hidden');
         loadGallery();
         loadGalleryThumbnail();
       } catch (err) {
-        console.error("Failed to delete", err);
+        alert("Failed to delete. Ensure you updated Supabase SQL policies. Error: " + err.message);
+      } finally {
+        btn.innerHTML = originalHTML;
       }
     });
 
     document.getElementById('downloadBtn').addEventListener('click', async () => {
       try {
-        // Fetch the image as a Blob to ensure true cross-device downloading
         const imgSrc = document.getElementById('imgGenerated').src;
         const response = await fetch(imgSrc);
         const blob = await response.blob();
