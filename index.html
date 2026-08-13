@@ -23,13 +23,39 @@
     #baseCanvas, #maskCanvas { display: block; max-width: 100%; height: auto; touch-action: none; }
     #maskCanvas { position: absolute; top: 0; left: 0; cursor: crosshair; opacity: 0.55; }
     
-    /* W3Schools Comparison Slider */
-    .img-comp-container { position: relative; margin: 0 auto; overflow: hidden; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); background: #111; }
-    .img-comp-img { position: absolute; width: auto; height: auto; overflow: hidden; }
-    .img-comp-img img { display: block; vertical-align: middle; max-width: none !important; }
+    /* Production-Grade Comparison Slider */
+    .img-comp-container { 
+      position: relative; 
+      margin: 0 auto; 
+      overflow: hidden; 
+      border-radius: 16px; 
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8); 
+      background: #111;
+      touch-action: none; /* Prevents mobile scrolling while sliding */
+      user-select: none; /* Prevents text/element highlighting */
+    }
+    .img-comp-img { position: absolute; width: auto; height: 100%; overflow: hidden; top: 0; left: 0; }
+    .img-comp-img img { 
+      display: block; 
+      height: 100%; 
+      max-width: none !important; 
+      pointer-events: none; /* Stops ghost dragging */
+      -webkit-user-drag: none;
+    }
     .img-comp-slider {
-      position: absolute; z-index: 9; cursor: ew-resize; width: 38px; height: 38px; background-color: white;
-      border-radius: 50%; box-shadow: 0 2px 10px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;
+      position: absolute; 
+      z-index: 9; 
+      cursor: ew-resize; 
+      width: 38px; 
+      height: 38px; 
+      background-color: white;
+      border-radius: 50%; 
+      box-shadow: 0 2px 10px rgba(0,0,0,0.5); 
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      top: 50%; /* Center vertically via CSS */
+      transform: translate(-50%, -50%); /* Perfectly center the handle on the line */
     }
     .img-comp-slider::before {
       content: ''; position: absolute; top: -1000px; bottom: -1000px; left: 50%; transform: translateX(-50%); width: 4px; background-color: white; z-index: -1;
@@ -121,23 +147,26 @@
       
       <!-- Contextual Action Buttons -->
       <div class="flex items-center space-x-4">
-        <!-- Delete Button -->
         <button id="deleteBtn" class="hidden text-red-500 active:opacity-50 p-1">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
         </button>
-        <!-- Download Button -->
         <button id="downloadBtn" class="hidden text-blue-400 active:opacity-50 p-1">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
         </button>
-        <!-- Save Button -->
         <button id="saveToLibraryBtn" class="text-yellow-400 font-bold text-lg active:opacity-50">Save</button>
       </div>
     </div>
     
     <div class="flex-1 flex items-center justify-center p-4">
       <div class="img-comp-container" id="compareContainer">
-        <div class="img-comp-img"><img id="imgOriginal" src=""></div>
-        <div class="img-comp-img img-comp-overlay"><img id="imgGenerated" src=""></div>
+        <!-- Original image (bottom) -->
+        <div class="img-comp-img w-full h-full">
+          <img id="imgOriginal" src="" draggable="false">
+        </div>
+        <!-- Generated image (top/overlay) -->
+        <div class="img-comp-img img-comp-overlay z-10">
+          <img id="imgGenerated" src="" draggable="false">
+        </div>
       </div>
     </div>
     <p class="text-center text-xs text-gray-500 pb-10 uppercase tracking-widest font-medium">Slide to compare</p>
@@ -170,14 +199,12 @@
     let isDrawing = false;
     let currentOriginalDataUrl = null; 
     
-    // Updated Prompts: Enforces lighting, perspective, and mood matching.
     let activePromptType = 'implants'; 
     const PROMPTS = {
       implants: "Repair the masked teeth to look like healthy, real working teeth. Fix rotten or broken areas naturally. Strictly match the exact lighting, perspective, shadows, and overall mood of the original photo. CRITICAL: Generate a low resolution 512px image focusing purely on realistic textures to save compute.",
       braces: "Add realistic, high-quality dental braces to the masked teeth. Ensure brackets and wires look natural and anatomically correct. Strictly match the exact lighting, perspective, shadows, and overall mood of the original photo. CRITICAL: Generate a low resolution 512px image focusing purely on realistic textures to save compute."
     };
 
-    // Gallery Viewing State
     let isViewingGalleryItem = false;
     let currentActiveDocId = null;
     let currentActiveOrigPath = null;
@@ -227,7 +254,7 @@
       btnImplants.className = "flex-1 bg-gray-800 text-gray-300 py-3 rounded-xl font-bold border-2 border-transparent transition active:scale-95";
     });
 
-    // --- IMAGE CAPTURE & PREPARATION (Strict 512px) ---
+    // --- IMAGE CAPTURE (Strict 512px) ---
     function prepareEditor(source, originalWidth, originalHeight) {
       const MAX_SIZE = 512;
       let width = originalWidth;
@@ -379,8 +406,7 @@
       }
     });
 
-    // --- BULLETPROOF SLIDER DIMENSION CALCULATOR ---
-    // Fixes the gallery gallery bug by waiting for BOTH images to fully load before initializing
+    // --- BULLETPROOF SLIDER INITIALIZATION ---
     function setupSliderDimensions(origSrc, genSrc) {
       const origImg = document.getElementById('imgOriginal');
       const genImg = document.getElementById('imgGenerated');
@@ -400,18 +426,16 @@
 
         container.style.width = finalW + "px";
         container.style.height = finalH + "px";
+        
         origImg.style.width = finalW + "px";
-        origImg.style.height = finalH + "px";
         genImg.style.width = finalW + "px";
-        genImg.style.height = finalH + "px";
 
         editorView.classList.add('hidden');
         libraryView.classList.add('hidden');
         comparisonView.classList.remove('hidden');
         comparisonView.classList.add('fade-in');
         
-        // Slight delay ensures the browser has painted the new DOM sizes before slider calculations
-        setTimeout(initComparisons, 50);
+        initComparisons();
       };
 
       const checkLoad = () => {
@@ -419,7 +443,6 @@
         if (loadedCount === 2) onImagesLoaded();
       };
 
-      // Clear previous sources to ensure onload fires
       origImg.removeAttribute('src');
       genImg.removeAttribute('src');
       
@@ -430,62 +453,56 @@
       genImg.src = genSrc;
     }
 
-    // --- W3SCHOOLS COMPARISON SLIDER LOGIC ---
+    // --- REWRITTEN FLAWLESS SLIDER LOGIC ---
     function initComparisons() {
-      var x, i;
-      x = document.getElementsByClassName("img-comp-overlay");
-      for (i = 0; i < x.length; i++) { compareImages(x[i]); }
-      
-      function compareImages(img) {
-        var slider, clicked = 0, w, h;
-        w = img.offsetWidth;
-        h = img.offsetHeight;
-        img.style.width = (w / 2) + "px";
-        
-        const existing = img.parentElement.querySelector('.img-comp-slider');
-        if(existing) existing.remove();
+      const container = document.getElementById('compareContainer');
+      const overlay = container.querySelector('.img-comp-overlay');
+      let slider = container.querySelector('.img-comp-slider');
 
-        slider = document.createElement("DIV");
-        slider.setAttribute("class", "img-comp-slider");
-        slider.innerHTML = `<svg class="w-5 h-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg>`;
+      // Remove existing slider if regenerating
+      if (slider) slider.remove();
+
+      // Create new slider handle
+      slider = document.createElement("DIV");
+      slider.className = "img-comp-slider";
+      slider.innerHTML = `<svg class="w-5 h-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg>`;
+      container.insertBefore(slider, overlay);
+
+      let isSliding = false;
+      
+      // Set initial position to 50%
+      const initialWidth = container.offsetWidth / 2;
+      overlay.style.width = initialWidth + "px";
+      slider.style.left = initialWidth + "px";
+
+      function slide(e) {
+        if (!isSliding) return;
         
-        img.parentElement.insertBefore(slider, img);
-        slider.style.top = (h / 2) - (slider.offsetHeight / 2) + "px";
-        slider.style.left = (w / 2) - (slider.offsetWidth / 2) + "px";
-        
-        slider.addEventListener("mousedown", slideReady);
-        window.addEventListener("mouseup", slideFinish);
-        slider.addEventListener("touchstart", slideReady, {passive: false});
-        window.addEventListener("touchend", slideFinish);
-        
-        function slideReady(e) {
-          e.preventDefault();
-          clicked = 1;
-          window.addEventListener("mousemove", slideMove);
-          window.addEventListener("touchmove", slideMove, {passive: false});
-        }
-        function slideFinish() { clicked = 0; }
-        function slideMove(e) {
-          var pos;
-          if (clicked == 0) return false;
-          pos = getCursorPos(e)
-          if (pos < 0) pos = 0;
-          if (pos > w) pos = w;
-          slide(pos);
-        }
-        function getCursorPos(e) {
-          var a, x = 0;
-          e = (e.changedTouches) ? e.changedTouches[0] : e;
-          a = img.getBoundingClientRect();
-          x = e.pageX - a.left;
-          x = x - window.pageXOffset;
-          return x;
-        }
-        function slide(x) {
-          img.style.width = x + "px";
-          slider.style.left = img.offsetWidth - (slider.offsetWidth / 2) + "px";
-        }
+        // Prevent default scrolling/highlighting behavior
+        if(e.cancelable) e.preventDefault();
+
+        // Get exact X coordinate relative to the container
+        let clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        const rect = container.getBoundingClientRect();
+        let x = clientX - rect.left;
+
+        // Cap to container bounds
+        if (x < 0) x = 0;
+        if (x > rect.width) x = rect.width;
+
+        // Apply width to overlay and left position to slider
+        overlay.style.width = x + "px";
+        slider.style.left = x + "px";
       }
+
+      // Attach events to the ENTIRE container (allows tapping anywhere to snap the slider)
+      container.addEventListener('mousedown', (e) => { isSliding = true; slide(e); });
+      window.addEventListener('mouseup', () => { isSliding = false; });
+      window.addEventListener('mousemove', slide);
+
+      container.addEventListener('touchstart', (e) => { isSliding = true; slide(e); }, { passive: false });
+      window.addEventListener('touchend', () => { isSliding = false; });
+      window.addEventListener('touchmove', slide, { passive: false });
     }
 
     // --- SAVE / DELETE / DOWNLOAD / CLOSE ---
