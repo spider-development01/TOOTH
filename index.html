@@ -121,15 +121,15 @@
       
       <!-- Contextual Action Buttons -->
       <div class="flex items-center space-x-4">
-        <!-- Delete Button (Only in Gallery Mode) -->
+        <!-- Delete Button -->
         <button id="deleteBtn" class="hidden text-red-500 active:opacity-50 p-1">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
         </button>
-        <!-- Download Button (Only in Gallery Mode) -->
+        <!-- Download Button -->
         <button id="downloadBtn" class="hidden text-blue-400 active:opacity-50 p-1">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
         </button>
-        <!-- Save Button (Only in New Generation Mode) -->
+        <!-- Save Button -->
         <button id="saveToLibraryBtn" class="text-yellow-400 font-bold text-lg active:opacity-50">Save</button>
       </div>
     </div>
@@ -170,11 +170,11 @@
     let isDrawing = false;
     let currentOriginalDataUrl = null; 
     
-    // Prompt State
+    // Updated Prompts: Enforces lighting, perspective, and mood matching.
     let activePromptType = 'implants'; 
     const PROMPTS = {
-      implants: "Repair the masked teeth to look like healthy, real working teeth. Fix rotten or broken areas naturally. CRITICAL: Generate a low resolution 512px image focusing purely on realistic textures to save compute.",
-      braces: "Add realistic, high-quality dental braces to the masked teeth. Ensure brackets and wires look natural and anatomically correct. CRITICAL: Generate a low resolution 512px image focusing purely on realistic textures to save compute."
+      implants: "Repair the masked teeth to look like healthy, real working teeth. Fix rotten or broken areas naturally. Strictly match the exact lighting, perspective, shadows, and overall mood of the original photo. CRITICAL: Generate a low resolution 512px image focusing purely on realistic textures to save compute.",
+      braces: "Add realistic, high-quality dental braces to the masked teeth. Ensure brackets and wires look natural and anatomically correct. Strictly match the exact lighting, perspective, shadows, and overall mood of the original photo. CRITICAL: Generate a low resolution 512px image focusing purely on realistic textures to save compute."
     };
 
     // Gallery Viewing State
@@ -354,7 +354,6 @@
 
         if (!generatedImgSrc) throw new Error("No image data returned from AI.");
 
-        // Setup UI for New Generation
         isViewingGalleryItem = false;
         document.getElementById('saveToLibraryBtn').classList.remove('hidden');
         document.getElementById('deleteBtn').classList.add('hidden');
@@ -364,7 +363,6 @@
         setupSliderDimensions(currentOriginalDataUrl, generatedImgSrc);
 
       } catch (err) {
-        // Silent Failure UI
         const originalText = submitBtn.innerHTML;
         submitBtn.textContent = "Failed - Try Again";
         submitBtn.classList.remove('bg-blue-600', 'hover:bg-blue-500');
@@ -381,17 +379,20 @@
       }
     });
 
-    // --- SLIDER DIMENSION CALCULATOR ---
+    // --- BULLETPROOF SLIDER DIMENSION CALCULATOR ---
+    // Fixes the gallery gallery bug by waiting for BOTH images to fully load before initializing
     function setupSliderDimensions(origSrc, genSrc) {
       const origImg = document.getElementById('imgOriginal');
       const genImg = document.getElementById('imgGenerated');
       const container = document.getElementById('compareContainer');
 
-      genImg.onload = () => {
+      let loadedCount = 0;
+      
+      const onImagesLoaded = () => {
         const screenW = window.innerWidth - 32; 
         const screenH = window.innerHeight * 0.6; 
-        const imgW = genImg.naturalWidth;
-        const imgH = genImg.naturalHeight;
+        const imgW = genImg.naturalWidth || 512;
+        const imgH = genImg.naturalHeight || 512;
 
         const scale = Math.min(screenW / imgW, screenH / imgH);
         const finalW = Math.round(imgW * scale);
@@ -409,8 +410,21 @@
         comparisonView.classList.remove('hidden');
         comparisonView.classList.add('fade-in');
         
-        initComparisons();
+        // Slight delay ensures the browser has painted the new DOM sizes before slider calculations
+        setTimeout(initComparisons, 50);
       };
+
+      const checkLoad = () => {
+        loadedCount++;
+        if (loadedCount === 2) onImagesLoaded();
+      };
+
+      // Clear previous sources to ensure onload fires
+      origImg.removeAttribute('src');
+      genImg.removeAttribute('src');
+      
+      origImg.onload = checkLoad;
+      genImg.onload = checkLoad;
       
       origImg.src = origSrc;
       genImg.src = genSrc;
@@ -506,9 +520,7 @@
       if(!confirm("Delete this image forever?")) return;
       
       try {
-        // Delete from Database
         await supabaseClient.from('gallery').delete().eq('id', currentActiveDocId);
-        // Delete from Storage
         await supabaseClient.storage.from('photos').remove([currentActiveOrigPath, currentActiveGenPath]);
         
         comparisonView.classList.add('hidden');
@@ -571,7 +583,6 @@
           div.className = "aspect-square bg-gray-900 relative cursor-pointer active:opacity-50 transition-opacity";
           div.innerHTML = `<img src="${genUrl}" class="w-full h-full object-cover" loading="lazy" />`;
           
-          // Click to view comparison
           div.onclick = () => {
             isViewingGalleryItem = true;
             currentActiveDocId = doc.id;
