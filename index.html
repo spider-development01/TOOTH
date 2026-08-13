@@ -1,477 +1,308 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Camera - Braces Filter</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
-        body, html {
-            width: 100%;
-            height: 100%;
-            background-color: #000;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            overflow: hidden;
-            color: #fff;
-        }
-
-        /* Camera Viewfinder */
-        .camera-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        video {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: 1;
-        }
-
-        canvas {
-            display: none;
-        }
-
-        /* UI Overlays */
-        .ui-layer {
-            position: relative;
-            z-index: 10;
-            width: 100%;
-            pointer-events: none;
-        }
-
-        /* Top Controls */
-        .top-controls {
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            padding: 10px 20px;
-            height: 120px;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 100%);
-            pointer-events: auto;
-        }
-
-        .dynamic-island {
-            width: 120px;
-            height: 35px;
-            background: #000;
-            border-radius: 20px;
-            margin-top: 5px;
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            padding-right: 15px;
-        }
-
-        .camera-dot {
-            width: 5px;
-            height: 5px;
-            background-color: #34C759;
-            border-radius: 50%;
-        }
-
-        /* Bottom Controls */
-        .bottom-controls {
-            padding-bottom: 40px;
-            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            pointer-events: auto;
-        }
-
-        /* Mode Selector */
-        .mode-selector {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 25px;
-            margin-top: 30px;
-            font-size: 13px;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-        }
-
-        .mode-btn {
-            color: rgba(255,255,255,0.7);
-            cursor: pointer;
-        }
-
-        .mode-btn.active {
-            color: #FFD60A;
-        }
-
-        /* Shutter Area */
-        .shutter-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            padding: 0 40px;
-        }
-
-        .gallery-preview {
-            width: 50px;
-            height: 50px;
-            border-radius: 8px;
-            background-color: #333;
-            overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.3);
-            cursor: pointer;
-        }
-
-        .gallery-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .shutter-btn {
-            width: 76px;
-            height: 76px;
-            border-radius: 50%;
-            background-color: #fff;
-            border: 4px solid #000;
-            box-shadow: 0 0 0 4px #fff;
-            cursor: pointer;
-            transition: transform 0.1s;
-        }
-
-        .shutter-btn:active {
-            transform: scale(0.95);
-        }
-
-        .flip-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: rgba(0, 0, 0, 0.5); /* Darker backdrop to match your screenshot */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-
-        .flip-btn svg {
-            width: 26px;
-            height: 26px;
-            fill: white;
-        }
-
-        /* Loading / Result Screens */
-        .overlay-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            z-index: 100;
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .overlay-screen img.result-image {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 50px;
-            left: 20px;
-            color: #fff;
-            font-size: 16px;
-            background: rgba(0,0,0,0.5);
-            padding: 10px 20px;
-            border-radius: 20px;
-            cursor: pointer;
-            z-index: 101;
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: #FFD60A;
-            animation: spin 1s ease-in-out infinite;
-            margin-bottom: 20px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .status-text {
-            color: white;
-            font-size: 16px;
-            font-weight: 500;
-            text-align: center;
-            padding: 0 20px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Code in Black - Image Generation & Inpainting</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    #canvasContainer {
+      position: relative;
+      display: inline-block;
+      max-width: 100%;
+    }
+    #baseCanvas, #maskCanvas {
+      border-radius: 0.5rem;
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+    #maskCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      cursor: crosshair;
+      opacity: 0.6; 
+    }
+  </style>
 </head>
-<body>
+<body class="bg-slate-900 text-slate-100 min-h-screen py-8 px-4 sm:px-6 lg:px-8 font-sans">
+  <div class="max-w-4xl mx-auto space-y-6">
 
-<div class="camera-container">
-    <!-- Camera Feed -->
-    <video id="camera-feed" autoplay playsinline></video>
-    <canvas id="photo-canvas"></canvas>
+    <header class="text-center space-y-2">
+      <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">
+        Inpainting & Image Editor
+      </h1>
+      <p class="text-slate-400 text-sm">
+        Fast, canvas-optimized edits with mask drawing.
+      </p>
+    </header>
 
-    <!-- Top UI Layer -->
-    <div class="ui-layer top-controls">
-        <div class="dynamic-island">
-            <div class="camera-dot"></div>
-        </div>
+    <!-- Configuration Card -->
+    <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-lg space-y-4">
+      <h2 class="text-lg font-semibold text-slate-200 border-b border-slate-700 pb-2">1. Settings</h2>
+      <div class="space-y-1">
+        <label for="modelSelect" class="block text-xs font-medium text-slate-300">Target Model</label>
+        <input type="text" id="modelSelect" value="gemini-3.1-flash-image" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition" />
+      </div>
     </div>
 
-    <!-- Bottom UI Layer -->
-    <div class="ui-layer bottom-controls">
-        <div class="mode-selector">
-            <div class="mode-btn">VIDEO</div>
-            <div class="mode-btn active">PHOTO</div>
-        </div>
+    <!-- Input Form Card -->
+    <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-lg space-y-4">
+      <h2 class="text-lg font-semibold text-slate-200 border-b border-slate-700 pb-2">2. Image & Masking</h2>
 
-        <div class="shutter-row">
-            <div class="gallery-preview" id="gallery-preview">
-                <!-- Most recent photo goes here -->
+      <div class="space-y-2">
+        <label class="block text-xs font-medium text-slate-300">Upload Image (Automatically scaled to 512px for high-speed processing)</label>
+        <input type="file" id="imageInput" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 transition cursor-pointer bg-slate-900 border border-slate-700 rounded-lg" />
+        
+        <div id="workspace" class="hidden flex flex-col items-center space-y-4 pt-4 border-t border-slate-700 mt-4">
+          <div class="w-full flex justify-between items-center bg-slate-900 p-3 rounded-lg border border-slate-700">
+            <div class="flex items-center space-x-3">
+              <label for="brushSize" class="text-xs text-slate-300">Brush Size:</label>
+              <input type="range" id="brushSize" min="5" max="50" value="20" class="w-24 accent-indigo-500" />
             </div>
-            
-            <div class="shutter-btn" id="shutter-btn"></div>
-            
-            <div class="flip-btn" id="flip-btn">
-                <svg viewBox="0 0 24 24">
-                    <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C21.54 14.82 22 13.47 22 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
-                </svg>
-            </div>
+            <button id="clearMaskBtn" class="bg-slate-700 hover:bg-slate-600 text-white text-xs px-3 py-1.5 rounded transition">
+              Clear Mask
+            </button>
+          </div>
+
+          <p class="text-xs text-indigo-300 w-full text-center">Draw over the area you want to fix.</p>
+
+          <div id="canvasContainer">
+            <canvas id="baseCanvas"></canvas>
+            <canvas id="maskCanvas"></canvas>
+          </div>
         </div>
+      </div>
+
+      <div class="space-y-1">
+        <label for="promptInput" class="block text-xs font-medium text-slate-300">Repair Instructions</label>
+        <textarea 
+          id="promptInput" 
+          rows="3" 
+          class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition resize-y"
+        >Repair the masked teeth to look like healthy, real working teeth. Fix rotten or broken areas and root canals naturally. Strictly maintain realistic enamel textures, slight natural imperfections, and original tooth anatomy. Do not make them look like perfect plastic.</textarea>
+      </div>
+
+      <button id="submitBtn" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-medium py-2.5 px-4 rounded-lg shadow-md transition duration-150 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed">
+        <span id="btnText">Execute Inpainting</span>
+        <svg id="spinner" class="animate-spin h-5 w-5 text-white hidden" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+      </button>
     </div>
-</div>
 
-<!-- Loading Screen -->
-<div class="overlay-screen" id="loading-screen">
-    <div class="spinner"></div>
-    <div class="status-text">Applying structural modifications...<br>(Generating braces)</div>
-</div>
+    <!-- Output Response Card -->
+    <div id="outputCard" class="bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-lg space-y-3 hidden">
+      <h2 class="text-lg font-semibold text-slate-200 border-b border-slate-700 pb-2">Restoration Result</h2>
+      <div id="errorMessage" class="bg-red-900/40 border border-red-700 text-red-300 p-3 rounded-lg text-sm hidden"></div>
+      <div id="responseContainer" class="space-y-4"></div>
+    </div>
+  </div>
 
-<!-- Result Screen -->
-<div class="overlay-screen" id="result-screen">
-    <div class="close-btn" id="close-result">Cancel</div>
-    <img class="result-image" id="result-image" src="" alt="Edited selfie">
-</div>
+  <script>
+    const imageInput = document.getElementById('imageInput');
+    const workspace = document.getElementById('workspace');
+    const baseCanvas = document.getElementById('baseCanvas');
+    const maskCanvas = document.getElementById('maskCanvas');
+    const brushSizeInput = document.getElementById('brushSize');
+    const clearMaskBtn = document.getElementById('clearMaskBtn');
+    
+    const baseCtx = baseCanvas.getContext('2d');
+    const maskCtx = maskCanvas.getContext('2d');
 
-<script>
-    // Configuration
-    // IN PRODUCTION/NETLIFY: This string will be replaced by your build script, 
-    // OR you can dynamically load it if you inject it into window.env
-    const GEMINI_API_KEY = '%%YOUR_GEMINI_API_KEY%%'; 
-    const MODEL_NAME = 'gemini-3.1-flash-lite-image';
+    let isDrawing = false;
+    let hasImage = false;
 
-    // The precise prompt requested by the user
-    const EDITING_PROMPT = `In the provided selfie/portrait, perform a precise dental modification: add modern metallic orthodontic braces directly onto the existing visible teeth.
-Anatomical & Biological Constraints:
-Preserve original identity: Do NOT alter the facial bone structure, jawline, chin, cheekbones, lips, or mouth shape in any way.
-Preserve dental layout: Keep the exact original tooth count, spacing, size, alignment, and position. Do not add, remove, reshape, or shift any teeth.
-Anatomically correct braces: Render realistic silver stainless-steel brackets positioned centered on the front surface of each visible tooth (incisors, canines, premolars). Connect them with a thin, natural metallic archwire following the natural arch of the smile, secured with small elastic ligatures.
-Visual Quality:
-Match the exact lighting, subsurface scattering, depth of field, resolution, and skin/tooth textures of the original photo.
-Ensure realistic light reflections on the metal brackets and enamel without synthetic blurring or face warping.`;
+    // --- Image Loading & 512px Downscaling ---
+    imageInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
 
-    // DOM Elements
-    const video = document.getElementById('camera-feed');
-    const canvas = document.getElementById('photo-canvas');
-    const shutterBtn = document.getElementById('shutter-btn');
-    const flipBtn = document.getElementById('flip-btn');
-    const loadingScreen = document.getElementById('loading-screen');
-    const resultScreen = document.getElementById('result-screen');
-    const resultImage = document.getElementById('result-image');
-    const closeResultBtn = document.getElementById('close-result');
-    const galleryPreview = document.getElementById('gallery-preview');
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          // Strictly force 512px downscale for extreme speed
+          const MAX_SIZE = 512;
+          let width = img.width;
+          let height = img.height;
 
-    let currentFacingMode = 'user'; // Default to selfie for portraits
-    let currentStream = null;
-
-    // Initialize Camera
-    async function initCamera() {
-        if (currentStream) {
-            currentStream.getTracks().forEach(track => track.stop());
-        }
-
-        const constraints = {
-            video: {
-                facingMode: currentFacingMode,
-                width: { ideal: 1080 },
-                height: { ideal: 1920 }
-            },
-            audio: false
-        };
-
-        try {
-            currentStream = await navigator.mediaDevices.getUserMedia(constraints);
-            video.srcObject = currentStream;
-            
-            // Adjust video transform for selfie mode (mirroring)
-            if (currentFacingMode === 'user') {
-                video.style.transform = 'scaleX(-1)';
+          if (width > MAX_SIZE || height > MAX_SIZE) {
+            if (width > height) {
+              height = Math.round((height * MAX_SIZE) / width);
+              width = MAX_SIZE;
             } else {
-                video.style.transform = 'scaleX(1)';
+              width = Math.round((width * MAX_SIZE) / height);
+              height = MAX_SIZE;
             }
-        } catch (err) {
-            console.error("Error accessing camera: ", err);
-            alert("Unable to access camera. Please ensure permissions are granted.");
-        }
+          }
+
+          baseCanvas.width = width;
+          baseCanvas.height = height;
+          maskCanvas.width = width;
+          maskCanvas.height = height;
+
+          baseCtx.drawImage(img, 0, 0, width, height);
+          clearMask();
+          
+          workspace.classList.remove('hidden');
+          hasImage = true;
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // --- Mask Drawing Logic ---
+    function clearMask() {
+      maskCtx.fillStyle = 'black'; 
+      maskCtx.fillRect(0, 0, maskCanvas.width, maskCanvas.height);
     }
 
-    // Flip Camera
-    flipBtn.addEventListener('click', () => {
-        currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
-        initCamera();
-    });
+    clearMaskBtn.addEventListener('click', clearMask);
 
-    // Capture Photo and trigger API
-    shutterBtn.addEventListener('click', () => {
-        // Prepare canvas to match video dimensions
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        
-        const ctx = canvas.getContext('2d');
-        
-        // Handle mirroring if selfie cam is active
-        if (currentFacingMode === 'user') {
-            ctx.translate(canvas.width, 0);
-            ctx.scale(-1, 1);
-        }
-        
-        // Draw video frame to canvas
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        
-        // Get Base64 image
-        const base64Image = canvas.toDataURL('image/jpeg', 0.9);
-        
-        // Set gallery preview thumbnail locally
-        galleryPreview.innerHTML = `<img src="${base64Image}" />`;
-
-        // Send to Gemini
-        processImageWithGemini(base64Image);
-    });
-
-    // Close result screen
-    closeResultBtn.addEventListener('click', () => {
-        resultScreen.style.display = 'none';
-        resultImage.src = '';
-    });
-
-    // Gemini API integration
-    async function processImageWithGemini(base64DataUrl) {
-        // Strip data:image/jpeg;base64, prefix for API
-        const base64Data = base64DataUrl.split(',')[1];
-        
-        // Show loading state
-        loadingScreen.style.display = 'flex';
-
-        // Check for API key misconfiguration safely
-        if (GEMINI_API_KEY.includes('YOUR_GEMINI_API_KEY')) {
-            alert('Warning: Gemini API Key is missing. Please set the environment variable and build/replace it in the code.');
-            loadingScreen.style.display = 'none';
-            return;
-        }
-
-        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${GEMINI_API_KEY}`;
-        
-        // Payload based on standard Multimodal standard interactions 
-        // with specific temperature constraints as requested (0.7).
-        const payload = {
-            contents: [
-                {
-                    role: "user",
-                    parts: [
-                        { text: EDITING_PROMPT },
-                        {
-                            inlineData: {
-                                mimeType: "image/jpeg",
-                                data: base64Data
-                            }
-                        }
-                    ]
-                }
-            ],
-            generationConfig: {
-                temperature: 0.7
-            }
-        };
-
-        try {
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload)
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error?.message || 'Failed to generate image');
-            }
-
-            // Extracting the returned image. 
-            // In standard vision APIs, output text is in parts[0].text
-            // In Gemini 3.1 Flash Lite Image (which returns interleaved text/image), 
-            // we look for the inlineData object in the response parts.
-            let editedImageBase64 = null;
-            
-            const parts = data.candidates?.[0]?.content?.parts || [];
-            
-            for (const part of parts) {
-                if (part.inlineData && part.inlineData.data) {
-                    editedImageBase64 = part.inlineData.data;
-                    break;
-                }
-            }
-
-            if (editedImageBase64) {
-                resultImage.src = `data:image/jpeg;base64,${editedImageBase64}`;
-                // Set the thumbnail to the edited photo
-                galleryPreview.innerHTML = `<img src="data:image/jpeg;base64,${editedImageBase64}" />`;
-            } else {
-                // Fallback if the API returns text instead of an image link
-                console.error("API did not return inlineData image. Raw response:", data);
-                alert("API did not return an image. Ensure your API key has access to image generation features.");
-            }
-            
-        } catch (error) {
-            console.error("API Error:", error);
-            alert(`Error processing image: ${error.message}`);
-        } finally {
-            loadingScreen.style.display = 'none';
-            if(resultImage.src) {
-                resultScreen.style.display = 'flex';
-            }
-        }
+    function getMousePos(canvas, evt) {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      return {
+        x: (evt.clientX - rect.left) * scaleX,
+        y: (evt.clientY - rect.top) * scaleY
+      };
     }
 
-    // Start on load
-    window.addEventListener('load', initCamera);
-</script>
+    function startDrawing(e) {
+      isDrawing = true;
+      draw(e);
+    }
+
+    function stopDrawing() {
+      isDrawing = false;
+      maskCtx.beginPath();
+    }
+
+    function draw(e) {
+      if (!isDrawing) return;
+      e.preventDefault(); 
+      const pos = getMousePos(maskCanvas, e.touches ? e.touches[0] : e);
+      maskCtx.lineWidth = brushSizeInput.value;
+      maskCtx.lineCap = 'round';
+      maskCtx.strokeStyle = 'white'; 
+      maskCtx.lineTo(pos.x, pos.y);
+      maskCtx.stroke();
+      maskCtx.beginPath();
+      maskCtx.moveTo(pos.x, pos.y);
+    }
+
+    maskCanvas.addEventListener('mousedown', startDrawing);
+    maskCanvas.addEventListener('mousemove', draw);
+    maskCanvas.addEventListener('mouseup', stopDrawing);
+    maskCanvas.addEventListener('mouseout', stopDrawing);
+    maskCanvas.addEventListener('touchstart', startDrawing, {passive: false});
+    maskCanvas.addEventListener('touchmove', draw, {passive: false});
+    maskCanvas.addEventListener('touchend', stopDrawing);
+
+    // --- Secure API Submission to Netlify ---
+    document.getElementById('submitBtn').addEventListener('click', async () => {
+      const prompt = document.getElementById('promptInput').value.trim();
+      const selectedModel = document.getElementById('modelSelect').value.trim();
+
+      if (!hasImage) { alert('Please upload an image and draw a mask.'); return; }
+
+      const submitBtn = document.getElementById('submitBtn');
+      const btnText = document.getElementById('btnText');
+      const spinner = document.getElementById('spinner');
+      const outputCard = document.getElementById('outputCard');
+      const responseContainer = document.getElementById('responseContainer');
+      const errorMessage = document.getElementById('errorMessage');
+
+      submitBtn.disabled = true;
+      spinner.classList.remove('hidden');
+      outputCard.classList.remove('hidden');
+      errorMessage.classList.add('hidden');
+      responseContainer.innerHTML = '';
+
+      // Live Timer
+      let seconds = 0;
+      btnText.textContent = `Generating... (${seconds}s)`;
+      const timerInterval = setInterval(() => {
+        seconds++;
+        btnText.textContent = `Generating... (${seconds}s)`;
+      }, 1000);
+
+      // 2.5 min Timeout Controller
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 150000); 
+
+      // Calls your own server instead of Google directly
+      const endpoint = `/.netlify/functions/inpaint`;
+
+      try {
+        // Compress heavily to keep the payload lightweight for the serverless function
+        const base64Image = baseCanvas.toDataURL('image/jpeg', 0.8).split(',')[1];
+        const base64Mask = maskCanvas.toDataURL('image/jpeg', 1.0).split(',')[1];
+
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: prompt,
+            image: base64Image,
+            mask: base64Mask,
+            model: selectedModel
+          }),
+          signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+        const data = await response.json();
+
+        if (!response.ok) throw new Error(data.error || "Server responded with an error.");
+
+        const candidateParts = data.candidates?.[0]?.content?.parts || [];
+        let hasContent = false;
+
+        // Loop through the parts. Look ONLY for the image.
+        candidateParts.forEach((part) => {
+          const inlineImg = part.inlineData || part.inline_data;
+          
+          if (inlineImg && inlineImg.data) {
+            hasContent = true;
+            const imgSrc = `data:${inlineImg.mimeType || 'image/jpeg'};base64,${inlineImg.data}`;
+
+            const imgWrapper = document.createElement('div');
+            imgWrapper.className = 'flex flex-col items-center space-y-3 bg-slate-900 border border-slate-700 p-4 rounded-xl mt-4';
+            imgWrapper.innerHTML = `
+              <img src="${imgSrc}" class="rounded-lg max-h-[500px] w-auto border border-slate-700 object-contain shadow-lg" />
+              <a href="${imgSrc}" download="restored-image.jpg" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shadow">
+                Download Result
+              </a>
+            `;
+            responseContainer.innerHTML = ''; 
+            responseContainer.appendChild(imgWrapper);
+          }
+        });
+
+        if (!hasContent) {
+          throw new Error("The API responded successfully, but no image data was found in the payload.");
+        }
+
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          errorMessage.textContent = 'Error: The request timed out after 2.5 minutes. The Google API is likely congested.';
+        } else {
+          errorMessage.textContent = `Error: ${err.message}`;
+        }
+        errorMessage.classList.remove('hidden');
+      } finally {
+        clearInterval(timerInterval); 
+        submitBtn.disabled = false;
+        btnText.textContent = 'Execute Inpainting';
+        spinner.classList.add('hidden');
+      }
+    });
+  </script>
 </body>
 </html>
