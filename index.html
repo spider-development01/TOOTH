@@ -23,24 +23,55 @@
     #baseCanvas, #maskCanvas { display: block; max-width: 100%; height: auto; touch-action: none; }
     #maskCanvas { position: absolute; top: 0; left: 0; cursor: crosshair; opacity: 0.55; }
     
-    /* Comparison Slider */
-    .img-comp-container { position: relative; height: 60vh; width: 100%; border-radius: 16px; overflow: hidden; background: #111; }
-    .img-comp-img { position: absolute; width: auto; height: 100%; overflow: hidden; }
-    .img-comp-img img { display: block; height: 100%; object-fit: contain; width: 100vw; }
-    .img-comp-slider {
-      position: absolute; z-index: 9; cursor: ew-resize; width: 4px; height: 100%; background-color: white; opacity: 0.95;
-      display: flex; align-items: center; justify-content: center;
+    /* W3Schools Comparison Slider Adapted for Mobile */
+    .img-comp-container { 
+      position: relative; 
+      margin: 0 auto; 
+      overflow: hidden; 
+      border-radius: 16px; 
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      background: #111;
     }
-    .slider-handle {
-      width: 36px; height: 36px; background-color: white; border-radius: 50%;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center;
+    .img-comp-img { 
+      position: absolute; 
+      width: auto; 
+      height: auto; 
+      overflow: hidden; 
+    }
+    .img-comp-img img { 
+      display: block; 
+      vertical-align: middle; 
+      max-width: none !important; /* Crucial: Prevents image from squishing when wrapper shrinks */
+    }
+    .img-comp-slider {
+      position: absolute;
+      z-index: 9;
+      cursor: ew-resize;
+      width: 38px;
+      height: 38px;
+      background-color: white;
+      border-radius: 50%;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    /* Creates the vertical line behind the circular handle */
+    .img-comp-slider::before {
+      content: '';
+      position: absolute;
+      top: -1000px;
+      bottom: -1000px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      background-color: white;
+      z-index: -1;
     }
     
     /* Animations */
     .fade-in { animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-    .fade-out { animation: fadeOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes fadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(10px); } }
 
     /* Custom Range Slider */
     input[type=range] { -webkit-appearance: none; background: transparent; }
@@ -86,13 +117,11 @@
     <div class="flex-1 flex flex-col items-center justify-start p-4 overflow-y-auto space-y-6">
       <p class="text-xs text-gray-400 uppercase tracking-wider text-center">Draw over the area to repair</p>
       
-      <!-- Canvas Wrapper -->
       <div id="canvasContainer" class="shadow-2xl">
         <canvas id="baseCanvas"></canvas>
         <canvas id="maskCanvas"></canvas>
       </div>
 
-      <!-- Controls -->
       <div class="w-full max-w-md space-y-4 bg-gray-900 p-4 rounded-2xl border border-gray-800">
         <div class="flex items-center space-x-4">
           <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
@@ -121,10 +150,17 @@
       <button id="saveToLibraryBtn" class="text-yellow-400 font-bold text-lg active:opacity-50">Save</button>
     </div>
     <div class="flex-1 flex items-center justify-center p-4">
-      <div class="img-comp-container w-full shadow-2xl border border-gray-800" id="compareContainer">
-        <div class="img-comp-img"><img id="imgOriginal" src="" alt="Original"></div>
-        <div class="img-comp-img img-comp-overlay"><img id="imgGenerated" src="" alt="Generated"></div>
+      
+      <!-- W3Schools Compliant Container -->
+      <div class="img-comp-container" id="compareContainer">
+        <div class="img-comp-img">
+          <img id="imgOriginal" src="">
+        </div>
+        <div class="img-comp-img img-comp-overlay">
+          <img id="imgGenerated" src="">
+        </div>
       </div>
+
     </div>
     <p class="text-center text-xs text-gray-500 pb-10 uppercase tracking-widest font-medium">Slide to compare</p>
   </div>
@@ -144,9 +180,6 @@
     </div>
   </div>
 
-  <!-- Toast Notification -->
-  <div id="toast" class="fixed top-10 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-6 py-3 rounded-full shadow-2xl text-sm font-medium transition-opacity duration-300 opacity-0 pointer-events-none z-[100]"></div>
-
   <script>
     // --- SUPABASE CONFIGURATION ---
     const SUPABASE_URL = 'https://lqfzvedrpzihdtmwcdyk.supabase.co';
@@ -157,7 +190,7 @@
     let videoStream = null;
     let currentFacingMode = 'environment';
     let isDrawing = false;
-    let currentOriginalDataUrl = null; // Stored for slider and upload
+    let currentOriginalDataUrl = null; 
 
     const cameraFeed = document.getElementById('cameraFeed');
     const captureCanvas = document.getElementById('captureCanvas');
@@ -168,14 +201,6 @@
     
     const [cameraView, editorView, processingView, comparisonView, libraryView] = 
       ['cameraView', 'editorView', 'processingView', 'comparisonView', 'libraryView'].map(id => document.getElementById(id));
-
-    // --- TOAST NOTIFICATION ---
-    function showToast(msg) {
-      const toast = document.getElementById('toast');
-      toast.textContent = msg;
-      toast.style.opacity = '1';
-      setTimeout(() => { toast.style.opacity = '0'; }, 4000);
-    }
 
     // --- CAMERA INIT ---
     async function initCamera() {
@@ -195,7 +220,7 @@
       initCamera();
     });
 
-    // --- IMAGE CAPTURE & PREPARATION (512px) ---
+    // --- IMAGE CAPTURE & PREPARATION (Strict 512px) ---
     function prepareEditor(source, originalWidth, originalHeight) {
       const MAX_SIZE = 512;
       let width = originalWidth;
@@ -204,22 +229,17 @@
       if (width > height) { if (width > MAX_SIZE) { height = Math.round(height * (MAX_SIZE / width)); width = MAX_SIZE; } } 
       else { if (height > MAX_SIZE) { width = Math.round(width * (MAX_SIZE / height)); height = MAX_SIZE; } }
 
-      // Set canvas sizes
       baseCanvas.width = width; baseCanvas.height = height;
       maskCanvas.width = width; maskCanvas.height = height;
 
-      // Draw original image
       baseCtx.drawImage(source, 0, 0, width, height);
       currentOriginalDataUrl = baseCanvas.toDataURL('image/jpeg', 0.8);
       
       clearMask();
-      
-      // Transition to Editor
       editorView.classList.remove('hidden');
       editorView.classList.add('fade-in');
     }
 
-    // Triggers
     document.getElementById('captureBtn').addEventListener('click', () => {
       const tempCanvas = document.createElement('canvas');
       tempCanvas.width = cameraFeed.videoWidth; tempCanvas.height = cameraFeed.videoHeight;
@@ -278,7 +298,6 @@
       maskCtx.moveTo(pos.x, pos.y);
     }
 
-    // Attach precise events
     maskCanvas.addEventListener('mousedown', startDrawing);
     maskCanvas.addEventListener('mousemove', draw);
     maskCanvas.addEventListener('mouseup', stopDrawing);
@@ -292,6 +311,7 @@
       const prompt = document.getElementById('promptInput').value.trim();
       const base64Image = baseCanvas.toDataURL('image/jpeg', 0.8).split(',')[1];
       const base64Mask = maskCanvas.toDataURL('image/jpeg', 1.0).split(',')[1];
+      const submitBtn = document.getElementById('submitBtn');
 
       processingView.classList.remove('hidden');
       processingView.classList.add('fade-in');
@@ -327,17 +347,54 @@
 
         if (!generatedImgSrc) throw new Error("No image data returned from AI.");
 
-        // Setup Slider
-        document.getElementById('imgOriginal').src = currentOriginalDataUrl;
-        document.getElementById('imgGenerated').src = generatedImgSrc;
-        
-        editorView.classList.add('hidden');
-        comparisonView.classList.remove('hidden');
-        comparisonView.classList.add('fade-in');
-        initComparisons();
+        // Prepare W3Schools Slider Dimensions dynamically
+        const origImg = document.getElementById('imgOriginal');
+        const genImg = document.getElementById('imgGenerated');
+        const container = document.getElementById('compareContainer');
+
+        genImg.onload = () => {
+          // Calculate max size that fits on screen
+          const screenW = window.innerWidth - 32; // 16px padding on sides
+          const screenH = window.innerHeight * 0.6; // 60vh max height
+          const imgW = genImg.naturalWidth;
+          const imgH = genImg.naturalHeight;
+
+          const scale = Math.min(screenW / imgW, screenH / imgH);
+          const finalW = Math.round(imgW * scale);
+          const finalH = Math.round(imgH * scale);
+
+          // Set container size exactly
+          container.style.width = finalW + "px";
+          container.style.height = finalH + "px";
+
+          // Set image sizes exactly (prevents squishing)
+          origImg.style.width = finalW + "px";
+          origImg.style.height = finalH + "px";
+          genImg.style.width = finalW + "px";
+          genImg.style.height = finalH + "px";
+
+          editorView.classList.add('hidden');
+          comparisonView.classList.remove('hidden');
+          comparisonView.classList.add('fade-in');
+          
+          initComparisons();
+        };
+
+        origImg.src = currentOriginalDataUrl;
+        genImg.src = generatedImgSrc;
 
       } catch (err) {
-        showToast(err.name === 'AbortError' ? 'Request timed out.' : err.message);
+        // SILENT ERROR HANDLING: No overlays or alerts. Just turn button red briefly.
+        const originalText = submitBtn.innerHTML;
+        submitBtn.textContent = "Failed - Try Again";
+        submitBtn.classList.remove('bg-blue-600', 'hover:bg-blue-500');
+        submitBtn.classList.add('bg-red-600');
+        
+        setTimeout(() => {
+          submitBtn.innerHTML = originalText;
+          submitBtn.classList.add('bg-blue-600', 'hover:bg-blue-500');
+          submitBtn.classList.remove('bg-red-600');
+        }, 3000);
       } finally {
         clearInterval(timer);
         processingView.classList.add('hidden');
@@ -345,21 +402,77 @@
       }
     });
 
+    // --- W3SCHOOLS COMPARISON SLIDER LOGIC ---
+    function initComparisons() {
+      var x, i;
+      x = document.getElementsByClassName("img-comp-overlay");
+      for (i = 0; i < x.length; i++) { compareImages(x[i]); }
+      
+      function compareImages(img) {
+        var slider, clicked = 0, w, h;
+        w = img.offsetWidth;
+        h = img.offsetHeight;
+        img.style.width = (w / 2) + "px";
+        
+        // Remove existing slider if regenerating
+        const existing = img.parentElement.querySelector('.img-comp-slider');
+        if(existing) existing.remove();
+
+        slider = document.createElement("DIV");
+        slider.setAttribute("class", "img-comp-slider");
+        slider.innerHTML = `<svg class="w-5 h-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg>`;
+        
+        img.parentElement.insertBefore(slider, img);
+        slider.style.top = (h / 2) - (slider.offsetHeight / 2) + "px";
+        slider.style.left = (w / 2) - (slider.offsetWidth / 2) + "px";
+        
+        slider.addEventListener("mousedown", slideReady);
+        window.addEventListener("mouseup", slideFinish);
+        slider.addEventListener("touchstart", slideReady, {passive: false});
+        window.addEventListener("touchend", slideFinish);
+        
+        function slideReady(e) {
+          e.preventDefault();
+          clicked = 1;
+          window.addEventListener("mousemove", slideMove);
+          window.addEventListener("touchmove", slideMove, {passive: false});
+        }
+        function slideFinish() { clicked = 0; }
+        function slideMove(e) {
+          var pos;
+          if (clicked == 0) return false;
+          pos = getCursorPos(e)
+          if (pos < 0) pos = 0;
+          if (pos > w) pos = w;
+          slide(pos);
+        }
+        function getCursorPos(e) {
+          var a, x = 0;
+          e = (e.changedTouches) ? e.changedTouches[0] : e;
+          a = img.getBoundingClientRect();
+          x = e.pageX - a.left;
+          x = x - window.pageXOffset;
+          return x;
+        }
+        function slide(x) {
+          img.style.width = x + "px";
+          slider.style.left = img.offsetWidth - (slider.offsetWidth / 2) + "px";
+        }
+      }
+    }
+
     // --- SAVE TO SUPABASE ---
     document.getElementById('saveToLibraryBtn').addEventListener('click', async () => {
       const btn = document.getElementById('saveToLibraryBtn');
       btn.textContent = "Saving...";
-      
       try {
         const timestamp = Date.now();
         const origPath = `original_${timestamp}.jpg`;
         const genPath = `generated_${timestamp}.jpg`;
 
-        // Convert DataURLs to Blobs
         const origBlob = await (await fetch(currentOriginalDataUrl)).blob();
         const genBlob = await (await fetch(document.getElementById('imgGenerated').src)).blob();
 
-        // Parallel Upload
         await Promise.all([
           supabaseClient.storage.from('photos').upload(origPath, origBlob, { contentType: 'image/jpeg' }),
           supabaseClient.storage.from('photos').upload(genPath, genBlob, { contentType: 'image/jpeg' })
@@ -407,48 +520,6 @@
           return `<div class="aspect-square bg-gray-900 relative"><img src="${publicUrl}" class="w-full h-full object-cover" loading="lazy" /></div>`;
         }).join('');
       }
-    }
-
-    // --- COMPARISON SLIDER ---
-    function initComparisons() {
-      const overlays = document.getElementsByClassName("img-comp-overlay");
-      for (let i = 0; i < overlays.length; i++) compareImages(overlays[i]);
-    }
-
-    function compareImages(img) {
-      let slider, clicked = 0, w = img.offsetWidth, h = img.offsetHeight;
-      img.style.width = (w / 2) + "px";
-      
-      const existingSlider = img.parentElement.querySelector('.img-comp-slider');
-      if(existingSlider) existingSlider.remove();
-
-      slider = document.createElement("DIV");
-      slider.setAttribute("class", "img-comp-slider");
-      slider.innerHTML = `<div class="slider-handle"><svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg></div>`;
-      
-      img.parentElement.insertBefore(slider, img);
-      slider.style.top = (h / 2) - (slider.offsetHeight / 2) + "px";
-      slider.style.left = (w / 2) - (slider.offsetWidth / 2) + "px";
-
-      const slideReady = (e) => { e.preventDefault(); clicked = 1; window.addEventListener("mousemove", slideMove); window.addEventListener("touchmove", slideMove, {passive: false}); };
-      const slideFinish = () => { clicked = 0; };
-      const slideMove = (e) => {
-        if (clicked == 0) return false;
-        let pos = getCursorPos(e);
-        if (pos < 0) pos = 0; if (pos > w) pos = w;
-        img.style.width = pos + "px";
-        slider.style.left = img.offsetWidth - (slider.offsetWidth / 2) + "px";
-      };
-      const getCursorPos = (e) => {
-        e = (e.changedTouches) ? e.changedTouches[0] : e;
-        let a = img.getBoundingClientRect();
-        return e.pageX - a.left - window.pageXOffset;
-      };
-
-      slider.addEventListener("mousedown", slideReady);
-      window.addEventListener("mouseup", slideFinish);
-      slider.addEventListener("touchstart", slideReady, {passive: false});
-      window.addEventListener("touchend", slideFinish);
     }
 
     window.onload = initCamera;
