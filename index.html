@@ -23,50 +23,16 @@
     #baseCanvas, #maskCanvas { display: block; max-width: 100%; height: auto; touch-action: none; }
     #maskCanvas { position: absolute; top: 0; left: 0; cursor: crosshair; opacity: 0.55; }
     
-    /* W3Schools Comparison Slider Adapted for Mobile */
-    .img-comp-container { 
-      position: relative; 
-      margin: 0 auto; 
-      overflow: hidden; 
-      border-radius: 16px; 
-      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-      background: #111;
-    }
-    .img-comp-img { 
-      position: absolute; 
-      width: auto; 
-      height: auto; 
-      overflow: hidden; 
-    }
-    .img-comp-img img { 
-      display: block; 
-      vertical-align: middle; 
-      max-width: none !important; /* Crucial: Prevents image from squishing when wrapper shrinks */
-    }
+    /* W3Schools Comparison Slider */
+    .img-comp-container { position: relative; margin: 0 auto; overflow: hidden; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); background: #111; }
+    .img-comp-img { position: absolute; width: auto; height: auto; overflow: hidden; }
+    .img-comp-img img { display: block; vertical-align: middle; max-width: none !important; }
     .img-comp-slider {
-      position: absolute;
-      z-index: 9;
-      cursor: ew-resize;
-      width: 38px;
-      height: 38px;
-      background-color: white;
-      border-radius: 50%;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      position: absolute; z-index: 9; cursor: ew-resize; width: 38px; height: 38px; background-color: white;
+      border-radius: 50%; box-shadow: 0 2px 10px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;
     }
-    /* Creates the vertical line behind the circular handle */
     .img-comp-slider::before {
-      content: '';
-      position: absolute;
-      top: -1000px;
-      bottom: -1000px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 4px;
-      background-color: white;
-      z-index: -1;
+      content: ''; position: absolute; top: -1000px; bottom: -1000px; left: 50%; transform: translateX(-50%); width: 4px; background-color: white; z-index: -1;
     }
     
     /* Animations */
@@ -127,9 +93,14 @@
           <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
           <input type="range" id="brushSize" min="5" max="50" value="20" class="flex-1" />
         </div>
-        <textarea id="promptInput" rows="2" class="w-full bg-black border border-gray-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-blue-500 transition resize-none" placeholder="Enter repair instructions...">Repair the masked teeth to look like healthy, real working teeth. Fix rotten or broken areas naturally.</textarea>
         
-        <button id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition active:scale-95">
+        <!-- PROMPT PRESETS -->
+        <div class="flex space-x-3 w-full pt-2">
+          <button id="presetImplants" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold border-2 border-blue-400 transition active:scale-95">🦷 Implants</button>
+          <button id="presetBraces" class="flex-1 bg-gray-800 text-gray-300 py-3 rounded-xl font-bold border-2 border-transparent transition active:scale-95">🪥 Braces</button>
+        </div>
+        
+        <button id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition active:scale-95 mt-2">
           Generate Magic
         </button>
       </div>
@@ -145,22 +116,29 @@
   <!-- VIEW 4: Comparison Slider -->
   <div id="comparisonView" class="hidden absolute inset-0 bg-black z-30 flex flex-col">
     <div class="h-20 flex items-end justify-between px-5 pb-3">
-      <button id="closeComparisonBtn" class="text-white text-lg active:opacity-50">Retake</button>
+      <button id="closeComparisonBtn" class="text-white text-lg active:opacity-50">Back</button>
       <span class="text-sm font-semibold tracking-widest uppercase text-gray-300">Result</span>
-      <button id="saveToLibraryBtn" class="text-yellow-400 font-bold text-lg active:opacity-50">Save</button>
-    </div>
-    <div class="flex-1 flex items-center justify-center p-4">
       
-      <!-- W3Schools Compliant Container -->
-      <div class="img-comp-container" id="compareContainer">
-        <div class="img-comp-img">
-          <img id="imgOriginal" src="">
-        </div>
-        <div class="img-comp-img img-comp-overlay">
-          <img id="imgGenerated" src="">
-        </div>
+      <!-- Contextual Action Buttons -->
+      <div class="flex items-center space-x-4">
+        <!-- Delete Button (Only in Gallery Mode) -->
+        <button id="deleteBtn" class="hidden text-red-500 active:opacity-50 p-1">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+        </button>
+        <!-- Download Button (Only in Gallery Mode) -->
+        <button id="downloadBtn" class="hidden text-blue-400 active:opacity-50 p-1">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+        </button>
+        <!-- Save Button (Only in New Generation Mode) -->
+        <button id="saveToLibraryBtn" class="text-yellow-400 font-bold text-lg active:opacity-50">Save</button>
       </div>
-
+    </div>
+    
+    <div class="flex-1 flex items-center justify-center p-4">
+      <div class="img-comp-container" id="compareContainer">
+        <div class="img-comp-img"><img id="imgOriginal" src=""></div>
+        <div class="img-comp-img img-comp-overlay"><img id="imgGenerated" src=""></div>
+      </div>
     </div>
     <p class="text-center text-xs text-gray-500 pb-10 uppercase tracking-widest font-medium">Slide to compare</p>
   </div>
@@ -191,6 +169,19 @@
     let currentFacingMode = 'environment';
     let isDrawing = false;
     let currentOriginalDataUrl = null; 
+    
+    // Prompt State
+    let activePromptType = 'implants'; 
+    const PROMPTS = {
+      implants: "Repair the masked teeth to look like healthy, real working teeth. Fix rotten or broken areas naturally. CRITICAL: Generate a low resolution 512px image focusing purely on realistic textures to save compute.",
+      braces: "Add realistic, high-quality dental braces to the masked teeth. Ensure brackets and wires look natural and anatomically correct. CRITICAL: Generate a low resolution 512px image focusing purely on realistic textures to save compute."
+    };
+
+    // Gallery Viewing State
+    let isViewingGalleryItem = false;
+    let currentActiveDocId = null;
+    let currentActiveOrigPath = null;
+    let currentActiveGenPath = null;
 
     const cameraFeed = document.getElementById('cameraFeed');
     const captureCanvas = document.getElementById('captureCanvas');
@@ -218,6 +209,22 @@
     document.getElementById('switchCameraBtn').addEventListener('click', () => {
       currentFacingMode = currentFacingMode === 'environment' ? 'user' : 'environment';
       initCamera();
+    });
+
+    // --- PROMPT TOGGLES ---
+    const btnImplants = document.getElementById('presetImplants');
+    const btnBraces = document.getElementById('presetBraces');
+
+    btnImplants.addEventListener('click', () => {
+      activePromptType = 'implants';
+      btnImplants.className = "flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold border-2 border-blue-400 transition active:scale-95";
+      btnBraces.className = "flex-1 bg-gray-800 text-gray-300 py-3 rounded-xl font-bold border-2 border-transparent transition active:scale-95";
+    });
+
+    btnBraces.addEventListener('click', () => {
+      activePromptType = 'braces';
+      btnBraces.className = "flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold border-2 border-blue-400 transition active:scale-95";
+      btnImplants.className = "flex-1 bg-gray-800 text-gray-300 py-3 rounded-xl font-bold border-2 border-transparent transition active:scale-95";
     });
 
     // --- IMAGE CAPTURE & PREPARATION (Strict 512px) ---
@@ -308,7 +315,7 @@
 
     // --- GENERATION (NETLIFY API) ---
     document.getElementById('submitBtn').addEventListener('click', async () => {
-      const prompt = document.getElementById('promptInput').value.trim();
+      const promptToUse = PROMPTS[activePromptType];
       const base64Image = baseCanvas.toDataURL('image/jpeg', 0.8).split(',')[1];
       const base64Mask = maskCanvas.toDataURL('image/jpeg', 1.0).split(',')[1];
       const submitBtn = document.getElementById('submitBtn');
@@ -321,13 +328,13 @@
       const timer = setInterval(() => { seconds++; timerText.textContent = `Enhancing... ${seconds}s`; }, 1000);
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 150000); // 2.5 min timeout
+      const timeoutId = setTimeout(() => controller.abort(), 150000); 
 
       try {
         const response = await fetch('/.netlify/functions/inpaint', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt, image: base64Image, mask: base64Mask, model: 'gemini-3.1-flash-image' }),
+          body: JSON.stringify({ prompt: promptToUse, image: base64Image, mask: base64Mask, model: 'gemini-3.1-flash-image' }),
           signal: controller.signal
         });
 
@@ -347,49 +354,21 @@
 
         if (!generatedImgSrc) throw new Error("No image data returned from AI.");
 
-        // Prepare W3Schools Slider Dimensions dynamically
-        const origImg = document.getElementById('imgOriginal');
-        const genImg = document.getElementById('imgGenerated');
-        const container = document.getElementById('compareContainer');
+        // Setup UI for New Generation
+        isViewingGalleryItem = false;
+        document.getElementById('saveToLibraryBtn').classList.remove('hidden');
+        document.getElementById('deleteBtn').classList.add('hidden');
+        document.getElementById('downloadBtn').classList.add('hidden');
+        document.getElementById('closeComparisonBtn').textContent = "Retake";
 
-        genImg.onload = () => {
-          // Calculate max size that fits on screen
-          const screenW = window.innerWidth - 32; // 16px padding on sides
-          const screenH = window.innerHeight * 0.6; // 60vh max height
-          const imgW = genImg.naturalWidth;
-          const imgH = genImg.naturalHeight;
-
-          const scale = Math.min(screenW / imgW, screenH / imgH);
-          const finalW = Math.round(imgW * scale);
-          const finalH = Math.round(imgH * scale);
-
-          // Set container size exactly
-          container.style.width = finalW + "px";
-          container.style.height = finalH + "px";
-
-          // Set image sizes exactly (prevents squishing)
-          origImg.style.width = finalW + "px";
-          origImg.style.height = finalH + "px";
-          genImg.style.width = finalW + "px";
-          genImg.style.height = finalH + "px";
-
-          editorView.classList.add('hidden');
-          comparisonView.classList.remove('hidden');
-          comparisonView.classList.add('fade-in');
-          
-          initComparisons();
-        };
-
-        origImg.src = currentOriginalDataUrl;
-        genImg.src = generatedImgSrc;
+        setupSliderDimensions(currentOriginalDataUrl, generatedImgSrc);
 
       } catch (err) {
-        // SILENT ERROR HANDLING: No overlays or alerts. Just turn button red briefly.
+        // Silent Failure UI
         const originalText = submitBtn.innerHTML;
         submitBtn.textContent = "Failed - Try Again";
         submitBtn.classList.remove('bg-blue-600', 'hover:bg-blue-500');
         submitBtn.classList.add('bg-red-600');
-        
         setTimeout(() => {
           submitBtn.innerHTML = originalText;
           submitBtn.classList.add('bg-blue-600', 'hover:bg-blue-500');
@@ -401,6 +380,41 @@
         processingView.classList.remove('fade-in');
       }
     });
+
+    // --- SLIDER DIMENSION CALCULATOR ---
+    function setupSliderDimensions(origSrc, genSrc) {
+      const origImg = document.getElementById('imgOriginal');
+      const genImg = document.getElementById('imgGenerated');
+      const container = document.getElementById('compareContainer');
+
+      genImg.onload = () => {
+        const screenW = window.innerWidth - 32; 
+        const screenH = window.innerHeight * 0.6; 
+        const imgW = genImg.naturalWidth;
+        const imgH = genImg.naturalHeight;
+
+        const scale = Math.min(screenW / imgW, screenH / imgH);
+        const finalW = Math.round(imgW * scale);
+        const finalH = Math.round(imgH * scale);
+
+        container.style.width = finalW + "px";
+        container.style.height = finalH + "px";
+        origImg.style.width = finalW + "px";
+        origImg.style.height = finalH + "px";
+        genImg.style.width = finalW + "px";
+        genImg.style.height = finalH + "px";
+
+        editorView.classList.add('hidden');
+        libraryView.classList.add('hidden');
+        comparisonView.classList.remove('hidden');
+        comparisonView.classList.add('fade-in');
+        
+        initComparisons();
+      };
+      
+      origImg.src = origSrc;
+      genImg.src = genSrc;
+    }
 
     // --- W3SCHOOLS COMPARISON SLIDER LOGIC ---
     function initComparisons() {
@@ -414,7 +428,6 @@
         h = img.offsetHeight;
         img.style.width = (w / 2) + "px";
         
-        // Remove existing slider if regenerating
         const existing = img.parentElement.querySelector('.img-comp-slider');
         if(existing) existing.remove();
 
@@ -461,7 +474,7 @@
       }
     }
 
-    // --- SAVE TO SUPABASE ---
+    // --- SAVE / DELETE / DOWNLOAD / CLOSE ---
     document.getElementById('saveToLibraryBtn').addEventListener('click', async () => {
       const btn = document.getElementById('saveToLibraryBtn');
       btn.textContent = "Saving...";
@@ -489,8 +502,38 @@
       }
     });
 
+    document.getElementById('deleteBtn').addEventListener('click', async () => {
+      if(!confirm("Delete this image forever?")) return;
+      
+      try {
+        // Delete from Database
+        await supabaseClient.from('gallery').delete().eq('id', currentActiveDocId);
+        // Delete from Storage
+        await supabaseClient.storage.from('photos').remove([currentActiveOrigPath, currentActiveGenPath]);
+        
+        comparisonView.classList.add('hidden');
+        libraryView.classList.remove('hidden');
+        loadGallery();
+        loadGalleryThumbnail();
+      } catch (err) {
+        console.error("Failed to delete", err);
+      }
+    });
+
+    document.getElementById('downloadBtn').addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.href = document.getElementById('imgGenerated').src;
+      link.download = `restored_${Date.now()}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+
     document.getElementById('closeComparisonBtn').addEventListener('click', () => {
       comparisonView.classList.add('hidden');
+      if(isViewingGalleryItem) {
+        libraryView.classList.remove('hidden');
+      }
     });
 
     // --- LIBRARY & GALLERY ---
@@ -507,18 +550,44 @@
         const { data: { publicUrl } } = supabaseClient.storage.from('photos').getPublicUrl(data[0].generated_image_path);
         const btn = document.getElementById('openLibraryBtn');
         btn.style.backgroundImage = `url('${publicUrl}')`;
+      } else {
+        document.getElementById('openLibraryBtn').style.backgroundImage = 'none';
       }
     }
 
     async function loadGallery() {
       const grid = document.getElementById('galleryGrid');
       grid.innerHTML = Array(12).fill(`<div class="aspect-square bg-gray-900 animate-pulse"></div>`).join('');
+      
       const { data: docs, error } = await supabaseClient.from('gallery').select('*').order('created_at', { ascending: false });
+      
       if (!error && docs) {
-        grid.innerHTML = docs.map(doc => {
-          const { data: { publicUrl } } = supabaseClient.storage.from('photos').getPublicUrl(doc.generated_image_path);
-          return `<div class="aspect-square bg-gray-900 relative"><img src="${publicUrl}" class="w-full h-full object-cover" loading="lazy" /></div>`;
-        }).join('');
+        grid.innerHTML = '';
+        docs.forEach(doc => {
+          const genUrl = supabaseClient.storage.from('photos').getPublicUrl(doc.generated_image_path).data.publicUrl;
+          const origUrl = supabaseClient.storage.from('photos').getPublicUrl(doc.original_image_path).data.publicUrl;
+          
+          const div = document.createElement('div');
+          div.className = "aspect-square bg-gray-900 relative cursor-pointer active:opacity-50 transition-opacity";
+          div.innerHTML = `<img src="${genUrl}" class="w-full h-full object-cover" loading="lazy" />`;
+          
+          // Click to view comparison
+          div.onclick = () => {
+            isViewingGalleryItem = true;
+            currentActiveDocId = doc.id;
+            currentActiveOrigPath = doc.original_image_path;
+            currentActiveGenPath = doc.generated_image_path;
+            
+            document.getElementById('saveToLibraryBtn').classList.add('hidden');
+            document.getElementById('deleteBtn').classList.remove('hidden');
+            document.getElementById('downloadBtn').classList.remove('hidden');
+            document.getElementById('closeComparisonBtn').textContent = "Back";
+
+            setupSliderDimensions(origUrl, genUrl);
+          };
+          
+          grid.appendChild(div);
+        });
       }
     }
 
