@@ -2,307 +2,336 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Code in Black - Image Generation & Inpainting</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Code in Black Camera</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Supabase Web SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    #canvasContainer {
-      position: relative;
-      display: inline-block;
-      max-width: 100%;
+    /* Prevent pull-to-refresh on mobile */
+    body { overscroll-behavior-y: contain; background-color: #000; color: #fff; touch-action: manipulation; }
+    
+    /* Camera UI Elements */
+    .shutter-btn {
+      width: 72px; height: 72px; border-radius: 50%; background-color: white;
+      border: 4px solid #000; outline: 3px solid white; transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    #baseCanvas, #maskCanvas {
-      border-radius: 0.5rem;
-      max-width: 100%;
-      height: auto;
-      display: block;
+    .shutter-btn:active { transform: scale(0.85); }
+    
+    /* Comparison Slider */
+    .img-comp-container { position: relative; height: 60vh; width: 100%; border-radius: 12px; overflow: hidden; }
+    .img-comp-img { position: absolute; width: auto; height: 100%; overflow: hidden; }
+    .img-comp-img img { display: block; height: 100%; object-fit: cover; width: 100vw; }
+    .img-comp-slider {
+      position: absolute; z-index: 9; cursor: ew-resize;
+      width: 4px; height: 100%; background-color: white; opacity: 0.9;
+      display: flex; align-items: center; justify-content: center;
     }
-    #maskCanvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      cursor: crosshair;
-      opacity: 0.6; 
+    .slider-handle {
+      width: 32px; height: 32px; background-color: white; border-radius: 50%;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;
     }
+    
+    /* Animations */
+    .fade-in { animation: fadeIn 0.25s ease-out forwards; }
+    .fade-out { animation: fadeOut 0.25s ease-in forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+    @keyframes fadeOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.98); } }
+
+    /* Skeletal Loader */
+    .skeleton { background: linear-gradient(90deg, #1f2937 25%, #374151 50%, #1f2937 75%); background-size: 200% 100%; animation: loading 1.5s infinite; }
+    @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
   </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen py-8 px-4 sm:px-6 lg:px-8 font-sans">
-  <div class="max-w-4xl mx-auto space-y-6">
+<body class="h-screen w-screen overflow-hidden flex flex-col font-sans antialiased selection:bg-transparent">
 
-    <header class="text-center space-y-2">
-      <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">
-        Inpainting & Image Editor
-      </h1>
-      <p class="text-slate-400 text-sm">
-        Fast, canvas-optimized edits with mask drawing.
-      </p>
-    </header>
-
-    <!-- Configuration Card -->
-    <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-lg space-y-4">
-      <h2 class="text-lg font-semibold text-slate-200 border-b border-slate-700 pb-2">1. Settings</h2>
-      <div class="space-y-1">
-        <label for="modelSelect" class="block text-xs font-medium text-slate-300">Target Model</label>
-        <input type="text" id="modelSelect" value="gemini-3.1-flash-image" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition" />
-      </div>
+  <!-- VIEW 1: Camera Interface -->
+  <div id="cameraView" class="absolute inset-0 flex flex-col justify-between z-10">
+    <div class="h-20 bg-black flex justify-center items-end pb-2">
+      <span class="text-xs font-semibold tracking-wider text-yellow-400">PHOTO</span>
+    </div>
+    
+    <div class="relative flex-1 bg-black flex items-center justify-center overflow-hidden">
+      <video id="cameraFeed" class="absolute w-full h-full object-cover" autoplay playsinline></video>
+      <canvas id="captureCanvas" class="hidden"></canvas>
     </div>
 
-    <!-- Input Form Card -->
-    <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-lg space-y-4">
-      <h2 class="text-lg font-semibold text-slate-200 border-b border-slate-700 pb-2">2. Image & Masking</h2>
-
-      <div class="space-y-2">
-        <label class="block text-xs font-medium text-slate-300">Upload Image (Automatically scaled to 512px for high-speed processing)</label>
-        <input type="file" id="imageInput" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 transition cursor-pointer bg-slate-900 border border-slate-700 rounded-lg" />
-        
-        <div id="workspace" class="hidden flex flex-col items-center space-y-4 pt-4 border-t border-slate-700 mt-4">
-          <div class="w-full flex justify-between items-center bg-slate-900 p-3 rounded-lg border border-slate-700">
-            <div class="flex items-center space-x-3">
-              <label for="brushSize" class="text-xs text-slate-300">Brush Size:</label>
-              <input type="range" id="brushSize" min="5" max="50" value="20" class="w-24 accent-indigo-500" />
-            </div>
-            <button id="clearMaskBtn" class="bg-slate-700 hover:bg-slate-600 text-white text-xs px-3 py-1.5 rounded transition">
-              Clear Mask
-            </button>
-          </div>
-
-          <p class="text-xs text-indigo-300 w-full text-center">Draw over the area you want to fix.</p>
-
-          <div id="canvasContainer">
-            <canvas id="baseCanvas"></canvas>
-            <canvas id="maskCanvas"></canvas>
-          </div>
-        </div>
-      </div>
-
-      <div class="space-y-1">
-        <label for="promptInput" class="block text-xs font-medium text-slate-300">Repair Instructions</label>
-        <textarea 
-          id="promptInput" 
-          rows="3" 
-          class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition resize-y"
-        >Repair the masked teeth to look like healthy, real working teeth. Fix rotten or broken areas and root canals naturally. Strictly maintain realistic enamel textures, slight natural imperfections, and original tooth anatomy. Do not make them look like perfect plastic.</textarea>
-      </div>
-
-      <button id="submitBtn" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-medium py-2.5 px-4 rounded-lg shadow-md transition duration-150 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed">
-        <span id="btnText">Execute Inpainting</span>
-        <svg id="spinner" class="animate-spin h-5 w-5 text-white hidden" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
+    <div class="h-32 bg-black bg-opacity-95 flex items-center justify-around px-6 pb-4">
+      <button id="openLibraryBtn" class="w-14 h-14 rounded-lg overflow-hidden bg-gray-800 skeleton shadow-lg border border-gray-700"></button>
+      <button id="captureBtn" class="shutter-btn shadow-xl"></button>
+      <button id="switchCameraBtn" class="w-14 h-14 flex items-center justify-center bg-gray-800 bg-opacity-60 rounded-full backdrop-blur-md">
+        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
       </button>
     </div>
+  </div>
 
-    <!-- Output Response Card -->
-    <div id="outputCard" class="bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-lg space-y-3 hidden">
-      <h2 class="text-lg font-semibold text-slate-200 border-b border-slate-700 pb-2">Restoration Result</h2>
-      <div id="errorMessage" class="bg-red-900/40 border border-red-700 text-red-300 p-3 rounded-lg text-sm hidden"></div>
-      <div id="responseContainer" class="space-y-4"></div>
+  <!-- VIEW 2: Processing Overlay -->
+  <div id="processingView" class="hidden absolute inset-0 bg-black bg-opacity-80 backdrop-blur-lg z-30 flex flex-col items-center justify-center space-y-4">
+    <div class="w-12 h-12 border-4 border-gray-600 border-t-white rounded-full animate-spin"></div>
+    <p id="timerText" class="text-lg font-medium text-white tracking-wide">Enhancing... 0s</p>
+  </div>
+
+  <!-- VIEW 3: Comparison Slider -->
+  <div id="comparisonView" class="hidden absolute inset-0 bg-black z-20 flex flex-col">
+    <div class="h-16 flex items-center justify-between px-4 mt-safe">
+      <button id="closeComparisonBtn" class="text-white text-lg">Retake</button>
+      <span class="text-sm font-semibold tracking-widest uppercase">Result</span>
+      <button id="saveToLibraryBtn" class="text-yellow-400 font-bold text-lg">Save</button>
+    </div>
+    <div class="flex-1 flex items-center justify-center p-4">
+      <div class="img-comp-container w-full shadow-2xl" id="compareContainer">
+        <div class="img-comp-img"><img id="imgOriginal" src="" alt="Original"></div>
+        <div class="img-comp-img img-comp-overlay"><img id="imgGenerated" src="" alt="Generated"></div>
+      </div>
+    </div>
+    <p class="text-center text-xs text-gray-400 pb-8 uppercase tracking-widest">Slide to compare</p>
+  </div>
+
+  <!-- VIEW 4: Library Gallery -->
+  <div id="libraryView" class="hidden absolute inset-0 bg-black z-40 flex flex-col">
+    <div class="h-16 flex items-center justify-between px-4 border-b border-gray-900 bg-gray-950 mt-safe">
+      <button id="closeLibraryBtn" class="text-blue-400 flex items-center space-x-1 text-lg">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        <span>Camera</span>
+      </button>
+      <span class="text-sm font-semibold tracking-widest uppercase">Gallery</span>
+      <div class="w-20"></div>
+    </div>
+    <div class="flex-1 overflow-y-auto p-1 bg-black">
+      <div id="galleryGrid" class="grid grid-cols-3 gap-1">
+        <!-- Gallery Items Injected Here -->
+      </div>
     </div>
   </div>
 
   <script>
-    const imageInput = document.getElementById('imageInput');
-    const workspace = document.getElementById('workspace');
-    const baseCanvas = document.getElementById('baseCanvas');
-    const maskCanvas = document.getElementById('maskCanvas');
-    const brushSizeInput = document.getElementById('brushSize');
-    const clearMaskBtn = document.getElementById('clearMaskBtn');
-    
-    const baseCtx = baseCanvas.getContext('2d');
-    const maskCtx = maskCanvas.getContext('2d');
+    // --- SUPABASE CONFIGURATION ---
+    const SUPABASE_URL = 'https://lqfzvedrpzihdtmwcdyk.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxZnp2ZWRycHppaGR0bXdjZHlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2MjE2MjUsImV4cCI6MjEwMjE5NzYyNX0.ZXf3hYfr-qWiUxVhbQA9_VymeoTEoGLHoS8ou8xzCOQ';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    let isDrawing = false;
-    let hasImage = false;
+    // --- STATE ---
+    let currentFacingMode = 'environment';
+    let videoStream = null;
+    let currentOriginalBlob = null;
+    let currentGeneratedBase64 = null;
 
-    // --- Image Loading & 512px Downscaling ---
-    imageInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
+    // --- UI ELEMENTS ---
+    const cameraFeed = document.getElementById('cameraFeed');
+    const captureCanvas = document.getElementById('captureCanvas');
+    const ctx = captureCanvas.getContext('2d');
+    const [cameraView, processingView, comparisonView, libraryView] = 
+      ['cameraView', 'processingView', 'comparisonView', 'libraryView'].map(id => document.getElementById(id));
 
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const img = new Image();
-        img.onload = () => {
-          // Strictly force 512px downscale for extreme speed
-          const MAX_SIZE = 512;
-          let width = img.width;
-          let height = img.height;
+    // --- CAMERA LOGIC ---
+    async function initCamera() {
+      if (videoStream) videoStream.getTracks().forEach(track => track.stop());
+      try {
+        videoStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: currentFacingMode, width: { ideal: 1920 }, height: { ideal: 1080 } },
+          audio: false
+        });
+        cameraFeed.srcObject = videoStream;
+      } catch (err) { console.error("Camera error:", err); }
+      
+      // Pre-load gallery thumbnail
+      loadGalleryThumbnail();
+    }
 
-          if (width > MAX_SIZE || height > MAX_SIZE) {
-            if (width > height) {
-              height = Math.round((height * MAX_SIZE) / width);
-              width = MAX_SIZE;
-            } else {
-              width = Math.round((width * MAX_SIZE) / height);
-              height = MAX_SIZE;
-            }
-          }
-
-          baseCanvas.width = width;
-          baseCanvas.height = height;
-          maskCanvas.width = width;
-          maskCanvas.height = height;
-
-          baseCtx.drawImage(img, 0, 0, width, height);
-          clearMask();
-          
-          workspace.classList.remove('hidden');
-          hasImage = true;
-        };
-        img.src = event.target.result;
-      };
-      reader.readAsDataURL(file);
+    document.getElementById('switchCameraBtn').addEventListener('click', () => {
+      currentFacingMode = currentFacingMode === 'environment' ? 'user' : 'environment';
+      initCamera();
     });
 
-    // --- Mask Drawing Logic ---
-    function clearMask() {
-      maskCtx.fillStyle = 'black'; 
-      maskCtx.fillRect(0, 0, maskCanvas.width, maskCanvas.height);
-    }
+    // --- CAPTURE & WEBP COMPRESSION (Max 512px) ---
+    document.getElementById('captureBtn').addEventListener('click', async () => {
+      const MAX_SIZE = 512;
+      let width = cameraFeed.videoWidth;
+      let height = cameraFeed.videoHeight;
+      
+      if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } 
+      else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
 
-    clearMaskBtn.addEventListener('click', clearMask);
+      captureCanvas.width = width;
+      captureCanvas.height = height;
+      ctx.drawImage(cameraFeed, 0, 0, width, height);
 
-    function getMousePos(canvas, evt) {
-      const rect = canvas.getBoundingClientRect();
-      const scaleX = canvas.width / rect.width;
-      const scaleY = canvas.height / rect.height;
-      return {
-        x: (evt.clientX - rect.left) * scaleX,
-        y: (evt.clientY - rect.top) * scaleY
-      };
-    }
+      // Convert to WebP immediately
+      const webpDataUrl = captureCanvas.toDataURL('image/webp', 0.8);
+      
+      // Safely store Blob for Supabase upload
+      currentOriginalBlob = await new Promise(resolve => captureCanvas.toBlob(resolve, 'image/webp', 0.8));
 
-    function startDrawing(e) {
-      isDrawing = true;
-      draw(e);
-    }
-
-    function stopDrawing() {
-      isDrawing = false;
-      maskCtx.beginPath();
-    }
-
-    function draw(e) {
-      if (!isDrawing) return;
-      e.preventDefault(); 
-      const pos = getMousePos(maskCanvas, e.touches ? e.touches[0] : e);
-      maskCtx.lineWidth = brushSizeInput.value;
-      maskCtx.lineCap = 'round';
-      maskCtx.strokeStyle = 'white'; 
-      maskCtx.lineTo(pos.x, pos.y);
-      maskCtx.stroke();
-      maskCtx.beginPath();
-      maskCtx.moveTo(pos.x, pos.y);
-    }
-
-    maskCanvas.addEventListener('mousedown', startDrawing);
-    maskCanvas.addEventListener('mousemove', draw);
-    maskCanvas.addEventListener('mouseup', stopDrawing);
-    maskCanvas.addEventListener('mouseout', stopDrawing);
-    maskCanvas.addEventListener('touchstart', startDrawing, {passive: false});
-    maskCanvas.addEventListener('touchmove', draw, {passive: false});
-    maskCanvas.addEventListener('touchend', stopDrawing);
-
-    // --- Secure API Submission to Netlify ---
-    document.getElementById('submitBtn').addEventListener('click', async () => {
-      const prompt = document.getElementById('promptInput').value.trim();
-      const selectedModel = document.getElementById('modelSelect').value.trim();
-
-      if (!hasImage) { alert('Please upload an image and draw a mask.'); return; }
-
-      const submitBtn = document.getElementById('submitBtn');
-      const btnText = document.getElementById('btnText');
-      const spinner = document.getElementById('spinner');
-      const outputCard = document.getElementById('outputCard');
-      const responseContainer = document.getElementById('responseContainer');
-      const errorMessage = document.getElementById('errorMessage');
-
-      submitBtn.disabled = true;
-      spinner.classList.remove('hidden');
-      outputCard.classList.remove('hidden');
-      errorMessage.classList.add('hidden');
-      responseContainer.innerHTML = '';
-
-      // Live Timer
+      // Show Processing UI
+      processingView.classList.remove('hidden');
+      processingView.classList.add('fade-in');
       let seconds = 0;
-      btnText.textContent = `Generating... (${seconds}s)`;
-      const timerInterval = setInterval(() => {
-        seconds++;
-        btnText.textContent = `Generating... (${seconds}s)`;
-      }, 1000);
-
-      // 2.5 min Timeout Controller
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 150000); 
-
-      // Calls your own server instead of Google directly
-      const endpoint = `/.netlify/functions/inpaint`;
+      const timerText = document.getElementById('timerText');
+      timerText.textContent = `Enhancing... 0s`;
+      const timer = setInterval(() => { seconds++; timerText.textContent = `Enhancing... ${seconds}s`; }, 1000);
 
       try {
-        // Compress heavily to keep the payload lightweight for the serverless function
-        const base64Image = baseCanvas.toDataURL('image/jpeg', 0.8).split(',')[1];
-        const base64Mask = maskCanvas.toDataURL('image/jpeg', 1.0).split(',')[1];
-
-        const response = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            prompt: prompt,
-            image: base64Image,
-            mask: base64Mask,
-            model: selectedModel
-          }),
-          signal: controller.signal
+        // --- AI CALL (Supabase Edge Function) ---
+        const base64Only = webpDataUrl.split(',')[1];
+        
+        /* 
+        // HOW TO CALL A SUPABASE EDGE FUNCTION:
+        const { data, error } = await supabaseClient.functions.invoke('enhance-image', {
+          body: { image: base64Only, prompt: "Make it look cinematic" }
         });
+        if(error) throw error;
+        currentGeneratedBase64 = data.generatedImage; 
+        */
 
-        clearTimeout(timeoutId);
-        const data = await response.json();
+        // SIMULATION FOR DEMO (2 seconds)
+        await new Promise(r => setTimeout(r, 2000));
+        currentGeneratedBase64 = webpDataUrl; // Simulating AI by returning original
 
-        if (!response.ok) throw new Error(data.error || "Server responded with an error.");
-
-        const candidateParts = data.candidates?.[0]?.content?.parts || [];
-        let hasContent = false;
-
-        // Loop through the parts. Look ONLY for the image.
-        candidateParts.forEach((part) => {
-          const inlineImg = part.inlineData || part.inline_data;
-          
-          if (inlineImg && inlineImg.data) {
-            hasContent = true;
-            const imgSrc = `data:${inlineImg.mimeType || 'image/jpeg'};base64,${inlineImg.data}`;
-
-            const imgWrapper = document.createElement('div');
-            imgWrapper.className = 'flex flex-col items-center space-y-3 bg-slate-900 border border-slate-700 p-4 rounded-xl mt-4';
-            imgWrapper.innerHTML = `
-              <img src="${imgSrc}" class="rounded-lg max-h-[500px] w-auto border border-slate-700 object-contain shadow-lg" />
-              <a href="${imgSrc}" download="restored-image.jpg" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shadow">
-                Download Result
-              </a>
-            `;
-            responseContainer.innerHTML = ''; 
-            responseContainer.appendChild(imgWrapper);
-          }
-        });
-
-        if (!hasContent) {
-          throw new Error("The API responded successfully, but no image data was found in the payload.");
-        }
+        // Setup Slider
+        document.getElementById('imgOriginal').src = webpDataUrl;
+        document.getElementById('imgGenerated').src = currentGeneratedBase64.startsWith('data:') 
+            ? currentGeneratedBase64 
+            : `data:image/webp;base64,${currentGeneratedBase64}`;
+        
+        clearInterval(timer);
+        processingView.classList.add('hidden');
+        processingView.classList.remove('fade-in');
+        
+        comparisonView.classList.remove('hidden');
+        comparisonView.classList.add('fade-in');
+        initComparisons();
 
       } catch (err) {
-        if (err.name === 'AbortError') {
-          errorMessage.textContent = 'Error: The request timed out after 2.5 minutes. The Google API is likely congested.';
-        } else {
-          errorMessage.textContent = `Error: ${err.message}`;
-        }
-        errorMessage.classList.remove('hidden');
-      } finally {
-        clearInterval(timerInterval); 
-        submitBtn.disabled = false;
-        btnText.textContent = 'Execute Inpainting';
-        spinner.classList.add('hidden');
+        clearInterval(timer);
+        processingView.classList.add('hidden');
+        alert("Failed to process image.");
       }
     });
+
+    // --- SAVE TO SUPABASE ---
+    document.getElementById('saveToLibraryBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('saveToLibraryBtn');
+      btn.textContent = "Saving...";
+      
+      try {
+        const timestamp = Date.now();
+        const origPath = `original_${timestamp}.webp`;
+        const genPath = `generated_${timestamp}.webp`;
+
+        // 1. Get Generated Blob
+        const fetchRes = await fetch(document.getElementById('imgGenerated').src);
+        const generatedBlob = await fetchRes.blob();
+
+        // 2. Upload to Supabase Storage in parallel for speed
+        await Promise.all([
+          supabaseClient.storage.from('photos').upload(origPath, currentOriginalBlob, { contentType: 'image/webp' }),
+          supabaseClient.storage.from('photos').upload(genPath, generatedBlob, { contentType: 'image/webp' })
+        ]);
+
+        // 3. Insert Database Record
+        await supabaseClient.from('gallery').insert([{ 
+            original_image_path: origPath, 
+            generated_image_path: genPath 
+        }]);
+
+        btn.textContent = "Save";
+        comparisonView.classList.add('hidden');
+        loadGalleryThumbnail(); // Update thumbnail
+      } catch (err) {
+        console.error(err);
+        btn.textContent = "Error";
+        setTimeout(() => { btn.textContent = "Save"; }, 2000);
+      }
+    });
+
+    document.getElementById('closeComparisonBtn').addEventListener('click', () => {
+      comparisonView.classList.add('hidden');
+    });
+
+    // --- LIBRARY & GALLERY ---
+    document.getElementById('openLibraryBtn').addEventListener('click', () => {
+      libraryView.classList.remove('hidden');
+      libraryView.classList.add('fade-in');
+      loadGallery();
+    });
+
+    document.getElementById('closeLibraryBtn').addEventListener('click', () => {
+      libraryView.classList.add('hidden');
+    });
+
+    async function loadGalleryThumbnail() {
+      const { data } = await supabaseClient.from('gallery').select('generated_image_path').order('created_at', { ascending: false }).limit(1);
+      if (data && data.length > 0) {
+        const { data: { publicUrl } } = supabaseClient.storage.from('photos').getPublicUrl(data[0].generated_image_path);
+        const btn = document.getElementById('openLibraryBtn');
+        btn.style.backgroundImage = `url('${publicUrl}')`;
+        btn.style.backgroundSize = 'cover';
+        btn.classList.remove('skeleton');
+      }
+    }
+
+    async function loadGallery() {
+      const grid = document.getElementById('galleryGrid');
+      grid.innerHTML = Array(12).fill(`<div class="aspect-square bg-gray-900 skeleton"></div>`).join('');
+
+      const { data: docs, error } = await supabaseClient.from('gallery').select('*').order('created_at', { ascending: false });
+      
+      if (!error && docs) {
+        grid.innerHTML = docs.map(doc => {
+          const { data: { publicUrl } } = supabaseClient.storage.from('photos').getPublicUrl(doc.generated_image_path);
+          return `
+            <div class="aspect-square bg-gray-900 relative">
+              <img src="${publicUrl}" class="w-full h-full object-cover" loading="lazy" />
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    // --- COMPARISON SLIDER LOGIC ---
+    function initComparisons() {
+      const overlays = document.getElementsByClassName("img-comp-overlay");
+      for (let i = 0; i < overlays.length; i++) compareImages(overlays[i]);
+    }
+
+    function compareImages(img) {
+      let slider, clicked = 0, w = img.offsetWidth, h = img.offsetHeight;
+      img.style.width = (w / 2) + "px";
+      
+      const existingSlider = img.parentElement.querySelector('.img-comp-slider');
+      if(existingSlider) existingSlider.remove();
+
+      slider = document.createElement("DIV");
+      slider.setAttribute("class", "img-comp-slider");
+      slider.innerHTML = `<div class="slider-handle"><svg class="w-5 h-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg></div>`;
+      
+      img.parentElement.insertBefore(slider, img);
+      slider.style.top = (h / 2) - (slider.offsetHeight / 2) + "px";
+      slider.style.left = (w / 2) - (slider.offsetWidth / 2) + "px";
+
+      const slideReady = (e) => { e.preventDefault(); clicked = 1; window.addEventListener("mousemove", slideMove); window.addEventListener("touchmove", slideMove, {passive: false}); };
+      const slideFinish = () => { clicked = 0; };
+      const slideMove = (e) => {
+        if (clicked == 0) return false;
+        let pos = getCursorPos(e);
+        if (pos < 0) pos = 0; if (pos > w) pos = w;
+        img.style.width = pos + "px";
+        slider.style.left = img.offsetWidth - (slider.offsetWidth / 2) + "px";
+      };
+      const getCursorPos = (e) => {
+        e = (e.changedTouches) ? e.changedTouches[0] : e;
+        let a = img.getBoundingClientRect();
+        return e.pageX - a.left - window.pageXOffset;
+      };
+
+      slider.addEventListener("mousedown", slideReady);
+      window.addEventListener("mouseup", slideFinish);
+      slider.addEventListener("touchstart", slideReady, {passive: false});
+      window.addEventListener("touchend", slideFinish);
+    }
+
+    // Boot app
+    window.onload = initCamera;
   </script>
 </body>
 </html>
