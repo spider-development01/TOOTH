@@ -1,173 +1,366 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full bg-slate-950">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Tooth Fairy-Inpainting</title>
-  <link href="./output.css" rel="stylesheet">
+  <title>Smile Creo</title>
+  
+  <!-- Inter Google Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          colors: {
+            primary: {
+              DEFAULT: '#0B5CFF',
+              dark: '#0647C7',
+              light: '#EEF4FF',
+            },
+            dark: {
+              DEFAULT: '#0B1220',
+              soft: '#111827',
+              navy: '#0F172A'
+            }
+          },
+          boxShadow: {
+            'glass': '0 12px 36px 0 rgba(0, 0, 0, 0.18)',
+            'glass-light': '0 12px 34px -4px rgba(15, 23, 42, 0.08)',
+            'pill': '0 4px 16px rgba(11, 92, 255, 0.25)',
+          }
+        }
+      }
+    }
+  </script>
+  
   <!-- Supabase Web SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    /* Prevent pull-to-refresh & make it feel like a native iOS app */
-    body { overscroll-behavior-y: contain; background-color: #000; color: #fff; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
-    
-    /* Camera UI Elements */
-    .shutter-btn {
-      width: 76px; height: 76px; border-radius: 50%; background-color: white;
-      border: 4px solid #000; outline: 3px solid white; transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .shutter-btn:active { transform: scale(0.85); }
-    
-    /* Canvas & Masking */
-    #canvasContainer { position: relative; display: flex; justify-content: center; align-items: center; max-width: 100%; border-radius: 12px; overflow: hidden; background: #111; }
-    #baseCanvas, #maskCanvas { display: block; max-width: 100%; height: auto; touch-action: none; }
-    #maskCanvas { position: absolute; top: 0; left: 0; cursor: crosshair; opacity: 0.55; }
-    
-    /* Animations */
-    .fade-in { animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* Custom Range Slider */
-    input[type=range] { -webkit-appearance: none; background: transparent; }
-    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%; background: #ffffff; cursor: pointer; margin-top: -8px; box-shadow: 0 2px 6px rgba(0,0,0,0.4); }
-    input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #4b5563; border-radius: 2px; }
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      overscroll-behavior-y: contain;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Glass Panels */
+    .glass-dark {
+      background: rgba(11, 18, 32, 0.72);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-light {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+    }
+
+    /* Camera Shutter */
+    .shutter-btn {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: #FFFFFF;
+      border: 4px solid rgba(11, 18, 32, 0.8);
+      outline: 3px solid #0B5CFF;
+      transition: transform 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .shutter-btn:active {
+      transform: scale(0.88);
+    }
+
+    /* Custom range slider */
+    input[type=range] {
+      -webkit-appearance: none;
+      background: transparent;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 18px;
+      width: 18px;
+      border-radius: 50%;
+      background: #0B5CFF;
+      cursor: pointer;
+      margin-top: -6px;
+      box-shadow: 0 2px 6px rgba(11, 92, 255, 0.4);
+      border: 2px solid white;
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 6px;
+      cursor: pointer;
+      background: #E2E8F0;
+      border-radius: 9999px;
+    }
+
+    .fade-enter {
+      animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.98) translateY(6px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
   </style>
 </head>
-<body class="h-screen w-screen overflow-hidden flex flex-col font-sans antialiased selection:bg-transparent">
+<body class="h-screen w-screen overflow-hidden flex flex-col bg-slate-950 text-slate-900 antialiased select-none">
 
-  <!-- VIEW 1: Camera Interface -->
-  <div id="cameraView" class="absolute inset-0 flex flex-col justify-between z-10">
-    <div class="h-24 bg-black bg-opacity-80 flex justify-between items-end pb-4 px-6 relative z-20 backdrop-blur-md">
-      <div class="w-10"></div>
-      <span class="text-xs font-bold tracking-widest text-yellow-400">PHOTO</span>
-      <button id="uploadBtn" class="w-10 h-10 flex items-center justify-center bg-gray-800 bg-opacity-70 rounded-full active:scale-90 transition-transform">
-        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+  <!-- FLOATING MINIMAL HEADER -->
+  <header class="absolute top-4 left-4 right-4 z-30 flex items-center justify-between pointer-events-none">
+    <div class="glass-light pointer-events-auto px-4 py-2 rounded-full shadow-glass-light flex items-center space-x-2.5">
+      <div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-white text-xs font-bold shadow-sm">
+        ✦
+      </div>
+      <span class="font-bold tracking-tight text-dark text-sm">Smile Creo</span>
+    </div>
+
+    <div class="flex items-center space-x-2 pointer-events-auto">
+      <button id="navOpenGalleryBtn" class="glass-light px-3.5 py-2 rounded-full text-xs font-semibold text-slate-700 hover:text-dark shadow-glass-light transition active:scale-95 flex items-center space-x-1.5">
+        <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+        <span>Records</span>
+      </button>
+
+      <button id="navUploadBtn" class="bg-primary hover:bg-primary-dark text-white px-3.5 py-2 rounded-full text-xs font-semibold shadow-pill transition active:scale-95 flex items-center space-x-1.5">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+        <span>Upload</span>
       </button>
       <input type="file" id="fileInput" class="hidden" accept="image/*" />
     </div>
-    
-    <div class="relative flex-1 bg-black flex items-center justify-center overflow-hidden">
-      <video id="cameraFeed" class="absolute w-full h-full object-cover" autoplay playsinline></video>
-      <canvas id="captureCanvas" class="hidden"></canvas>
-    </div>
+  </header>
 
-    <div class="h-40 bg-black bg-opacity-90 flex items-center justify-around px-6 pb-8 backdrop-blur-md">
-      <button id="openLibraryBtn" class="w-14 h-14 rounded-xl overflow-hidden bg-gray-800 shadow-lg border border-gray-700 active:scale-95 transition-transform bg-cover bg-center"></button>
-      <button id="captureBtn" class="shutter-btn shadow-2xl"></button>
-      <button id="switchCameraBtn" class="w-14 h-14 flex items-center justify-center bg-gray-800 bg-opacity-60 rounded-full active:scale-95 transition-transform">
-        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-      </button>
-    </div>
-  </div>
+  <!-- MAIN WORKSPACE -->
+  <main class="relative flex-1 w-full h-full overflow-hidden">
 
-  <!-- VIEW 2: Masking Editor -->
-  <div id="editorView" class="hidden absolute inset-0 bg-gray-950 z-20 flex flex-col">
-    <div class="h-16 flex items-center justify-between px-4 mt-safe border-b border-gray-800">
-      <button id="cancelEditBtn" class="text-white text-lg active:opacity-50">Cancel</button>
-      <span class="text-sm font-semibold tracking-widest uppercase">Mask</span>
-      <button id="clearMaskBtn" class="text-blue-400 font-medium active:opacity-50">Clear</button>
-    </div>
-    
-    <div class="flex-1 flex flex-col items-center justify-start p-4 overflow-y-auto space-y-6">
-      <p class="text-xs text-gray-400 uppercase tracking-wider text-center">Draw over the area to repair</p>
-      
-      <div id="canvasContainer" class="shadow-2xl">
-        <canvas id="baseCanvas"></canvas>
-        <canvas id="maskCanvas"></canvas>
+    <!-- VIEW 1: Camera & Capture Screen -->
+    <div id="cameraView" class="absolute inset-0 flex flex-col justify-between z-10 bg-black">
+      <div class="relative flex-1 w-full h-full flex items-center justify-center overflow-hidden">
+        <video id="cameraFeed" class="absolute w-full h-full object-cover" autoplay playsinline></video>
+        <canvas id="captureCanvas" class="hidden"></canvas>
       </div>
 
-      <div class="w-full max-w-md space-y-4 bg-gray-900 p-4 rounded-2xl border border-gray-800">
-        <div class="flex items-center space-x-4">
-          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-          <input type="range" id="brushSize" min="5" max="50" value="20" class="flex-1" />
+      <!-- Floating Bottom Camera Bar -->
+      <div class="absolute bottom-6 left-6 right-6 z-20 flex items-center justify-around pointer-events-none">
+        <div class="glass-dark px-6 py-4 rounded-3xl shadow-glass flex items-center justify-around w-full max-w-sm pointer-events-auto">
+          <!-- Gallery Thumbnail -->
+          <button id="openLibraryBtn" class="w-12 h-12 rounded-2xl overflow-hidden bg-slate-800 border border-white/20 shadow-md active:scale-95 transition flex items-center justify-center relative">
+            <div id="galleryThumbImg" class="w-full h-full bg-cover bg-center flex items-center justify-center text-white/70">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            </div>
+          </button>
+
+          <!-- Shutter Button -->
+          <button id="captureBtn" class="shutter-btn shadow-2xl flex items-center justify-center"></button>
+
+          <!-- Switch Camera -->
+          <button id="switchCameraBtn" class="w-12 h-12 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-2xl text-white border border-white/20 active:scale-95 transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 2: Clinical Treatment & Masking Studio -->
+    <div id="editorView" class="hidden absolute inset-0 bg-slate-900/40 backdrop-blur-2xl z-20 flex flex-col items-center justify-between p-4 pt-20 pb-6 overflow-y-auto">
+      
+      <!-- Top Action Floating Bar -->
+      <div class="glass-light px-4 py-2 rounded-full shadow-glass-light flex items-center space-x-4 mb-3">
+        <button id="cancelEditBtn" class="text-xs font-semibold text-slate-600 hover:text-dark flex items-center space-x-1 active:opacity-60">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+          <span>Retake</span>
+        </button>
+        <span class="w-px h-4 bg-slate-200"></span>
+        <span class="text-xs font-bold text-dark uppercase tracking-wider">Paint Treatment Area</span>
+        <span class="w-px h-4 bg-slate-200"></span>
+        <button id="clearMaskBtn" class="text-xs font-semibold text-primary hover:text-primary-dark active:opacity-60">
+          Reset
+        </button>
+      </div>
+
+      <!-- Canvas Card: Exact Aspect Ratio Maintained -->
+      <div class="relative flex items-center justify-center p-2 rounded-3xl glass-light shadow-glass-light border border-white/60 mb-3">
+        <div id="canvasContainer" class="relative rounded-2xl overflow-hidden bg-black flex items-center justify-center">
+          <canvas id="baseCanvas" class="block"></canvas>
+          <canvas id="maskCanvas" class="absolute top-0 left-0 cursor-crosshair opacity-60"></canvas>
+        </div>
+      </div>
+
+      <!-- Floating Controls Card -->
+      <div class="w-full max-w-md glass-light rounded-3xl p-4 shadow-glass-light border border-white/70 space-y-3.5">
+        <!-- Brush Slider -->
+        <div class="flex items-center space-x-3 bg-slate-100/80 px-3 py-2 rounded-2xl border border-slate-200/60">
+          <span class="text-[11px] font-semibold text-slate-500">Brush</span>
+          <input type="range" id="brushSize" min="6" max="60" value="20" class="flex-1" />
+          <span id="brushSizeLabel" class="text-[11px] font-mono text-slate-600 font-medium">20px</span>
+        </div>
+
+        <!-- 4 Treatment Selector Pills -->
+        <div class="grid grid-cols-4 gap-1.5">
+          <button data-treatment="implants" class="treatment-pill flex flex-col items-center py-2 px-1 rounded-2xl border border-primary bg-primary text-white transition active:scale-95 shadow-sm">
+            <span class="text-base mb-0.5">🦷</span>
+            <span class="text-[11px] font-bold">Implants</span>
+          </button>
+
+          <button data-treatment="aligners" class="treatment-pill flex flex-col items-center py-2 px-1 rounded-2xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95">
+            <span class="text-base mb-0.5">✨</span>
+            <span class="text-[11px] font-bold">Aligners</span>
+          </button>
+
+          <button data-treatment="braces" class="treatment-pill flex flex-col items-center py-2 px-1 rounded-2xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95">
+            <span class="text-base mb-0.5">🪥</span>
+            <span class="text-[11px] font-bold">Braces</span>
+          </button>
+
+          <button data-treatment="whitening" class="treatment-pill flex flex-col items-center py-2 px-1 rounded-2xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95">
+            <span class="text-base mb-0.5">💎</span>
+            <span class="text-[11px] font-bold">Whitening</span>
+          </button>
+        </div>
+
+        <!-- Submit CTA -->
+        <button id="submitBtn" class="w-full bg-primary hover:bg-primary-dark text-white font-semibold py-3 px-4 rounded-2xl shadow-pill transition active:scale-[0.98] flex items-center justify-center space-x-2 text-xs">
+          <span>Generate Smile Simulation</span>
+          <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded-full">✦ AI</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- VIEW 3: Clinical AI Processing Overlay -->
+    <div id="processingView" class="hidden absolute inset-0 bg-black/60 backdrop-blur-xl z-40 flex items-center justify-center p-6">
+      <div class="glass-light rounded-3xl p-7 max-w-xs w-full shadow-glass text-center space-y-4 fade-enter">
+        <div class="relative w-14 h-14 mx-auto flex items-center justify-center">
+          <div class="absolute inset-0 rounded-full border-3 border-blue-100 border-t-primary animate-spin"></div>
+          <span class="text-lg">✦</span>
         </div>
         
-        <!-- PROMPT PRESETS -->
-        <div class="flex space-x-3 w-full pt-2">
-          <button id="presetImplants" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold border-2 border-blue-400 transition active:scale-95">🦷 Implants</button>
-          <button id="presetBraces" class="flex-1 bg-gray-800 text-gray-300 py-3 rounded-xl font-bold border-2 border-transparent transition active:scale-95">🪥 Braces</button>
+        <div class="space-y-1">
+          <h3 id="processingStepText" class="text-sm font-bold text-dark">Simulating Treatment...</h3>
+          <p class="text-[11px] text-slate-500">Matching natural enamel & lighting</p>
         </div>
-        
-        <button id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition active:scale-95 mt-2">
-          Generate Magic
-        </button>
+
+        <div class="w-full bg-slate-200/80 h-1.5 rounded-full overflow-hidden">
+          <div id="progressBar" class="bg-primary h-full rounded-full transition-all duration-300 w-1/4"></div>
+        </div>
+
+        <span id="timerText" class="text-[11px] font-mono text-slate-400 block">Processing... 0s</span>
       </div>
     </div>
-  </div>
 
-  <!-- VIEW 3: Processing Overlay -->
-  <div id="processingView" class="hidden absolute inset-0 bg-black bg-opacity-90 backdrop-blur-xl z-40 flex flex-col items-center justify-center space-y-5">
-    <div class="w-14 h-14 border-4 border-gray-700 border-t-blue-500 rounded-full animate-spin"></div>
-    <p id="timerText" class="text-lg font-medium text-white tracking-widest uppercase">Enhancing... 0s</p>
-  </div>
-
-  <!-- VIEW 4: Comparison Slider -->
-  <div id="comparisonView" class="hidden absolute inset-0 bg-black z-30 flex flex-col">
-    <div class="h-20 flex items-end justify-between px-5 pb-3">
-      <button id="closeComparisonBtn" class="text-white text-lg active:opacity-50">Back</button>
-      <span class="text-sm font-semibold tracking-widest uppercase text-gray-300">Result</span>
+    <!-- VIEW 4: Interactive Before / After Split Slider -->
+    <div id="comparisonView" class="hidden absolute inset-0 bg-black z-30 flex flex-col justify-between p-4 pt-20 pb-6">
       
-      <!-- Contextual Action Buttons -->
-      <div class="flex items-center space-x-4">
-        <button id="deleteBtn" class="hidden text-red-500 active:opacity-50 p-1 flex items-center justify-center min-w-[24px]">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+      <!-- Top Action Controls -->
+      <div class="flex items-center justify-between w-full max-w-lg mx-auto z-20">
+        <button id="closeComparisonBtn" class="glass-dark px-4 py-2 rounded-full text-xs font-semibold text-white hover:text-slate-200 shadow-glass transition active:scale-95 flex items-center space-x-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+          <span id="backBtnText">New Scan</span>
         </button>
-        <button id="downloadBtn" class="hidden text-blue-400 active:opacity-50 p-1">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-        </button>
-        <button id="saveToLibraryBtn" class="text-yellow-400 font-bold text-lg active:opacity-50 min-w-[40px]">Save</button>
-      </div>
-    </div>
-    
-    <div class="flex-1 flex items-center justify-center p-4">
-      <!-- BUG-FREE SLIDER ARCHITECTURE -->
-      <div id="compareContainer" class="relative mx-auto rounded-2xl select-none bg-gray-900 shadow-2xl" style="touch-action: none;">
-        <img id="imgOriginal" class="block rounded-2xl w-full h-full pointer-events-none" draggable="false" />
-        <div id="imgOverlayWrapper" class="absolute top-0 left-0 h-full overflow-hidden rounded-2xl z-10" style="width: 50%;">
-          <img id="imgGenerated" class="block rounded-2xl h-full pointer-events-none max-w-none" draggable="false" />
+
+        <!-- Autosave Indicator Badge -->
+        <div id="autoSaveBadge" class="glass-dark px-3.5 py-1.5 rounded-full text-[11px] font-medium text-white/90 shadow-glass flex items-center space-x-1.5">
+          <span id="autoSaveIcon" class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span>
+          <span id="autoSaveText">Auto-saving...</span>
         </div>
-        <div id="sliderHandle" class="absolute top-0 bottom-0 flex flex-col items-center justify-center cursor-ew-resize z-20" style="left: 50%; transform: translateX(-50%); width: 40px;">
-          <div class="absolute top-0 bottom-0 w-1 bg-white shadow-md z-10"></div>
-          <div class="relative w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center z-20">
-            <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg>
+
+        <div class="flex items-center space-x-1.5">
+          <button id="deleteBtn" class="hidden glass-dark p-2 text-rose-400 rounded-full hover:bg-rose-950/40 transition active:scale-95" title="Delete record">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+          </button>
+
+          <button id="downloadBtn" class="bg-primary hover:bg-primary-dark text-white px-3.5 py-2 rounded-full text-xs font-semibold shadow-pill transition active:scale-95 flex items-center space-x-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+            <span>Export</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Centered Slider Container (Preserves Exact Aspect Ratio) -->
+      <div class="flex-1 flex items-center justify-center my-auto p-2">
+        <div id="compareContainer" class="relative rounded-3xl select-none bg-black overflow-hidden shadow-2xl border border-white/10" style="touch-action: none;">
+          <!-- Bottom Original Layer -->
+          <img id="imgOriginal" class="block rounded-3xl pointer-events-none" draggable="false" alt="Original smile" />
+          
+          <div class="absolute top-3.5 right-3.5 z-10 px-2.5 py-1 bg-black/60 backdrop-blur-md rounded-full text-[10px] font-bold tracking-wider text-white border border-white/20 uppercase">
+            Original
+          </div>
+
+          <!-- Top Simulation Layer -->
+          <div id="imgOverlayWrapper" class="absolute top-0 left-0 h-full overflow-hidden rounded-3xl z-10" style="width: 50%;">
+            <img id="imgGenerated" class="block rounded-3xl pointer-events-none max-w-none" draggable="false" alt="Simulated smile" />
+            
+            <div class="absolute top-3.5 left-3.5 z-10 px-2.5 py-1 bg-primary/80 backdrop-blur-md rounded-full text-[10px] font-bold tracking-wider text-white border border-blue-300/40 uppercase">
+              Simulation
+            </div>
+          </div>
+
+          <!-- Draggable Pill Split Handle -->
+          <div id="sliderHandle" class="absolute top-0 bottom-0 flex flex-col items-center justify-center cursor-ew-resize z-20" style="left: 50%; transform: translateX(-50%); width: 40px;">
+            <div class="absolute top-0 bottom-0 w-0.5 bg-white shadow-xl"></div>
+            <div class="relative w-8 h-8 bg-white rounded-full shadow-2xl flex items-center justify-center border-2 border-primary text-primary active:scale-90 transition">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    <p class="text-center text-xs text-gray-500 pb-10 uppercase tracking-widest font-medium">Slide to compare</p>
-  </div>
 
-  <!-- VIEW 5: Library Gallery -->
-  <div id="libraryView" class="hidden absolute inset-0 bg-black z-50 flex flex-col">
-    <div class="h-20 flex items-end justify-between px-4 pb-3 border-b border-gray-900 bg-gray-950 mt-safe">
-      <button id="closeLibraryBtn" class="text-blue-400 flex items-center space-x-1 text-lg active:opacity-50">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-        <span>Camera</span>
-      </button>
-      <span class="text-sm font-semibold tracking-widest uppercase">Gallery</span>
-      <div class="w-20"></div>
+      <div class="text-center text-[11px] font-medium text-white/50 pb-1">
+        Drag slider to compare post-treatment results
+      </div>
     </div>
-    <div class="flex-1 overflow-y-auto p-1 bg-black">
-      <div id="galleryGrid" class="grid grid-cols-3 gap-1"></div>
+
+    <!-- VIEW 5: Patient Records Gallery -->
+    <div id="libraryView" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur-2xl z-40 flex flex-col p-4 pt-20">
+      <div class="flex items-center justify-between max-w-4xl mx-auto w-full mb-4">
+        <button id="closeLibraryBtn" class="glass-light px-3.5 py-1.5 rounded-full text-xs font-semibold text-slate-700 shadow-glass-light transition active:scale-95 flex items-center space-x-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+          <span>Studio</span>
+        </button>
+        <span class="text-xs font-bold text-white uppercase tracking-wider">Patient Records</span>
+        <div class="w-16"></div>
+      </div>
+
+      <div class="flex-1 overflow-y-auto max-w-4xl mx-auto w-full">
+        <div id="galleryGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"></div>
+        
+        <div id="emptyGalleryNotice" class="hidden text-center py-16 space-y-2 text-white">
+          <div class="w-10 h-10 rounded-2xl bg-white/10 text-white flex items-center justify-center mx-auto text-lg font-bold">✦</div>
+          <h3 class="text-sm font-bold">No simulations yet</h3>
+          <p class="text-xs text-white/50">Capture or upload a photo to generate realistic results.</p>
+        </div>
+      </div>
     </div>
-  </div>
+
+  </main>
 
   <script>
-    // --- SUPABASE CONFIGURATION ---
+    // --- SUPABASE CONFIG ---
     const SUPABASE_URL = 'https://lqfzvedrpzihdtmwcdyk.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxZnp2ZWRycHppaGR0bXdjZHlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2MjE2MjUsImV4cCI6MjEwMjE5NzYyNX0.ZXf3hYfr-qWiUxVhbQA9_VymeoTEoGLHoS8ou8xzCOQ';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // --- STATE & DOM ---
+    // --- APP STATE ---
     let videoStream = null;
     let currentFacingMode = 'environment';
     let isDrawing = false;
-    let currentOriginalDataUrl = null; 
-    
-    let activePromptType = 'implants'; 
+    let currentOriginalDataUrl = null;
+    let activePromptType = 'implants';
+
     const PROMPTS = {
-      implants: "Repair the masked teeth to look like healthy, real working teeth. Fix rotten or broken areas naturally. Strictly match the exact lighting, perspective, shadows, and overall mood of the original photo. CRITICAL: Generate a low resolution 512px image focusing purely on realistic textures to save compute.",
-      braces: "Add realistic, high-quality dental braces to the masked teeth. Ensure brackets and wires look natural and anatomically correct. Strictly match the exact lighting, perspective, shadows, and overall mood of the original photo. CRITICAL: Generate a low resolution 512px image focusing purely on realistic textures to save compute."
+      implants: "Generate a realistic dental restoration for the masked damaged, missing, or rotten teeth. Reconstruct healthy, natural working teeth and implants matching the patient's surrounding teeth shade, natural enamel texture, gum contour, and the exact photographic lighting and angle.",
+      aligners: "Simulate a post-treatment clear aligner outcome on the masked teeth. Straighten misaligned or crowded teeth into a perfectly balanced natural dental arch, preserving natural enamel translucency and exact photographic lighting.",
+      braces: "Add realistic, high-grade orthodontic brackets and archwire braces to the masked teeth. Ensure bracket placement and wire curvature are anatomically accurate and match the lighting and perspective of the photo.",
+      whitening: "Simulate clinical teeth whitening on the masked teeth. Lift the shade by 3-4 VITA shades to a natural bright healthy white, maintaining natural surface gradients, gum health, and ambient lighting."
     };
 
     let isViewingGalleryItem = false;
@@ -175,26 +368,32 @@
     let currentActiveOrigPath = null;
     let currentActiveGenPath = null;
 
+    // DOM
     const cameraFeed = document.getElementById('cameraFeed');
-    const captureCanvas = document.getElementById('captureCanvas');
     const baseCanvas = document.getElementById('baseCanvas');
     const maskCanvas = document.getElementById('maskCanvas');
     const baseCtx = baseCanvas.getContext('2d');
     const maskCtx = maskCanvas.getContext('2d');
-    
+    const brushSizeInput = document.getElementById('brushSize');
+    const brushSizeLabel = document.getElementById('brushSizeLabel');
+
     const [cameraView, editorView, processingView, comparisonView, libraryView] = 
       ['cameraView', 'editorView', 'processingView', 'comparisonView', 'libraryView'].map(id => document.getElementById(id));
 
     // --- CAMERA INIT ---
     async function initCamera() {
-      if (videoStream) videoStream.getTracks().forEach(track => track.stop());
+      if (videoStream) {
+        videoStream.getTracks().forEach(t => t.stop());
+      }
       try {
         videoStream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: currentFacingMode, width: { ideal: 1920 }, height: { ideal: 1080 } },
           audio: false
         });
         cameraFeed.srcObject = videoStream;
-      } catch (err) { console.error("Camera error:", err); }
+      } catch (err) {
+        console.warn("Camera fallback:", err);
+      }
       loadGalleryThumbnail();
     }
 
@@ -203,130 +402,255 @@
       initCamera();
     });
 
-    // --- PROMPT TOGGLES ---
-    const btnImplants = document.getElementById('presetImplants');
-    const btnBraces = document.getElementById('presetBraces');
-
-    btnImplants.addEventListener('click', () => {
-      activePromptType = 'implants';
-      btnImplants.className = "flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold border-2 border-blue-400 transition active:scale-95";
-      btnBraces.className = "flex-1 bg-gray-800 text-gray-300 py-3 rounded-xl font-bold border-2 border-transparent transition active:scale-95";
+    // --- TREATMENT TOGGLES ---
+    const treatmentPills = document.querySelectorAll('.treatment-pill');
+    treatmentPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        activePromptType = pill.getAttribute('data-treatment');
+        treatmentPills.forEach(p => {
+          p.className = 'treatment-pill flex flex-col items-center py-2 px-1 rounded-2xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95';
+        });
+        pill.className = 'treatment-pill flex flex-col items-center py-2 px-1 rounded-2xl border border-primary bg-primary text-white transition active:scale-95 shadow-sm';
+      });
     });
 
-    btnBraces.addEventListener('click', () => {
-      activePromptType = 'braces';
-      btnBraces.className = "flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold border-2 border-blue-400 transition active:scale-95";
-      btnImplants.className = "flex-1 bg-gray-800 text-gray-300 py-3 rounded-xl font-bold border-2 border-transparent transition active:scale-95";
-    });
-
-    // --- IMAGE CAPTURE (Strict 512px) ---
-    function prepareEditor(source, originalWidth, originalHeight) {
+    // --- PROPER RESOLUTION & PROPORTIONAL ASPECT RATIO (NO STRETCH) ---
+    function prepareEditor(source, origW, origH) {
       const MAX_SIZE = 512;
-      let width = originalWidth;
-      let height = originalHeight;
+      let width = origW;
+      let height = origH;
+      const aspectRatio = origW / origH;
+
+      if (origW > origH) {
+        if (origW > MAX_SIZE) {
+          width = MAX_SIZE;
+          height = Math.round(MAX_SIZE / aspectRatio);
+        }
+      } else {
+        if (origH > MAX_SIZE) {
+          height = MAX_SIZE;
+          width = Math.round(MAX_SIZE * aspectRatio);
+        }
+      }
+
+      baseCanvas.width = width;
+      baseCanvas.height = height;
+      maskCanvas.width = width;
+      maskCanvas.height = height;
+
+      // Fit gracefully inside screen
+      const maxDisplayW = Math.min(window.innerWidth - 48, 480);
+      const maxDisplayH = window.innerHeight * 0.45;
       
-      if (width > height) { if (width > MAX_SIZE) { height = Math.round(height * (MAX_SIZE / width)); width = MAX_SIZE; } } 
-      else { if (height > MAX_SIZE) { width = Math.round(width * (MAX_SIZE / height)); height = MAX_SIZE; } }
+      let displayW, displayH;
+      if (maxDisplayW / maxDisplayH < aspectRatio) {
+        displayW = maxDisplayW;
+        displayH = Math.round(maxDisplayW / aspectRatio);
+      } else {
+        displayH = maxDisplayH;
+        displayW = Math.round(maxDisplayH * aspectRatio);
+      }
 
-      baseCanvas.width = width; baseCanvas.height = height;
-      maskCanvas.width = width; maskCanvas.height = height;
+      const canvasContainer = document.getElementById('canvasContainer');
+      canvasContainer.style.width = `${displayW}px`;
+      canvasContainer.style.height = `${displayH}px`;
+      baseCanvas.style.width = `${displayW}px`;
+      baseCanvas.style.height = `${displayH}px`;
+      maskCanvas.style.width = `${displayW}px`;
+      maskCanvas.style.height = `${displayH}px`;
 
+      baseCtx.clearRect(0, 0, width, height);
       baseCtx.drawImage(source, 0, 0, width, height);
-      currentOriginalDataUrl = baseCanvas.toDataURL('image/jpeg', 0.8);
-      
+      currentOriginalDataUrl = baseCanvas.toDataURL('image/jpeg', 0.88);
+
       clearMask();
       editorView.classList.remove('hidden');
-      editorView.classList.add('fade-in');
+      editorView.classList.add('fade-enter');
     }
 
+    // Capture Photo
     document.getElementById('captureBtn').addEventListener('click', () => {
+      if (!cameraFeed.videoWidth) return;
       const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = cameraFeed.videoWidth; tempCanvas.height = cameraFeed.videoHeight;
+      tempCanvas.width = cameraFeed.videoWidth;
+      tempCanvas.height = cameraFeed.videoHeight;
       tempCanvas.getContext('2d').drawImage(cameraFeed, 0, 0);
       prepareEditor(tempCanvas, tempCanvas.width, tempCanvas.height);
     });
 
-    document.getElementById('uploadBtn').addEventListener('click', () => document.getElementById('fileInput').click());
-    document.getElementById('fileInput').addEventListener('change', (e) => {
+    // Upload Photo
+    const fileInput = document.getElementById('fileInput');
+    document.getElementById('navUploadBtn').addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = (event) => {
+      reader.onload = (evt) => {
         const img = new Image();
-        img.onload = () => prepareEditor(img, img.width, img.height);
-        img.src = event.target.result;
+        img.onload = () => prepareEditor(img, img.naturalWidth, img.naturalHeight);
+        img.src = evt.target.result;
       };
       reader.readAsDataURL(file);
     });
 
     document.getElementById('cancelEditBtn').addEventListener('click', () => {
       editorView.classList.add('hidden');
-      document.getElementById('fileInput').value = '';
+      fileInput.value = '';
     });
 
-    // --- MASKING LOGIC ---
+    // --- MASK DRAWING ---
     function clearMask() {
-      maskCtx.fillStyle = 'black'; 
+      maskCtx.fillStyle = 'black';
       maskCtx.fillRect(0, 0, maskCanvas.width, maskCanvas.height);
     }
     document.getElementById('clearMaskBtn').addEventListener('click', clearMask);
 
-    function getMousePos(canvas, evt) {
+    brushSizeInput.addEventListener('input', (e) => {
+      brushSizeLabel.textContent = `${e.target.value}px`;
+    });
+
+    function getCanvasCoordinates(canvas, evt) {
       const rect = canvas.getBoundingClientRect();
       const scaleX = canvas.width / rect.width;
       const scaleY = canvas.height / rect.height;
-      let clientX = evt.clientX; let clientY = evt.clientY;
-      if(evt.touches && evt.touches.length > 0) {
-        clientX = evt.touches[0].clientX; clientY = evt.touches[0].clientY;
+      let clientX = evt.clientX;
+      let clientY = evt.clientY;
+      if (evt.touches && evt.touches.length > 0) {
+        clientX = evt.touches[0].clientX;
+        clientY = evt.touches[0].clientY;
       }
       return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
     }
 
-    function startDrawing(e) { e.preventDefault(); isDrawing = true; draw(e); }
-    function stopDrawing(e) { e.preventDefault(); isDrawing = false; maskCtx.beginPath(); }
+    function startDraw(e) {
+      e.preventDefault();
+      isDrawing = true;
+      draw(e);
+    }
+
+    function endDraw(e) {
+      e.preventDefault();
+      isDrawing = false;
+      maskCtx.beginPath();
+    }
+
     function draw(e) {
       if (!isDrawing) return;
-      e.preventDefault(); 
-      const pos = getMousePos(maskCanvas, e);
-      maskCtx.lineWidth = document.getElementById('brushSize').value;
+      e.preventDefault();
+      const pos = getCanvasCoordinates(maskCanvas, e);
+      maskCtx.lineWidth = brushSizeInput.value;
       maskCtx.lineCap = 'round';
-      maskCtx.strokeStyle = 'white'; 
+      maskCtx.lineJoin = 'round';
+      maskCtx.strokeStyle = 'white';
       maskCtx.lineTo(pos.x, pos.y);
       maskCtx.stroke();
       maskCtx.beginPath();
       maskCtx.moveTo(pos.x, pos.y);
     }
 
-    maskCanvas.addEventListener('mousedown', startDrawing);
+    maskCanvas.addEventListener('mousedown', startDraw);
     maskCanvas.addEventListener('mousemove', draw);
-    maskCanvas.addEventListener('mouseup', stopDrawing);
-    maskCanvas.addEventListener('mouseout', stopDrawing);
-    maskCanvas.addEventListener('touchstart', startDrawing, {passive: false});
-    maskCanvas.addEventListener('touchmove', draw, {passive: false});
-    maskCanvas.addEventListener('touchend', stopDrawing);
+    maskCanvas.addEventListener('mouseup', endDraw);
+    maskCanvas.addEventListener('mouseout', endDraw);
+    maskCanvas.addEventListener('touchstart', startDraw, { passive: false });
+    maskCanvas.addEventListener('touchmove', draw, { passive: false });
+    maskCanvas.addEventListener('touchend', endDraw);
 
-    // --- GENERATION (NETLIFY API) ---
+    // --- AUTOSAVE ENGINE (SUPABASE WEBP CONVERSION) ---
+    async function convertToWebP(src) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = 'Anonymous';
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.naturalWidth || img.width;
+          canvas.height = img.naturalHeight || img.height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+          canvas.toBlob((blob) => {
+            if (blob) resolve(blob);
+            else reject(new Error("Conversion failed"));
+          }, 'image/webp', 0.85);
+        };
+        img.onerror = reject;
+        img.src = src;
+      });
+    }
+
+    async function triggerAutoSave(originalSrc, generatedSrc) {
+      const autoSaveBadge = document.getElementById('autoSaveBadge');
+      const autoSaveIcon = document.getElementById('autoSaveIcon');
+      const autoSaveText = document.getElementById('autoSaveText');
+
+      autoSaveBadge.classList.remove('hidden');
+      autoSaveIcon.className = "w-2 h-2 rounded-full bg-yellow-400 animate-pulse";
+      autoSaveText.textContent = "Auto-saving...";
+
+      try {
+        const timestamp = Date.now();
+        const origPath = `original_${timestamp}.webp`;
+        const genPath = `generated_${timestamp}.webp`;
+
+        const [origBlob, genBlob] = await Promise.all([
+          convertToWebP(originalSrc),
+          convertToWebP(generatedSrc)
+        ]);
+
+        await Promise.all([
+          supabaseClient.storage.from('photos').upload(origPath, origBlob, { contentType: 'image/webp' }),
+          supabaseClient.storage.from('photos').upload(genPath, genBlob, { contentType: 'image/webp' })
+        ]);
+
+        await supabaseClient.from('gallery').insert([{
+          original_image_path: origPath,
+          generated_image_path: genPath
+        }]);
+
+        autoSaveIcon.className = "w-2 h-2 rounded-full bg-emerald-400";
+        autoSaveText.textContent = "✓ Auto-saved";
+        loadGalleryThumbnail();
+      } catch (err) {
+        console.error("Autosave error:", err);
+        autoSaveIcon.className = "w-2 h-2 rounded-full bg-rose-400";
+        autoSaveText.textContent = "Saved locally";
+      }
+    }
+
+    // --- AI INPAINTING ---
     document.getElementById('submitBtn').addEventListener('click', async () => {
       const promptToUse = PROMPTS[activePromptType];
-      const base64Image = baseCanvas.toDataURL('image/jpeg', 0.8).split(',')[1];
+      const base64Image = baseCanvas.toDataURL('image/jpeg', 0.85).split(',')[1];
       const base64Mask = maskCanvas.toDataURL('image/jpeg', 1.0).split(',')[1];
-      const submitBtn = document.getElementById('submitBtn');
 
       processingView.classList.remove('hidden');
-      processingView.classList.add('fade-in');
+      
       let seconds = 0;
       const timerText = document.getElementById('timerText');
-      timerText.textContent = `Enhancing... 0s`;
-      const timer = setInterval(() => { seconds++; timerText.textContent = `Enhancing... ${seconds}s`; }, 1000);
+      const progressBar = document.getElementById('progressBar');
+      const stepText = document.getElementById('processingStepText');
+      
+      const steps = ["Analyzing Smile...", "Restoring Contours...", "Matching Enamel & Shading...", "Finishing..."];
+      const timer = setInterval(() => {
+        seconds++;
+        timerText.textContent = `Processing... ${seconds}s`;
+        const stepIdx = Math.min(Math.floor(seconds / 2.5), steps.length - 1);
+        stepText.textContent = steps[stepIdx];
+        progressBar.style.width = `${Math.min(20 + seconds * 12, 94)}%`;
+      }, 1000);
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 150000); 
+      const timeoutId = setTimeout(() => controller.abort(), 120000);
 
       try {
         const response = await fetch('/.netlify/functions/inpaint', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: promptToUse, image: base64Image, mask: base64Mask, model: 'gemini-3.1-flash-image' }),
+          body: JSON.stringify({
+            prompt: promptToUse,
+            image: base64Image,
+            mask: base64Mask,
+            model: 'gemini-3.1-flash-image'
+          }),
           signal: controller.signal
         });
 
@@ -344,108 +668,94 @@
           }
         });
 
-        if (!generatedImgSrc) throw new Error("No image data returned from AI.");
+        if (!generatedImgSrc) throw new Error("No simulation returned from AI.");
 
         isViewingGalleryItem = false;
-        document.getElementById('saveToLibraryBtn').classList.remove('hidden');
         document.getElementById('deleteBtn').classList.add('hidden');
-        document.getElementById('downloadBtn').classList.add('hidden');
-        document.getElementById('closeComparisonBtn').textContent = "Retake";
+        document.getElementById('backBtnText').textContent = "New Scan";
 
         setupSliderDimensions(currentOriginalDataUrl, generatedImgSrc);
+        triggerAutoSave(currentOriginalDataUrl, generatedImgSrc);
 
       } catch (err) {
-        const originalText = submitBtn.innerHTML;
-        submitBtn.textContent = "Failed - Try Again";
-        submitBtn.classList.remove('bg-blue-600', 'hover:bg-blue-500');
-        submitBtn.classList.add('bg-red-600');
-        setTimeout(() => {
-          submitBtn.innerHTML = originalText;
-          submitBtn.classList.add('bg-blue-600', 'hover:bg-blue-500');
-          submitBtn.classList.remove('bg-red-600');
-        }, 3000);
+        alert("Simulation generation failed. Please try again with clear lighting.");
       } finally {
         clearInterval(timer);
         processingView.classList.add('hidden');
-        processingView.classList.remove('fade-in');
       }
     });
 
-    // --- BUG-FREE SLIDER INITIALIZATION ---
+    // --- PROPORTIONAL COMPARISON SLIDER SETUP (ZERO STRETCH) ---
     function setupSliderDimensions(origSrc, genSrc) {
       const origImg = document.getElementById('imgOriginal');
       const genImg = document.getElementById('imgGenerated');
       const container = document.getElementById('compareContainer');
+      const overlay = document.getElementById('imgOverlayWrapper');
+      const slider = document.getElementById('sliderHandle');
 
-      let loadedCount = 0;
-      
-      const onImagesLoaded = () => {
-        const screenW = window.innerWidth - 32; 
-        const screenH = window.innerHeight * 0.6; 
-        const imgW = genImg.naturalWidth || 512;
-        const imgH = genImg.naturalHeight || 512;
+      let loaded = 0;
+      const check = () => {
+        loaded++;
+        if (loaded === 2) {
+          const natW = genImg.naturalWidth || 512;
+          const natH = genImg.naturalHeight || 512;
+          const ratio = natW / natH;
 
-        const scale = Math.min(screenW / imgW, screenH / imgH);
-        const finalW = Math.round(imgW * scale);
-        const finalH = Math.round(imgH * scale);
+          const maxW = Math.min(window.innerWidth - 32, 540);
+          const maxH = window.innerHeight * 0.62;
 
-        container.style.width = finalW + "px";
-        container.style.height = finalH + "px";
-        
-        origImg.style.width = finalW + "px";
-        origImg.style.height = finalH + "px";
-        
-        genImg.style.width = finalW + "px";
-        genImg.style.height = finalH + "px";
+          let targetW, targetH;
+          if (maxW / maxH < ratio) {
+            targetW = maxW;
+            targetH = Math.round(maxW / ratio);
+          } else {
+            targetH = maxH;
+            targetW = Math.round(maxH * ratio);
+          }
 
-        editorView.classList.add('hidden');
-        libraryView.classList.add('hidden');
-        comparisonView.classList.remove('hidden');
-        comparisonView.classList.add('fade-in');
-        
-        setTimeout(initComparisons, 50);
+          container.style.width = `${targetW}px`;
+          container.style.height = `${targetH}px`;
+          origImg.style.width = `${targetW}px`;
+          origImg.style.height = `${targetH}px`;
+          genImg.style.width = `${targetW}px`;
+          genImg.style.height = `${targetH}px`;
+
+          const half = targetW / 2;
+          overlay.style.width = `${half}px`;
+          slider.style.left = `${half}px`;
+
+          editorView.classList.add('hidden');
+          libraryView.classList.add('hidden');
+          comparisonView.classList.remove('hidden');
+          comparisonView.classList.add('fade-enter');
+
+          setTimeout(initComparisons, 30);
+        }
       };
 
-      const checkLoad = () => {
-        loadedCount++;
-        if (loadedCount === 2) onImagesLoaded();
-      };
-
-      origImg.removeAttribute('src');
-      genImg.removeAttribute('src');
-      
-      origImg.onload = checkLoad;
-      genImg.onload = checkLoad;
-      
+      origImg.onload = check;
+      genImg.onload = check;
       origImg.src = origSrc;
       genImg.src = genSrc;
     }
 
-    // --- REWRITTEN SLIDER LOGIC ---
     function initComparisons() {
       const container = document.getElementById('compareContainer');
       const overlay = document.getElementById('imgOverlayWrapper');
       const slider = document.getElementById('sliderHandle');
-
       let isSliding = false;
-      
-      const initialWidth = container.offsetWidth / 2;
-      overlay.style.width = initialWidth + "px";
-      slider.style.left = initialWidth + "px";
 
       function slide(e) {
         if (!isSliding) return;
-        if(e.cancelable) e.preventDefault(); 
-
-        let clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        if (e.cancelable) e.preventDefault();
+        const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
         const rect = container.getBoundingClientRect();
         let x = clientX - rect.left;
-
         if (x < 0) x = 0;
         if (x > rect.width) x = rect.width;
 
-        overlay.style.width = x + "px";
-        slider.style.left = x + "px";
+        overlay.style.width = `${x}px`;
+        slider.style.left = `${x}px`;
       }
 
       container.addEventListener('mousedown', (e) => { isSliding = true; slide(e); });
@@ -457,166 +767,119 @@
       window.addEventListener('touchmove', slide, { passive: false });
     }
 
-    // --- WEBP CONVERSION UTILITY ---
-    async function convertToWebP(src) {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.crossOrigin = 'Anonymous'; 
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = img.width;
-          canvas.height = img.height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0);
-          canvas.toBlob((blob) => {
-            resolve(blob);
-          }, 'image/webp', 0.8);
-        };
-        img.onerror = reject;
-        img.src = src;
-      });
-    }
-
-    // --- SAVE / DELETE / DOWNLOAD / CLOSE ---
-    document.getElementById('saveToLibraryBtn').addEventListener('click', async () => {
-      const btn = document.getElementById('saveToLibraryBtn');
-      const originalHTML = btn.innerHTML;
-      btn.innerHTML = `<div class="w-5 h-5 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin"></div>`;
-      
-      try {
-        const timestamp = Date.now();
-        const origPath = `original_${timestamp}.webp`;
-        const genPath = `generated_${timestamp}.webp`;
-
-        const origSrc = document.getElementById('imgOriginal').src;
-        const genSrc = document.getElementById('imgGenerated').src;
-
-        const origBlob = await convertToWebP(origSrc);
-        const genBlob = await convertToWebP(genSrc);
-
-        await Promise.all([
-          supabaseClient.storage.from('photos').upload(origPath, origBlob, { contentType: 'image/webp' }),
-          supabaseClient.storage.from('photos').upload(genPath, genBlob, { contentType: 'image/webp' })
-        ]);
-
-        await supabaseClient.from('gallery').insert([{ original_image_path: origPath, generated_image_path: genPath }]);
-
-        comparisonView.classList.add('hidden');
-        loadGalleryThumbnail();
-      } catch (err) {
-        alert("Failed to save: " + err.message);
-      } finally {
-        btn.innerHTML = originalHTML;
-      }
-    });
-
-    document.getElementById('deleteBtn').addEventListener('click', async () => {
-      if(!confirm("Delete this image forever?")) return;
-      
-      const btn = document.getElementById('deleteBtn');
-      const originalHTML = btn.innerHTML;
-      btn.innerHTML = `<div class="w-5 h-5 border-2 border-red-500 border-t-transparent rounded-full animate-spin"></div>`;
-
-      try {
-        const { error: dbError } = await supabaseClient.from('gallery').delete().eq('id', currentActiveDocId);
-        if (dbError) throw dbError;
-
-        const { error: storageError } = await supabaseClient.storage.from('photos').remove([currentActiveOrigPath, currentActiveGenPath]);
-        if (storageError) throw storageError;
-        
-        comparisonView.classList.add('hidden');
-        libraryView.classList.remove('hidden');
-        loadGallery();
-        loadGalleryThumbnail();
-      } catch (err) {
-        alert("Failed to delete. Ensure you updated Supabase SQL policies. Error: " + err.message);
-      } finally {
-        btn.innerHTML = originalHTML;
-      }
-    });
-
+    // --- DOWNLOAD ---
     document.getElementById('downloadBtn').addEventListener('click', async () => {
       try {
         const imgSrc = document.getElementById('imgGenerated').src;
         const response = await fetch(imgSrc);
         const blob = await response.blob();
-        
         const blobUrl = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = blobUrl;
-        link.download = `CodeInBlack_Result_${Date.now()}.webp`;
-        
+        link.download = `SmileCreo_${Date.now()}.webp`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(blobUrl);
-      } catch (err) {
-        alert("Failed to download image.");
+      } catch (e) {
+        alert("Export failed.");
       }
     });
 
     document.getElementById('closeComparisonBtn').addEventListener('click', () => {
       comparisonView.classList.add('hidden');
-      if(isViewingGalleryItem) {
+      if (isViewingGalleryItem) {
         libraryView.classList.remove('hidden');
       }
     });
 
-    // --- LIBRARY & GALLERY ---
-    document.getElementById('openLibraryBtn').addEventListener('click', () => {
-      libraryView.classList.remove('hidden');
-      libraryView.classList.add('fade-in');
-      loadGallery();
-    });
+    // --- GALLERY / RECORDS ---
+    document.getElementById('openLibraryBtn').addEventListener('click', openGallery);
+    document.getElementById('navOpenGalleryBtn').addEventListener('click', openGallery);
     document.getElementById('closeLibraryBtn').addEventListener('click', () => libraryView.classList.add('hidden'));
 
+    function openGallery() {
+      libraryView.classList.remove('hidden');
+      libraryView.classList.add('fade-enter');
+      loadGallery();
+    }
+
     async function loadGalleryThumbnail() {
-      const { data } = await supabaseClient.from('gallery').select('generated_image_path').order('created_at', { ascending: false }).limit(1);
-      if (data && data.length > 0) {
-        const { data: { publicUrl } } = supabaseClient.storage.from('photos').getPublicUrl(data[0].generated_image_path);
-        const btn = document.getElementById('openLibraryBtn');
-        btn.style.backgroundImage = `url('${publicUrl}')`;
-      } else {
-        document.getElementById('openLibraryBtn').style.backgroundImage = 'none';
-      }
+      try {
+        const { data } = await supabaseClient.from('gallery').select('generated_image_path').order('created_at', { ascending: false }).limit(1);
+        if (data && data.length > 0) {
+          const { data: { publicUrl } } = supabaseClient.storage.from('photos').getPublicUrl(data[0].generated_image_path);
+          const thumbEl = document.getElementById('galleryThumbImg');
+          thumbEl.style.backgroundImage = `url('${publicUrl}')`;
+          thumbEl.innerHTML = '';
+        }
+      } catch (e) {}
     }
 
     async function loadGallery() {
       const grid = document.getElementById('galleryGrid');
-      grid.innerHTML = Array(12).fill(`<div class="aspect-square bg-gray-900 animate-pulse"></div>`).join('');
-      
-      const { data: docs, error } = await supabaseClient.from('gallery').select('*').order('created_at', { ascending: false });
-      
-      if (!error && docs) {
+      const emptyNotice = document.getElementById('emptyGalleryNotice');
+      grid.innerHTML = Array(6).fill(`<div class="aspect-square bg-white/10 animate-pulse rounded-2xl"></div>`).join('');
+      emptyNotice.classList.add('hidden');
+
+      try {
+        const { data: records, error } = await supabaseClient.from('gallery').select('*').order('created_at', { ascending: false });
+        if (error) throw error;
+
         grid.innerHTML = '';
-        docs.forEach(doc => {
-          const genUrl = supabaseClient.storage.from('photos').getPublicUrl(doc.generated_image_path).data.publicUrl;
-          const origUrl = supabaseClient.storage.from('photos').getPublicUrl(doc.original_image_path).data.publicUrl;
-          
-          const div = document.createElement('div');
-          div.className = "aspect-square bg-gray-900 relative cursor-pointer active:opacity-50 transition-opacity";
-          div.innerHTML = `<img src="${genUrl}" class="w-full h-full object-cover" loading="lazy" />`;
-          
-          div.onclick = () => {
+        if (!records || records.length === 0) {
+          emptyNotice.classList.remove('hidden');
+          return;
+        }
+
+        records.forEach(rec => {
+          const genUrl = supabaseClient.storage.from('photos').getPublicUrl(rec.generated_image_path).data.publicUrl;
+          const origUrl = supabaseClient.storage.from('photos').getPublicUrl(rec.original_image_path).data.publicUrl;
+
+          const card = document.createElement('div');
+          card.className = "aspect-square rounded-2xl overflow-hidden glass-dark cursor-pointer transition active:scale-95 border border-white/10 relative group";
+          card.innerHTML = `<img src="${genUrl}" class="w-full h-full object-cover" loading="lazy" alt="Simulation" />`;
+
+          card.onclick = () => {
             isViewingGalleryItem = true;
-            currentActiveDocId = doc.id;
-            currentActiveOrigPath = doc.original_image_path;
-            currentActiveGenPath = doc.generated_image_path;
-            
-            document.getElementById('saveToLibraryBtn').classList.add('hidden');
+            currentActiveDocId = rec.id;
+            currentActiveOrigPath = rec.original_image_path;
+            currentActiveGenPath = rec.generated_image_path;
+
             document.getElementById('deleteBtn').classList.remove('hidden');
-            document.getElementById('downloadBtn').classList.remove('hidden');
-            document.getElementById('closeComparisonBtn').textContent = "Back";
+            document.getElementById('backBtnText').textContent = "Records";
+            document.getElementById('autoSaveBadge').classList.remove('hidden');
+            document.getElementById('autoSaveIcon').className = "w-2 h-2 rounded-full bg-emerald-400";
+            document.getElementById('autoSaveText').textContent = "Cloud Record";
 
             setupSliderDimensions(origUrl, genUrl);
           };
-          
-          grid.appendChild(div);
+
+          grid.appendChild(card);
         });
+      } catch (err) {
+        grid.innerHTML = `<div class="col-span-full text-center text-xs text-rose-400 py-6">Could not load records.</div>`;
       }
     }
 
-    window.onload = initCamera;
+    // Delete
+    document.getElementById('deleteBtn').addEventListener('click', async () => {
+      if (!confirm("Permanently delete this simulation?")) return;
+      try {
+        await supabaseClient.from('gallery').delete().eq('id', currentActiveDocId);
+        if (currentActiveOrigPath && currentActiveGenPath) {
+          await supabaseClient.storage.from('photos').remove([currentActiveOrigPath, currentActiveGenPath]);
+        }
+        comparisonView.classList.add('hidden');
+        libraryView.classList.remove('hidden');
+        loadGallery();
+        loadGalleryThumbnail();
+      } catch (e) {
+        alert("Failed to delete record: " + e.message);
+      }
+    });
+
+    window.addEventListener('load', initCamera);
   </script>
 </body>
 </html>
