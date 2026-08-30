@@ -140,23 +140,33 @@
   <!-- MAIN WORKSPACE -->
   <main class="relative flex-1 w-full h-full overflow-hidden">
 
-    <!-- VIEW 1: Camera View -->
-<div class="bg-white/80 backdrop-blur-2xl border border-white/70 px-6 py-4 rounded-3xl shadow-glass flex items-center justify-around w-full max-w-sm pointer-events-auto">
-  <!-- Gallery Thumbnail Preview -->
-  <button id="openLibraryBtn" class="w-12 h-12 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shadow-sm active:scale-95 transition flex items-center justify-center relative">
-    <div id="galleryThumbImg" class="w-full h-full bg-cover bg-center flex items-center justify-center text-slate-500">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+    <!-- VIEW 1: Camera & Capture Screen -->
+    <div id="cameraView" class="absolute inset-0 flex flex-col justify-between z-10 bg-black">
+      <div class="relative flex-1 w-full h-full flex items-center justify-center overflow-hidden">
+        <video id="cameraFeed" class="absolute w-full h-full object-cover" autoplay playsinline></video>
+        <canvas id="captureCanvas" class="hidden"></canvas>
+      </div>
+
+      <!-- Floating Bottom Action Bar -->
+      <div class="absolute bottom-6 left-6 right-6 z-20 flex items-center justify-around pointer-events-none">
+        <div class="glass-dark px-6 py-4 rounded-3xl shadow-glass flex items-center justify-around w-full max-w-sm pointer-events-auto">
+          <!-- Gallery Thumbnail Preview -->
+          <button id="openLibraryBtn" class="w-12 h-12 rounded-2xl overflow-hidden bg-slate-800 border border-white/20 shadow-md active:scale-95 transition flex items-center justify-center relative">
+            <div id="galleryThumbImg" class="w-full h-full bg-cover bg-center flex items-center justify-center text-white/70">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            </div>
+          </button>
+
+          <!-- Shutter Button -->
+          <button id="captureBtn" class="shutter-btn shadow-2xl flex items-center justify-center"></button>
+
+          <!-- Switch Camera -->
+          <button id="switchCameraBtn" class="w-12 h-12 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-2xl text-white border border-white/20 active:scale-95 transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+          </button>
+        </div>
+      </div>
     </div>
-  </button>
-
-  <!-- Shutter Button -->
-  <button id="captureBtn" class="shutter-btn shadow-xl flex items-center justify-center"></button>
-
-  <!-- Switch Camera Button -->
-  <button id="switchCameraBtn" class="w-12 h-12 flex items-center justify-center bg-slate-100 hover:bg-slate-200 rounded-2xl text-slate-700 border border-slate-200 active:scale-95 transition">
-    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-  </button>
-</div>
 
     <!-- VIEW 2: Masking Editor Studio -->
     <div id="editorView" class="hidden absolute inset-0 bg-slate-950/70 backdrop-blur-2xl z-20 flex flex-col items-center justify-between p-4 pt-20 pb-6 overflow-y-auto">
