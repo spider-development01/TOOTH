@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Smile Creo</title>
+  <title>Smile Creo — Clinical Dental AI</title>
   
   <!-- Inter Google Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -32,9 +32,9 @@
             }
           },
           boxShadow: {
-            'glass': '0 12px 36px 0 rgba(0, 0, 0, 0.18)',
+            'glass': '0 16px 40px 0 rgba(0, 0, 0, 0.25)',
             'glass-light': '0 12px 34px -4px rgba(15, 23, 42, 0.08)',
-            'pill': '0 4px 16px rgba(11, 92, 255, 0.25)',
+            'pill': '0 4px 20px rgba(11, 92, 255, 0.3)',
           }
         }
       }
@@ -52,28 +52,28 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* Glass Panels */
+    /* Clinical Glass Panels */
     .glass-dark {
-      background: rgba(11, 18, 32, 0.72);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(11, 18, 32, 0.78);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
     }
     
     .glass-light {
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border: 1px solid rgba(255, 255, 255, 0.8);
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid rgba(255, 255, 255, 0.85);
     }
 
     /* Camera Shutter */
     .shutter-btn {
-      width: 72px;
-      height: 72px;
+      width: 74px;
+      height: 74px;
       border-radius: 50%;
       background: #FFFFFF;
-      border: 4px solid rgba(11, 18, 32, 0.8);
+      border: 4px solid rgba(11, 18, 32, 0.85);
       outline: 3px solid #0B5CFF;
       transition: transform 0.12s cubic-bezier(0.4, 0, 0.2, 1);
     }
@@ -116,7 +116,7 @@
 </head>
 <body class="h-screen w-screen overflow-hidden flex flex-col bg-slate-950 text-slate-900 antialiased select-none">
 
-  <!-- FLOATING MINIMAL HEADER -->
+  <!-- FLOATING MINIMAL NAVBAR -->
   <header class="absolute top-4 left-4 right-4 z-30 flex items-center justify-between pointer-events-none">
     <div class="glass-light pointer-events-auto px-4 py-2 rounded-full shadow-glass-light flex items-center space-x-2.5">
       <div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-white text-xs font-bold shadow-sm">
@@ -149,10 +149,10 @@
         <canvas id="captureCanvas" class="hidden"></canvas>
       </div>
 
-      <!-- Floating Bottom Camera Bar -->
+      <!-- Floating Bottom Action Bar -->
       <div class="absolute bottom-6 left-6 right-6 z-20 flex items-center justify-around pointer-events-none">
         <div class="glass-dark px-6 py-4 rounded-3xl shadow-glass flex items-center justify-around w-full max-w-sm pointer-events-auto">
-          <!-- Gallery Thumbnail -->
+          <!-- Gallery Thumbnail Preview -->
           <button id="openLibraryBtn" class="w-12 h-12 rounded-2xl overflow-hidden bg-slate-800 border border-white/20 shadow-md active:scale-95 transition flex items-center justify-center relative">
             <div id="galleryThumbImg" class="w-full h-full bg-cover bg-center flex items-center justify-center text-white/70">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
@@ -171,40 +171,40 @@
     </div>
 
     <!-- VIEW 2: Clinical Treatment & Masking Studio -->
-    <div id="editorView" class="hidden absolute inset-0 bg-slate-900/40 backdrop-blur-2xl z-20 flex flex-col items-center justify-between p-4 pt-20 pb-6 overflow-y-auto">
+    <div id="editorView" class="hidden absolute inset-0 bg-slate-950/70 backdrop-blur-2xl z-20 flex flex-col items-center justify-between p-4 pt-20 pb-6 overflow-y-auto">
       
-      <!-- Top Action Floating Bar -->
-      <div class="glass-light px-4 py-2 rounded-full shadow-glass-light flex items-center space-x-4 mb-3">
+      <!-- Top Action Bar -->
+      <div class="glass-light px-4 py-2 rounded-full shadow-glass-light flex items-center space-x-4 mb-2">
         <button id="cancelEditBtn" class="text-xs font-semibold text-slate-600 hover:text-dark flex items-center space-x-1 active:opacity-60">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
           <span>Retake</span>
         </button>
         <span class="w-px h-4 bg-slate-200"></span>
-        <span class="text-xs font-bold text-dark uppercase tracking-wider">Paint Treatment Area</span>
+        <span class="text-xs font-bold text-dark uppercase tracking-wider">Paint Target Teeth</span>
         <span class="w-px h-4 bg-slate-200"></span>
         <button id="clearMaskBtn" class="text-xs font-semibold text-primary hover:text-primary-dark active:opacity-60">
           Reset
         </button>
       </div>
 
-      <!-- Canvas Card: Exact Aspect Ratio Maintained -->
-      <div class="relative flex items-center justify-center p-2 rounded-3xl glass-light shadow-glass-light border border-white/60 mb-3">
+      <!-- Canvas Card: Exact Aspect Ratio Maintained (No Stretching) -->
+      <div class="relative flex items-center justify-center p-2 rounded-3xl glass-light shadow-glass-light border border-white/60 mb-2">
         <div id="canvasContainer" class="relative rounded-2xl overflow-hidden bg-black flex items-center justify-center">
           <canvas id="baseCanvas" class="block"></canvas>
-          <canvas id="maskCanvas" class="absolute top-0 left-0 cursor-crosshair opacity-60"></canvas>
+          <canvas id="maskCanvas" class="absolute top-0 left-0 cursor-crosshair opacity-55"></canvas>
         </div>
       </div>
 
       <!-- Floating Controls Card -->
-      <div class="w-full max-w-md glass-light rounded-3xl p-4 shadow-glass-light border border-white/70 space-y-3.5">
-        <!-- Brush Slider -->
+      <div class="w-full max-w-md glass-light rounded-3xl p-4 shadow-glass-light border border-white/70 space-y-3">
+        <!-- Brush Size -->
         <div class="flex items-center space-x-3 bg-slate-100/80 px-3 py-2 rounded-2xl border border-slate-200/60">
           <span class="text-[11px] font-semibold text-slate-500">Brush</span>
           <input type="range" id="brushSize" min="6" max="60" value="20" class="flex-1" />
           <span id="brushSizeLabel" class="text-[11px] font-mono text-slate-600 font-medium">20px</span>
         </div>
 
-        <!-- 4 Treatment Selector Pills -->
+        <!-- 4 Medical Treatment Selectors -->
         <div class="grid grid-cols-4 gap-1.5">
           <button data-treatment="implants" class="treatment-pill flex flex-col items-center py-2 px-1 rounded-2xl border border-primary bg-primary text-white transition active:scale-95 shadow-sm">
             <span class="text-base mb-0.5">🦷</span>
@@ -227,17 +227,17 @@
           </button>
         </div>
 
-        <!-- Submit CTA -->
+        <!-- Submit Button -->
         <button id="submitBtn" class="w-full bg-primary hover:bg-primary-dark text-white font-semibold py-3 px-4 rounded-2xl shadow-pill transition active:scale-[0.98] flex items-center justify-center space-x-2 text-xs">
-          <span>Generate Smile Simulation</span>
-          <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded-full">✦ AI</span>
+          <span>Generate Simulation</span>
+          <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded-full">✦ Clinical AI</span>
         </button>
       </div>
 
     </div>
 
     <!-- VIEW 3: Clinical AI Processing Overlay -->
-    <div id="processingView" class="hidden absolute inset-0 bg-black/60 backdrop-blur-xl z-40 flex items-center justify-center p-6">
+    <div id="processingView" class="hidden absolute inset-0 bg-black/70 backdrop-blur-xl z-40 flex items-center justify-center p-6">
       <div class="glass-light rounded-3xl p-7 max-w-xs w-full shadow-glass text-center space-y-4 fade-enter">
         <div class="relative w-14 h-14 mx-auto flex items-center justify-center">
           <div class="absolute inset-0 rounded-full border-3 border-blue-100 border-t-primary animate-spin"></div>
@@ -245,19 +245,19 @@
         </div>
         
         <div class="space-y-1">
-          <h3 id="processingStepText" class="text-sm font-bold text-dark">Simulating Treatment...</h3>
-          <p class="text-[11px] text-slate-500">Matching natural enamel & lighting</p>
+          <h3 id="processingStepText" class="text-sm font-bold text-dark">Locking Facial Features...</h3>
+          <p class="text-[11px] text-slate-500">Synthesizing clinical tooth anatomy</p>
         </div>
 
         <div class="w-full bg-slate-200/80 h-1.5 rounded-full overflow-hidden">
           <div id="progressBar" class="bg-primary h-full rounded-full transition-all duration-300 w-1/4"></div>
         </div>
 
-        <span id="timerText" class="text-[11px] font-mono text-slate-400 block">Processing... 0s</span>
+        <span id="timerText" class="text-[11px] font-mono text-slate-400 block">Synthesizing... 0s</span>
       </div>
     </div>
 
-    <!-- VIEW 4: Interactive Before / After Split Slider -->
+    <!-- VIEW 4: Interactive Split Slider (Zero Stretching & Exact Alignment) -->
     <div id="comparisonView" class="hidden absolute inset-0 bg-black z-30 flex flex-col justify-between p-4 pt-20 pb-6">
       
       <!-- Top Action Controls -->
@@ -285,7 +285,7 @@
         </div>
       </div>
 
-      <!-- Centered Slider Container (Preserves Exact Aspect Ratio) -->
+      <!-- Split Slider Container (Calculated proportional bounds) -->
       <div class="flex-1 flex items-center justify-center my-auto p-2">
         <div id="compareContainer" class="relative rounded-3xl select-none bg-black overflow-hidden shadow-2xl border border-white/10" style="touch-action: none;">
           <!-- Bottom Original Layer -->
@@ -299,12 +299,12 @@
           <div id="imgOverlayWrapper" class="absolute top-0 left-0 h-full overflow-hidden rounded-3xl z-10" style="width: 50%;">
             <img id="imgGenerated" class="block rounded-3xl pointer-events-none max-w-none" draggable="false" alt="Simulated smile" />
             
-            <div class="absolute top-3.5 left-3.5 z-10 px-2.5 py-1 bg-primary/80 backdrop-blur-md rounded-full text-[10px] font-bold tracking-wider text-white border border-blue-300/40 uppercase">
+            <div class="absolute top-3.5 left-3.5 z-10 px-2.5 py-1 bg-primary/85 backdrop-blur-md rounded-full text-[10px] font-bold tracking-wider text-white border border-blue-300/40 uppercase">
               Simulation
             </div>
           </div>
 
-          <!-- Draggable Pill Split Handle -->
+          <!-- Split Handle -->
           <div id="sliderHandle" class="absolute top-0 bottom-0 flex flex-col items-center justify-center cursor-ew-resize z-20" style="left: 50%; transform: translateX(-50%); width: 40px;">
             <div class="absolute top-0 bottom-0 w-0.5 bg-white shadow-xl"></div>
             <div class="relative w-8 h-8 bg-white rounded-full shadow-2xl flex items-center justify-center border-2 border-primary text-primary active:scale-90 transition">
@@ -315,7 +315,7 @@
       </div>
 
       <div class="text-center text-[11px] font-medium text-white/50 pb-1">
-        Drag slider to compare post-treatment results
+        Drag slider to compare simulation
       </div>
     </div>
 
@@ -336,7 +336,7 @@
         <div id="emptyGalleryNotice" class="hidden text-center py-16 space-y-2 text-white">
           <div class="w-10 h-10 rounded-2xl bg-white/10 text-white flex items-center justify-center mx-auto text-lg font-bold">✦</div>
           <h3 class="text-sm font-bold">No simulations yet</h3>
-          <p class="text-xs text-white/50">Capture or upload a photo to generate realistic results.</p>
+          <p class="text-xs text-white/50">Capture or upload a photo to generate realistic dental records.</p>
         </div>
       </div>
     </div>
@@ -349,6 +349,18 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxZnp2ZWRycHppaGR0bXdjZHlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2MjE2MjUsImV4cCI6MjEwMjE5NzYyNX0.ZXf3hYfr-qWiUxVhbQA9_VymeoTEoGLHoS8ou8xzCOQ';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    // --- CLINICAL INPAINTING PROMPTS WITH STRICT PRESERVATION BOUNDS ---
+    // These prompts prevent the model from altering the patient's face, skin, unmasked teeth, or lips.
+    const PROMPTS = {
+      implants: "Clinical dental macro photography inpainting. STRICT PRESERVATION CONSTRAINT: DO NOT alter any pixels outside the masked area. Keep the patient's face, lips, skin, smile line, gums outside the mask, lighting, and camera angle 100% unchanged. INPAINTING DIRECTIVE: In the white masked area only, reconstruct the damaged, broken, or missing teeth with realistic, anatomically correct dental crowns/implants. Model realistic tooth anatomy: natural incisal translucency, subtle mamelons, micro-grooves, realistic cervical margins, and natural light reflection. Match the adjacent natural tooth shade (natural VITA A1/A2). Keep the gingival margin healthy pink with natural stippling. Medical dental photograph, zero plastic AI look, no cartoon smoothness.",
+      
+      aligners: "Clinical orthodontic inpainting. STRICT PRESERVATION CONSTRAINT: DO NOT modify any unmasked regions. Keep the patient's face, lips, skin, surrounding smile line, and photographic lighting 100% unchanged. INPAINTING DIRECTIVE: In the white masked area only, simulate the completed post-treatment result of clear aligner therapy. Straighten crowded, rotated, or tilted teeth into a natural, balanced dental arch. Preserve the patient's natural tooth morphology, natural enamel texture, subtle color gradients, and individual tooth anatomy. Ensure interdental papilla and gum line seat naturally. Natural dental macro photograph, highly realistic clinical outcome.",
+      
+      braces: "Clinical orthodontic photography inpainting. STRICT PRESERVATION CONSTRAINT: DO NOT change the face, lips, skin, tooth anatomy, or lighting outside the mask. INPAINTING DIRECTIVE: In the white masked area only, realistically render clinical orthodontic fixed appliances on the teeth. Place precise miniature medical-grade stainless steel brackets on the center of each tooth with a thin, continuous titanium-nickel archwire threaded through them, secured with natural clear/silver elastic ligatures. Brackets must realistically curve with the tooth surfaces with accurate metallic reflections and subtle shadows. Ultra-realistic macro dental photograph.",
+      
+      whitening: "Clinical dental whitening inpainting. STRICT PRESERVATION CONSTRAINT: DO NOT change the patient's face, skin, lips, or lighting outside the mask. INPAINTING DIRECTIVE: In the white masked area only, realistically brighten the tooth shade by 3-4 VITA shades to a natural bright healthy white (VITA Bleach Shade 0M2). Retain natural tooth surface micro-textures, incisal edge translucency, and natural subtle light highlights. Do NOT generate flat opaque chalky white or plastic look. Keep gums and lips healthy natural pink. Realistic macro dental photograph."
+    };
+
     // --- APP STATE ---
     let videoStream = null;
     let currentFacingMode = 'environment';
@@ -356,24 +368,17 @@
     let currentOriginalDataUrl = null;
     let activePromptType = 'implants';
 
-    const PROMPTS = {
-      implants: "Generate a realistic dental restoration for the masked damaged, missing, or rotten teeth. Reconstruct healthy, natural working teeth and implants matching the patient's surrounding teeth shade, natural enamel texture, gum contour, and the exact photographic lighting and angle.",
-      aligners: "Simulate a post-treatment clear aligner outcome on the masked teeth. Straighten misaligned or crowded teeth into a perfectly balanced natural dental arch, preserving natural enamel translucency and exact photographic lighting.",
-      braces: "Add realistic, high-grade orthodontic brackets and archwire braces to the masked teeth. Ensure bracket placement and wire curvature are anatomically accurate and match the lighting and perspective of the photo.",
-      whitening: "Simulate clinical teeth whitening on the masked teeth. Lift the shade by 3-4 VITA shades to a natural bright healthy white, maintaining natural surface gradients, gum health, and ambient lighting."
-    };
-
     let isViewingGalleryItem = false;
     let currentActiveDocId = null;
     let currentActiveOrigPath = null;
     let currentActiveGenPath = null;
 
-    // DOM
+    // DOM Elements
     const cameraFeed = document.getElementById('cameraFeed');
     const baseCanvas = document.getElementById('baseCanvas');
     const maskCanvas = document.getElementById('maskCanvas');
-    const baseCtx = baseCanvas.getContext('2d');
-    const maskCtx = maskCanvas.getContext('2d');
+    const baseCtx = baseCanvas.getContext('2d', { willReadFrequently: true });
+    const maskCtx = maskCanvas.getContext('2d', { willReadFrequently: true });
     const brushSizeInput = document.getElementById('brushSize');
     const brushSizeLabel = document.getElementById('brushSizeLabel');
 
@@ -414,9 +419,10 @@
       });
     });
 
-    // --- PROPER RESOLUTION & PROPORTIONAL ASPECT RATIO (NO STRETCH) ---
+    // --- RESOLUTION & EXACT ASPECT RATIO CALCULATION ---
     function prepareEditor(source, origW, origH) {
-      const MAX_SIZE = 512;
+      // 768px provides significantly sharper details for dental enamel texture
+      const MAX_SIZE = 768;
       let width = origW;
       let height = origH;
       const aspectRatio = origW / origH;
@@ -438,7 +444,7 @@
       maskCanvas.width = width;
       maskCanvas.height = height;
 
-      // Fit gracefully inside screen
+      // Fit gracefully inside screen without stretching
       const maxDisplayW = Math.min(window.innerWidth - 48, 480);
       const maxDisplayH = window.innerHeight * 0.45;
       
@@ -461,7 +467,7 @@
 
       baseCtx.clearRect(0, 0, width, height);
       baseCtx.drawImage(source, 0, 0, width, height);
-      currentOriginalDataUrl = baseCanvas.toDataURL('image/jpeg', 0.88);
+      currentOriginalDataUrl = baseCanvas.toDataURL('image/jpeg', 0.95);
 
       clearMask();
       editorView.classList.remove('hidden');
@@ -498,9 +504,9 @@
       fileInput.value = '';
     });
 
-    // --- MASK DRAWING ---
+    // --- PURE BINARY LOSSLESS MASKING ---
     function clearMask() {
-      maskCtx.fillStyle = 'black';
+      maskCtx.fillStyle = '#000000';
       maskCtx.fillRect(0, 0, maskCanvas.width, maskCanvas.height);
     }
     document.getElementById('clearMaskBtn').addEventListener('click', clearMask);
@@ -538,10 +544,12 @@
       if (!isDrawing) return;
       e.preventDefault();
       const pos = getCanvasCoordinates(maskCanvas, e);
-      maskCtx.lineWidth = brushSizeInput.value;
+      // Scale brush proportionally with canvas internal size
+      const scaleFactor = maskCanvas.width / maskCanvas.getBoundingClientRect().width;
+      maskCtx.lineWidth = brushSizeInput.value * scaleFactor;
       maskCtx.lineCap = 'round';
       maskCtx.lineJoin = 'round';
-      maskCtx.strokeStyle = 'white';
+      maskCtx.strokeStyle = '#FFFFFF';
       maskCtx.lineTo(pos.x, pos.y);
       maskCtx.stroke();
       maskCtx.beginPath();
@@ -556,7 +564,7 @@
     maskCanvas.addEventListener('touchmove', draw, { passive: false });
     maskCanvas.addEventListener('touchend', endDraw);
 
-    // --- AUTOSAVE ENGINE (SUPABASE WEBP CONVERSION) ---
+    // --- AUTOSAVE ENGINE (SUPABASE WEBP) ---
     async function convertToWebP(src) {
       return new Promise((resolve, reject) => {
         const img = new Image();
@@ -616,11 +624,15 @@
       }
     }
 
-    // --- AI INPAINTING ---
+    // --- AI INPAINTING EXECUTION ---
     document.getElementById('submitBtn').addEventListener('click', async () => {
       const promptToUse = PROMPTS[activePromptType];
-      const base64Image = baseCanvas.toDataURL('image/jpeg', 0.85).split(',')[1];
-      const base64Mask = maskCanvas.toDataURL('image/jpeg', 1.0).split(',')[1];
+      
+      // High-quality base image
+      const base64Image = baseCanvas.toDataURL('image/jpeg', 0.95).split(',')[1];
+      
+      // CRITICAL: Lossless PNG mask ensures razor-sharp mask boundary with 0 compression blur
+      const base64Mask = maskCanvas.toDataURL('image/png').split(',')[1];
 
       processingView.classList.remove('hidden');
       
@@ -629,10 +641,16 @@
       const progressBar = document.getElementById('progressBar');
       const stepText = document.getElementById('processingStepText');
       
-      const steps = ["Analyzing Smile...", "Restoring Contours...", "Matching Enamel & Shading...", "Finishing..."];
+      const steps = [
+        "Locking Facial Contours...",
+        "Preserving Surrounding Smile...",
+        "Synthesizing Enamel & Anatomy...",
+        "Refining Light Reflections..."
+      ];
+      
       const timer = setInterval(() => {
         seconds++;
-        timerText.textContent = `Processing... ${seconds}s`;
+        timerText.textContent = `Synthesizing... ${seconds}s`;
         const stepIdx = Math.min(Math.floor(seconds / 2.5), steps.length - 1);
         stepText.textContent = steps[stepIdx];
         progressBar.style.width = `${Math.min(20 + seconds * 12, 94)}%`;
@@ -678,14 +696,15 @@
         triggerAutoSave(currentOriginalDataUrl, generatedImgSrc);
 
       } catch (err) {
-        alert("Simulation generation failed. Please try again with clear lighting.");
+        console.error(err);
+        alert("Simulation failed. Ensure target teeth are completely covered by the white mask brush.");
       } finally {
         clearInterval(timer);
         processingView.classList.add('hidden');
       }
     });
 
-    // --- PROPORTIONAL COMPARISON SLIDER SETUP (ZERO STRETCH) ---
+    // --- PROPORTIONAL COMPARISON SLIDER (ZERO STRETCH) ---
     function setupSliderDimensions(origSrc, genSrc) {
       const origImg = document.getElementById('imgOriginal');
       const genImg = document.getElementById('imgGenerated');
@@ -862,7 +881,7 @@
       }
     }
 
-    // Delete
+    // Delete Record
     document.getElementById('deleteBtn').addEventListener('click', async () => {
       if (!confirm("Permanently delete this simulation?")) return;
       try {
