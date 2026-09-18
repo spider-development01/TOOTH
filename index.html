@@ -52,6 +52,28 @@
       -webkit-tap-highlight-color: transparent;
     }
 
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.7);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.22);
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(11, 92, 255, 0.75);
+    }
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.22) rgba(15, 23, 42, 0.7);
+    }
+
     .glass-dark {
       background: rgba(11, 18, 32, 0.78);
       backdrop-filter: blur(28px);
@@ -168,7 +190,7 @@
     </div>
 
     <!-- VIEW 2: Masking Editor Studio (With Zoom & Brush Selection) -->
-    <div id="editorView" class="hidden absolute inset-0 bg-slate-950/75 backdrop-blur-2xl z-20 flex flex-col items-center justify-between p-4 pt-16 pb-5 overflow-y-auto">
+    <div id="editorView" class="hidden absolute inset-0 bg-slate-950/75 backdrop-blur-2xl z-20 flex flex-col items-center justify-between p-3 pt-16 pb-4 overflow-y-auto">
       
       <!-- Top Action Bar -->
       <div class="glass-light px-4 py-2 rounded-full shadow-glass-light flex items-center space-x-3 mb-1">
@@ -177,16 +199,16 @@
           <span>Retake</span>
         </button>
         <span class="w-px h-4 bg-slate-200"></span>
-        <span class="text-xs font-bold text-dark uppercase tracking-wider">Paint Exact Tooth Area</span>
+        <span class="text-xs font-bold text-dark uppercase tracking-wider">Paint Target Area</span>
         <span class="w-px h-4 bg-slate-200"></span>
         <button id="clearMaskBtn" class="text-xs font-semibold text-primary hover:text-primary-dark active:opacity-60">
-          Reset Mask
+          Reset
         </button>
       </div>
 
       <!-- Tool Mode & Zoom Controls Toolbar -->
-      <div class="w-full max-w-md flex items-center justify-between px-1 mb-2">
-        <!-- Tool Switcher: Move/Zoom vs Brush -->
+      <div class="w-full max-w-xl flex items-center justify-between px-1 mb-1.5">
+        <!-- Tool Switcher -->
         <div class="flex items-center p-1 bg-slate-900/90 rounded-2xl border border-white/15 shadow-md space-x-1">
           <button id="editorToolPanBtn" type="button" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition active:scale-95 bg-primary text-white shadow-pill" title="Pan and Zoom image">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11"></path></svg>
@@ -198,7 +220,7 @@
           </button>
         </div>
 
-        <!-- Zoom In / Out / Reset -->
+        <!-- Zoom Controls -->
         <div class="flex items-center p-1 bg-slate-900/90 rounded-2xl border border-white/15 shadow-md space-x-1 text-white">
           <button id="editorZoomOutBtn" type="button" class="w-7 h-7 rounded-xl hover:bg-white/10 flex items-center justify-center font-bold text-sm transition active:scale-90 text-slate-300 hover:text-white" title="Zoom Out">−</button>
           <button id="editorZoomResetBtn" type="button" class="px-2 h-7 rounded-xl hover:bg-white/10 flex items-center justify-center text-[11px] font-mono font-medium text-slate-300 hover:text-white transition active:scale-90" title="Reset to 100%">
@@ -208,7 +230,7 @@
         </div>
       </div>
 
-      <!-- Canvas Frame (With smooth zoom and pan viewport) -->
+      <!-- Canvas Frame (Expanded sizing) -->
       <div class="relative flex items-center justify-center p-2 rounded-3xl glass-light shadow-glass-light border border-white/60 mb-2 select-none">
         <div id="canvasContainer" class="relative rounded-2xl overflow-hidden bg-black flex items-center justify-center cursor-grab" style="touch-action: none;">
           <div id="editorViewport" class="relative select-none" style="transform-origin: 0 0;">
@@ -219,9 +241,9 @@
       </div>
 
       <!-- Floating Controls Card -->
-      <div class="w-full max-w-md glass-light rounded-3xl p-4 shadow-glass-light border border-white/70 space-y-3">
+      <div class="w-full max-w-xl glass-light rounded-3xl p-3.5 shadow-glass-light border border-white/70 space-y-2.5">
         <!-- Brush Size Slider -->
-        <div class="flex items-center space-x-3 bg-slate-100/80 px-3 py-2 rounded-2xl border border-slate-200/60">
+        <div class="flex items-center space-x-3 bg-slate-100/80 px-3 py-1.5 rounded-2xl border border-slate-200/60">
           <svg class="w-4 h-4 text-primary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
           <span class="text-[11px] font-semibold text-slate-600 shrink-0">Brush Size</span>
           <input type="range" id="brushSize" min="4" max="60" value="16" class="flex-1" />
@@ -260,31 +282,31 @@
     </div>
 
     <!-- VIEW 3: Processing Overlay -->
-    <div id="processingView" class="hidden absolute inset-0 bg-black/70 backdrop-blur-xl z-40 flex items-center justify-center p-6">
+    <div id="processingView" class="hidden absolute inset-0 bg-black/75 backdrop-blur-xl z-40 flex items-center justify-center p-6">
       <div class="glass-light rounded-3xl p-7 max-w-xs w-full shadow-glass text-center space-y-4 fade-enter">
         <div class="relative w-14 h-14 mx-auto flex items-center justify-center">
           <div class="absolute inset-0 rounded-full border-3 border-blue-100 border-t-primary animate-spin"></div>
-          <span class="text-lg">🦷</span>
+          <span class="text-lg">✨</span>
         </div>
         
         <div class="space-y-1">
-          <h3 id="processingStepText" class="text-sm font-bold text-dark">Synthesizing Inpaint...</h3>
-          <p class="text-[11px] text-slate-500">Locking unmasked photo pixels</p>
+          <h3 id="processingStepText" class="text-sm font-bold text-dark">Doing magic it is...</h3>
+          <p class="text-[11px] text-slate-500">Doing magic it is...</p>
         </div>
 
         <div class="w-full bg-slate-200/80 h-1.5 rounded-full overflow-hidden">
           <div id="progressBar" class="bg-primary h-full rounded-full transition-all duration-300 w-1/4"></div>
         </div>
 
-        <span id="timerText" class="text-[11px] font-mono text-slate-400 block">Processing... 0s</span>
+        <span id="timerText" class="text-[11px] font-mono text-slate-400 block">Doing magic it is... 0s</span>
       </div>
     </div>
 
-    <!-- VIEW 4: Precision Comparison Slider (With Records Zoom, Pan & Bottom-Right Send Button) -->
-    <div id="comparisonView" class="hidden absolute inset-0 bg-black z-30 flex flex-col justify-between p-4 pt-16 pb-20">
+    <!-- VIEW 4: Precision Comparison Slider (With Bigger Image Display) -->
+    <div id="comparisonView" class="hidden absolute inset-0 bg-black z-30 flex flex-col justify-between p-3 pt-16 pb-3">
       
       <!-- Top Navigation & Actions -->
-      <div class="flex items-center justify-between w-full max-w-lg mx-auto z-20">
+      <div class="flex items-center justify-between w-full max-w-2xl mx-auto z-20">
         <button id="closeComparisonBtn" class="glass-dark px-4 py-2 rounded-full text-xs font-semibold text-white hover:text-slate-200 shadow-glass transition active:scale-95 flex items-center space-x-1">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
           <span id="backBtnText">New Scan</span>
@@ -300,7 +322,7 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
           </button>
 
-          <button id="downloadBtn" class="bg-primary hover:bg-primary-dark text-white px-3.5 py-2 rounded-full text-xs font-semibold shadow-pill transition active:scale-95 flex items-center space-x-1" title="Download Image">
+          <button id="downloadBtn" class="bg-primary hover:bg-primary-dark text-white px-3.5 py-2 rounded-full text-xs font-semibold shadow-pill transition active:scale-95 flex items-center space-x-1">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
             <span>Export</span>
           </button>
@@ -308,20 +330,20 @@
       </div>
 
       <!-- Zoom & Inspection Controls for Records -->
-      <div class="flex items-center justify-between w-full max-w-lg mx-auto px-2 my-1.5 z-20">
+      <div class="flex items-center justify-between w-full max-w-2xl mx-auto px-1 my-1 z-20">
         <!-- Split vs Pan Toggle -->
         <div class="flex items-center p-1 bg-slate-900/90 rounded-2xl border border-white/15 shadow-glass space-x-1">
-          <button id="compModeSplitBtn" type="button" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition active:scale-95 bg-primary text-white shadow-pill" title="Slide to compare">
+          <button id="compModeSplitBtn" type="button" class="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition active:scale-95 bg-primary text-white shadow-pill" title="Slide to compare">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg>
             <span>Slide</span>
           </button>
-          <button id="compModePanBtn" type="button" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition active:scale-95 text-slate-300 hover:text-white" title="Pan zoomed view">
+          <button id="compModePanBtn" type="button" class="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition active:scale-95 text-slate-300 hover:text-white" title="Pan zoomed view">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11"></path></svg>
             <span>Pan</span>
           </button>
         </div>
 
-        <!-- Zoom In / Out / Reset -->
+        <!-- Zoom Controls -->
         <div class="flex items-center p-1 bg-slate-900/90 rounded-2xl border border-white/15 shadow-glass space-x-1 text-white">
           <button id="compZoomOutBtn" type="button" class="w-7 h-7 rounded-xl hover:bg-white/10 flex items-center justify-center font-bold text-sm transition active:scale-90 text-slate-300 hover:text-white" title="Zoom Out">−</button>
           <button id="compZoomResetBtn" type="button" class="px-2 h-7 rounded-xl hover:bg-white/10 flex items-center justify-center text-[11px] font-mono font-medium text-slate-300 hover:text-white transition active:scale-90" title="Reset Zoom">
@@ -331,20 +353,20 @@
         </div>
       </div>
 
-      <!-- Composite Split Container (Bit-for-bit aligned with Zoom Viewport) -->
-      <div class="flex-1 flex items-center justify-center my-auto p-2 overflow-hidden">
-        <div id="compareContainer" class="relative rounded-3xl select-none bg-black overflow-hidden shadow-2xl border border-white/10" style="touch-action: none;">
+      <!-- Composite Split Container (Bigger viewport display) -->
+      <div class="flex-1 w-full flex items-center justify-center my-auto p-1 overflow-hidden min-h-0">
+        <div id="compareContainer" class="relative rounded-3xl select-none bg-black overflow-hidden shadow-2xl border border-white/15" style="touch-action: none;">
           
           <!-- Zoomable & Pannable Viewport -->
           <div id="compareViewport" class="relative select-none" style="transform-origin: 0 0;">
-            <!-- Pristine Original Photo -->
+            <!-- Original Photo -->
             <img id="imgOriginal" class="block rounded-3xl pointer-events-none" draggable="false" alt="Original photo" />
             
             <div class="absolute top-3.5 right-3.5 z-10 px-2.5 py-1 bg-black/60 backdrop-blur-md rounded-full text-[10px] font-bold tracking-wider text-white border border-white/20 uppercase">
               Original
             </div>
 
-            <!-- Pixel-Locked Composite Simulation -->
+            <!-- Inpainted Layer -->
             <div id="imgOverlayWrapper" class="absolute top-0 left-0 h-full overflow-hidden rounded-3xl z-10" style="width: 50%;">
               <img id="imgGenerated" class="block rounded-3xl pointer-events-none max-w-none" draggable="false" alt="Inpainted simulation" />
               
@@ -354,8 +376,8 @@
             </div>
           </div>
 
-          <!-- Slider Split Handle (Visible in Slide mode, hidden in Pan mode) -->
-          <div id="sliderHandle" class="absolute top-0 bottom-0 flex flex-col items-center justify-center cursor-ew-resize z-20" style="left: 50%; transform: translateX(-50%); width: 44px;">
+          <!-- Slider Split Handle (Strictly enabled in Split mode only) -->
+          <div id="sliderHandle" class="absolute top-0 bottom-0 flex flex-col items-center justify-center cursor-ew-resize z-20 transition-opacity duration-200" style="left: 50%; transform: translateX(-50%); width: 44px;">
             <div class="absolute top-0 bottom-0 w-0.5 bg-white shadow-xl"></div>
             <div class="relative w-8 h-8 bg-white rounded-full shadow-2xl flex items-center justify-center border-2 border-primary text-primary active:scale-90 transition">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg>
@@ -365,21 +387,9 @@
         </div>
       </div>
 
-      <!-- FLOATING BOTTOM BAR WITH SEND BUTTON IN BOTTOM RIGHT CORNER -->
-      <div class="absolute bottom-5 left-4 right-4 z-20 flex items-center justify-between pointer-events-none">
-        <div class="text-left text-[11px] font-medium text-white/50 pointer-events-none pl-2">
-          <span>Zoom & slide to inspect dental restoration</span>
-        </div>
-
-        <div class="flex items-center space-x-2 pointer-events-auto">
-          <!-- SEND BUTTON (BOTTOM RIGHT CORNER) -->
-          <button id="sendBtn" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-full text-xs font-semibold shadow-pill transition active:scale-95 flex items-center space-x-1.5 shadow-lg" title="Send / Share Simulation">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-            <span>Send</span>
-          </button>
-        </div>
+      <div class="text-center text-[11px] font-medium text-white/50 pb-0.5">
+        Zoom & inspect dental restoration details up close
       </div>
-
     </div>
 
     <!-- VIEW 5: Records Gallery -->
@@ -396,7 +406,7 @@
         <div class="w-16"></div>
       </div>
 
-      <div class="flex-1 overflow-y-auto max-w-4xl mx-auto w-full">
+      <div class="flex-1 overflow-y-auto max-w-4xl mx-auto w-full pr-1">
         <div id="galleryGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"></div>
         
         <div id="emptyGalleryNotice" class="hidden text-center py-16 space-y-2 text-white">
@@ -456,8 +466,8 @@
     let compPanX = 0;
     let compPanY = 0;
     let compSplitPercent = 0.5;
-    let compTargetW = 400;
-    let compTargetH = 400;
+    let compTargetW = 480;
+    let compTargetH = 480;
     let isCompSliding = false;
     let isCompPanning = false;
     let compPanStartX = 0;
@@ -561,10 +571,10 @@
         return;
       }
 
-      const minX = contW - contentW - 50;
-      const maxX = 50;
-      const minY = contH - contentH - 50;
-      const maxY = 50;
+      const minX = contW - contentW - 60;
+      const maxX = 60;
+      const minY = contH - contentH - 60;
+      const maxY = 60;
 
       editorPanX = Math.min(Math.max(editorPanX, minX), maxX);
       editorPanY = Math.min(Math.max(editorPanY, minY), maxY);
@@ -602,9 +612,9 @@
       updateEditorTransform();
     });
 
-    // --- IMAGE PREPARATION & EXACT ASPECT RATIO ---
+    // --- IMAGE PREPARATION (Enlarged sizing) ---
     function prepareEditor(source, origW, origH) {
-      const MAX_SIZE = 768;
+      const MAX_SIZE = 896;
       let width = origW;
       let height = origH;
       const aspectRatio = origW / origH;
@@ -626,8 +636,9 @@
       maskCanvas.width = width;
       maskCanvas.height = height;
 
-      const maxDisplayW = Math.min(window.innerWidth - 48, 480);
-      const maxDisplayH = window.innerHeight * 0.44;
+      // Bigger UI display bounds for easier masking
+      const maxDisplayW = Math.min(window.innerWidth - 32, 600);
+      const maxDisplayH = Math.min(window.innerHeight * 0.49, window.innerHeight - 280);
       
       let displayW, displayH;
       if (maxDisplayW / maxDisplayH < aspectRatio) {
@@ -653,7 +664,6 @@
 
       clearMask();
 
-      // Reset zoom state and open in Move/Zoom mode so the user can zoom in first
       editorZoom = 1;
       editorPanX = 0;
       editorPanY = 0;
@@ -692,7 +702,7 @@
       fileInput.value = '';
     });
 
-    // --- BINARY MASK DRAWING ---
+    // --- MASK DRAWING ---
     function clearMask() {
       maskCtx.fillStyle = '#000000';
       maskCtx.fillRect(0, 0, maskCanvas.width, maskCanvas.height);
@@ -751,7 +761,7 @@
       maskCtx.moveTo(pos.x, pos.y);
     }
 
-    // --- MOUSE & TOUCH EVENT HANDLERS FOR EDITOR (ZOOM, PAN & BRUSH) ---
+    // --- MOUSE & TOUCH EVENT HANDLERS FOR EDITOR ---
     function getTouchesDist(t1, t2) {
       const dx = t1.clientX - t2.clientX;
       const dy = t1.clientY - t2.clientY;
@@ -970,7 +980,7 @@
       }
     }
 
-    // --- AI INPAINTING SUBMISSION ---
+    // --- AI INPAINTING SUBMISSION (DOING MAGIC IT IS) ---
     document.getElementById('submitBtn').addEventListener('click', async () => {
       const promptToUse = PROMPTS[activePromptType];
       const base64Image = baseCanvas.toDataURL('image/jpeg', 0.95).split(',')[1];
@@ -983,13 +993,14 @@
       const progressBar = document.getElementById('progressBar');
       const stepText = document.getElementById('processingStepText');
       
-      const steps = ["Locking Facial Pixels...", "Inpainting Target Tooth...", "Matching Enamel Texture...", "Compositing Seamlessly..."];
+      stepText.textContent = "Doing magic it is...";
+      timerText.textContent = "Doing magic it is... 0s";
+
       const timer = setInterval(() => {
         seconds++;
-        timerText.textContent = `Synthesizing... ${seconds}s`;
-        const stepIdx = Math.min(Math.floor(seconds / 2.5), steps.length - 1);
-        stepText.textContent = steps[stepIdx];
-        progressBar.style.width = `${Math.min(20 + seconds * 12, 94)}%`;
+        timerText.textContent = `Doing magic it is... ${seconds}s`;
+        stepText.textContent = "Doing magic it is...";
+        progressBar.style.width = `${Math.min(20 + seconds * 10, 95)}%`;
       }, 1000);
 
       const controller = new AbortController();
@@ -1042,27 +1053,28 @@
       }
     });
 
-    // --- PRECISION COMPARISON & RECORDS ZOOM ENGINE ---
+    // --- COMPARISON TOOL MODE: SEPARATING PAN AND SLIDE STRICTLY ---
     function setCompMode(mode) {
       compMode = mode;
       const slider = document.getElementById('sliderHandle');
       const container = document.getElementById('compareContainer');
-      
+
       if (mode === 'pan') {
-        compModePanBtn.className = "flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition active:scale-95 bg-primary text-white shadow-pill";
-        compModeSplitBtn.className = "flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition active:scale-95 text-slate-300 hover:text-white";
+        compModePanBtn.className = "flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition active:scale-95 bg-primary text-white shadow-pill";
+        compModeSplitBtn.className = "flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition active:scale-95 text-slate-300 hover:text-white";
         container.style.cursor = 'grab';
         
-        // HIDE THE SLIDER THING COMPLETELY IN PAN MODE
-        slider.style.display = 'none';
+        // Disable slider split interactions completely when in Pan mode
+        slider.style.pointerEvents = 'none';
+        slider.classList.add('opacity-40');
       } else {
-        compModeSplitBtn.className = "flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition active:scale-95 bg-primary text-white shadow-pill";
-        compModePanBtn.className = "flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition active:scale-95 text-slate-300 hover:text-white";
+        compModeSplitBtn.className = "flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition active:scale-95 bg-primary text-white shadow-pill";
+        compModePanBtn.className = "flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition active:scale-95 text-slate-300 hover:text-white";
         container.style.cursor = 'ew-resize';
         
-        // SHOW SLIDER IN SLIDE MODE
-        slider.style.display = 'flex';
-        updateCompTransform();
+        // Re-enable slider interactions
+        slider.style.pointerEvents = 'auto';
+        slider.classList.remove('opacity-40');
       }
     }
 
@@ -1075,10 +1087,10 @@
         compPanY = 0;
         return;
       }
-      const minX = compTargetW * (1 - compZoom) - 40;
-      const maxX = 40;
-      const minY = compTargetH * (1 - compZoom) - 40;
-      const maxY = 40;
+      const minX = compTargetW * (1 - compZoom) - 60;
+      const maxX = 60;
+      const minY = compTargetH * (1 - compZoom) - 60;
+      const maxY = 60;
 
       compPanX = Math.min(Math.max(compPanX, minX), maxX);
       compPanY = Math.min(Math.max(compPanY, minY), maxY);
@@ -1096,14 +1108,12 @@
       const unscaledSplitX = compSplitPercent * compTargetW;
       overlay.style.width = `${unscaledSplitX}px`;
 
-      if (compMode === 'split') {
-        const screenSplitX = compPanX + (unscaledSplitX * compZoom);
-        slider.style.left = `${screenSplitX}px`;
-      }
+      const screenSplitX = compPanX + (unscaledSplitX * compZoom);
+      slider.style.left = `${screenSplitX}px`;
     }
 
     function zoomCompAt(newZoom, centerX, centerY) {
-      newZoom = Math.min(Math.max(newZoom, 1), 5);
+      newZoom = Math.min(Math.max(newZoom, 1), 6);
       if (Math.abs(newZoom - compZoom) < 0.001) return;
 
       const factor = newZoom / compZoom;
@@ -1125,16 +1135,16 @@
       compZoom = 1;
       compPanX = 0;
       compPanY = 0;
+      setCompMode('split');
       updateCompTransform();
     });
 
+    // --- COMPARISON SIZING (Larger UI display) ---
     function setupSliderDimensions(origSrc, genSrc) {
       const origImg = document.getElementById('imgOriginal');
       const genImg = document.getElementById('imgGenerated');
       const container = document.getElementById('compareContainer');
       const viewport = document.getElementById('compareViewport');
-      const overlay = document.getElementById('imgOverlayWrapper');
-      const slider = document.getElementById('sliderHandle');
 
       let loaded = 0;
       const check = () => {
@@ -1144,8 +1154,9 @@
           const natH = genImg.naturalHeight || 512;
           const ratio = natW / natH;
 
-          const maxW = Math.min(window.innerWidth - 32, 540);
-          const maxH = window.innerHeight * 0.56;
+          // Bigger image display bounds
+          const maxW = Math.min(window.innerWidth - 24, 760);
+          const maxH = Math.min(window.innerHeight * 0.70, window.innerHeight - 175);
 
           let targetW, targetH;
           if (maxW / maxH < ratio) {
@@ -1180,7 +1191,7 @@
           comparisonView.classList.remove('hidden');
           comparisonView.classList.add('fade-enter');
 
-          setTimeout(initComparisons, 30);
+          setTimeout(initComparisons, 40);
         }
       };
 
@@ -1194,43 +1205,47 @@
       const container = document.getElementById('compareContainer');
       const slider = document.getElementById('sliderHandle');
 
-      function updateSplitFromClientX(clientX) {
+      function updateSplitFromScreen(clientX) {
+        if (compMode !== 'split') return; // Strict pan mode lock
         const rect = container.getBoundingClientRect();
-        const currentScreenX = Math.max(0, Math.min(clientX - rect.left, rect.width));
+        const currentScreenX = clientX - rect.left;
         const unscaledX = (currentScreenX - compPanX) / compZoom;
         compSplitPercent = Math.min(Math.max(unscaledX / compTargetW, 0), 1);
-        
-        const overlay = document.getElementById('imgOverlayWrapper');
-        overlay.style.width = `${compSplitPercent * compTargetW}px`;
-        slider.style.left = `${currentScreenX}px`;
+        updateCompTransform();
       }
 
-      // Slider handle touch/mouse start
+      // Slider handle interaction (Split mode only)
       slider.onmousedown = (e) => {
+        if (compMode !== 'split') return;
+        e.stopPropagation();
         isCompSliding = true;
       };
       slider.ontouchstart = (e) => {
+        if (compMode !== 'split') return;
+        e.stopPropagation();
         isCompSliding = true;
       };
 
-      // Container Mouse Interactions
+      // Container mouse handlers
       container.onmousedown = (e) => {
         if (compMode === 'pan') {
           isCompPanning = true;
+          isCompSliding = false;
           compPanStartX = e.clientX;
           compPanStartY = e.clientY;
           compPanOrigX = compPanX;
           compPanOrigY = compPanY;
           container.style.cursor = 'grabbing';
-        } else {
+        } else if (compMode === 'split') {
           isCompSliding = true;
-          updateSplitFromClientX(e.clientX);
+          isCompPanning = false;
+          updateSplitFromScreen(e.clientX);
         }
       };
 
       window.addEventListener('mousemove', (e) => {
         if (isCompSliding && compMode === 'split') {
-          updateSplitFromClientX(e.clientX);
+          updateSplitFromScreen(e.clientX);
         } else if (isCompPanning && compMode === 'pan') {
           compPanX = compPanOrigX + (e.clientX - compPanStartX);
           compPanY = compPanOrigY + (e.clientY - compPanStartY);
@@ -1246,7 +1261,7 @@
         }
       });
 
-      // Touch interactions
+      // Touch handlers (Pinch to zoom, pan, or slide)
       container.addEventListener('touchstart', (e) => {
         if (e.touches.length === 2) {
           isCompSliding = false;
@@ -1259,13 +1274,15 @@
         } else if (e.touches.length === 1) {
           if (compMode === 'pan') {
             isCompPanning = true;
+            isCompSliding = false;
             compPanStartX = e.touches[0].clientX;
             compPanStartY = e.touches[0].clientY;
             compPanOrigX = compPanX;
             compPanOrigY = compPanY;
-          } else {
+          } else if (compMode === 'split') {
             isCompSliding = true;
-            updateSplitFromClientX(e.touches[0].clientX);
+            isCompPanning = false;
+            updateSplitFromScreen(e.touches[0].clientX);
           }
         }
       }, { passive: false });
@@ -1279,7 +1296,7 @@
         } else if (e.touches.length === 1) {
           if (isCompSliding && compMode === 'split') {
             e.preventDefault();
-            updateSplitFromClientX(e.touches[0].clientX);
+            updateSplitFromScreen(e.touches[0].clientX);
           } else if (isCompPanning && compMode === 'pan') {
             e.preventDefault();
             compPanX = compPanOrigX + (e.touches[0].clientX - compPanStartX);
@@ -1308,7 +1325,7 @@
       }, { passive: false });
     }
 
-    // --- EXPORT DOWNLOAD ---
+    // --- DOWNLOAD ---
     document.getElementById('downloadBtn').addEventListener('click', async () => {
       try {
         const imgSrc = document.getElementById('imgGenerated').src;
@@ -1324,49 +1341,6 @@
         URL.revokeObjectURL(blobUrl);
       } catch (e) {
         alert("Export failed.");
-      }
-    });
-
-    // --- SEND / SHARE BUTTON (BOTTOM RIGHT CORNER) ---
-    document.getElementById('sendBtn').addEventListener('click', async () => {
-      const sendBtn = document.getElementById('sendBtn');
-      const origContent = sendBtn.innerHTML;
-      try {
-        sendBtn.innerHTML = `<span>Sharing...</span>`;
-        const imgSrc = document.getElementById('imgGenerated').src;
-        const response = await fetch(imgSrc);
-        const blob = await response.blob();
-        const file = new File([blob], `SmileCreo_Simulation_${Date.now()}.webp`, { type: blob.type || 'image/webp' });
-
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            title: 'Smile Creo Dental Simulation',
-            text: 'Here is your dental restoration simulation from Smile Creo Studio.',
-            files: [file]
-          });
-        } else if (navigator.share) {
-          await navigator.share({
-            title: 'Smile Creo Dental Simulation',
-            text: 'Here is your dental restoration simulation from Smile Creo Studio.',
-            url: imgSrc.startsWith('data:') ? undefined : imgSrc
-          });
-        } else {
-          // Desktop fallback: copy to clipboard or download
-          if (navigator.clipboard && window.ClipboardItem) {
-            try {
-              await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
-              alert("Image copied to clipboard! You can paste and send it.");
-              return;
-            } catch (e) {}
-          }
-          document.getElementById('downloadBtn').click();
-        }
-      } catch (err) {
-        if (err.name !== 'AbortError') {
-          document.getElementById('downloadBtn').click();
-        }
-      } finally {
-        sendBtn.innerHTML = origContent;
       }
     });
 
