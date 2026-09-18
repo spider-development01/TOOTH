@@ -32,9 +32,9 @@
             }
           },
           boxShadow: {
-            'glass': '0 12px 32px 0 rgba(0, 0, 0, 0.3)',
-            'glass-light': '0 8px 24px -4px rgba(15, 23, 42, 0.1)',
-            'pill': '0 4px 16px rgba(11, 92, 255, 0.28)',
+            'glass': '0 8px 30px rgba(0, 0, 0, 0.35)',
+            'glass-light': '0 6px 20px rgba(15, 23, 42, 0.12)',
+            'pill': '0 3px 14px rgba(11, 92, 255, 0.3)',
           }
         }
       }
@@ -54,54 +54,48 @@
       touch-action: manipulation;
     }
 
-    /* Hardware Accelerated Viewports */
-    .gpu-layer {
+    .gpu-accel {
       transform: translate3d(0, 0, 0);
       will-change: transform;
       backface-visibility: hidden;
     }
 
-    /* Custom Sleek Scrollbars */
+    /* Modern Custom Scrollbar */
     ::-webkit-scrollbar {
-      width: 5px;
-      height: 5px;
+      width: 4px;
+      height: 4px;
     }
     ::-webkit-scrollbar-track {
-      background: rgba(15, 23, 42, 0.7);
-      border-radius: 9999px;
+      background: rgba(15, 23, 42, 0.6);
     }
     ::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.25);
       border-radius: 9999px;
     }
     ::-webkit-scrollbar-thumb:hover {
       background: rgba(11, 92, 255, 0.8);
     }
-    * {
-      scrollbar-width: thin;
-      scrollbar-color: rgba(255, 255, 255, 0.2) rgba(15, 23, 42, 0.7);
-    }
 
     .glass-dark {
-      background: rgba(11, 18, 32, 0.82);
+      background: rgba(11, 18, 32, 0.85);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border: 1px solid rgba(255, 255, 255, 0.12);
     }
     
     .glass-light {
-      background: rgba(255, 255, 255, 0.92);
+      background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.9);
     }
 
     .shutter-btn {
-      width: 66px;
-      height: 66px;
+      width: 60px;
+      height: 60px;
       border-radius: 50%;
       background: #FFFFFF;
-      border: 4px solid rgba(11, 18, 32, 0.85);
+      border: 3px solid rgba(11, 18, 32, 0.9);
       outline: 3px solid #0B5CFF;
       transition: transform 0.1s ease;
     }
@@ -121,30 +115,30 @@
       background: #0B5CFF;
       cursor: pointer;
       margin-top: -5px;
-      box-shadow: 0 2px 6px rgba(11, 92, 255, 0.4);
+      box-shadow: 0 2px 5px rgba(11, 92, 255, 0.4);
       border: 2px solid white;
     }
     input[type=range]::-webkit-slider-runnable-track {
       width: 100%;
-      height: 6px;
+      height: 5px;
       cursor: pointer;
       background: #E2E8F0;
       border-radius: 9999px;
     }
 
     .fade-enter {
-      animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation: fadeIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
     @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.98); }
+      from { opacity: 0; transform: scale(0.99); }
       to { opacity: 1; transform: scale(1); }
     }
   </style>
 </head>
-<body class="h-screen h-[100dvh] w-screen overflow-hidden flex flex-col bg-slate-950 text-slate-900 antialiased select-none">
+<body class="h-[100dvh] w-screen overflow-hidden flex flex-col bg-slate-950 text-slate-900 antialiased select-none">
 
-  <!-- COMPACT FLOATING HEADER -->
-  <header class="absolute top-2.5 left-2.5 right-2.5 z-30 flex items-center justify-between pointer-events-none">
+  <!-- FLOATING MINIMAL HEADER (Camera Screen Only) -->
+  <header id="mainHeader" class="absolute top-2.5 left-2.5 right-2.5 z-30 flex items-center justify-between pointer-events-none transition-opacity duration-200">
     <div class="glass-light pointer-events-auto w-8 h-8 rounded-full shadow-glass-light flex items-center justify-center">
       <div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-white text-[10px] font-bold shadow-sm">
         ✦
@@ -176,10 +170,10 @@
         <canvas id="captureCanvas" class="hidden"></canvas>
       </div>
 
-      <!-- Floating Bottom Action Bar -->
-      <div class="absolute bottom-6 left-4 right-4 z-20 flex items-center justify-center pointer-events-none">
-        <div class="glass-dark px-5 py-3 rounded-3xl shadow-glass flex items-center justify-around w-full max-w-xs pointer-events-auto">
-          <!-- Library thumbnail -->
+      <!-- Elevated Bottom Action Bar (Clear of Android System Buttons) -->
+      <div class="absolute bottom-[max(1.2rem,env(safe-area-inset-bottom))] left-4 right-4 z-20 flex items-center justify-center pointer-events-none">
+        <div class="glass-dark px-4 py-2.5 rounded-2xl shadow-glass flex items-center justify-around w-full max-w-xs pointer-events-auto">
+          <!-- Library thumbnail preview -->
           <button id="openLibraryBtn" class="w-10 h-10 rounded-xl overflow-hidden bg-slate-800 border border-white/20 shadow-md active:scale-95 transition flex items-center justify-center">
             <div id="galleryThumbImg" class="w-full h-full bg-cover bg-center flex items-center justify-center text-white/70">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
@@ -197,26 +191,24 @@
       </div>
     </div>
 
-    <!-- VIEW 2: Masking Editor Studio (Compact & High Real Estate) -->
-    <div id="editorView" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur-2xl z-20 flex flex-col items-center justify-between p-2 pt-14 pb-2.5 overflow-hidden">
+    <!-- VIEW 2: Masking Editor Studio (Full Safe-Area Flex Layout) -->
+    <div id="editorView" class="hidden absolute inset-0 bg-slate-950 z-40 flex flex-col justify-between p-2 pt-[max(0.6rem,env(safe-area-inset-top))] pb-[max(0.6rem,env(safe-area-inset-bottom))] overflow-hidden">
       
       <!-- Top Action Bar -->
-      <div class="glass-light px-3 py-1 rounded-full shadow-glass-light flex items-center space-x-2 shrink-0">
-        <button id="cancelEditBtn" class="text-[11px] font-semibold text-slate-600 hover:text-dark flex items-center space-x-1 active:opacity-60">
+      <div class="glass-light px-3 py-1 rounded-full shadow-glass-light flex items-center justify-between w-full max-w-sm mx-auto shrink-0 mb-1">
+        <button id="cancelEditBtn" class="text-[11px] font-semibold text-slate-600 hover:text-dark flex items-center space-x-0.5 active:opacity-60">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
           <span>Retake</span>
         </button>
-        <span class="w-px h-3 bg-slate-300"></span>
-        <span class="text-[11px] font-bold text-dark uppercase tracking-wider">Paint Tooth</span>
-        <span class="w-px h-3 bg-slate-300"></span>
+        <span class="text-[10px] font-bold text-dark tracking-wider uppercase">Paint Tooth Area</span>
         <button id="clearMaskBtn" class="text-[11px] font-semibold text-primary hover:text-primary-dark active:opacity-60">
           Reset
         </button>
       </div>
 
-      <!-- Mode & Zoom Bar -->
-      <div class="w-full max-w-sm flex items-center justify-between px-1 my-1 shrink-0">
-        <!-- Switcher: Move/Zoom vs Brush -->
+      <!-- Tool Switcher & Zoom Toolbar -->
+      <div class="w-full max-w-sm mx-auto flex items-center justify-between px-0.5 mb-1 shrink-0">
+        <!-- Switcher -->
         <div class="flex items-center p-0.5 bg-slate-900/90 rounded-xl border border-white/15 shadow-md space-x-0.5">
           <button id="editorToolPanBtn" type="button" class="flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 bg-primary text-white shadow-pill">
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11"></path></svg>
@@ -228,68 +220,69 @@
           </button>
         </div>
 
-        <!-- Zoom Bar -->
+        <!-- Zoom -->
         <div class="flex items-center p-0.5 bg-slate-900/90 rounded-xl border border-white/15 shadow-md space-x-0.5 text-white">
           <button id="editorZoomOutBtn" type="button" class="w-6 h-6 rounded-lg hover:bg-white/10 flex items-center justify-center font-bold text-xs transition active:scale-90 text-slate-300 hover:text-white">−</button>
-          <button id="editorZoomResetBtn" type="button" class="px-1.5 h-6 rounded-lg hover:bg-white/10 flex items-center justify-center text-[10px] font-mono font-medium text-slate-300 hover:text-white" title="Reset">
+          <button id="editorZoomResetBtn" type="button" class="px-1.5 h-6 rounded-lg hover:bg-white/10 flex items-center justify-center text-[10px] font-mono font-medium text-slate-300 hover:text-white">
             <span id="editorZoomLabel">100%</span>
           </button>
           <button id="editorZoomInBtn" type="button" class="w-6 h-6 rounded-lg hover:bg-white/10 flex items-center justify-center font-bold text-xs transition active:scale-90 text-slate-300 hover:text-white">+</button>
         </div>
       </div>
 
-      <!-- Max-Sized Responsive Canvas Frame -->
-      <div class="flex-1 w-full flex items-center justify-center p-0.5 overflow-hidden min-h-0">
+      <!-- Perfectly Measured Center Canvas Viewport -->
+      <div id="editorCanvasWrapper" class="flex-1 min-h-0 w-full flex items-center justify-center overflow-hidden my-auto relative">
         <div id="canvasContainer" class="relative rounded-2xl overflow-hidden bg-black flex items-center justify-center cursor-grab border border-white/20 shadow-glass" style="touch-action: none;">
-          <div id="editorViewport" class="relative select-none gpu-layer" style="transform-origin: 0 0;">
+          <div id="editorViewport" class="relative select-none gpu-accel" style="transform-origin: 0 0;">
             <canvas id="baseCanvas" class="block"></canvas>
             <canvas id="maskCanvas" class="absolute top-0 left-0 opacity-60"></canvas>
           </div>
         </div>
       </div>
 
-      <!-- Compact Bottom Controls Card -->
-      <div class="w-full max-w-sm glass-light rounded-2xl p-2 shadow-glass-light border border-white/80 space-y-1.5 shrink-0 mt-1">
+      <!-- Compact Bottom Controls Card (100% Guaranteed On-Screen) -->
+      <div class="w-full max-w-sm mx-auto glass-light rounded-2xl p-2 shadow-glass-light border border-white/80 space-y-1.5 shrink-0 mt-1">
         <!-- Brush Size Slider -->
-        <div class="flex items-center space-x-2 bg-slate-100/90 px-2.5 py-1 rounded-xl border border-slate-200/70">
+        <div class="flex items-center space-x-2 bg-slate-100/90 px-2.5 py-1 rounded-xl border border-slate-200/80">
           <span class="text-[10px] font-semibold text-slate-600 shrink-0">Size</span>
           <input type="range" id="brushSize" min="4" max="60" value="16" class="flex-1" />
           <span id="brushSizeLabel" class="text-[10px] font-mono text-slate-600 font-medium shrink-0">16px</span>
         </div>
 
-        <!-- Treatments In Compact Row -->
+        <!-- Treatment Options -->
         <div class="grid grid-cols-4 gap-1">
-          <button data-treatment="implants" class="treatment-pill flex items-center justify-center space-x-1 py-1 px-1 rounded-xl border border-primary bg-primary text-white transition active:scale-95 shadow-sm">
+          <button data-treatment="implants" class="treatment-pill flex items-center justify-center space-x-1 py-1.5 px-1 rounded-xl border border-primary bg-primary text-white transition active:scale-95 shadow-sm">
             <span class="text-xs">🦷</span>
             <span class="text-[10px] font-bold">Implant</span>
           </button>
 
-          <button data-treatment="aligners" class="treatment-pill flex items-center justify-center space-x-1 py-1 px-1 rounded-xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95">
+          <button data-treatment="aligners" class="treatment-pill flex items-center justify-center space-x-1 py-1.5 px-1 rounded-xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95">
             <span class="text-xs">✨</span>
             <span class="text-[10px] font-bold">Align</span>
           </button>
 
-          <button data-treatment="braces" class="treatment-pill flex items-center justify-center space-x-1 py-1 px-1 rounded-xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95">
+          <button data-treatment="braces" class="treatment-pill flex items-center justify-center space-x-1 py-1.5 px-1 rounded-xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95">
             <span class="text-xs">🪥</span>
             <span class="text-[10px] font-bold">Brace</span>
           </button>
 
-          <button data-treatment="whitening" class="treatment-pill flex items-center justify-center space-x-1 py-1 px-1 rounded-xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95">
+          <button data-treatment="whitening" class="treatment-pill flex items-center justify-center space-x-1 py-1.5 px-1 rounded-xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95">
             <span class="text-xs">💎</span>
             <span class="text-[10px] font-bold">White</span>
           </button>
         </div>
 
-        <button id="submitBtn" class="w-full bg-primary hover:bg-primary-dark text-white font-semibold py-2 px-3 rounded-xl shadow-pill transition active:scale-[0.98] flex items-center justify-center space-x-1.5 text-xs">
+        <!-- Primary Action Button -->
+        <button id="submitBtn" class="w-full bg-primary hover:bg-primary-dark text-white font-semibold py-2.5 px-3 rounded-xl shadow-pill transition active:scale-[0.98] flex items-center justify-center space-x-1.5 text-xs">
           <span>Restore Tooth</span>
-          <span class="text-[9px] bg-white/20 px-1.5 py-0.5 rounded-full">Precision Composite</span>
+          <span class="text-[9px] bg-white/20 px-1.5 py-0.5 rounded-full font-medium">✦ Precision Composite</span>
         </button>
       </div>
 
     </div>
 
     <!-- VIEW 3: Processing Overlay -->
-    <div id="processingView" class="hidden absolute inset-0 bg-black/75 backdrop-blur-xl z-40 flex items-center justify-center p-4">
+    <div id="processingView" class="hidden absolute inset-0 bg-black/80 backdrop-blur-xl z-50 flex items-center justify-center p-4">
       <div class="glass-light rounded-3xl p-6 max-w-xs w-full shadow-glass text-center space-y-3.5 fade-enter">
         <div class="relative w-12 h-12 mx-auto flex items-center justify-center">
           <div class="absolute inset-0 rounded-full border-3 border-blue-100 border-t-primary animate-spin"></div>
@@ -309,11 +302,11 @@
       </div>
     </div>
 
-    <!-- VIEW 4: Comparison Slider (Refined & Maximized Viewport) -->
-    <div id="comparisonView" class="hidden absolute inset-0 bg-black z-30 flex flex-col justify-between p-2 pt-14 pb-2">
+    <!-- VIEW 4: Precision Comparison Slider -->
+    <div id="comparisonView" class="hidden absolute inset-0 bg-black z-40 flex flex-col justify-between p-2 pt-[max(0.6rem,env(safe-area-inset-top))] pb-[max(0.6rem,env(safe-area-inset-bottom))] overflow-hidden">
       
       <!-- Top Navigation -->
-      <div class="flex items-center justify-between w-full max-w-md mx-auto z-20 shrink-0 px-1">
+      <div class="flex items-center justify-between w-full max-w-sm mx-auto z-20 shrink-0 mb-1 px-1">
         <button id="closeComparisonBtn" class="glass-dark px-3 py-1.5 rounded-full text-[11px] font-semibold text-white hover:text-slate-200 shadow-glass transition active:scale-95 flex items-center space-x-1">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
           <span id="backBtnText">New Scan</span>
@@ -336,9 +329,9 @@
         </div>
       </div>
 
-      <!-- Mode & Zoom Bar -->
-      <div class="flex items-center justify-between w-full max-w-md mx-auto px-1 my-1 z-20 shrink-0">
-        <!-- Split vs Pan Toggle -->
+      <!-- Mode & Zoom Toolbar -->
+      <div class="flex items-center justify-between w-full max-w-sm mx-auto px-1 mb-1 z-20 shrink-0">
+        <!-- Split vs Pan -->
         <div class="flex items-center p-0.5 bg-slate-900/90 rounded-xl border border-white/15 shadow-glass space-x-0.5">
           <button id="compModeSplitBtn" type="button" class="flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 bg-primary text-white shadow-pill">
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg>
@@ -350,7 +343,7 @@
           </button>
         </div>
 
-        <!-- Zoom In/Out/Reset -->
+        <!-- Zoom -->
         <div class="flex items-center p-0.5 bg-slate-900/90 rounded-xl border border-white/15 shadow-glass space-x-0.5 text-white">
           <button id="compZoomOutBtn" type="button" class="w-6 h-6 rounded-lg hover:bg-white/10 flex items-center justify-center font-bold text-xs transition active:scale-90 text-slate-300 hover:text-white">−</button>
           <button id="compZoomResetBtn" type="button" class="px-1.5 h-6 rounded-lg hover:bg-white/10 flex items-center justify-center text-[10px] font-mono font-medium text-slate-300 hover:text-white">
@@ -360,11 +353,11 @@
         </div>
       </div>
 
-      <!-- High-Area Viewport (Zero Overflow) -->
-      <div class="flex-1 w-full flex items-center justify-center p-0.5 overflow-hidden min-h-0 my-auto">
+      <!-- Max-Area Viewport Container -->
+      <div id="compareViewportWrapper" class="flex-1 min-h-0 w-full flex items-center justify-center overflow-hidden my-auto relative">
         <div id="compareContainer" class="relative rounded-2xl select-none bg-black overflow-hidden shadow-2xl border border-white/15" style="touch-action: none;">
           
-          <div id="compareViewport" class="relative select-none gpu-layer" style="transform-origin: 0 0;">
+          <div id="compareViewport" class="relative select-none gpu-accel" style="transform-origin: 0 0;">
             <!-- Original -->
             <img id="imgOriginal" class="block rounded-2xl pointer-events-none" draggable="false" alt="Original" />
             
@@ -382,8 +375,8 @@
             </div>
           </div>
 
-          <!-- Slider Split Handle (Strictly disabled during pan) -->
-          <div id="sliderHandle" class="absolute top-0 bottom-0 flex flex-col items-center justify-center cursor-ew-resize z-20" style="left: 50%; transform: translateX(-50%); width: 38px;">
+          <!-- Slider Split Handle -->
+          <div id="sliderHandle" class="absolute top-0 bottom-0 flex flex-col items-center justify-center cursor-ew-resize z-20 transition-opacity duration-150" style="left: 50%; transform: translateX(-50%); width: 36px;">
             <div class="absolute top-0 bottom-0 w-0.5 bg-white shadow-xl"></div>
             <div class="relative w-7 h-7 bg-white rounded-full shadow-2xl flex items-center justify-center border border-primary text-primary active:scale-90 transition">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg>
@@ -399,26 +392,26 @@
     </div>
 
     <!-- VIEW 5: Records Gallery -->
-    <div id="libraryView" class="hidden absolute inset-0 bg-slate-950/85 backdrop-blur-2xl z-40 flex flex-col p-3 pt-14">
-      <div class="flex items-center justify-between max-w-md mx-auto w-full mb-3 shrink-0">
+    <div id="libraryView" class="hidden absolute inset-0 bg-slate-950 z-40 flex flex-col p-3 pt-[max(0.6rem,env(safe-area-inset-top))] pb-[max(0.6rem,env(safe-area-inset-bottom))]">
+      <div class="flex items-center justify-between max-w-sm mx-auto w-full mb-2 shrink-0">
         <button id="closeLibraryBtn" class="glass-light px-3 py-1.5 rounded-full text-[11px] font-semibold text-slate-700 shadow-glass-light transition active:scale-95 flex items-center space-x-1">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
           <span>Studio</span>
         </button>
         <div class="text-center">
           <span class="text-xs font-bold text-white uppercase tracking-wider block">Records</span>
-          <span class="text-[9px] text-white/60">Click any item to inspect</span>
+          <span class="text-[9px] text-white/60">Tap to inspect</span>
         </div>
         <div class="w-12"></div>
       </div>
 
-      <div class="flex-1 overflow-y-auto max-w-md mx-auto w-full pr-0.5">
-        <div id="galleryGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-2"></div>
+      <div class="flex-1 overflow-y-auto max-w-sm mx-auto w-full pr-0.5">
+        <div id="galleryGrid" class="grid grid-cols-2 gap-2"></div>
         
         <div id="emptyGalleryNotice" class="hidden text-center py-16 space-y-2 text-white">
           <div class="w-8 h-8 rounded-xl bg-white/10 text-white flex items-center justify-center mx-auto text-sm font-bold">✦</div>
           <h3 class="text-xs font-bold">No records saved</h3>
-          <p class="text-[11px] text-white/50">Capture or upload a photo to generate records.</p>
+          <p class="text-[11px] text-white/50">Capture a photo to generate records.</p>
         </div>
       </div>
     </div>
@@ -438,7 +431,7 @@
       whitening: "Inpaint teeth whitening: Whiten and brighten the enamel of the teeth in the masked area by 3 shades to a clean natural white while preserving natural surface texture and shadows."
     };
 
-    // App State
+    // State Variables
     let videoStream = null;
     let currentFacingMode = 'environment';
     let isDrawing = false;
@@ -465,6 +458,7 @@
     let editorPinchMidX = 0;
     let editorPinchMidY = 0;
     let cachedEditorRect = null;
+    let editorRafPending = false;
 
     // Comparison Zoom & Pan
     let compMode = 'split';
@@ -472,8 +466,8 @@
     let compPanX = 0;
     let compPanY = 0;
     let compSplitPercent = 0.5;
-    let compTargetW = 360;
-    let compTargetH = 360;
+    let compTargetW = 320;
+    let compTargetH = 320;
     let isCompSliding = false;
     let isCompPanning = false;
     let compPanStartX = 0;
@@ -485,14 +479,13 @@
     let compPinchMidX = 0;
     let compPinchMidY = 0;
     let cachedCompRect = null;
-
-    // RAF flags for high-frequency events
-    let editorRafPending = false;
     let compRafPending = false;
 
     // DOM Elements
+    const mainHeader = document.getElementById('mainHeader');
     const cameraFeed = document.getElementById('cameraFeed');
     const canvasContainer = document.getElementById('canvasContainer');
+    const editorCanvasWrapper = document.getElementById('editorCanvasWrapper');
     const editorViewport = document.getElementById('editorViewport');
     const baseCanvas = document.getElementById('baseCanvas');
     const maskCanvas = document.getElementById('maskCanvas');
@@ -546,13 +539,13 @@
       pill.addEventListener('click', () => {
         activePromptType = pill.getAttribute('data-treatment');
         treatmentPills.forEach(p => {
-          p.className = 'treatment-pill flex items-center justify-center space-x-1 py-1 px-1 rounded-xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95';
+          p.className = 'treatment-pill flex items-center justify-center space-x-1 py-1.5 px-1 rounded-xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95';
         });
-        pill.className = 'treatment-pill flex items-center justify-center space-x-1 py-1 px-1 rounded-xl border border-primary bg-primary text-white transition active:scale-95 shadow-sm';
+        pill.className = 'treatment-pill flex items-center justify-center space-x-1 py-1.5 px-1 rounded-xl border border-primary bg-primary text-white transition active:scale-95 shadow-sm';
       });
     });
 
-    // --- EDITOR TOOL SWITCHING ---
+    // --- TOOL SWITCHING ---
     function setEditorTool(tool) {
       currentEditorTool = tool;
       if (tool === 'brush') {
@@ -582,10 +575,10 @@
         return;
       }
 
-      const minX = contW - contentW - 40;
-      const maxX = 40;
-      const minY = contH - contentH - 40;
-      const maxY = 40;
+      const minX = contW - contentW - 30;
+      const maxX = 30;
+      const minY = contH - contentH - 30;
+      const maxY = 30;
 
       editorPanX = Math.min(Math.max(editorPanX, minX), maxX);
       editorPanY = Math.min(Math.max(editorPanY, minY), maxY);
@@ -628,7 +621,7 @@
       updateEditorTransform();
     });
 
-    // --- PREPARE EDITOR (Compact Layout with Max-Image Calculation) ---
+    // --- EXACT IMAGE SCALING FOR ZERO CUT-OFF ---
     function prepareEditor(source, origW, origH) {
       const MAX_SIZE = 800;
       let width = origW;
@@ -652,17 +645,28 @@
       maskCanvas.width = width;
       maskCanvas.height = height;
 
-      // Available screen height minus compact toolbars
-      const maxDisplayW = Math.min(window.innerWidth - 20, 480);
-      const maxDisplayH = Math.max(200, window.innerHeight - 230);
-      
+      baseCtx.clearRect(0, 0, width, height);
+      baseCtx.drawImage(source, 0, 0, width, height);
+      currentOriginalDataUrl = baseCanvas.toDataURL('image/jpeg', 0.95);
+
+      clearMask();
+
+      // Reveal editor and hide main header to prevent overlap
+      mainHeader.classList.add('hidden');
+      editorView.classList.remove('hidden');
+      editorView.classList.add('fade-enter');
+
+      // Accurately measure the actual remaining flexbox area
+      const availW = Math.min(editorCanvasWrapper.clientWidth - 12, 420);
+      const availH = Math.max(160, editorCanvasWrapper.clientHeight - 8);
+
       let displayW, displayH;
-      if (maxDisplayW / maxDisplayH < aspectRatio) {
-        displayW = maxDisplayW;
-        displayH = Math.round(maxDisplayW / aspectRatio);
+      if (availW / availH < aspectRatio) {
+        displayW = availW;
+        displayH = Math.round(availW / aspectRatio);
       } else {
-        displayH = maxDisplayH;
-        displayW = Math.round(maxDisplayH * aspectRatio);
+        displayH = availH;
+        displayW = Math.round(availH * aspectRatio);
       }
 
       canvasContainer.style.width = `${displayW}px`;
@@ -674,20 +678,11 @@
       maskCanvas.style.width = `${displayW}px`;
       maskCanvas.style.height = `${displayH}px`;
 
-      baseCtx.clearRect(0, 0, width, height);
-      baseCtx.drawImage(source, 0, 0, width, height);
-      currentOriginalDataUrl = baseCanvas.toDataURL('image/jpeg', 0.95);
-
-      clearMask();
-
       editorZoom = 1;
       editorPanX = 0;
       editorPanY = 0;
       updateEditorTransform();
       setEditorTool('pan');
-
-      editorView.classList.remove('hidden');
-      editorView.classList.add('fade-enter');
     }
 
     document.getElementById('captureBtn').addEventListener('click', () => {
@@ -715,6 +710,7 @@
 
     document.getElementById('cancelEditBtn').addEventListener('click', () => {
       editorView.classList.add('hidden');
+      mainHeader.classList.remove('hidden');
       fileInput.value = '';
     });
 
@@ -728,7 +724,6 @@
       brushSizeLabel.textContent = `${e.target.value}px`;
     });
 
-    // Cached coordinate conversion to prevent layout thrashing
     function getCanvasCoordinates(canvas, evt, rect) {
       const scaleX = canvas.width / rect.width;
       const scaleY = canvas.height / rect.height;
@@ -785,7 +780,7 @@
       return Math.sqrt(dx * dx + dy * dy);
     }
 
-    // --- MOUSE & TOUCH LISTENERS FOR EDITOR ---
+    // --- MOUSE & TOUCH EVENT LISTENERS ---
     canvasContainer.addEventListener('mousedown', (e) => {
       if (currentEditorTool === 'brush') {
         startDraw(e);
@@ -875,7 +870,7 @@
       zoomEditorAt(editorZoom + zoomDelta, cursorX, cursorY);
     }, { passive: false });
 
-    // --- COMPOSITING ENGINE ---
+    // --- COMPOSITING & AUTOSAVE ---
     function createAlphaMask(maskCanvas, blurRadius = 2) {
       const alphaCanvas = document.createElement('canvas');
       alphaCanvas.width = maskCanvas.width;
@@ -1064,14 +1059,14 @@
 
       } catch (err) {
         console.error(err);
-        alert("Inpainting failed. Please paint the exact target tooth area.");
+        alert("Inpainting failed. Please paint target tooth area clearly.");
       } finally {
         clearInterval(timer);
         processingView.classList.add('hidden');
       }
     });
 
-    // --- COMPARISON TOOL MODE (PAN VS SLIDE STRICT SEPARATION) ---
+    // --- COMPARISON TOOL MODE (PAN VS SLIDE SEPARATION) ---
     function setCompMode(mode) {
       compMode = mode;
       const slider = document.getElementById('sliderHandle');
@@ -1082,7 +1077,6 @@
         compModeSplitBtn.className = "flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 text-slate-300 hover:text-white";
         container.style.cursor = 'grab';
         
-        // Disable slider completely in Pan mode
         slider.style.pointerEvents = 'none';
         slider.style.opacity = '0.35';
       } else {
@@ -1090,7 +1084,6 @@
         compModePanBtn.className = "flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 text-slate-300 hover:text-white";
         container.style.cursor = 'ew-resize';
         
-        // Enable slider in Split mode
         slider.style.pointerEvents = 'auto';
         slider.style.opacity = '1';
       }
@@ -1105,10 +1098,10 @@
         compPanY = 0;
         return;
       }
-      const minX = compTargetW * (1 - compZoom) - 40;
-      const maxX = 40;
-      const minY = compTargetH * (1 - compZoom) - 40;
-      const maxY = 40;
+      const minX = compTargetW * (1 - compZoom) - 30;
+      const maxX = 30;
+      const minY = compTargetH * (1 - compZoom) - 30;
+      const maxY = 30;
 
       compPanX = Math.min(Math.max(compPanX, minX), maxX);
       compPanY = Math.min(Math.max(compPanY, minY), maxY);
@@ -1162,12 +1155,13 @@
       updateCompTransform();
     });
 
-    // --- SETUP SLIDER (Max Height Calculation without cutoff) ---
+    // --- SETUP COMPARISON SLIDER (Measured against Flex Space) ---
     function setupSliderDimensions(origSrc, genSrc) {
       const origImg = document.getElementById('imgOriginal');
       const genImg = document.getElementById('imgGenerated');
       const container = document.getElementById('compareContainer');
       const viewport = document.getElementById('compareViewport');
+      const compareViewportWrapper = document.getElementById('compareViewportWrapper');
 
       let loaded = 0;
       const check = () => {
@@ -1177,17 +1171,22 @@
           const natH = genImg.naturalHeight || 512;
           const ratio = natW / natH;
 
-          // Maximize view space on mobile
-          const maxW = Math.min(window.innerWidth - 16, 560);
-          const maxH = Math.max(220, window.innerHeight - 150);
+          mainHeader.classList.add('hidden');
+          editorView.classList.add('hidden');
+          libraryView.classList.add('hidden');
+          comparisonView.classList.remove('hidden');
+          comparisonView.classList.add('fade-enter');
+
+          const availW = Math.min(compareViewportWrapper.clientWidth - 12, 440);
+          const availH = Math.max(180, compareViewportWrapper.clientHeight - 8);
 
           let targetW, targetH;
-          if (maxW / maxH < ratio) {
-            targetW = maxW;
-            targetH = Math.round(maxW / ratio);
+          if (availW / availH < ratio) {
+            targetW = availW;
+            targetH = Math.round(availW / ratio);
           } else {
-            targetH = maxH;
-            targetW = Math.round(maxH * ratio);
+            targetH = availH;
+            targetW = Math.round(availH * ratio);
           }
 
           compTargetW = targetW;
@@ -1208,11 +1207,6 @@
           compSplitPercent = 0.5;
           setCompMode('split');
           updateCompTransform();
-
-          editorView.classList.add('hidden');
-          libraryView.classList.add('hidden');
-          comparisonView.classList.remove('hidden');
-          comparisonView.classList.add('fade-enter');
 
           setTimeout(initComparisons, 20);
         }
@@ -1286,7 +1280,6 @@
         cachedCompRect = null;
       });
 
-      // Touch handlers
       container.addEventListener('touchstart', (e) => {
         cachedCompRect = container.getBoundingClientRect();
         if (e.touches.length === 2) {
@@ -1373,15 +1366,21 @@
       comparisonView.classList.add('hidden');
       if (isViewingGalleryItem) {
         libraryView.classList.remove('hidden');
+      } else {
+        mainHeader.classList.remove('hidden');
       }
     });
 
     // --- GALLERY ---
     document.getElementById('openLibraryBtn').addEventListener('click', openGallery);
     document.getElementById('navOpenGalleryBtn').addEventListener('click', openGallery);
-    document.getElementById('closeLibraryBtn').addEventListener('click', () => libraryView.classList.add('hidden'));
+    document.getElementById('closeLibraryBtn').addEventListener('click', () => {
+      libraryView.classList.add('hidden');
+      mainHeader.classList.remove('hidden');
+    });
 
     function openGallery() {
+      mainHeader.classList.add('hidden');
       libraryView.classList.remove('hidden');
       libraryView.classList.add('fade-enter');
       loadGallery();
@@ -1422,7 +1421,7 @@
           const card = document.createElement('div');
           card.className = "aspect-square rounded-2xl overflow-hidden glass-dark cursor-pointer transition active:scale-95 border border-white/10 relative group";
           card.innerHTML = `
-            <img src="${genUrl}" class="w-full h-full object-cover transition duration-300 group-hover:scale-105" loading="lazy" alt="Simulation" />
+            <img src="${genUrl}" class="w-full h-full object-cover transition duration-200 group-hover:scale-105" loading="lazy" alt="Simulation" />
             <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition flex items-end justify-between p-2">
               <span class="text-[9px] font-semibold text-white bg-primary/80 px-2 py-0.5 rounded-full">
                 Inspect
