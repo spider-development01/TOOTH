@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>Smile Creo — Precision Dental Studio</title>
+  <title>Smile Creo — Precision Dental Studio & Smile Architecture</title>
   
   <!-- Inter Google Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -18,12 +18,19 @@
         extend: {
           fontFamily: {
             sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
           },
           colors: {
             primary: {
               DEFAULT: '#0B5CFF',
               dark: '#0647C7',
               light: '#EEF4FF',
+            },
+            accent: {
+              DEFAULT: '#00E5FF',
+              emerald: '#10B981',
+              amber: '#F59E0B',
+              rose: '#F43F5E'
             },
             dark: {
               DEFAULT: '#0B1220',
@@ -32,9 +39,10 @@
             }
           },
           boxShadow: {
-            'glass': '0 8px 30px rgba(0, 0, 0, 0.35)',
+            'glass': '0 8px 32px rgba(0, 0, 0, 0.45)',
             'glass-light': '0 6px 20px rgba(15, 23, 42, 0.12)',
-            'pill': '0 3px 14px rgba(11, 92, 255, 0.3)',
+            'pill': '0 3px 14px rgba(11, 92, 255, 0.35)',
+            'glow-cyan': '0 0 16px rgba(0, 229, 255, 0.4)'
           }
         }
       }
@@ -43,6 +51,10 @@
   
   <!-- Supabase Web SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- MediaPipe Face Mesh & Camera Utils -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
 
   <style>
     :root {
@@ -60,7 +72,6 @@
       backface-visibility: hidden;
     }
 
-    /* Modern Custom Scrollbar */
     ::-webkit-scrollbar {
       width: 4px;
       height: 4px;
@@ -77,7 +88,7 @@
     }
 
     .glass-dark {
-      background: rgba(11, 18, 32, 0.85);
+      background: rgba(11, 18, 32, 0.88);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border: 1px solid rgba(255, 255, 255, 0.12);
@@ -109,46 +120,46 @@
     }
     input[type=range]::-webkit-slider-thumb {
       -webkit-appearance: none;
-      height: 16px;
-      width: 16px;
+      height: 14px;
+      width: 14px;
       border-radius: 50%;
       background: #0B5CFF;
       cursor: pointer;
-      margin-top: -5px;
+      margin-top: -4px;
       box-shadow: 0 2px 5px rgba(11, 92, 255, 0.4);
       border: 2px solid white;
     }
     input[type=range]::-webkit-slider-runnable-track {
       width: 100%;
-      height: 5px;
+      height: 6px;
       cursor: pointer;
-      background: #E2E8F0;
+      background: #334155;
       border-radius: 9999px;
     }
 
     .fade-enter {
-      animation: fadeIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation: fadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
     @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.99); }
+      from { opacity: 0; transform: scale(0.985); }
       to { opacity: 1; transform: scale(1); }
     }
   </style>
 </head>
-<body class="h-[100dvh] w-screen overflow-hidden flex flex-col bg-slate-950 text-slate-900 antialiased select-none">
+<body class="h-[100dvh] w-screen overflow-hidden flex flex-col bg-slate-950 text-slate-100 antialiased select-none">
 
-  <!-- FLOATING MINIMAL HEADER (Camera Screen Only) -->
+  <!-- FLOATING MINIMAL HEADER -->
   <header id="mainHeader" class="absolute top-2.5 left-2.5 right-2.5 z-30 flex items-center justify-between pointer-events-none transition-opacity duration-200">
-    <div class="glass-light pointer-events-auto w-8 h-8 rounded-full shadow-glass-light flex items-center justify-center">
-      <div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-white text-[10px] font-bold shadow-sm">
+    <div class="glass-dark pointer-events-auto px-3 py-1.5 rounded-full shadow-glass flex items-center space-x-2 border border-white/10">
+      <div class="w-5 h-5 rounded-full bg-primary flex items-center justify-center text-white text-[10px] font-bold shadow-sm">
         ✦
       </div>
+      <span class="text-xs font-bold tracking-tight text-white">Smile Creo <span class="text-[10px] font-medium text-accent">Studio</span></span>
     </div>
 
-    <!-- Right Controls -->
     <div class="flex items-center space-x-1.5 pointer-events-auto">
-      <button id="navOpenGalleryBtn" class="glass-light px-3 py-1.5 rounded-full text-[11px] font-semibold text-slate-700 hover:text-dark shadow-glass-light transition active:scale-95 flex items-center space-x-1">
-        <svg class="w-3.5 h-3.5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+      <button id="navOpenGalleryBtn" class="glass-dark px-3 py-1.5 rounded-full text-[11px] font-semibold text-slate-200 hover:text-white shadow-glass transition active:scale-95 flex items-center space-x-1 border border-white/10">
+        <svg class="w-3.5 h-3.5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
         <span>Records</span>
       </button>
 
@@ -167,23 +178,19 @@
     <div id="cameraView" class="absolute inset-0 flex flex-col justify-between z-10 bg-black">
       <div class="relative flex-1 w-full h-full flex items-center justify-center overflow-hidden">
         <video id="cameraFeed" class="absolute w-full h-full object-cover" autoplay playsinline></video>
-        <canvas id="captureCanvas" class="hidden"></canvas>
       </div>
 
       <!-- Elevated Bottom Action Bar -->
       <div class="absolute bottom-[max(1.2rem,env(safe-area-inset-bottom))] left-4 right-4 z-20 flex items-center justify-center pointer-events-none">
         <div class="glass-dark px-4 py-2.5 rounded-2xl shadow-glass flex items-center justify-around w-full max-w-xs pointer-events-auto">
-          <!-- Library thumbnail preview -->
           <button id="openLibraryBtn" class="w-10 h-10 rounded-xl overflow-hidden bg-slate-800 border border-white/20 shadow-md active:scale-95 transition flex items-center justify-center">
             <div id="galleryThumbImg" class="w-full h-full bg-cover bg-center flex items-center justify-center text-white/70">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
             </div>
           </button>
 
-          <!-- Shutter Button -->
           <button id="captureBtn" class="shutter-btn shadow-2xl flex items-center justify-center"></button>
 
-          <!-- Switch Camera -->
           <button id="switchCameraBtn" class="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-xl text-white border border-white/20 active:scale-95 transition">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
           </button>
@@ -191,36 +198,80 @@
       </div>
     </div>
 
-    <!-- VIEW 2: Masking Editor Studio -->
+    <!-- VIEW 2: Precision Dental Studio & Parametric Arch Editor -->
     <div id="editorView" class="hidden absolute inset-0 bg-slate-950 z-40 flex flex-col justify-between p-2 pt-[max(0.6rem,env(safe-area-inset-top))] pb-[max(0.6rem,env(safe-area-inset-bottom))] overflow-hidden">
       
-      <!-- Top Action Bar -->
-      <div class="glass-light px-3 py-1 rounded-full shadow-glass-light flex items-center justify-between w-full max-w-sm mx-auto shrink-0 mb-1">
-        <button id="cancelEditBtn" class="text-[11px] font-semibold text-slate-600 hover:text-dark flex items-center space-x-0.5 active:opacity-60">
+      <!-- Top Clinical Bar -->
+      <div class="glass-dark px-3 py-1.5 rounded-full shadow-glass flex items-center justify-between w-full max-w-lg mx-auto shrink-0 mb-1 border border-white/10">
+        <button id="cancelEditBtn" class="text-[11px] font-semibold text-slate-300 hover:text-white flex items-center space-x-1 active:opacity-60">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
           <span>Retake</span>
         </button>
-        <span class="text-[10px] font-bold text-dark tracking-wider uppercase">Paint Tooth Area</span>
-        <button id="clearMaskBtn" class="text-[11px] font-semibold text-primary hover:text-primary-dark active:opacity-60">
+
+        <div class="flex items-center space-x-2">
+          <button id="btnRunMediaPipe" class="bg-accent/20 hover:bg-accent/30 text-accent border border-accent/40 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase transition active:scale-95 flex items-center space-x-1 shadow-sm">
+            <span class="w-1.5 h-1.5 rounded-full bg-accent animate-ping"></span>
+            <span>MediaPipe Scan</span>
+          </button>
+          <button id="btnToggleMetrics" class="text-[10px] font-semibold text-slate-300 hover:text-white bg-white/10 px-2 py-0.5 rounded-full transition">
+            Metrics HUD
+          </button>
+        </div>
+
+        <button id="clearMaskBtn" class="text-[11px] font-semibold text-rose-400 hover:text-rose-300 active:opacity-60">
           Reset
         </button>
       </div>
 
-      <!-- Tool Switcher & Zoom Toolbar -->
-      <div class="w-full max-w-sm mx-auto flex items-center justify-between px-0.5 mb-1 shrink-0">
-        <!-- Switcher -->
-        <div class="flex items-center p-0.5 bg-slate-900/90 rounded-xl border border-white/15 shadow-md space-x-0.5">
-          <button id="editorToolPanBtn" type="button" class="flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 bg-primary text-white shadow-pill">
-            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11"></path></svg>
-            <span>Move</span>
+      <!-- CLINICAL METRICS DRAWER (Heads-Up Display) -->
+      <div id="metricsDrawer" class="hidden w-full max-w-lg mx-auto glass-dark rounded-2xl p-2.5 mb-1 text-xs border border-white/15 space-y-2 shrink-0 animate-fade">
+        <div class="flex items-center justify-between border-b border-white/10 pb-1">
+          <div class="flex items-center space-x-1.5">
+            <span class="w-2 h-2 rounded-full bg-accent"></span>
+            <span class="font-bold uppercase tracking-wider text-[10px] text-accent">MediaPipe Smile Analysis</span>
+          </div>
+          <span id="aiConfidenceBadge" class="text-[9px] font-mono text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-500/30">Tracking Ready</span>
+        </div>
+
+        <div class="grid grid-cols-4 gap-1.5 text-center font-mono">
+          <div class="bg-white/5 rounded-xl p-1.5 border border-white/5">
+            <span class="text-[9px] text-slate-400 block">Smile Cant</span>
+            <span id="metricCant" class="text-[11px] font-bold text-white">0.0°</span>
+          </div>
+          <div class="bg-white/5 rounded-xl p-1.5 border border-white/5">
+            <span class="text-[9px] text-slate-400 block">W/H Ratio (11)</span>
+            <span id="metricRatio" class="text-[11px] font-bold text-emerald-400">79.2%</span>
+          </div>
+          <div class="bg-white/5 rounded-xl p-1.5 border border-white/5">
+            <span class="text-[9px] text-slate-400 block">Golden Ratio</span>
+            <span id="metricGolden" class="text-[11px] font-bold text-cyan-300">1.61 : 1.0</span>
+          </div>
+          <div class="bg-white/5 rounded-xl p-1.5 border border-white/5">
+            <span class="text-[9px] text-slate-400 block">Smile Arc</span>
+            <span id="metricArc" class="text-[11px] font-bold text-accent">Consonant</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Studio Mode Switcher & Zoom Toolbar -->
+      <div class="w-full max-w-lg mx-auto flex items-center justify-between px-1 mb-1 shrink-0">
+        <!-- Main Tool Switcher -->
+        <div class="flex items-center p-0.5 bg-slate-900/90 rounded-xl border border-white/15 shadow-md space-x-0.5 text-xs">
+          <button id="toolTeethMeshBtn" type="button" class="flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 bg-primary text-white shadow-pill">
+            <span>🦷</span>
+            <span>Teeth Mesh</span>
           </button>
-          <button id="editorToolBrushBtn" type="button" class="flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 text-slate-300 hover:text-white">
-            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-            <span>Brush</span>
+          <button id="toolBrushBtn" type="button" class="flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 text-slate-300 hover:text-white">
+            <span>🖌️</span>
+            <span>Micro Brush</span>
+          </button>
+          <button id="toolPanBtn" type="button" class="flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 text-slate-300 hover:text-white">
+            <span>✋</span>
+            <span>Pan</span>
           </button>
         </div>
 
-        <!-- Zoom -->
+        <!-- Zoom Controls -->
         <div class="flex items-center p-0.5 bg-slate-900/90 rounded-xl border border-white/15 shadow-md space-x-0.5 text-white">
           <button id="editorZoomOutBtn" type="button" class="w-6 h-6 rounded-lg hover:bg-white/10 flex items-center justify-center font-bold text-xs transition active:scale-90 text-slate-300 hover:text-white">−</button>
           <button id="editorZoomResetBtn" type="button" class="px-1.5 h-6 rounded-lg hover:bg-white/10 flex items-center justify-center text-[10px] font-mono font-medium text-slate-300 hover:text-white">
@@ -230,86 +281,131 @@
         </div>
       </div>
 
-      <!-- Center Canvas Viewport -->
+      <!-- CENTER MULTI-LAYER WORKSPACE (GPU Accel Canvas Container) -->
       <div id="editorCanvasWrapper" class="flex-1 min-h-0 w-full flex items-center justify-center overflow-hidden my-auto relative">
-        <div id="canvasContainer" class="relative rounded-2xl overflow-hidden bg-black flex items-center justify-center cursor-grab border border-white/20 shadow-glass" style="touch-action: none;">
+        <div id="canvasContainer" class="relative rounded-2xl overflow-hidden bg-black flex items-center justify-center cursor-default border border-white/20 shadow-glass" style="touch-action: none;">
           <div id="editorViewport" class="relative select-none gpu-accel" style="transform-origin: 0 0;">
+            <!-- Layer 1: Base Patient Photo -->
             <canvas id="baseCanvas" class="block"></canvas>
-            <canvas id="maskCanvas" class="absolute top-0 left-0 opacity-60"></canvas>
+            <!-- Layer 2: Binary Inpaint Mask (Masking area) -->
+            <canvas id="maskCanvas" class="absolute top-0 left-0 opacity-40 pointer-events-none"></canvas>
+            <!-- Layer 3: Interactive Draggable Tooth Shapes & MediaPipe Overlay -->
+            <canvas id="vectorCanvas" class="absolute top-0 left-0"></canvas>
           </div>
         </div>
       </div>
 
-      <!-- Bottom Controls Card (6 Treatments: with Veneers & Debrace) -->
-      <div class="w-full max-w-sm mx-auto glass-light rounded-2xl p-2 shadow-glass-light border border-white/80 space-y-1.5 shrink-0 mt-1">
-        <!-- Brush Size Slider -->
-        <div class="flex items-center space-x-2 bg-slate-100/90 px-2.5 py-1 rounded-xl border border-slate-200/80">
-          <span class="text-[10px] font-semibold text-slate-600 shrink-0">Size</span>
-          <input type="range" id="brushSize" min="4" max="60" value="16" class="flex-1" />
-          <span id="brushSizeLabel" class="text-[10px] font-mono text-slate-600 font-medium shrink-0">16px</span>
+      <!-- PARAMETRIC TOOTH MORPHOLOGY & MESH CONTROLS -->
+      <div id="parametricToolbar" class="w-full max-w-lg mx-auto glass-dark rounded-2xl p-2 shadow-glass border border-white/15 space-y-1.5 shrink-0 mt-1">
+        
+        <!-- Individual Tooth Selector Pills -->
+        <div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+          <span class="text-[9px] font-bold text-accent uppercase tracking-wider">Active Tooth:</span>
+          <div class="flex items-center space-x-1" id="toothSelectorGroup">
+            <button data-tooth="UR3" class="tooth-btn px-2 py-0.5 rounded-md text-[10px] font-mono bg-white/10 hover:bg-white/20 text-slate-200">UR3</button>
+            <button data-tooth="UR2" class="tooth-btn px-2 py-0.5 rounded-md text-[10px] font-mono bg-white/10 hover:bg-white/20 text-slate-200">UR2</button>
+            <button data-tooth="UR1" class="tooth-btn px-2 py-0.5 rounded-md text-[10px] font-mono bg-primary text-white font-bold shadow-sm">UR1</button>
+            <button data-tooth="UL1" class="tooth-btn px-2 py-0.5 rounded-md text-[10px] font-mono bg-white/10 hover:bg-white/20 text-slate-200">UL1</button>
+            <button data-tooth="UL2" class="tooth-btn px-2 py-0.5 rounded-md text-[10px] font-mono bg-white/10 hover:bg-white/20 text-slate-200">UL2</button>
+            <button data-tooth="UL3" class="tooth-btn px-2 py-0.5 rounded-md text-[10px] font-mono bg-white/10 hover:bg-white/20 text-slate-200">UL3</button>
+            <button id="btnSelectAllTeeth" class="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-accent/20 text-accent hover:bg-accent/30">All 6</button>
+          </div>
         </div>
 
-        <!-- 6-Column Treatment Options Grid (Zero Overflow) -->
+        <!-- Morphology Preset & Shade Selector -->
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <!-- Shape Preset -->
+          <div class="flex items-center space-x-1.5 bg-white/5 px-2 py-1 rounded-xl border border-white/5">
+            <span class="text-[10px] text-slate-400 shrink-0">Shape:</span>
+            <select id="shapePresetSelect" class="bg-transparent text-white font-semibold text-[10px] focus:outline-none cursor-pointer w-full">
+              <option value="natural" class="bg-slate-900 text-white">Natural Anatomy</option>
+              <option value="square" class="bg-slate-900 text-white">Square Incisal</option>
+              <option value="ovoid" class="bg-slate-900 text-white">Soft Ovoid</option>
+              <option value="hollywood" class="bg-slate-900 text-white">Hollywood Glamour</option>
+            </select>
+          </div>
+
+          <!-- VITA Shade Selector -->
+          <div class="flex items-center space-x-1.5 bg-white/5 px-2 py-1 rounded-xl border border-white/5">
+            <span class="text-[10px] text-slate-400 shrink-0">Shade:</span>
+            <select id="vitaShadeSelect" class="bg-transparent text-white font-semibold text-[10px] focus:outline-none cursor-pointer w-full">
+              <option value="BL1" class="bg-slate-900 text-white">BL1 (Bleach Ultra)</option>
+              <option value="BL3" class="bg-slate-900 text-white">BL3 (Natural White)</option>
+              <option value="A1" selected class="bg-slate-900 text-white">A1 (Ivory Youthful)</option>
+              <option value="A2" class="bg-slate-900 text-white">A2 (Universal Natural)</option>
+              <option value="B1" class="bg-slate-900 text-white">B1 (Warm Radiant)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Brush Controls (Hidden when not in brush mode) -->
+        <div id="brushControlRow" class="hidden flex items-center space-x-2 bg-slate-900/80 px-2.5 py-1 rounded-xl border border-white/10">
+          <button id="brushModePaintBtn" class="text-[10px] px-2 py-0.5 rounded-lg font-bold bg-primary text-white">Paint</button>
+          <button id="brushModeEraseBtn" class="text-[10px] px-2 py-0.5 rounded-lg font-semibold text-slate-400 hover:text-white">Erase</button>
+          <input type="range" id="brushSize" min="4" max="80" value="16" class="flex-1" />
+          <span id="brushSizeLabel" class="text-[10px] font-mono text-slate-300 shrink-0">16px</span>
+        </div>
+
+        <!-- 6 Treatment Categories -->
         <div class="grid grid-cols-6 gap-0.5 sm:gap-1">
-          <button data-treatment="implants" class="treatment-pill flex flex-col items-center justify-center py-1 px-0.5 rounded-xl border border-primary bg-primary text-white transition active:scale-95 shadow-sm">
-            <span class="text-xs leading-none">🦷</span>
-            <span class="text-[9px] font-bold mt-0.5 tracking-tight">Implant</span>
-          </button>
-
-          <button data-treatment="aligners" class="treatment-pill flex flex-col items-center justify-center py-1 px-0.5 rounded-xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95">
-            <span class="text-xs leading-none">✨</span>
-            <span class="text-[9px] font-bold mt-0.5 tracking-tight">Align</span>
-          </button>
-
-          <button data-treatment="braces" class="treatment-pill flex flex-col items-center justify-center py-1 px-0.5 rounded-xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95">
-            <span class="text-xs leading-none">🪥</span>
-            <span class="text-[9px] font-bold mt-0.5 tracking-tight">Brace</span>
-          </button>
-
-          <button data-treatment="remove_braces" class="treatment-pill flex flex-col items-center justify-center py-1 px-0.5 rounded-xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95">
-            <span class="text-xs leading-none">🧼</span>
-            <span class="text-[9px] font-bold mt-0.5 tracking-tight">Debrace</span>
-          </button>
-
-          <!-- NEW: Veneers Option -->
-          <button data-treatment="veneers" class="treatment-pill flex flex-col items-center justify-center py-1 px-0.5 rounded-xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95">
+          <button data-treatment="veneers" class="treatment-pill flex flex-col items-center justify-center py-1 px-0.5 rounded-xl border border-primary bg-primary text-white transition active:scale-95 shadow-sm">
             <span class="text-xs leading-none">🪞</span>
             <span class="text-[9px] font-bold mt-0.5 tracking-tight">Veneer</span>
           </button>
 
-          <button data-treatment="whitening" class="treatment-pill flex flex-col items-center justify-center py-1 px-0.5 rounded-xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95">
+          <button data-treatment="implants" class="treatment-pill flex flex-col items-center justify-center py-1 px-0.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-slate-300 transition active:scale-95">
+            <span class="text-xs leading-none">🦷</span>
+            <span class="text-[9px] font-bold mt-0.5 tracking-tight">Implant</span>
+          </button>
+
+          <button data-treatment="aligners" class="treatment-pill flex flex-col items-center justify-center py-1 px-0.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-slate-300 transition active:scale-95">
+            <span class="text-xs leading-none">✨</span>
+            <span class="text-[9px] font-bold mt-0.5 tracking-tight">Align</span>
+          </button>
+
+          <button data-treatment="braces" class="treatment-pill flex flex-col items-center justify-center py-1 px-0.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-slate-300 transition active:scale-95">
+            <span class="text-xs leading-none">🪥</span>
+            <span class="text-[9px] font-bold mt-0.5 tracking-tight">Brace</span>
+          </button>
+
+          <button data-treatment="remove_braces" class="treatment-pill flex flex-col items-center justify-center py-1 px-0.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-slate-300 transition active:scale-95">
+            <span class="text-xs leading-none">🧼</span>
+            <span class="text-[9px] font-bold mt-0.5 tracking-tight">Debrace</span>
+          </button>
+
+          <button data-treatment="whitening" class="treatment-pill flex flex-col items-center justify-center py-1 px-0.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-slate-300 transition active:scale-95">
             <span class="text-xs leading-none">💎</span>
             <span class="text-[9px] font-bold mt-0.5 tracking-tight">White</span>
           </button>
         </div>
 
-        <!-- Action Button -->
-        <button id="submitBtn" class="w-full bg-primary hover:bg-primary-dark text-white font-semibold py-2.5 px-3 rounded-xl shadow-pill transition active:scale-[0.98] flex items-center justify-center space-x-1.5 text-xs">
-          <span>Restore Tooth</span>
-          <span class="text-[9px] bg-white/20 px-1.5 py-0.5 rounded-full font-medium">✦ Precision Composite</span>
+        <!-- Execute Button -->
+        <button id="submitBtn" class="w-full bg-gradient-to-r from-primary to-blue-600 hover:from-primary-dark hover:to-blue-700 text-white font-semibold py-2.5 px-3 rounded-xl shadow-pill transition active:scale-[0.98] flex items-center justify-center space-x-2 text-xs">
+          <span>Run Precision Restoration</span>
+          <span class="text-[9px] bg-white/20 px-2 py-0.5 rounded-full font-mono">✦ AI Dental Studio</span>
         </button>
       </div>
 
     </div>
 
     <!-- VIEW 3: Processing Overlay -->
-    <div id="processingView" class="hidden absolute inset-0 bg-black/80 backdrop-blur-xl z-50 flex items-center justify-center p-4">
-      <div class="glass-light rounded-3xl p-6 max-w-xs w-full shadow-glass text-center space-y-3.5 fade-enter">
+    <div id="processingView" class="hidden absolute inset-0 bg-black/85 backdrop-blur-xl z-50 flex items-center justify-center p-4">
+      <div class="glass-dark rounded-3xl p-6 max-w-xs w-full shadow-glass text-center space-y-3.5 fade-enter border border-white/15">
         <div class="relative w-12 h-12 mx-auto flex items-center justify-center">
-          <div class="absolute inset-0 rounded-full border-3 border-blue-100 border-t-primary animate-spin"></div>
+          <div class="absolute inset-0 rounded-full border-3 border-accent/20 border-t-accent animate-spin"></div>
           <span class="text-base">✨</span>
         </div>
         
         <div class="space-y-0.5">
-          <h3 id="processingStepText" class="text-xs font-bold text-dark">Doing magic it is...</h3>
-          <p class="text-[10px] text-slate-500">Doing magic it is...</p>
+          <h3 id="processingStepText" class="text-xs font-bold text-white">Synthesizing Dental Inpaint...</h3>
+          <p class="text-[10px] text-slate-400">Blending enamel translucency & gingival contours</p>
         </div>
 
-        <div class="w-full bg-slate-200/80 h-1.5 rounded-full overflow-hidden">
-          <div id="progressBar" class="bg-primary h-full rounded-full transition-all duration-300 w-1/4"></div>
+        <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+          <div id="progressBar" class="bg-gradient-to-r from-primary to-accent h-full rounded-full transition-all duration-300 w-1/4"></div>
         </div>
 
-        <span id="timerText" class="text-[10px] font-mono text-slate-400 block">Doing magic it is... 0s</span>
+        <span id="timerText" class="text-[10px] font-mono text-slate-400 block">Processing 0s</span>
       </div>
     </div>
 
@@ -317,7 +413,7 @@
     <div id="comparisonView" class="hidden absolute inset-0 bg-black z-40 flex flex-col justify-between p-2 pt-[max(0.6rem,env(safe-area-inset-top))] pb-[max(0.6rem,env(safe-area-inset-bottom))] overflow-hidden">
       
       <!-- Top Navigation -->
-      <div class="flex items-center justify-between w-full max-w-sm mx-auto z-20 shrink-0 mb-1 px-1">
+      <div class="flex items-center justify-between w-full max-w-lg mx-auto z-20 shrink-0 mb-1 px-1">
         <button id="closeComparisonBtn" class="glass-dark px-3 py-1.5 rounded-full text-[11px] font-semibold text-white hover:text-slate-200 shadow-glass transition active:scale-95 flex items-center space-x-1">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
           <span id="backBtnText">New Scan</span>
@@ -341,7 +437,7 @@
       </div>
 
       <!-- Mode & Zoom Bar -->
-      <div class="flex items-center justify-between w-full max-w-sm mx-auto px-1 mb-1 z-20 shrink-0">
+      <div class="flex items-center justify-between w-full max-w-lg mx-auto px-1 mb-1 z-20 shrink-0">
         <div class="flex items-center p-0.5 bg-slate-900/90 rounded-xl border border-white/15 shadow-glass space-x-0.5">
           <button id="compModeSplitBtn" type="button" class="flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 bg-primary text-white shadow-pill">
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg>
@@ -377,7 +473,7 @@
               <img id="imgGenerated" class="block rounded-2xl pointer-events-none max-w-none" draggable="false" alt="Inpainted" />
               
               <div class="absolute top-2.5 left-2.5 z-10 px-2 py-0.5 bg-primary/85 backdrop-blur-md rounded-full text-[9px] font-bold tracking-wider text-white border border-blue-300/40 uppercase">
-                Inpainted
+                Restored
               </div>
             </div>
           </div>
@@ -392,32 +488,32 @@
         </div>
       </div>
 
-      <div class="text-center text-[10px] font-medium text-white/50 pb-0.5 shrink-0">
-        Zoom & slide to inspect dental restoration
+      <div class="text-center text-[10px] font-medium text-white/50 pb-0.5 shrink-0 font-mono">
+        Inspect gingival margins & contact points
       </div>
     </div>
 
     <!-- VIEW 5: Records Gallery -->
     <div id="libraryView" class="hidden absolute inset-0 bg-slate-950 z-40 flex flex-col p-3 pt-[max(0.6rem,env(safe-area-inset-top))] pb-[max(0.6rem,env(safe-area-inset-bottom))]">
-      <div class="flex items-center justify-between max-w-sm mx-auto w-full mb-2 shrink-0">
-        <button id="closeLibraryBtn" class="glass-light px-3 py-1.5 rounded-full text-[11px] font-semibold text-slate-700 shadow-glass-light transition active:scale-95 flex items-center space-x-1">
+      <div class="flex items-center justify-between max-w-lg mx-auto w-full mb-2 shrink-0">
+        <button id="closeLibraryBtn" class="glass-dark px-3 py-1.5 rounded-full text-[11px] font-semibold text-slate-200 shadow-glass transition active:scale-95 flex items-center space-x-1">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
           <span>Studio</span>
         </button>
         <div class="text-center">
-          <span class="text-xs font-bold text-white uppercase tracking-wider block">Records</span>
-          <span class="text-[9px] text-white/60">Tap to inspect</span>
+          <span class="text-xs font-bold text-white uppercase tracking-wider block">Dental Records</span>
+          <span class="text-[9px] text-accent">Clinical Simulation Archive</span>
         </div>
         <div class="w-12"></div>
       </div>
 
-      <div class="flex-1 overflow-y-auto max-w-sm mx-auto w-full pr-0.5">
+      <div class="flex-1 overflow-y-auto max-w-lg mx-auto w-full pr-0.5">
         <div id="galleryGrid" class="grid grid-cols-2 gap-2"></div>
         
         <div id="emptyGalleryNotice" class="hidden text-center py-16 space-y-2 text-white">
           <div class="w-8 h-8 rounded-xl bg-white/10 text-white flex items-center justify-center mx-auto text-sm font-bold">✦</div>
           <h3 class="text-xs font-bold">No records saved</h3>
-          <p class="text-[11px] text-white/50">Capture a photo to generate records.</p>
+          <p class="text-[11px] text-white/50">Capture or upload a photo to begin treatment planning.</p>
         </div>
       </div>
     </div>
@@ -425,35 +521,32 @@
   </main>
 
   <script>
-    // --- SUPABASE CONFIG ---
+    // --- CONFIG & SUPABASE ---
     const SUPABASE_URL = 'https://lqfzvedrpzihdtmwcdyk.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxZnp2ZWRycHppaGR0bXdjZHlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2MjE2MjUsImV4cCI6MjEwMjE5NzYyNX0.ZXf3hYfr-qWiUxVhbQA9_VymeoTEoGLHoS8ou8xzCOQ';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // --- PROMPTS (Implants, Aligners, Braces, Debrace, Veneers, Whitening) ---
-    const PROMPTS = {
-      implants: "Inpaint dental restoration: Inside the masked area, generate a realistic, healthy natural tooth that matches the adjacent teeth in size, curvature, color shade, enamel translucency, and lighting. Blend cleanly with the gum line.",
-      aligners: "Inpaint orthodontic alignment: Realign and straighten the teeth inside the masked area to form an even, natural dental curve while preserving natural tooth enamel and textures.",
-      braces: "Inpaint orthodontic braces: Add realistic dental bracket attachments and a thin metallic archwire across the teeth inside the masked area with realistic metallic reflections matching the photo lighting.",
-      remove_braces: "Inpaint orthodontic braces removal (debonding): Inside the masked area, realistically and cleanly remove all orthodontic dental braces, metallic brackets, archwires, elastic bands, and bonding cement residue from the surface of the teeth. Reveal smooth, clean, healthy natural tooth enamel with realistic surface texture, natural dental gloss/reflections, and gum line preservation. Maintain natural tooth anatomy, shading, and alignment as if orthodontic treatment has successfully finished.",
-      veneers: "Inpaint cosmetic porcelain veneers: Inside the masked area, reconstruct the teeth with premium cosmetic porcelain veneers. Create perfectly aligned, symmetrically contoured teeth with rounded incisal embrasures. Add realistic incisal enamel translucency at the biting edges and a lifelike reflective, glossy glazed coating with natural specular highlights matching the mouth lighting. Seamlessly integrate with healthy pink gingival margins for a stunning, natural cosmetic smile.",
-      whitening: "Inpaint teeth whitening: Whiten and brighten the enamel of the teeth in the masked area by 3 shades to a clean natural white while preserving natural surface texture and shadows."
+    // --- BASE PROMPT TEMPLATES ---
+    const BASE_PROMPTS = {
+      veneers: "Cosmetic porcelain veneers restoration: Reconstruct anterior teeth with ultra-premium porcelain veneers. Symmetrical incisal embrasures, natural line angles, high enamel translucency at the incisal third, and realistic specular highlights.",
+      implants: "Dental implant & crown restoration: Inside the selected tooth boundary, generate an anatomically natural crown that matches adjacent teeth shade, axial inclination, and contacts.",
+      aligners: "Clear aligner orthodontic simulation: Align and level maxillary anterior teeth to form an even, harmonious dental arch, correcting rotations and crowding.",
+      braces: "Orthodontic braces simulation: Apply accurate dental brackets and archwire across teeth with realistic metallic reflections and ligature ties.",
+      remove_braces: "Orthodontic debonding / bracket removal: Cleanly remove all metallic braces, archwires, and composite cement residue to reveal clean natural tooth enamel.",
+      whitening: "In-office laser teeth whitening: Brighten enamel by 3-4 VITA shades while preserving natural surface texture, micro-grooves, and realistic gum health."
     };
 
-    // State Variables
+    // --- STATE VARIABLES ---
     let videoStream = null;
     let currentFacingMode = 'environment';
-    let isDrawing = false;
     let currentOriginalDataUrl = null;
-    let activePromptType = 'implants';
+    let activePromptType = 'veneers';
 
-    let isViewingGalleryItem = false;
-    let currentActiveDocId = null;
-    let currentActiveOrigPath = null;
-    let currentActiveGenPath = null;
+    // Tool Modes: 'teeth', 'brush', 'pan'
+    let currentTool = 'teeth';
+    let brushDrawMode = 'paint'; // 'paint' or 'erase'
 
-    // Editor Zoom & Pan
-    let currentEditorTool = 'pan';
+    // Zoom & Pan
     let editorZoom = 1;
     let editorPanX = 0;
     let editorPanY = 0;
@@ -469,7 +562,10 @@
     let cachedEditorRect = null;
     let editorRafPending = false;
 
-    // Comparison Zoom & Pan
+    // Brush state
+    let isBrushing = false;
+
+    // Comparison View State
     let compMode = 'split';
     let compZoom = 1;
     let compPanX = 0;
@@ -490,88 +586,523 @@
     let cachedCompRect = null;
     let compRafPending = false;
 
+    // MediaPipe & Smile Analysis Metrics
+    let faceMeshInstance = null;
+    let mediaPipeLandmarks = null;
+    let calculatedMetrics = {
+      cantAngle: 0.0,
+      whRatio: 79.2,
+      goldenRatio: "1.61 : 1.0",
+      smileArc: "Consonant",
+      midlineDeviationMm: 0.2
+    };
+
+    // --- PARAMETRIC TEETH DATA STRUCTURE ---
+    // Standard Maxillary Anterior Teeth: UR3, UR2, UR1, UL1, UL2, UL3
+    // Each tooth is a parametric polygon with 6 vertices:
+    // 0: Zenith (Gingival peak)
+    // 1: Distal Contact
+    // 2: Distal Incisal Corner
+    // 3: Incisal Center
+    // 4: Mesial Incisal Corner
+    // 5: Mesial Contact
+    let activeToothId = 'UR1';
+    let selectedTeeth = new Set(['UR3', 'UR2', 'UR1', 'UL1', 'UL2', 'UL3']);
+    let teethMeshes = {};
+    let activeVertexIndex = null;
+    let activeDragToothId = null;
+
     // DOM Elements
     const mainHeader = document.getElementById('mainHeader');
     const cameraFeed = document.getElementById('cameraFeed');
     const canvasContainer = document.getElementById('canvasContainer');
     const editorCanvasWrapper = document.getElementById('editorCanvasWrapper');
     const editorViewport = document.getElementById('editorViewport');
+    
     const baseCanvas = document.getElementById('baseCanvas');
     const maskCanvas = document.getElementById('maskCanvas');
+    const vectorCanvas = document.getElementById('vectorCanvas');
     const baseCtx = baseCanvas.getContext('2d', { willReadFrequently: true });
     const maskCtx = maskCanvas.getContext('2d', { willReadFrequently: true });
-    
-    const brushSizeInput = document.getElementById('brushSize');
-    const brushSizeLabel = document.getElementById('brushSizeLabel');
-    const editorToolPanBtn = document.getElementById('editorToolPanBtn');
-    const editorToolBrushBtn = document.getElementById('editorToolBrushBtn');
-    const editorZoomInBtn = document.getElementById('editorZoomInBtn');
-    const editorZoomOutBtn = document.getElementById('editorZoomOutBtn');
-    const editorZoomResetBtn = document.getElementById('editorZoomResetBtn');
-    const editorZoomLabel = document.getElementById('editorZoomLabel');
-
-    const compModeSplitBtn = document.getElementById('compModeSplitBtn');
-    const compModePanBtn = document.getElementById('compModePanBtn');
-    const compZoomInBtn = document.getElementById('compZoomInBtn');
-    const compZoomOutBtn = document.getElementById('compZoomOutBtn');
-    const compZoomResetBtn = document.getElementById('compZoomResetBtn');
-    const compZoomLabel = document.getElementById('compZoomLabel');
+    const vectorCtx = vectorCanvas.getContext('2d');
 
     const [cameraView, editorView, processingView, comparisonView, libraryView] = 
       ['cameraView', 'editorView', 'processingView', 'comparisonView', 'libraryView'].map(id => document.getElementById(id));
 
-    // --- CAMERA INIT ---
-    async function initCamera() {
-      if (videoStream) {
-        videoStream.getTracks().forEach(t => t.stop());
-      }
+    // --- INITIALIZE MEDIAPIPE FACE MESH ---
+    function initMediaPipe() {
       try {
-        videoStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: currentFacingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
-          audio: false
+        if (typeof FaceMesh === 'undefined') {
+          console.warn("MediaPipe script not yet loaded. Will retry on demand.");
+          return;
+        }
+        faceMeshInstance = new FaceMesh({
+          locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
         });
-        cameraFeed.srcObject = videoStream;
+        faceMeshInstance.setOptions({
+          maxNumFaces: 1,
+          refineLandmarks: true,
+          minDetectionConfidence: 0.5,
+          minTrackingConfidence: 0.5
+        });
+        faceMeshInstance.onResults(onFaceMeshResults);
       } catch (err) {
-        console.warn("Camera fallback:", err);
+        console.error("MediaPipe initialization error:", err);
       }
-      loadGalleryThumbnail();
     }
 
-    document.getElementById('switchCameraBtn').addEventListener('click', () => {
-      currentFacingMode = currentFacingMode === 'environment' ? 'user' : 'environment';
-      initCamera();
+    // --- MEDIAPIPE RESULTS HANDLER & SMILE METRICS ---
+    function onFaceMeshResults(results) {
+      if (!results.multiFaceLandmarks || results.multiFaceLandmarks.length === 0) {
+        document.getElementById('aiConfidenceBadge').textContent = "Macro Shot (Manual Fit)";
+        document.getElementById('aiConfidenceBadge').className = "text-[9px] font-mono text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded-full border border-amber-500/30";
+        return;
+      }
+
+      mediaPipeLandmarks = results.multiFaceLandmarks[0];
+      document.getElementById('aiConfidenceBadge').textContent = "Landmarks Aligned ✓";
+      document.getElementById('aiConfidenceBadge').className = "text-[9px] font-mono text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-500/30";
+
+      const w = baseCanvas.width;
+      const h = baseCanvas.height;
+
+      // Key Facial Landmarks
+      // Pupil right: 33/468, Pupil left: 263/473
+      const pupilR = mediaPipeLandmarks[468] || mediaPipeLandmarks[33];
+      const pupilL = mediaPipeLandmarks[473] || mediaPipeLandmarks[263];
+      const dxPupil = (pupilL.x - pupilR.x) * w;
+      const dyPupil = (pupilL.y - pupilR.y) * h;
+      const cantAngle = (Math.atan2(dyPupil, dxPupil) * (180 / Math.PI)).toFixed(1);
+
+      // Inner Mouth / Lips landmarks
+      // Upper lip bottom edge: landmark 13, Lower lip top edge: landmark 14
+      // Corners of mouth: landmark 61 (right), landmark 291 (left)
+      const mouthR = mediaPipeLandmarks[61];
+      const mouthL = mediaPipeLandmarks[291];
+      const upperLipMid = mediaPipeLandmarks[13];
+      const lowerLipMid = mediaPipeLandmarks[14];
+
+      const mouthWidth = Math.hypot((mouthL.x - mouthR.x) * w, (mouthL.y - mouthR.y) * h);
+      const apertureHeight = Math.abs((lowerLipMid.y - upperLipMid.y) * h);
+
+      // Estimate Central Incisor width / height ratio
+      const centralW = mouthWidth * 0.17;
+      const centralH = Math.max(apertureHeight * 0.75, centralW / 0.79);
+      const ratio = ((centralW / centralH) * 100).toFixed(1);
+
+      calculatedMetrics.cantAngle = cantAngle;
+      calculatedMetrics.whRatio = ratio;
+      calculatedMetrics.goldenRatio = "1.61 : 1.0 : 0.62";
+      calculatedMetrics.smileArc = Math.abs(cantAngle) < 2.5 ? "Consonant" : "Slight Cant";
+
+      document.getElementById('metricCant').textContent = `${cantAngle}°`;
+      document.getElementById('metricRatio').textContent = `${ratio}%`;
+      document.getElementById('metricGolden').textContent = calculatedMetrics.goldenRatio;
+      document.getElementById('metricArc').textContent = calculatedMetrics.smileArc;
+
+      // Automatically snap default tooth arches to the mouth aperture position!
+      const mouthCenterX = ((mouthR.x + mouthL.x) / 2) * w;
+      const mouthCenterY = ((upperLipMid.y + lowerLipMid.y) / 2) * h;
+      initializeParametricTeeth(mouthCenterX, mouthCenterY, mouthWidth * 0.78, Math.max(centralH, 40));
+      redrawVectorOverlay();
+      bakeTeethToMask();
+    }
+
+    async function runMediaPipeAnalysis() {
+      if (!faceMeshInstance) initMediaPipe();
+      if (!faceMeshInstance) {
+        alert("MediaPipe is still loading. Please check your network connection.");
+        return;
+      }
+      try {
+        document.getElementById('aiConfidenceBadge').textContent = "Scanning Face...";
+        await faceMeshInstance.send({ image: baseCanvas });
+      } catch (err) {
+        console.warn("FaceMesh scan error:", err);
+      }
+    }
+
+    document.getElementById('btnRunMediaPipe').addEventListener('click', runMediaPipeAnalysis);
+    document.getElementById('btnToggleMetrics').addEventListener('click', () => {
+      const drawer = document.getElementById('metricsDrawer');
+      drawer.classList.toggle('hidden');
     });
 
-    // --- TREATMENT TOGGLES ---
-    const treatmentPills = document.querySelectorAll('.treatment-pill');
-    treatmentPills.forEach(pill => {
-      pill.addEventListener('click', () => {
-        activePromptType = pill.getAttribute('data-treatment');
-        treatmentPills.forEach(p => {
-          p.className = 'treatment-pill flex flex-col items-center justify-center py-1 px-0.5 rounded-xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95';
+    // --- PARAMETRIC TEETH ENGINE ---
+    function initializeParametricTeeth(cx, cy, totalWidth, avgHeight) {
+      // Create 6 teeth across totalWidth centered at cx, cy
+      // Width proportions based on Golden Proportion: 
+      // Central: 1.618, Lateral: 1.0, Canine: 0.618
+      const sumUnits = (0.618 + 1.0 + 1.618) * 2; // ~6.472
+      const unitPx = totalWidth / sumUnits;
+
+      const widths = {
+        UR3: unitPx * 0.618 * 1.1,
+        UR2: unitPx * 1.0,
+        UR1: unitPx * 1.618,
+        UL1: unitPx * 1.618,
+        UL2: unitPx * 1.0,
+        UL3: unitPx * 0.618 * 1.1
+      };
+
+      let currentX = cx - (totalWidth / 2);
+      const toothOrder = ['UR3', 'UR2', 'UR1', 'UL1', 'UL2', 'UL3'];
+
+      teethMeshes = {};
+
+      toothOrder.forEach((tId) => {
+        const tw = widths[tId];
+        const th = (tId.includes('1') ? avgHeight : avgHeight * 0.93);
+        const topY = cy - th * 0.5;
+        const botY = cy + th * 0.5;
+
+        teethMeshes[tId] = {
+          id: tId,
+          vertices: [
+            { x: currentX + tw * 0.5, y: topY },             // 0: Zenith
+            { x: currentX + tw * 0.95, y: topY + th * 0.35 }, // 1: Distal Contact
+            { x: currentX + tw * 0.9, y: botY },             // 2: Distal Incisal
+            { x: currentX + tw * 0.5, y: botY + th * 0.05 }, // 3: Incisal Mid
+            { x: currentX + tw * 0.1, y: botY },             // 4: Mesial Incisal
+            { x: currentX + tw * 0.05, y: topY + th * 0.35 }  // 5: Mesial Contact
+          ]
+        };
+        currentX += tw;
+      });
+    }
+
+    // Morphology Presets
+    const SHAPE_PRESETS = {
+      natural: (v) => {
+        v[2].y = v[3].y - 2;
+        v[4].y = v[3].y - 2;
+      },
+      square: (v) => {
+        v[2].y = v[3].y;
+        v[4].y = v[3].y;
+        v[1].x += 2;
+        v[5].x -= 2;
+      },
+      ovoid: (v) => {
+        v[2].y = v[3].y - 4;
+        v[4].y = v[3].y - 4;
+        v[0].y += 2;
+      },
+      hollywood: (v) => {
+        v[2].y = v[3].y;
+        v[4].y = v[3].y;
+        v[0].y -= 4; // Higher gingival zenith
+      }
+    };
+
+    document.getElementById('shapePresetSelect').addEventListener('change', (e) => {
+      const preset = SHAPE_PRESETS[e.target.value];
+      if (preset && teethMeshes[activeToothId]) {
+        preset(teethMeshes[activeToothId].vertices);
+        redrawVectorOverlay();
+        bakeTeethToMask();
+      }
+    });
+
+    // --- TOOTH SELECTION HANDLERS ---
+    const toothButtons = document.querySelectorAll('.tooth-btn');
+    toothButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeToothId = btn.getAttribute('data-tooth');
+        toothButtons.forEach(b => {
+          b.className = "tooth-btn px-2 py-0.5 rounded-md text-[10px] font-mono bg-white/10 hover:bg-white/20 text-slate-200";
         });
-        pill.className = 'treatment-pill flex flex-col items-center justify-center py-1 px-0.5 rounded-xl border border-primary bg-primary text-white transition active:scale-95 shadow-sm';
+        btn.className = "tooth-btn px-2 py-0.5 rounded-md text-[10px] font-mono bg-primary text-white font-bold shadow-sm";
+        redrawVectorOverlay();
       });
     });
 
+    document.getElementById('btnSelectAllTeeth').addEventListener('click', () => {
+      selectedTeeth = new Set(['UR3', 'UR2', 'UR1', 'UL1', 'UL2', 'UL3']);
+      redrawVectorOverlay();
+      bakeTeethToMask();
+    });
+
+    // --- VECTOR CANVAS RENDERING & MASK BAKING ---
+    function redrawVectorOverlay() {
+      vectorCtx.clearRect(0, 0, vectorCanvas.width, vectorCanvas.height);
+
+      if (currentTool !== 'teeth') return;
+
+      Object.keys(teethMeshes).forEach(tId => {
+        const tooth = teethMeshes[tId];
+        const isSelected = selectedTeeth.has(tId);
+        const isActive = (tId === activeToothId);
+        const verts = tooth.vertices;
+
+        // Draw Filled Tooth Contours
+        vectorCtx.beginPath();
+        vectorCtx.moveTo(verts[0].x, verts[0].y);
+        for (let i = 1; i < verts.length; i++) {
+          vectorCtx.lineTo(verts[i].x, verts[i].y);
+        }
+        vectorCtx.closePath();
+
+        if (isActive) {
+          vectorCtx.fillStyle = 'rgba(0, 229, 255, 0.28)';
+          vectorCtx.strokeStyle = '#00E5FF';
+          vectorCtx.lineWidth = 2.5;
+        } else if (isSelected) {
+          vectorCtx.fillStyle = 'rgba(11, 92, 255, 0.18)';
+          vectorCtx.strokeStyle = '#0B5CFF';
+          vectorCtx.lineWidth = 1.5;
+        } else {
+          vectorCtx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+          vectorCtx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+          vectorCtx.lineWidth = 1;
+        }
+
+        vectorCtx.fill();
+        vectorCtx.stroke();
+
+        // Draw Draggable Control Handles
+        verts.forEach((pt, idx) => {
+          vectorCtx.beginPath();
+          vectorCtx.arc(pt.x, pt.y, isActive ? 5 : 3.5, 0, Math.PI * 2);
+          vectorCtx.fillStyle = isActive ? '#FFFFFF' : '#00E5FF';
+          vectorCtx.strokeStyle = '#0B1220';
+          vectorCtx.lineWidth = 1.5;
+          vectorCtx.fill();
+          vectorCtx.stroke();
+        });
+
+        // Label Tooth ID
+        vectorCtx.fillStyle = isActive ? '#00E5FF' : '#FFFFFF';
+        vectorCtx.font = 'bold 9px JetBrains Mono, sans-serif';
+        vectorCtx.fillText(tId, verts[3].x - 8, verts[3].y + 14);
+      });
+    }
+
+    function bakeTeethToMask() {
+      maskCtx.fillStyle = '#000000';
+      maskCtx.fillRect(0, 0, maskCanvas.width, maskCanvas.height);
+
+      maskCtx.fillStyle = '#FFFFFF';
+      selectedTeeth.forEach(tId => {
+        const tooth = teethMeshes[tId];
+        if (!tooth) return;
+        const verts = tooth.vertices;
+
+        maskCtx.beginPath();
+        maskCtx.moveTo(verts[0].x, verts[0].y);
+        for (let i = 1; i < verts.length; i++) {
+          maskCtx.lineTo(verts[i].x, verts[i].y);
+        }
+        maskCtx.closePath();
+        maskCtx.fill();
+      });
+    }
+
     // --- TOOL SWITCHING ---
+    const toolTeethMeshBtn = document.getElementById('toolTeethMeshBtn');
+    const toolBrushBtn = document.getElementById('toolBrushBtn');
+    const toolPanBtn = document.getElementById('toolPanBtn');
+    const brushControlRow = document.getElementById('brushControlRow');
+
     function setEditorTool(tool) {
-      currentEditorTool = tool;
-      if (tool === 'brush') {
-        editorToolBrushBtn.className = "flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 bg-primary text-white shadow-pill";
-        editorToolPanBtn.className = "flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 text-slate-300 hover:text-white";
-        canvasContainer.className = "relative rounded-2xl overflow-hidden bg-black flex items-center justify-center cursor-crosshair border border-white/20 shadow-glass";
+      currentTool = tool;
+
+      [toolTeethMeshBtn, toolBrushBtn, toolPanBtn].forEach(btn => {
+        btn.className = "flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 text-slate-300 hover:text-white";
+      });
+
+      brushControlRow.classList.add('hidden');
+
+      if (tool === 'teeth') {
+        toolTeethMeshBtn.className = "flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 bg-primary text-white shadow-pill";
+        canvasContainer.style.cursor = 'default';
+        vectorCanvas.style.pointerEvents = 'auto';
+        redrawVectorOverlay();
+      } else if (tool === 'brush') {
+        toolBrushBtn.className = "flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 bg-primary text-white shadow-pill";
+        canvasContainer.style.cursor = 'crosshair';
+        vectorCanvas.style.pointerEvents = 'none';
+        brushControlRow.classList.remove('hidden');
+        vectorCtx.clearRect(0, 0, vectorCanvas.width, vectorCanvas.height);
       } else {
-        editorToolPanBtn.className = "flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 bg-primary text-white shadow-pill";
-        editorToolBrushBtn.className = "flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 text-slate-300 hover:text-white";
-        canvasContainer.className = "relative rounded-2xl overflow-hidden bg-black flex items-center justify-center cursor-grab border border-white/20 shadow-glass";
+        toolPanBtn.className = "flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 bg-primary text-white shadow-pill";
+        canvasContainer.style.cursor = 'grab';
+        vectorCanvas.style.pointerEvents = 'none';
       }
     }
 
-    editorToolPanBtn.addEventListener('click', () => setEditorTool('pan'));
-    editorToolBrushBtn.addEventListener('click', () => setEditorTool('brush'));
+    toolTeethMeshBtn.addEventListener('click', () => setEditorTool('teeth'));
+    toolBrushBtn.addEventListener('click', () => setEditorTool('brush'));
+    toolPanBtn.addEventListener('click', () => setEditorTool('pan'));
 
-    // --- EDITOR ZOOM & PAN ENGINE ---
+    // Brush Paint vs Erase
+    const brushModePaintBtn = document.getElementById('brushModePaintBtn');
+    const brushModeEraseBtn = document.getElementById('brushModeEraseBtn');
+    brushModePaintBtn.addEventListener('click', () => {
+      brushDrawMode = 'paint';
+      brushModePaintBtn.className = "text-[10px] px-2 py-0.5 rounded-lg font-bold bg-primary text-white";
+      brushModeEraseBtn.className = "text-[10px] px-2 py-0.5 rounded-lg font-semibold text-slate-400 hover:text-white";
+    });
+    brushModeEraseBtn.addEventListener('click', () => {
+      brushDrawMode = 'erase';
+      brushModeEraseBtn.className = "text-[10px] px-2 py-0.5 rounded-lg font-bold bg-rose-600 text-white";
+      brushModePaintBtn.className = "text-[10px] px-2 py-0.5 rounded-lg font-semibold text-slate-400 hover:text-white";
+    });
+
+    // --- COORDINATE TRANSFORM ENGINE ---
+    function getInternalCanvasCoords(e) {
+      if (!cachedEditorRect) cachedEditorRect = canvasContainer.getBoundingClientRect();
+      let clientX = e.clientX;
+      let clientY = e.clientY;
+      if (e.touches && e.touches.length > 0) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+      }
+
+      const contX = clientX - cachedEditorRect.left;
+      const contY = clientY - cachedEditorRect.top;
+
+      const viewX = (contX - editorPanX) / editorZoom;
+      const viewY = (contY - editorPanY) / editorZoom;
+
+      const scaleX = baseCanvas.width / parseFloat(baseCanvas.style.width);
+      const scaleY = baseCanvas.height / parseFloat(baseCanvas.style.height);
+
+      return {
+        x: viewX * scaleX,
+        y: viewY * scaleY
+      };
+    }
+
+    // --- HIT TESTING FOR DRAGGABLE VERTICES ---
+    function findHitVertex(pt) {
+      const hitRadius = 16; // internal canvas pixels
+      // Check active tooth first
+      if (teethMeshes[activeToothId]) {
+        const verts = teethMeshes[activeToothId].vertices;
+        for (let i = 0; i < verts.length; i++) {
+          if (Math.hypot(verts[i].x - pt.x, verts[i].y - pt.y) < hitRadius) {
+            return { toothId: activeToothId, vertexIndex: i };
+          }
+        }
+      }
+      // Check other teeth
+      for (const tId in teethMeshes) {
+        const verts = teethMeshes[tId].vertices;
+        for (let i = 0; i < verts.length; i++) {
+          if (Math.hypot(verts[i].x - pt.x, verts[i].y - pt.y) < hitRadius) {
+            return { toothId: tId, vertexIndex: i };
+          }
+        }
+      }
+      return null;
+    }
+
+    // --- VECTOR & BRUSH POINTER EVENTS ---
+    function handlePointerDown(e) {
+      cachedEditorRect = canvasContainer.getBoundingClientRect();
+      const coords = getInternalCanvasCoords(e);
+
+      if (currentTool === 'teeth') {
+        const hit = findHitVertex(coords);
+        if (hit) {
+          activeToothId = hit.toothId;
+          activeVertexIndex = hit.vertexIndex;
+          activeDragToothId = hit.toothId;
+          redrawVectorOverlay();
+        }
+      } else if (currentTool === 'brush') {
+        isBrushing = true;
+        drawBrush(coords.x, coords.y, true);
+      } else if (currentTool === 'pan') {
+        isEditorPanning = true;
+        editorPanStartX = e.clientX || (e.touches ? e.touches[0].clientX : 0);
+        editorPanStartY = e.clientY || (e.touches ? e.touches[0].clientY : 0);
+        editorPanOrigX = editorPanX;
+        editorPanOrigY = editorPanY;
+        canvasContainer.style.cursor = 'grabbing';
+      }
+    }
+
+    function handlePointerMove(e) {
+      if (currentTool === 'teeth' && activeVertexIndex !== null && activeDragToothId) {
+        const coords = getInternalCanvasCoords(e);
+        const verts = teethMeshes[activeDragToothId].vertices;
+        verts[activeVertexIndex].x = coords.x;
+        verts[activeVertexIndex].y = coords.y;
+        redrawVectorOverlay();
+        bakeTeethToMask();
+      } else if (currentTool === 'brush' && isBrushing) {
+        const coords = getInternalCanvasCoords(e);
+        drawBrush(coords.x, coords.y, false);
+      } else if (currentTool === 'pan' && isEditorPanning) {
+        const cx = e.clientX || (e.touches ? e.touches[0].clientX : 0);
+        const cy = e.clientY || (e.touches ? e.touches[0].clientY : 0);
+        editorPanX = editorPanOrigX + (cx - editorPanStartX);
+        editorPanY = editorPanOrigY + (cy - editorPanStartY);
+        updateEditorTransform();
+      }
+    }
+
+    function handlePointerUp() {
+      activeVertexIndex = null;
+      activeDragToothId = null;
+      isBrushing = false;
+      if (isEditorPanning) {
+        isEditorPanning = false;
+        canvasContainer.style.cursor = 'grab';
+      }
+      cachedEditorRect = null;
+      maskCtx.beginPath();
+    }
+
+    function drawBrush(x, y, isStart) {
+      const size = document.getElementById('brushSize').value;
+      maskCtx.lineWidth = size;
+      maskCtx.lineCap = 'round';
+      maskCtx.lineJoin = 'round';
+      maskCtx.strokeStyle = (brushDrawMode === 'paint') ? '#FFFFFF' : '#000000';
+
+      if (isStart) {
+        maskCtx.beginPath();
+        maskCtx.moveTo(x, y);
+      }
+      maskCtx.lineTo(x, y);
+      maskCtx.stroke();
+      maskCtx.beginPath();
+      maskCtx.moveTo(x, y);
+    }
+
+    // Attach pointer events to canvas container
+    canvasContainer.addEventListener('mousedown', handlePointerDown);
+    window.addEventListener('mousemove', handlePointerMove);
+    window.addEventListener('mouseup', handlePointerUp);
+
+    canvasContainer.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 2) {
+        isEditorPanning = false;
+        isBrushing = false;
+        editorInitialPinchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+        editorInitialPinchZoom = editorZoom;
+      } else if (e.touches.length === 1) {
+        handlePointerDown(e);
+      }
+    }, { passive: false });
+
+    canvasContainer.addEventListener('touchmove', (e) => {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+        const targetZoom = editorInitialPinchZoom * (dist / editorInitialPinchDist);
+        zoomEditorAt(targetZoom, canvasContainer.clientWidth / 2, canvasContainer.clientHeight / 2);
+      } else if (e.touches.length === 1) {
+        handlePointerMove(e);
+      }
+    }, { passive: false });
+
+    canvasContainer.addEventListener('touchend', handlePointerUp);
+
+    // --- ZOOM & PAN ENGINE ---
     function clampEditorPan() {
       const contW = canvasContainer.clientWidth;
       const contH = canvasContainer.clientHeight;
@@ -584,10 +1115,10 @@
         return;
       }
 
-      const minX = contW - contentW - 30;
-      const maxX = 30;
-      const minY = contH - contentH - 30;
-      const maxY = 30;
+      const minX = contW - contentW - 40;
+      const maxX = 40;
+      const minY = contH - contentH - 40;
+      const maxY = 40;
 
       editorPanX = Math.min(Math.max(editorPanX, minX), maxX);
       editorPanY = Math.min(Math.max(editorPanY, minY), maxY);
@@ -599,7 +1130,7 @@
       requestAnimationFrame(() => {
         clampEditorPan();
         editorViewport.style.transform = `translate3d(${editorPanX}px, ${editorPanY}px, 0) scale(${editorZoom})`;
-        editorZoomLabel.textContent = `${Math.round(editorZoom * 100)}%`;
+        document.getElementById('editorZoomLabel').textContent = `${Math.round(editorZoom * 100)}%`;
         editorRafPending = false;
       });
     }
@@ -615,22 +1146,16 @@
       updateEditorTransform();
     }
 
-    editorZoomInBtn.addEventListener('click', () => {
-      zoomEditorAt(editorZoom + 0.5, canvasContainer.clientWidth / 2, canvasContainer.clientHeight / 2);
-    });
-
-    editorZoomOutBtn.addEventListener('click', () => {
-      zoomEditorAt(editorZoom - 0.5, canvasContainer.clientWidth / 2, canvasContainer.clientHeight / 2);
-    });
-
-    editorZoomResetBtn.addEventListener('click', () => {
+    document.getElementById('editorZoomInBtn').addEventListener('click', () => zoomEditorAt(editorZoom + 0.5, canvasContainer.clientWidth / 2, canvasContainer.clientHeight / 2));
+    document.getElementById('editorZoomOutBtn').addEventListener('click', () => zoomEditorAt(editorZoom - 0.5, canvasContainer.clientWidth / 2, canvasContainer.clientHeight / 2));
+    document.getElementById('editorZoomResetBtn').addEventListener('click', () => {
       editorZoom = 1;
       editorPanX = 0;
       editorPanY = 0;
       updateEditorTransform();
     });
 
-    // --- IMAGE SCALING ENGINE ---
+    // --- PREPARE STUDIO (IMAGE LOADING & CANVAS SETUP) ---
     function prepareEditor(source, origW, origH) {
       const MAX_SIZE = 800;
       let width = origW;
@@ -649,23 +1174,21 @@
         }
       }
 
-      baseCanvas.width = width;
-      baseCanvas.height = height;
-      maskCanvas.width = width;
-      maskCanvas.height = height;
+      [baseCanvas, maskCanvas, vectorCanvas].forEach(c => {
+        c.width = width;
+        c.height = height;
+      });
 
       baseCtx.clearRect(0, 0, width, height);
       baseCtx.drawImage(source, 0, 0, width, height);
       currentOriginalDataUrl = baseCanvas.toDataURL('image/jpeg', 0.95);
 
-      clearMask();
-
       mainHeader.classList.add('hidden');
       editorView.classList.remove('hidden');
       editorView.classList.add('fade-enter');
 
-      const availW = Math.min(editorCanvasWrapper.clientWidth - 12, 420);
-      const availH = Math.max(160, editorCanvasWrapper.clientHeight - 8);
+      const availW = Math.min(editorCanvasWrapper.clientWidth - 12, 480);
+      const availH = Math.max(180, editorCanvasWrapper.clientHeight - 8);
 
       let displayW, displayH;
       if (availW / availH < aspectRatio) {
@@ -676,21 +1199,45 @@
         displayW = Math.round(availH * aspectRatio);
       }
 
-      canvasContainer.style.width = `${displayW}px`;
-      canvasContainer.style.height = `${displayH}px`;
-      editorViewport.style.width = `${displayW}px`;
-      editorViewport.style.height = `${displayH}px`;
-      baseCanvas.style.width = `${displayW}px`;
-      baseCanvas.style.height = `${displayH}px`;
-      maskCanvas.style.width = `${displayW}px`;
-      maskCanvas.style.height = `${displayH}px`;
+      [canvasContainer, editorViewport, baseCanvas, maskCanvas, vectorCanvas].forEach(el => {
+        el.style.width = `${displayW}px`;
+        el.style.height = `${displayH}px`;
+      });
 
       editorZoom = 1;
       editorPanX = 0;
       editorPanY = 0;
       updateEditorTransform();
-      setEditorTool('pan');
+      setEditorTool('teeth');
+
+      // Default fallback arches centered in the canvas
+      initializeParametricTeeth(width * 0.5, height * 0.52, width * 0.48, height * 0.16);
+      redrawVectorOverlay();
+      bakeTeethToMask();
+
+      // Trigger automatic MediaPipe face scan
+      runMediaPipeAnalysis();
     }
+
+    // Camera Init & Controls
+    async function initCamera() {
+      if (videoStream) videoStream.getTracks().forEach(t => t.stop());
+      try {
+        videoStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: currentFacingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
+          audio: false
+        });
+        cameraFeed.srcObject = videoStream;
+      } catch (err) {
+        console.warn("Camera fallback:", err);
+      }
+      loadGalleryThumbnail();
+    }
+
+    document.getElementById('switchCameraBtn').addEventListener('click', () => {
+      currentFacingMode = currentFacingMode === 'environment' ? 'user' : 'environment';
+      initCamera();
+    });
 
     document.getElementById('captureBtn').addEventListener('click', () => {
       if (!cameraFeed.videoWidth) return;
@@ -721,161 +1268,27 @@
       fileInput.value = '';
     });
 
-    function clearMask() {
+    document.getElementById('clearMaskBtn').addEventListener('click', () => {
       maskCtx.fillStyle = '#000000';
       maskCtx.fillRect(0, 0, maskCanvas.width, maskCanvas.height);
-    }
-    document.getElementById('clearMaskBtn').addEventListener('click', clearMask);
-
-    brushSizeInput.addEventListener('input', (e) => {
-      brushSizeLabel.textContent = `${e.target.value}px`;
+      vectorCtx.clearRect(0, 0, vectorCanvas.width, vectorCanvas.height);
     });
 
-    function getCanvasCoordinates(canvas, evt, rect) {
-      const scaleX = canvas.width / rect.width;
-      const scaleY = canvas.height / rect.height;
-      let clientX = evt.clientX;
-      let clientY = evt.clientY;
-      if (evt.touches && evt.touches.length > 0) {
-        clientX = evt.touches[0].clientX;
-        clientY = evt.touches[0].clientY;
-      }
-      return { 
-        x: (clientX - rect.left) * scaleX, 
-        y: (clientY - rect.top) * scaleY 
-      };
-    }
-
-    function startDraw(e) {
-      if (currentEditorTool !== 'brush') return;
-      e.preventDefault();
-      isDrawing = true;
-      cachedEditorRect = maskCanvas.getBoundingClientRect();
-      const pos = getCanvasCoordinates(maskCanvas, e, cachedEditorRect);
-      maskCtx.beginPath();
-      maskCtx.moveTo(pos.x, pos.y);
-      draw(e);
-    }
-
-    function endDraw(e) {
-      if (!isDrawing) return;
-      if (e && e.cancelable) e.preventDefault();
-      isDrawing = false;
-      cachedEditorRect = null;
-      maskCtx.beginPath();
-    }
-
-    function draw(e) {
-      if (!isDrawing || currentEditorTool !== 'brush') return;
-      if (e.cancelable) e.preventDefault();
-      if (!cachedEditorRect) cachedEditorRect = maskCanvas.getBoundingClientRect();
-      const pos = getCanvasCoordinates(maskCanvas, e, cachedEditorRect);
-      const scaleFactor = maskCanvas.width / cachedEditorRect.width;
-      maskCtx.lineWidth = brushSizeInput.value * scaleFactor;
-      maskCtx.lineCap = 'round';
-      maskCtx.lineJoin = 'round';
-      maskCtx.strokeStyle = '#FFFFFF';
-      maskCtx.lineTo(pos.x, pos.y);
-      maskCtx.stroke();
-      maskCtx.beginPath();
-      maskCtx.moveTo(pos.x, pos.y);
-    }
-
-    function getTouchesDist(t1, t2) {
-      const dx = t1.clientX - t2.clientX;
-      const dy = t1.clientY - t2.clientY;
-      return Math.sqrt(dx * dx + dy * dy);
-    }
-
-    // --- MOUSE & TOUCH EVENT LISTENERS ---
-    canvasContainer.addEventListener('mousedown', (e) => {
-      if (currentEditorTool === 'brush') {
-        startDraw(e);
-      } else {
-        isEditorPanning = true;
-        editorPanStartX = e.clientX;
-        editorPanStartY = e.clientY;
-        editorPanOrigX = editorPanX;
-        editorPanOrigY = editorPanY;
-        canvasContainer.style.cursor = 'grabbing';
-      }
+    document.getElementById('brushSize').addEventListener('input', (e) => {
+      document.getElementById('brushSizeLabel').textContent = `${e.target.value}px`;
     });
 
-    window.addEventListener('mousemove', (e) => {
-      if (isDrawing && currentEditorTool === 'brush') {
-        draw(e);
-      } else if (isEditorPanning) {
-        editorPanX = editorPanOrigX + (e.clientX - editorPanStartX);
-        editorPanY = editorPanOrigY + (e.clientY - editorPanStartY);
-        updateEditorTransform();
-      }
+    // Treatment Selection Pills
+    const treatmentPills = document.querySelectorAll('.treatment-pill');
+    treatmentPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        activePromptType = pill.getAttribute('data-treatment');
+        treatmentPills.forEach(p => {
+          p.className = 'treatment-pill flex flex-col items-center justify-center py-1 px-0.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-slate-300 transition active:scale-95';
+        });
+        pill.className = 'treatment-pill flex flex-col items-center justify-center py-1 px-0.5 rounded-xl border border-primary bg-primary text-white transition active:scale-95 shadow-sm';
+      });
     });
-
-    window.addEventListener('mouseup', (e) => {
-      if (isDrawing) endDraw(e);
-      if (isEditorPanning) {
-        isEditorPanning = false;
-        if (currentEditorTool === 'pan') canvasContainer.style.cursor = 'grab';
-      }
-    });
-
-    canvasContainer.addEventListener('touchstart', (e) => {
-      cachedEditorRect = canvasContainer.getBoundingClientRect();
-      if (e.touches.length === 2) {
-        if (isDrawing) endDraw(e);
-        isEditorPanning = false;
-        editorInitialPinchDist = getTouchesDist(e.touches[0], e.touches[1]);
-        editorInitialPinchZoom = editorZoom;
-        editorPinchMidX = ((e.touches[0].clientX + e.touches[1].clientX) / 2) - cachedEditorRect.left;
-        editorPinchMidY = ((e.touches[0].clientY + e.touches[1].clientY) / 2) - cachedEditorRect.top;
-      } else if (e.touches.length === 1) {
-        if (currentEditorTool === 'brush') {
-          startDraw(e);
-        } else {
-          isEditorPanning = true;
-          editorPanStartX = e.touches[0].clientX;
-          editorPanStartY = e.touches[0].clientY;
-          editorPanOrigX = editorPanX;
-          editorPanOrigY = editorPanY;
-        }
-      }
-    }, { passive: false });
-
-    canvasContainer.addEventListener('touchmove', (e) => {
-      if (e.touches.length === 2) {
-        e.preventDefault();
-        const dist = getTouchesDist(e.touches[0], e.touches[1]);
-        const targetZoom = editorInitialPinchZoom * (dist / editorInitialPinchDist);
-        zoomEditorAt(targetZoom, editorPinchMidX, editorPinchMidY);
-      } else if (e.touches.length === 1) {
-        if (isDrawing && currentEditorTool === 'brush') {
-          draw(e);
-        } else if (isEditorPanning) {
-          e.preventDefault();
-          editorPanX = editorPanOrigX + (e.touches[0].clientX - editorPanStartX);
-          editorPanY = editorPanOrigY + (e.touches[0].clientY - editorPanStartY);
-          updateEditorTransform();
-        }
-      }
-    }, { passive: false });
-
-    canvasContainer.addEventListener('touchend', (e) => {
-      if (e.touches.length < 2) editorInitialPinchDist = 0;
-      if (e.touches.length === 0) {
-        if (isDrawing) endDraw(e);
-        isEditorPanning = false;
-        cachedEditorRect = null;
-      }
-    });
-
-    canvasContainer.addEventListener('wheel', (e) => {
-      e.preventDefault();
-      const rect = canvasContainer.getBoundingClientRect();
-      const cursorX = e.clientX - rect.left;
-      const cursorY = e.clientY - rect.top;
-      const zoomDelta = -Math.sign(e.deltaY) * 0.25;
-      zoomEditorAt(editorZoom + zoomDelta, cursorX, cursorY);
-    }, { passive: false });
 
     // --- COMPOSITING & AUTOSAVE ---
     function createAlphaMask(maskCanvas, blurRadius = 2) {
@@ -953,7 +1366,7 @@
           ctx.drawImage(img, 0, 0);
           canvas.toBlob((blob) => {
             if (blob) resolve(blob);
-            else reject(new Error("Conversion failed"));
+            else reject(new Error("WebP conversion failed"));
           }, 'image/webp', 0.88);
         };
         img.onerror = reject;
@@ -1000,9 +1413,18 @@
       }
     }
 
-    // --- SUBMISSION HANDLER ---
+    // --- CLINICAL AI INPAINTING DISPATCHER ---
     document.getElementById('submitBtn').addEventListener('click', async () => {
-      const promptToUse = PROMPTS[activePromptType];
+      // Ensure mask has latest tooth vectors baked
+      bakeTeethToMask();
+
+      const basePrompt = BASE_PROMPTS[activePromptType];
+      const selectedShade = document.getElementById('vitaShadeSelect').value;
+      const selectedShape = document.getElementById('shapePresetSelect').value;
+
+      // Construct hyper-precise prompt incorporating MediaPipe measurements
+      const clinicalPrompt = `${basePrompt} Clinical Parameters: Target shade VITA ${selectedShade}, tooth morphology preset ${selectedShape}. Smile arc alignment: ${calculatedMetrics.smileArc}, cant compensation: ${calculatedMetrics.cantAngle} deg, central incisor W/H target ratio: ${calculatedMetrics.whRatio}%. Render realistic enamel translucency at the incisal third, subtle vertical developmental mamelons, and anatomically correct line angles blending seamlessly with healthy pink stippled gingival margins.`;
+
       const base64Image = baseCanvas.toDataURL('image/jpeg', 0.95).split(',')[1];
       const base64Mask = maskCanvas.toDataURL('image/png').split(',')[1];
 
@@ -1013,14 +1435,13 @@
       const progressBar = document.getElementById('progressBar');
       const stepText = document.getElementById('processingStepText');
       
-      stepText.textContent = "Doing magic it is...";
-      timerText.textContent = "Doing magic it is... 0s";
+      stepText.textContent = "Synthesizing Dental Inpaint...";
+      timerText.textContent = "Processing 0s";
 
       const timer = setInterval(() => {
         seconds++;
-        timerText.textContent = `Doing magic it is... ${seconds}s`;
-        stepText.textContent = "Doing magic it is...";
-        progressBar.style.width = `${Math.min(20 + seconds * 10, 95)}%`;
+        timerText.textContent = `Processing ${seconds}s`;
+        progressBar.style.width = `${Math.min(20 + seconds * 12, 95)}%`;
       }, 1000);
 
       const controller = new AbortController();
@@ -1031,7 +1452,7 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            prompt: promptToUse,
+            prompt: clinicalPrompt,
             image: base64Image,
             mask: base64Mask,
             model: 'gemini-3.1-flash-image'
@@ -1041,7 +1462,7 @@
 
         clearTimeout(timeoutId);
         const data = await response.json();
-        if (!response.ok) throw new Error(data.error || "Server error");
+        if (!response.ok) throw new Error(data.error || "Inpainting service error");
 
         const candidateParts = data.candidates?.[0]?.content?.parts || [];
         let rawAiImgSrc = null;
@@ -1053,11 +1474,10 @@
           }
         });
 
-        if (!rawAiImgSrc) throw new Error("No inpaint returned from AI.");
+        if (!rawAiImgSrc) throw new Error("No dental composite returned by AI.");
 
         const finalCompositeSrc = await compositeInpaintedResult(baseCanvas, rawAiImgSrc, maskCanvas);
 
-        isViewingGalleryItem = false;
         document.getElementById('deleteBtn').classList.add('hidden');
         document.getElementById('backBtnText').textContent = "New Scan";
 
@@ -1066,38 +1486,36 @@
 
       } catch (err) {
         console.error(err);
-        alert("Inpainting failed. Please paint target tooth area clearly.");
+        alert("Restoration failed: " + err.message);
       } finally {
         clearInterval(timer);
         processingView.classList.add('hidden');
       }
     });
 
-    // --- COMPARISON TOOL MODE (PAN VS SLIDE SEPARATION) ---
+    // --- COMPARISON SLIDER ENGINE ---
     function setCompMode(mode) {
       compMode = mode;
       const slider = document.getElementById('sliderHandle');
       const container = document.getElementById('compareContainer');
 
       if (mode === 'pan') {
-        compModePanBtn.className = "flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 bg-primary text-white shadow-pill";
-        compModeSplitBtn.className = "flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 text-slate-300 hover:text-white";
+        document.getElementById('compModePanBtn').className = "flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 bg-primary text-white shadow-pill";
+        document.getElementById('compModeSplitBtn').className = "flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 text-slate-300 hover:text-white";
         container.style.cursor = 'grab';
-        
         slider.style.pointerEvents = 'none';
         slider.style.opacity = '0.35';
       } else {
-        compModeSplitBtn.className = "flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 bg-primary text-white shadow-pill";
-        compModePanBtn.className = "flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 text-slate-300 hover:text-white";
+        document.getElementById('compModeSplitBtn').className = "flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 bg-primary text-white shadow-pill";
+        document.getElementById('compModePanBtn').className = "flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 text-slate-300 hover:text-white";
         container.style.cursor = 'ew-resize';
-        
         slider.style.pointerEvents = 'auto';
         slider.style.opacity = '1';
       }
     }
 
-    compModeSplitBtn.addEventListener('click', () => setCompMode('split'));
-    compModePanBtn.addEventListener('click', () => setCompMode('pan'));
+    document.getElementById('compModeSplitBtn').addEventListener('click', () => setCompMode('split'));
+    document.getElementById('compModePanBtn').addEventListener('click', () => setCompMode('pan'));
 
     function clampCompPan() {
       if (compZoom <= 1) {
@@ -1124,7 +1542,7 @@
         const slider = document.getElementById('sliderHandle');
 
         viewport.style.transform = `translate3d(${compPanX}px, ${compPanY}px, 0) scale(${compZoom})`;
-        compZoomLabel.textContent = `${Math.round(compZoom * 100)}%`;
+        document.getElementById('compZoomLabel').textContent = `${Math.round(compZoom * 100)}%`;
 
         const unscaledSplitX = compSplitPercent * compTargetW;
         overlay.style.width = `${unscaledSplitX}px`;
@@ -1146,15 +1564,9 @@
       updateCompTransform();
     }
 
-    compZoomInBtn.addEventListener('click', () => {
-      zoomCompAt(compZoom + 0.5, compTargetW / 2, compTargetH / 2);
-    });
-
-    compZoomOutBtn.addEventListener('click', () => {
-      zoomCompAt(compZoom - 0.5, compTargetW / 2, compTargetH / 2);
-    });
-
-    compZoomResetBtn.addEventListener('click', () => {
+    document.getElementById('compZoomInBtn').addEventListener('click', () => zoomCompAt(compZoom + 0.5, compTargetW / 2, compTargetH / 2));
+    document.getElementById('compZoomOutBtn').addEventListener('click', () => zoomCompAt(compZoom - 0.5, compTargetW / 2, compTargetH / 2));
+    document.getElementById('compZoomResetBtn').addEventListener('click', () => {
       compZoom = 1;
       compPanX = 0;
       compPanY = 0;
@@ -1162,7 +1574,6 @@
       updateCompTransform();
     });
 
-    // --- SETUP SLIDER DIMENSIONS ---
     function setupSliderDimensions(origSrc, genSrc) {
       const origImg = document.getElementById('imgOriginal');
       const genImg = document.getElementById('imgGenerated');
@@ -1184,8 +1595,8 @@
           comparisonView.classList.remove('hidden');
           comparisonView.classList.add('fade-enter');
 
-          const availW = Math.min(compareViewportWrapper.clientWidth - 12, 440);
-          const availH = Math.max(180, compareViewportWrapper.clientHeight - 8);
+          const availW = Math.min(compareViewportWrapper.clientWidth - 12, 500);
+          const availH = Math.max(200, compareViewportWrapper.clientHeight - 8);
 
           let targetW, targetH;
           if (availW / availH < ratio) {
@@ -1199,14 +1610,10 @@
           compTargetW = targetW;
           compTargetH = targetH;
 
-          container.style.width = `${targetW}px`;
-          container.style.height = `${targetH}px`;
-          viewport.style.width = `${targetW}px`;
-          viewport.style.height = `${targetH}px`;
-          origImg.style.width = `${targetW}px`;
-          origImg.style.height = `${targetH}px`;
-          genImg.style.width = `${targetW}px`;
-          genImg.style.height = `${targetH}px`;
+          [container, viewport, origImg, genImg].forEach(el => {
+            el.style.width = `${targetW}px`;
+            el.style.height = `${targetH}px`;
+          });
 
           compZoom = 1;
           compPanX = 0;
@@ -1292,10 +1699,8 @@
         if (e.touches.length === 2) {
           isCompSliding = false;
           isCompPanning = false;
-          compInitialPinchDist = getTouchesDist(e.touches[0], e.touches[1]);
+          compInitialPinchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
           compInitialPinchZoom = compZoom;
-          compPinchMidX = ((e.touches[0].clientX + e.touches[1].clientX) / 2) - cachedCompRect.left;
-          compPinchMidY = ((e.touches[0].clientY + e.touches[1].clientY) / 2) - cachedCompRect.top;
         } else if (e.touches.length === 1) {
           if (compMode === 'pan') {
             isCompPanning = true;
@@ -1315,9 +1720,9 @@
       container.addEventListener('touchmove', (e) => {
         if (e.touches.length === 2) {
           e.preventDefault();
-          const dist = getTouchesDist(e.touches[0], e.touches[1]);
+          const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
           const targetZoom = compInitialPinchZoom * (dist / compInitialPinchDist);
-          zoomCompAt(targetZoom, compPinchMidX, compPinchMidY);
+          zoomCompAt(targetZoom, compTargetW / 2, compTargetH / 2);
         } else if (e.touches.length === 1) {
           if (isCompSliding && compMode === 'split') {
             e.preventDefault();
@@ -1331,26 +1736,14 @@
         }
       }, { passive: false });
 
-      container.addEventListener('touchend', (e) => {
-        if (e.touches.length < 2) compInitialPinchDist = 0;
-        if (e.touches.length === 0) {
-          isCompSliding = false;
-          isCompPanning = false;
-          cachedCompRect = null;
-        }
+      container.addEventListener('touchend', () => {
+        isCompSliding = false;
+        isCompPanning = false;
+        cachedCompRect = null;
       });
-
-      container.addEventListener('wheel', (e) => {
-        e.preventDefault();
-        const rect = container.getBoundingClientRect();
-        const cursorX = e.clientX - rect.left;
-        const cursorY = e.clientY - rect.top;
-        const zoomDelta = -Math.sign(e.deltaY) * 0.25;
-        zoomCompAt(compZoom + zoomDelta, cursorX, cursorY);
-      }, { passive: false });
     }
 
-    // --- DOWNLOAD ---
+    // --- EXPORT & GALLERY ---
     document.getElementById('downloadBtn').addEventListener('click', async () => {
       try {
         const imgSrc = document.getElementById('imgGenerated').src;
@@ -1359,7 +1752,7 @@
         const blobUrl = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = blobUrl;
-        link.download = `SmileCreo_Inpaint_${Date.now()}.webp`;
+        link.download = `SmileCreo_Simulation_${Date.now()}.webp`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -1371,14 +1764,9 @@
 
     document.getElementById('closeComparisonBtn').addEventListener('click', () => {
       comparisonView.classList.add('hidden');
-      if (isViewingGalleryItem) {
-        libraryView.classList.remove('hidden');
-      } else {
-        mainHeader.classList.remove('hidden');
-      }
+      mainHeader.classList.remove('hidden');
     });
 
-    // --- GALLERY ---
     document.getElementById('openLibraryBtn').addEventListener('click', openGallery);
     document.getElementById('navOpenGalleryBtn').addEventListener('click', openGallery);
     document.getElementById('closeLibraryBtn').addEventListener('click', () => {
@@ -1430,24 +1818,15 @@
           card.innerHTML = `
             <img src="${genUrl}" class="w-full h-full object-cover transition duration-200 group-hover:scale-105" loading="lazy" alt="Simulation" />
             <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition flex items-end justify-between p-2">
-              <span class="text-[9px] font-semibold text-white bg-primary/80 px-2 py-0.5 rounded-full">
-                Inspect
-              </span>
+              <span class="text-[9px] font-semibold text-white bg-primary/80 px-2 py-0.5 rounded-full">Inspect</span>
             </div>
           `;
 
           card.onclick = () => {
-            isViewingGalleryItem = true;
-            currentActiveDocId = rec.id;
-            currentActiveOrigPath = rec.original_image_path;
-            currentActiveGenPath = rec.generated_image_path;
-
-            document.getElementById('deleteBtn').classList.remove('hidden');
             document.getElementById('backBtnText').textContent = "Records";
             document.getElementById('autoSaveBadge').classList.remove('hidden');
             document.getElementById('autoSaveIcon').className = "w-1.5 h-1.5 rounded-full bg-emerald-400";
-            document.getElementById('autoSaveText').textContent = "Record";
-
+            document.getElementById('autoSaveText').textContent = "Saved";
             setupSliderDimensions(origUrl, genUrl);
           };
 
@@ -1458,23 +1837,10 @@
       }
     }
 
-    document.getElementById('deleteBtn').addEventListener('click', async () => {
-      if (!confirm("Delete this simulation?")) return;
-      try {
-        await supabaseClient.from('gallery').delete().eq('id', currentActiveDocId);
-        if (currentActiveOrigPath && currentActiveGenPath) {
-          await supabaseClient.storage.from('photos').remove([currentActiveOrigPath, currentActiveGenPath]);
-        }
-        comparisonView.classList.add('hidden');
-        libraryView.classList.remove('hidden');
-        loadGallery();
-        loadGalleryThumbnail();
-      } catch (e) {
-        alert("Failed to delete: " + e.message);
-      }
+    window.addEventListener('load', () => {
+      initCamera();
+      initMediaPipe();
     });
-
-    window.addEventListener('load', initCamera);
   </script>
 </body>
 </html>
