@@ -240,7 +240,7 @@
         </div>
       </div>
 
-      <!-- Bottom Controls Card (5 Treatments including Debrace) -->
+      <!-- Bottom Controls Card (6 Treatments: with Veneers & Debrace) -->
       <div class="w-full max-w-sm mx-auto glass-light rounded-2xl p-2 shadow-glass-light border border-white/80 space-y-1.5 shrink-0 mt-1">
         <!-- Brush Size Slider -->
         <div class="flex items-center space-x-2 bg-slate-100/90 px-2.5 py-1 rounded-xl border border-slate-200/80">
@@ -249,32 +249,37 @@
           <span id="brushSizeLabel" class="text-[10px] font-mono text-slate-600 font-medium shrink-0">16px</span>
         </div>
 
-        <!-- Treatment Options Grid (5 Columns) -->
-        <div class="grid grid-cols-5 gap-1">
-          <button data-treatment="implants" class="treatment-pill flex items-center justify-center space-x-0.5 py-1.5 px-0.5 rounded-xl border border-primary bg-primary text-white transition active:scale-95 shadow-sm">
-            <span class="text-xs">🦷</span>
-            <span class="text-[9.5px] font-bold">Implant</span>
+        <!-- 6-Column Treatment Options Grid (Zero Overflow) -->
+        <div class="grid grid-cols-6 gap-0.5 sm:gap-1">
+          <button data-treatment="implants" class="treatment-pill flex flex-col items-center justify-center py-1 px-0.5 rounded-xl border border-primary bg-primary text-white transition active:scale-95 shadow-sm">
+            <span class="text-xs leading-none">🦷</span>
+            <span class="text-[9px] font-bold mt-0.5 tracking-tight">Implant</span>
           </button>
 
-          <button data-treatment="aligners" class="treatment-pill flex items-center justify-center space-x-0.5 py-1.5 px-0.5 rounded-xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95">
-            <span class="text-xs">✨</span>
-            <span class="text-[9.5px] font-bold">Align</span>
+          <button data-treatment="aligners" class="treatment-pill flex flex-col items-center justify-center py-1 px-0.5 rounded-xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95">
+            <span class="text-xs leading-none">✨</span>
+            <span class="text-[9px] font-bold mt-0.5 tracking-tight">Align</span>
           </button>
 
-          <button data-treatment="braces" class="treatment-pill flex items-center justify-center space-x-0.5 py-1.5 px-0.5 rounded-xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95">
-            <span class="text-xs">🪥</span>
-            <span class="text-[9.5px] font-bold">Braces</span>
+          <button data-treatment="braces" class="treatment-pill flex flex-col items-center justify-center py-1 px-0.5 rounded-xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95">
+            <span class="text-xs leading-none">🪥</span>
+            <span class="text-[9px] font-bold mt-0.5 tracking-tight">Brace</span>
           </button>
 
-          <!-- New: Remove Braces Post-Treatment Option -->
-          <button data-treatment="remove_braces" class="treatment-pill flex items-center justify-center space-x-0.5 py-1.5 px-0.5 rounded-xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95">
-            <span class="text-xs">🧼</span>
-            <span class="text-[9.5px] font-bold">Debrace</span>
+          <button data-treatment="remove_braces" class="treatment-pill flex flex-col items-center justify-center py-1 px-0.5 rounded-xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95">
+            <span class="text-xs leading-none">🧼</span>
+            <span class="text-[9px] font-bold mt-0.5 tracking-tight">Debrace</span>
           </button>
 
-          <button data-treatment="whitening" class="treatment-pill flex items-center justify-center space-x-0.5 py-1.5 px-0.5 rounded-xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95">
-            <span class="text-xs">💎</span>
-            <span class="text-[9.5px] font-bold">White</span>
+          <!-- NEW: Veneers Option -->
+          <button data-treatment="veneers" class="treatment-pill flex flex-col items-center justify-center py-1 px-0.5 rounded-xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95">
+            <span class="text-xs leading-none">🪞</span>
+            <span class="text-[9px] font-bold mt-0.5 tracking-tight">Veneer</span>
+          </button>
+
+          <button data-treatment="whitening" class="treatment-pill flex flex-col items-center justify-center py-1 px-0.5 rounded-xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95">
+            <span class="text-xs leading-none">💎</span>
+            <span class="text-[9px] font-bold mt-0.5 tracking-tight">White</span>
           </button>
         </div>
 
@@ -425,12 +430,13 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxZnp2ZWRycHppaGR0bXdjZHlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2MjE2MjUsImV4cCI6MjEwMjE5NzYyNX0.ZXf3hYfr-qWiUxVhbQA9_VymeoTEoGLHoS8ou8xzCOQ';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // --- PROMPTS (With Orthodontic Debonding / Remove Braces) ---
+    // --- PROMPTS (Implants, Aligners, Braces, Debrace, Veneers, Whitening) ---
     const PROMPTS = {
       implants: "Inpaint dental restoration: Inside the masked area, generate a realistic, healthy natural tooth that matches the adjacent teeth in size, curvature, color shade, enamel translucency, and lighting. Blend cleanly with the gum line.",
       aligners: "Inpaint orthodontic alignment: Realign and straighten the teeth inside the masked area to form an even, natural dental curve while preserving natural tooth enamel and textures.",
       braces: "Inpaint orthodontic braces: Add realistic dental bracket attachments and a thin metallic archwire across the teeth inside the masked area with realistic metallic reflections matching the photo lighting.",
       remove_braces: "Inpaint orthodontic braces removal (debonding): Inside the masked area, realistically and cleanly remove all orthodontic dental braces, metallic brackets, archwires, elastic bands, and bonding cement residue from the surface of the teeth. Reveal smooth, clean, healthy natural tooth enamel with realistic surface texture, natural dental gloss/reflections, and gum line preservation. Maintain natural tooth anatomy, shading, and alignment as if orthodontic treatment has successfully finished.",
+      veneers: "Inpaint cosmetic porcelain veneers: Inside the masked area, reconstruct the teeth with premium cosmetic porcelain veneers. Create perfectly aligned, symmetrically contoured teeth with rounded incisal embrasures. Add realistic incisal enamel translucency at the biting edges and a lifelike reflective, glossy glazed coating with natural specular highlights matching the mouth lighting. Seamlessly integrate with healthy pink gingival margins for a stunning, natural cosmetic smile.",
       whitening: "Inpaint teeth whitening: Whiten and brighten the enamel of the teeth in the masked area by 3 shades to a clean natural white while preserving natural surface texture and shadows."
     };
 
@@ -542,9 +548,9 @@
       pill.addEventListener('click', () => {
         activePromptType = pill.getAttribute('data-treatment');
         treatmentPills.forEach(p => {
-          p.className = 'treatment-pill flex items-center justify-center space-x-0.5 py-1.5 px-0.5 rounded-xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95';
+          p.className = 'treatment-pill flex flex-col items-center justify-center py-1 px-0.5 rounded-xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95';
         });
-        pill.className = 'treatment-pill flex items-center justify-center space-x-0.5 py-1.5 px-0.5 rounded-xl border border-primary bg-primary text-white transition active:scale-95 shadow-sm';
+        pill.className = 'treatment-pill flex flex-col items-center justify-center py-1 px-0.5 rounded-xl border border-primary bg-primary text-white transition active:scale-95 shadow-sm';
       });
     });
 
@@ -1067,7 +1073,7 @@
       }
     });
 
-    // --- COMPARISON TOOL MODE (STRICT PAN VS SLIDE SEPARATION) ---
+    // --- COMPARISON TOOL MODE (PAN VS SLIDE SEPARATION) ---
     function setCompMode(mode) {
       compMode = mode;
       const slider = document.getElementById('sliderHandle');
