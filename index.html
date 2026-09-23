@@ -179,6 +179,12 @@
         <input type="file" id="image-file-input" accept="image/*,.svg" class="hidden" onchange="handleFileSelect(this.files[0])">
       </label>
 
+      <!-- TEMPLATES BUTTON (PNG / JPG PREVIEWS) -->
+      <button onclick="openTemplatesModal()" class="tool-btn px-3 py-1.5 rounded-full text-[#563b72] bg-white/80 hover:bg-white transition flex items-center gap-1.5 shadow-sm font-medium text-xs" title="Open Photo Templates Gallery (PNG / JPG)">
+        <i class="bi bi-grid-3x3-gap-fill text-[#563b72]"></i>
+        <span>Templates</span>
+      </button>
+
       <!-- MEDIAPIPE AI EXTRACTION -->
       <button onclick="openMediaPipeModal()" class="tool-btn px-3.5 py-1.5 rounded-full m3-pink-accent font-semibold text-xs transition flex items-center gap-1.5 shadow-sm hover:brightness-95" title="MediaPipe AI: Cutout Real Lips as PNG Layers">
         <i class="bi bi-scissors"></i>
@@ -292,14 +298,14 @@
         <span><kbd class="text-[#1f1533] font-mono font-semibold">Del / Backspace</kbd> Delete</span>
         <span><kbd class="text-[#1f1533] font-mono font-semibold">Shift+H</kbd> Flip Horiz</span>
         <span><kbd class="text-[#1f1533] font-mono font-semibold">[ / ]</kbd> Brush Size</span>
-        <span><kbd class="text-[#1f1533] font-mono font-semibold">Shift+Wheel</kbd> Horiz Scroll</span>
+        <span><kbd class="text-[#1f1533] font-mono font-semibold">Click Canvas</kbd> Deselect</span>
       </div>
     </main>
 
     <!-- RIGHT: FIGMA-STYLE INSPECTOR BENTO -->
     <aside class="w-72 flex flex-col gap-3 z-30 select-none overflow-y-auto">
       <div id="inspector-empty" class="m3-surface-card p-6 text-center text-[#5e5473] text-xs font-medium shadow-sm">
-        Select a patient photo or element to inspect, crop, or extract lips
+        Select a patient photo or element to inspect, lock position, crop, or extract lips
       </div>
 
       <div id="inspector-content" class="hidden space-y-3">
@@ -326,6 +332,23 @@
               <i class="bi bi-trash3 text-xs"></i>
             </button>
           </div>
+        </div>
+
+        <!-- FIX / UNFIX POSITION CONTROL -->
+        <div id="bento-fix-position" class="m3-surface-card p-3 flex items-center justify-between shadow-sm border border-[#cec6e6]/70">
+          <div class="flex items-center gap-2.5">
+            <div id="badge-lock-indicator" class="w-8 h-8 rounded-full bg-[#ded8f3] flex items-center justify-center text-[#563b72] transition shadow-inner">
+              <i id="icon-lock-state" class="bi bi-unlock text-xs"></i>
+            </div>
+            <div>
+              <span class="text-[9px] font-bold uppercase tracking-wider text-[#563b72] block leading-none mb-1">Anchor Lock</span>
+              <span id="lbl-lock-status" class="text-xs font-semibold text-[#1f1533] block leading-none">Unlocked</span>
+            </div>
+          </div>
+          <button id="btn-toggle-fix" onclick="toggleFixPosition()" class="px-3.5 py-1.5 rounded-full text-xs font-medium transition shadow-sm flex items-center gap-1.5 bg-[#563b72] text-white hover:bg-[#483060]">
+            <i id="btn-fix-icon" class="bi bi-pin-angle"></i>
+            <span id="btn-fix-text">Fix Position</span>
+          </button>
         </div>
 
         <!-- EXTRACTED LIP LAYER CONTROLS -->
@@ -501,6 +524,10 @@
 
   <!-- CONTEXT MENU -->
   <div id="customContextMenu" class="hidden fixed z-50 m3-surface-card p-1.5 w-56 shadow-xl flex flex-col gap-0.5 text-xs border border-white">
+    <button onclick="executeContextAction('fixToggle')" id="ctx-fix-toggle" class="px-3 py-1.5 rounded-xl hover:bg-[#ded8f3] text-left flex items-center justify-between text-[#563b72] font-medium transition">
+      <span id="ctx-fix-label">Fix Position</span>
+      <i id="ctx-fix-icon" class="bi bi-pin-angle text-[#563b72]"></i>
+    </button>
     <button onclick="executeContextAction('extractLips')" id="ctx-extract-lips" class="px-3 py-1.5 rounded-xl hover:bg-[#ded8f3] text-left flex items-center justify-between text-[#563b72] font-medium transition">
       <span>Extract Lips as PNG</span>
       <i class="bi bi-scissors text-[#563b72]"></i>
@@ -538,6 +565,60 @@
       <span>Delete</span>
       <span class="text-[10px] text-[#5e5473] font-mono">Del / Backspace</span>
     </button>
+  </div>
+
+  <!-- ============================================================
+       TEMPLATES GALLERY MODAL (PNG & JPG ONLY - NO SVGS)
+       ============================================================ -->
+  <div id="templates-modal" class="hidden fixed inset-0 z-50 bg-[#1f1533]/70 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="m3-surface-card bg-[#ded8f3] w-full max-w-3xl max-h-[88vh] flex flex-col p-6 shadow-2xl border border-white">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-3 border-b border-[#cec6e6]">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-[#563b72] flex items-center justify-center text-white text-sm shadow-sm">
+            <i class="bi bi-grid-3x3-gap-fill"></i>
+          </div>
+          <div>
+            <h3 class="text-xs font-bold uppercase tracking-wider text-[#1f1533]">Clinical Photo Templates</h3>
+            <p class="text-[11px] text-[#5e5473]">Select a high-definition patient photo or smile close-up (PNG / JPG only)</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <label class="cursor-pointer px-3.5 py-1.5 bg-[#f3f0f9] hover:bg-white text-[#563b72] rounded-full text-xs font-semibold shadow-sm transition flex items-center gap-1.5 border border-[#cec6e6]">
+            <i class="bi bi-folder2-open text-xs"></i>
+            <span>Load Photos from Folder</span>
+            <input type="file" id="template-folder-input" accept=".png,.jpg,.jpeg,image/png,image/jpeg" multiple class="hidden" onchange="handleTemplateFolderUpload(this.files)">
+          </label>
+          <button onclick="closeTemplatesModal()" class="w-7 h-7 rounded-full bg-[#f3f0f9] hover:bg-white flex items-center justify-center text-[#5e5473] hover:text-[#1f1533] font-bold text-xs transition">✕</button>
+        </div>
+      </div>
+
+      <!-- Categories & Filter Bar -->
+      <div class="flex items-center justify-between pt-3 pb-2 text-xs">
+        <div class="flex items-center gap-1.5">
+          <button onclick="filterTemplates('all')" id="tpl-tab-all" class="px-3 py-1 bg-[#563b72] text-white rounded-full font-medium text-[11px] shadow-sm">All Photos</button>
+          <button onclick="filterTemplates('portrait')" id="tpl-tab-portrait" class="px-3 py-1 bg-[#f3f0f9] text-[#5e5473] hover:text-[#1f1533] rounded-full font-medium text-[11px]">Full Face</button>
+          <button onclick="filterTemplates('smile')" id="tpl-tab-smile" class="px-3 py-1 bg-[#f3f0f9] text-[#5e5473] hover:text-[#1f1533] rounded-full font-medium text-[11px]">Smiles & Lips</button>
+          <button onclick="filterTemplates('custom')" id="tpl-tab-custom" class="px-3 py-1 bg-[#f3f0f9] text-[#5e5473] hover:text-[#1f1533] rounded-full font-medium text-[11px]">My Loaded Photos</button>
+        </div>
+        <span id="templates-count-badge" class="text-[10px] font-mono text-[#563b72] bg-white px-2 py-0.5 rounded-full shadow-sm">6 Templates</span>
+      </div>
+
+      <!-- Gallery Grid -->
+      <div id="templates-grid" class="flex-1 overflow-y-auto py-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 pr-1">
+        <!-- Rendered dynamically in JavaScript with PNG/JPG items only -->
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="flex items-center justify-between pt-3 border-t border-[#cec6e6] text-[11px] text-[#5e5473]">
+        <div class="flex items-center gap-1.5">
+          <i class="bi bi-info-circle text-[#563b72]"></i>
+          <span>Clicking any photo automatically imports it centered onto your canvas</span>
+        </div>
+        <button onclick="closeTemplatesModal()" class="px-4 py-1.5 bg-[#f3f0f9] hover:bg-white text-[#1f1533] rounded-full text-xs font-medium transition shadow-sm">Close</button>
+      </div>
+    </div>
   </div>
 
   <!-- ============================================================
@@ -804,6 +885,58 @@
     canvas.on('selection:cleared', () => { syncInspector(); updateLayersTree(); });
 
     /* ============================================================
+       DESELECT WHEN CLICKING OUTSIDE CANVAS & EMPTY BACKDROP
+       ============================================================ */
+    canvas.on('mouse:down', (opt) => {
+      if (document.activeElement && document.activeElement.blur) {
+        document.activeElement.blur();
+      }
+
+      const evt = opt.e;
+      if (currentTool === 'hand' || evt.spaceKey || evt.button === 1) {
+        isPanning = true;
+        canvas.defaultCursor = 'grabbing';
+        lastX = evt.clientX;
+        lastY = evt.clientY;
+        return;
+      }
+
+      // If user clicked on an empty area of the canvas while in Select tool, deselect active object
+      if (!opt.target && currentTool === 'select') {
+        if (canvas.getActiveObject()) {
+          canvas.discardActiveObject();
+          canvas.requestRenderAll();
+          syncInspector();
+        }
+      }
+    });
+
+    // Deselect if user clicks on the studio backdrop surrounding the canvas
+    container.addEventListener('pointerdown', (e) => {
+      if (e.target === container) {
+        if (canvas.getActiveObject()) {
+          canvas.discardActiveObject();
+          canvas.requestRenderAll();
+          syncInspector();
+        }
+      }
+    });
+
+    // Deselect if user clicks outside any dock, modal, sidebar or canvas element
+    window.addEventListener('pointerdown', (e) => {
+      const isInteractiveUI = e.target.closest('header, aside, #customContextMenu, #ps-crop-studio-modal, #mediapipe-modal, #templates-modal, #export-modal, #loading-modal, #customConfirmModal, #pencil-subdock, .tool-btn');
+      const isInsideCanvas = e.target.closest('#canvas-viewport');
+      
+      if (!isInteractiveUI && !isInsideCanvas) {
+        if (canvas.getActiveObject()) {
+          canvas.discardActiveObject();
+          canvas.requestRenderAll();
+          syncInspector();
+        }
+      }
+    });
+
+    /* ============================================================
        LIVE DYNAMIC LOCKSTEP MOVEMENT & MAGNETIC SNAPPING
        ============================================================ */
     function getLiveMouthCanvasCoords(faceObj, lipObj) {
@@ -909,6 +1042,52 @@
     }
 
     /* ============================================================
+       FIX / UNFIX POSITION ENGINE
+       ============================================================ */
+    function toggleFixPosition() {
+      const active = canvas.getActiveObject();
+      if (!active) {
+        showToast('Select an object first', 'info');
+        return;
+      }
+
+      // Toggle state
+      const willFix = !active.isPositionFixed;
+      setObjectPositionFixed(active, willFix);
+
+      canvas.requestRenderAll();
+      syncInspector();
+      updateLayersTree();
+      saveState();
+
+      if (willFix) {
+        showToast(`Position fixed for "${active.name || 'Object'}"`, 'success');
+      } else {
+        showToast(`Position unlocked for "${active.name || 'Object'}"`, 'info');
+      }
+    }
+
+    function setObjectPositionFixed(obj, isFixed) {
+      obj.isPositionFixed = isFixed;
+
+      // Lock movement and transformation coordinates
+      obj.lockMovementX = isFixed;
+      obj.lockMovementY = isFixed;
+      obj.lockRotation = isFixed;
+      obj.lockScalingX = isFixed;
+      obj.lockScalingY = isFixed;
+
+      // Retain selectable so the user can select it anytime and unfix it!
+      obj.selectable = true;
+      obj.evented = true;
+
+      // Visual control indicators
+      obj.hasControls = !isFixed;
+      obj.hoverCursor = isFixed ? 'not-allowed' : 'move';
+      obj.setCoords();
+    }
+
+    /* ============================================================
        LOADING OVERLAY & TOASTS
        ============================================================ */
     function showLoadingModal(title = 'Generating...', subtitle = 'Processing layout', iconClass = 'bi-file-earmark-image') {
@@ -1010,6 +1189,10 @@
         if (!o.isInternalHandle) {
           o.selectable = true;
           o.evented = true;
+          if (o.isPositionFixed) {
+            o.hasControls = false;
+            o.hoverCursor = 'not-allowed';
+          }
         }
       });
     }
@@ -1027,6 +1210,17 @@
         e.preventDefault();
         deleteSelected();
         return;
+      }
+
+      if (e.key === 'Escape') {
+        if (CropStudio.isCropping) { CropStudio.cancelCrop(); return; }
+        if (!document.getElementById('templates-modal').classList.contains('hidden')) { closeTemplatesModal(); return; }
+        if (activeObj) {
+          canvas.discardActiveObject();
+          canvas.requestRenderAll();
+          syncInspector();
+          return;
+        }
       }
 
       if (isInput || isEditingIText) return;
@@ -1061,6 +1255,10 @@
       }
 
       if (e.key.startsWith('Arrow')) {
+        if (activeObj && activeObj.isPositionFixed) {
+          showToast('Cannot nudge: Object position is fixed', 'info');
+          return;
+        }
         e.preventDefault();
         const step = e.shiftKey ? 10 : (e.altKey ? 0.5 : 1);
         let dx = 0, dy = 0;
@@ -1082,9 +1280,6 @@
 
       if (e.key === 'Enter') {
         if (CropStudio.isCropping) { CropStudio.applyCrop(); return; }
-      }
-      if (e.key === 'Escape') {
-        if (CropStudio.isCropping) { CropStudio.cancelCrop(); return; }
       }
 
       if (e.key === 'v' || e.key === 'V') setTool('select');
@@ -1121,13 +1316,6 @@
       const clipboardData = e.clipboardData || window.clipboardData;
       if (!clipboardData) return;
 
-      const text = clipboardData.getData('text/plain');
-      if (text && (text.includes('<svg') || text.includes('<path'))) {
-        e.preventDefault();
-        loadSvgStringDirectly(text);
-        return;
-      }
-
       const items = clipboardData.items;
       if (items) {
         for (let i = 0; i < items.length; i++) {
@@ -1148,8 +1336,11 @@
             left: cloned.left + 24,
             top: cloned.top + 24,
             evented: true,
+            isPositionFixed: false,
             name: `${cloned.name || 'Object'} (Copy)`
           });
+          setObjectPositionFixed(cloned, false);
+
           if (cloned.type === 'activeSelection') {
             cloned.canvas = canvas;
             cloned.forEachObject((obj) => canvas.add(obj));
@@ -1285,21 +1476,6 @@
       showToast('Path created', 'success');
     });
 
-    canvas.on('mouse:down', (opt) => {
-      if (document.activeElement && document.activeElement.blur) {
-        document.activeElement.blur();
-      }
-
-      const evt = opt.e;
-      if (currentTool === 'hand' || evt.spaceKey || evt.button === 1) {
-        isPanning = true;
-        canvas.defaultCursor = 'grabbing';
-        lastX = evt.clientX;
-        lastY = evt.clientY;
-        return;
-      }
-    });
-
     canvas.on('mouse:move', (opt) => {
       if (isPanning) {
         const e = opt.e;
@@ -1341,15 +1517,28 @@
       }
 
       const active = canvas.getActiveObject();
+      if (!active) {
+        contextMenu.classList.add('hidden');
+        return;
+      }
+
       const btnGroup = document.getElementById('ctx-group');
       const btnUngroup = document.getElementById('ctx-ungroup');
       const btnCrop = document.getElementById('ctx-crop');
       const btnExtractLips = document.getElementById('ctx-extract-lips');
+      const btnFixToggle = document.getElementById('ctx-fix-toggle');
+      const lblFix = document.getElementById('ctx-fix-label');
+      const iconFix = document.getElementById('ctx-fix-icon');
 
-      if (active && active.type === 'activeSelection') {
+      if (btnFixToggle) {
+        lblFix.innerText = active.isPositionFixed ? 'Unfix Position' : 'Fix Position';
+        iconFix.className = active.isPositionFixed ? 'bi bi-unlock text-[#563b72]' : 'bi bi-pin-angle text-[#563b72]';
+      }
+
+      if (active.type === 'activeSelection') {
         btnGroup.style.display = 'flex';
         btnUngroup.style.display = 'none';
-      } else if (active && active.type === 'group') {
+      } else if (active.type === 'group') {
         btnGroup.style.display = 'none';
         btnUngroup.style.display = 'flex';
       } else {
@@ -1357,11 +1546,11 @@
         btnUngroup.style.display = 'none';
       }
 
-      btnCrop.style.display = (active && (active.type === 'image' || active.type === 'group')) ? 'flex' : 'none';
-      btnExtractLips.style.display = (active && active.type === 'image') ? 'flex' : 'none';
+      btnCrop.style.display = (active.type === 'image' || active.type === 'group') ? 'flex' : 'none';
+      btnExtractLips.style.display = (active.type === 'image' && !active.isLipLayer) ? 'flex' : 'none';
 
       contextMenu.style.left = `${Math.min(window.innerWidth - 230, e.clientX)}px`;
-      contextMenu.style.top = `${Math.min(window.innerHeight - 260, e.clientY)}px`;
+      contextMenu.style.top = `${Math.min(window.innerHeight - 280, e.clientY)}px`;
       contextMenu.classList.remove('hidden');
     });
 
@@ -1372,6 +1561,7 @@
       const active = canvas.getActiveObject();
       if (!active && action !== 'delete') return;
 
+      if (action === 'fixToggle') toggleFixPosition();
       if (action === 'extractLips') runLipCutoutOnActiveObject();
       if (action === 'crop') CropStudio.startCrop();
       if (action === 'mirrorH') mirrorSelected();
@@ -1446,6 +1636,7 @@
           top: cloned.top + 24,
           name: `${obj.name || 'Object'} (Copy)`
         });
+        setObjectPositionFixed(cloned, false); // New duplicates are unlocked by default
         canvas.add(cloned);
         canvas.setActiveObject(cloned);
         canvas.requestRenderAll();
@@ -1601,39 +1792,221 @@
     }
 
     /* ============================================================
-       SVG & IMAGE IMPORT
+       TEMPLATES GALLERY (PNG & JPG ONLY - STRICTLY NO SVGS)
        ============================================================ */
-    function loadSvgStringDirectly(svgStr) {
-      fabric.loadSVGFromString(svgStr, (objects, options) => {
-        if (!objects || !objects.length) {
-          showToast('Could not parse SVG data', 'error');
-          return;
-        }
-        const svgGroup = fabric.util.groupSVGElements(objects, options);
-        const maxDim = 380;
-        if (svgGroup.width > maxDim || svgGroup.height > maxDim) {
-          svgGroup.scale(maxDim / Math.max(svgGroup.width, svgGroup.height));
-        }
-        const c = canvas.getVpCenter();
-        svgGroup.set({
-          left: c.x - (svgGroup.getScaledWidth() / 2),
-          top: c.y - (svgGroup.getScaledHeight() / 2),
-          name: `Imported SVG ${++shapeCounter}`,
-          strokeUniform: true
-        });
-        canvas.add(svgGroup);
-        canvas.setActiveObject(svgGroup);
-        canvas.requestRenderAll();
-        saveState();
-        showToast('SVG imported successfully', 'success');
-      });
+    const templateLibrary = [
+      {
+        id: 'tpl_1',
+        title: 'Full Smile Frontal',
+        category: 'portrait',
+        format: 'JPG',
+        badge: 'High-Res',
+        url: 'https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        id: 'tpl_2',
+        title: 'Close-Up Aesthetic Smile Zone',
+        category: 'smile',
+        format: 'PNG',
+        badge: 'Macro',
+        url: 'https://images.unsplash.com/photo-1606811841689-23dfddce3e95?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        id: 'tpl_3',
+        title: 'Lateral Smile 45° Angle',
+        category: 'smile',
+        format: 'JPG',
+        badge: 'Profile',
+        url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        id: 'tpl_4',
+        title: 'Full Face Clinical Portrait',
+        category: 'portrait',
+        format: 'JPG',
+        badge: 'Frontal',
+        url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        id: 'tpl_5',
+        title: 'Natural Resting Lip View',
+        category: 'smile',
+        format: 'PNG',
+        badge: 'Lip Seal',
+        url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        id: 'tpl_6',
+        title: '1:1 Esthetic Smile Framing',
+        category: 'smile',
+        format: 'JPG',
+        badge: 'DSD Focus',
+        url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80'
+      }
+    ];
+
+    let activeTemplateCategory = 'all';
+
+    function openTemplatesModal() {
+      renderTemplatesList();
+      document.getElementById('templates-modal').classList.remove('hidden');
     }
 
+    function closeTemplatesModal() {
+      document.getElementById('templates-modal').classList.add('hidden');
+    }
+
+    function filterTemplates(cat) {
+      activeTemplateCategory = cat;
+      ['all', 'portrait', 'smile', 'custom'].forEach(tab => {
+        const el = document.getElementById(`tpl-tab-${tab}`);
+        if (el) {
+          el.className = (tab === cat)
+            ? 'px-3 py-1 bg-[#563b72] text-white rounded-full font-medium text-[11px] shadow-sm'
+            : 'px-3 py-1 bg-[#f3f0f9] text-[#5e5473] hover:text-[#1f1533] rounded-full font-medium text-[11px]';
+        }
+      });
+      renderTemplatesList();
+    }
+
+    function renderTemplatesList() {
+      const grid = document.getElementById('templates-grid');
+      if (!grid) return;
+
+      const filtered = templateLibrary.filter(item => {
+        if (activeTemplateCategory === 'all') return true;
+        if (activeTemplateCategory === 'custom') return item.isCustom;
+        return item.category === activeTemplateCategory;
+      });
+
+      const badge = document.getElementById('templates-count-badge');
+      if (badge) badge.innerText = `${filtered.length} Photo${filtered.length === 1 ? '' : 's'}`;
+
+      if (!filtered.length) {
+        grid.innerHTML = `
+          <div class="col-span-full py-16 flex flex-col items-center justify-center text-center text-[#5e5473]">
+            <i class="bi bi-images text-3xl text-[#563b72]/40 mb-2"></i>
+            <p class="text-xs font-semibold text-[#1f1533]">No photos in this category</p>
+            <p class="text-[11px] text-[#5e5473]">Use the "Load Photos from Folder" button above to add your own PNG/JPG files.</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(item => `
+        <div onclick="importTemplatePhoto('${item.url}', '${item.title.replace(/'/g, "\\'")}')" class="group relative bg-[#f3f0f9] hover:bg-white rounded-2xl overflow-hidden border border-[#cec6e6]/70 shadow-sm hover:shadow-md cursor-pointer transition-all duration-200 flex flex-col">
+          <div class="relative w-full h-36 bg-[#1f1533]/10 overflow-hidden flex items-center justify-center">
+            <img src="${item.url}" alt="${item.title}" class="w-full h-full object-cover transition duration-300 group-hover:scale-105" loading="lazy" />
+            <div class="absolute top-2 left-2 flex items-center gap-1">
+              <span class="px-2 py-0.5 rounded-full bg-[#563b72]/90 text-white font-mono text-[9px] font-semibold tracking-wider">${item.format}</span>
+              <span class="px-2 py-0.5 rounded-full bg-white/90 text-[#563b72] font-mono text-[9px] font-semibold">${item.badge}</span>
+            </div>
+            <div class="absolute inset-0 bg-[#563b72]/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+              <span class="px-3 py-1.5 rounded-full bg-white text-[#563b72] font-bold text-xs shadow-lg flex items-center gap-1">
+                <i class="bi bi-box-arrow-in-down"></i> Import Photo
+              </span>
+            </div>
+          </div>
+          <div class="p-2.5 flex items-center justify-between">
+            <span class="text-xs font-medium text-[#1f1533] truncate pr-2">${item.title}</span>
+            <i class="bi bi-arrow-right-circle text-[#563b72] group-hover:translate-x-0.5 transition"></i>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function handleTemplateFolderUpload(files) {
+      if (!files || !files.length) return;
+      let loadedCount = 0;
+
+      Array.from(files).forEach(file => {
+        // STRICT CHECK: PNG & JPG / JPEG ONLY. NO SVGS.
+        const isPng = file.type === 'image/png' || file.name.toLowerCase().endsWith('.png');
+        const isJpg = file.type === 'image/jpeg' || file.name.toLowerCase().endsWith('.jpg') || file.name.toLowerCase().endsWith('.jpeg');
+
+        if (!isPng && !isJpg) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          templateLibrary.unshift({
+            id: 'custom_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+            title: file.name.replace(/\.[^/.]+$/, ""),
+            category: 'custom',
+            isCustom: true,
+            format: isPng ? 'PNG' : 'JPG',
+            badge: 'Folder',
+            url: e.target.result
+          });
+          loadedCount++;
+          filterTemplates('custom');
+        };
+        reader.readAsDataURL(file);
+      });
+
+      setTimeout(() => {
+        showToast(`Loaded ${loadedCount} patient photo(s) into Templates`, 'success');
+      }, 250);
+    }
+
+    function importTemplatePhoto(photoUrl, photoName) {
+      closeTemplatesModal();
+      showLoadingModal('Importing Photo...', photoName, 'bi-image');
+
+      fabric.Image.fromURL(photoUrl, (img) => {
+        const maxDim = 720;
+        if (img.width > maxDim || img.height > maxDim) {
+          img.scale(maxDim / Math.max(img.width, img.height));
+        }
+
+        const c = canvas.getVpCenter();
+        img.set({
+          left: c.x - (img.getScaledWidth() / 2),
+          top: c.y - (img.getScaledHeight() / 2),
+          name: photoName || `Photo ${++shapeCounter}`,
+          strokeUniform: true
+        });
+
+        canvas.add(img);
+        canvas.setActiveObject(img);
+        canvas.requestRenderAll();
+        saveState();
+        hideLoadingModal();
+        showToast(`Imported "${img.name}"`, 'success');
+      }, { crossOrigin: 'anonymous' });
+    }
+
+    /* ============================================================
+       IMAGE IMPORT
+       ============================================================ */
     function handleFileSelect(file) {
       if (!file) return;
       if (file.name.endsWith('.svg') || file.type === 'image/svg+xml') {
         const reader = new FileReader();
-        reader.onload = (e) => loadSvgStringDirectly(e.target.result);
+        reader.onload = (e) => {
+          fabric.loadSVGFromString(e.target.result, (objects, options) => {
+            if (!objects || !objects.length) {
+              showToast('Could not parse SVG data', 'error');
+              return;
+            }
+            const svgGroup = fabric.util.groupSVGElements(objects, options);
+            const maxDim = 380;
+            if (svgGroup.width > maxDim || svgGroup.height > maxDim) {
+              svgGroup.scale(maxDim / Math.max(svgGroup.width, svgGroup.height));
+            }
+            const c = canvas.getVpCenter();
+            svgGroup.set({
+              left: c.x - (svgGroup.getScaledWidth() / 2),
+              top: c.y - (svgGroup.getScaledHeight() / 2),
+              name: `Imported SVG ${++shapeCounter}`,
+              strokeUniform: true
+            });
+            canvas.add(svgGroup);
+            canvas.setActiveObject(svgGroup);
+            canvas.requestRenderAll();
+            saveState();
+            showToast('SVG imported successfully', 'success');
+          });
+        };
         reader.readAsText(file);
       } else if (file.type.startsWith('image/')) {
         const reader = new FileReader();
@@ -1896,7 +2269,7 @@
     };
 
     /* ============================================================
-       GOOGLE MEDIAPIPE AI: 100% ACCURATE ORGANIC SPLINE LIP CUTOUT (PNG)
+       GOOGLE MEDIAPIPE AI: ACCURATE ORGANIC SPLINE LIP CUTOUT (PNG)
        ============================================================ */
     let faceMeshEngine = null;
 
@@ -1958,7 +2331,6 @@
       }, 50);
     }
 
-    // Midpoint Quadratic Bézier Spline Interpolation for organic, curved vermilion trimming
     function traceSmoothContour(ctx, pts) {
       if (pts.length < 3) return;
       const n = pts.length;
@@ -1983,18 +2355,15 @@
         const iw = imgElement.naturalWidth || imgElement.width;
         const ih = imgElement.naturalHeight || imgElement.height;
 
-        // Canonical MediaPipe Lips topology
         const outerIndices = [61, 185, 40, 39, 37, 0, 267, 269, 270, 409, 291, 375, 321, 405, 314, 17, 84, 181, 91, 146];
         const innerIndices = [78, 191, 80, 81, 82, 13, 312, 311, 310, 415, 308, 324, 318, 402, 317, 14, 87, 178, 88, 95];
 
         const punchBase = document.getElementById('mp-punch-base').checked;
         const moveOut = document.getElementById('mp-move-out').checked;
 
-        // Map landmarks to image pixel space
         const outerPixelPts = outerIndices.map(idx => ({ x: landmarks[idx].x * iw, y: landmarks[idx].y * ih }));
         const innerPixelPts = innerIndices.map(idx => ({ x: landmarks[idx].x * iw, y: landmarks[idx].y * ih }));
 
-        // Accurate bounding box calculation
         let minX = iw, minY = ih, maxX = 0, maxY = 0;
         outerPixelPts.forEach(p => {
           if (p.x < minX) minX = p.x;
@@ -2003,7 +2372,6 @@
           if (p.y > maxY) maxY = p.y;
         });
 
-        // Compute centroid for seamless sub-pixel dilation bleed
         let sumX = 0, sumY = 0;
         outerPixelPts.forEach(p => {
           sumX += p.x;
@@ -2012,7 +2380,6 @@
         const mouthCx = sumX / outerPixelPts.length;
         const mouthCy = sumY / outerPixelPts.length;
 
-        // Dilate outer points by 1.5px outward to eliminate any gap seam
         const dilatedOuterPts = outerPixelPts.map(p => {
           const vx = p.x - mouthCx;
           const vy = p.y - mouthCy;
@@ -2023,7 +2390,6 @@
           };
         });
 
-        // Contract inner boundary slightly (0.8px) so the lip tissue seats cleanly over the teeth opening
         const contractedInnerPts = innerPixelPts.map(p => {
           const vx = p.x - mouthCx;
           const vy = p.y - mouthCy;
@@ -2040,7 +2406,7 @@
         const cropW = Math.min(iw - cropX, Math.ceil((maxX - minX) + pad * 2));
         const cropH = Math.min(ih - cropY, Math.ceil((maxY - minY) + pad * 2));
 
-        // 1. TIGHT EXTRACTED LIP PNG (WITH 100% ACCURATE ORGANIC SPLINE CURVATURE)
+        // 1. TIGHT EXTRACTED LIP PNG
         const lipCanvas = document.createElement('canvas');
         lipCanvas.width = cropW;
         lipCanvas.height = cropH;
@@ -2172,7 +2538,7 @@
       if (emptyBox) emptyBox.classList.add('hidden');
       if (contentBox) contentBox.classList.remove('hidden');
 
-      // Accurately name active selections and clean up titles
+      // Update Selection Title
       const label = document.getElementById('label-selection-type');
       if (label) {
         let typeName = obj.customType || obj.type || 'Object';
@@ -2184,6 +2550,35 @@
           typeName = typeName.toUpperCase();
         }
         label.innerText = typeName;
+      }
+
+      // Sync Fix / Unfix Position Status
+      const isFixed = Boolean(obj.isPositionFixed);
+      const lblLock = document.getElementById('lbl-lock-status');
+      const iconLock = document.getElementById('icon-lock-state');
+      const badgeLock = document.getElementById('badge-lock-indicator');
+      const btnFix = document.getElementById('btn-toggle-fix');
+      const btnFixText = document.getElementById('btn-fix-text');
+      const btnFixIcon = document.getElementById('btn-fix-icon');
+
+      if (isFixed) {
+        if (lblLock) lblLock.innerText = 'Fixed (Locked)';
+        if (iconLock) iconLock.className = 'bi bi-lock-fill text-xs text-amber-700';
+        if (badgeLock) badgeLock.className = 'w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 transition shadow-inner';
+        if (btnFix) {
+          btnFix.className = 'px-3.5 py-1.5 rounded-full text-xs font-semibold transition shadow-sm flex items-center gap-1.5 bg-amber-600 hover:bg-amber-700 text-white';
+        }
+        if (btnFixText) btnFixText.innerText = 'Unfix Position';
+        if (btnFixIcon) btnFixIcon.className = 'bi bi-unlock';
+      } else {
+        if (lblLock) lblLock.innerText = 'Free to Move';
+        if (iconLock) iconLock.className = 'bi bi-unlock text-xs text-[#563b72]';
+        if (badgeLock) badgeLock.className = 'w-8 h-8 rounded-full bg-[#ded8f3] flex items-center justify-center text-[#563b72] transition shadow-inner';
+        if (btnFix) {
+          btnFix.className = 'px-3.5 py-1.5 rounded-full text-xs font-medium transition shadow-sm flex items-center gap-1.5 bg-[#563b72] text-white hover:bg-[#483060]';
+        }
+        if (btnFixText) btnFixText.innerText = 'Fix Position';
+        if (btnFixIcon) btnFixIcon.className = 'bi bi-pin-angle';
       }
 
       safeSetVal('inp-pos-x', Math.round(obj.left || 0));
@@ -2222,7 +2617,6 @@
       const cropAction = document.getElementById('bento-crop-action');
       if (cropAction) cropAction.style.display = (obj.type === 'image' || obj.type === 'group') ? 'block' : 'none';
 
-      // Hide vector Styling tab completely for raster images & extracted lips
       const isRasterImage = (obj.type === 'image' || obj.isLipLayer);
       const stylingSection = document.getElementById('bento-styling-section');
       if (stylingSection) {
@@ -2255,6 +2649,11 @@
     function applyTransform(prop, val) {
       const obj = canvas.getActiveObject();
       if (!obj) return;
+      if (obj.isPositionFixed && (prop === 'left' || prop === 'top' || prop === 'angle')) {
+        showToast('Object position is fixed. Click "Unfix Position" to edit.', 'info');
+        syncInspector();
+        return;
+      }
       obj.set(prop, parseFloat(val) || 0);
       obj.setCoords();
       canvas.requestRenderAll();
@@ -2264,6 +2663,11 @@
     function applyDimension(dim, val) {
       const obj = canvas.getActiveObject();
       if (!obj) return;
+      if (obj.isPositionFixed) {
+        showToast('Object size is fixed. Click "Unfix Position" to edit.', 'info');
+        syncInspector();
+        return;
+      }
       const v = Math.max(parseFloat(val) || 1, 1);
       if (dim === 'width') obj.scaleToWidth(v);
       else obj.scaleToHeight(v);
@@ -2275,6 +2679,10 @@
     function rotateBy(deg) {
       const obj = canvas.getActiveObject();
       if (!obj) return;
+      if (obj.isPositionFixed) {
+        showToast('Object is fixed. Click "Unfix Position" to rotate.', 'info');
+        return;
+      }
       obj.rotate(((obj.angle || 0) + deg) % 360);
       obj.setCoords();
       canvas.requestRenderAll();
@@ -2437,7 +2845,7 @@
 
         const isSel = activeObjects.includes(obj);
         const div = document.createElement('div');
-        div.draggable = true;
+        div.draggable = !obj.isPositionFixed;
         div.className = `flex items-center justify-between px-3 py-2 rounded-2xl cursor-grab text-xs transition shadow-sm ${
           isSel ? 'bg-[#563b72] text-white font-semibold' : 'bg-[#f3f0f9] hover:bg-[#e8e4f3] text-[#1f1533]'
         }`;
@@ -2449,10 +2857,15 @@
         if (obj.type === 'line' || obj.customType === 'line') icon = `<i class="bi bi-dash-lg ${isSel ? 'text-white' : 'text-[#563b72]'}"></i>`;
         if (obj.customType === 'midline') icon = `<i class="bi bi-slash-lg ${isSel ? 'text-white' : 'text-[#563b72]'}"></i>`;
 
+        const lockIcon = obj.isPositionFixed 
+          ? `<i class="bi bi-pin-angle-fill ${isSel ? 'text-amber-200' : 'text-amber-600'} text-[11px]" title="Position Fixed"></i>` 
+          : '';
+
         div.innerHTML = `
           <div class="flex items-center gap-2 truncate flex-1 pointer-events-none">
             <span class="text-[11px]">${icon}</span>
             <span class="truncate layer-title" title="Double-click to rename">${obj.name}</span>
+            ${lockIcon}
           </div>
           <button class="${isSel ? 'text-white/80 hover:text-white' : 'text-[#5e5473] hover:text-[#1f1533]'} ml-2 p-0.5" onclick="event.stopPropagation(); toggleLayerVisibility('${obj.name}')">
             ${obj.visible ? '<i class="bi bi-eye"></i>' : '<i class="bi bi-eye-slash text-red-500"></i>'}
@@ -2565,7 +2978,13 @@
 
     function saveState() {
       if (isHistoryOperating) return;
-      const json = JSON.stringify(canvas.toJSON(['name', 'customType', 'strokeUniform', 'strokeDashArray', 'dsdFaceId', 'targetFaceId', 'mouthLocalX', 'mouthLocalY', 'isLipLayer', 'isAttachedToMouth']));
+      const json = JSON.stringify(canvas.toJSON([
+        'name', 'customType', 'strokeUniform', 'strokeDashArray', 
+        'dsdFaceId', 'targetFaceId', 'mouthLocalX', 'mouthLocalY', 
+        'isLipLayer', 'isAttachedToMouth', 'isPositionFixed', 
+        'lockMovementX', 'lockMovementY', 'lockRotation', 
+        'lockScalingX', 'lockScalingY', 'hasControls', 'hoverCursor'
+      ]));
       history.splice(historyIdx + 1);
       history.push(json);
       if (history.length > 35) history.shift();
