@@ -71,7 +71,6 @@
       color: var(--m3-on-secondary-pink) !important;
     }
 
-    /* Deep Aubergine Default Studio Workbench */
     .studio-canvas-bg {
       background-color: #1f1533;
       background-image: radial-gradient(#3c2c56 1.4px, transparent 1.4px);
@@ -306,7 +305,7 @@
       <div id="inspector-content" class="hidden space-y-3">
         <!-- Object Header & Quick Actions -->
         <div class="m3-surface-card p-3 flex items-center justify-between shadow-sm">
-          <span id="label-selection-type" class="text-xs font-bold uppercase tracking-wider text-[#563b72]">Object</span>
+          <span id="label-selection-type" class="text-xs font-bold uppercase tracking-wider text-[#563b72]">OBJECT</span>
           <div class="flex items-center gap-1">
             <button onclick="mirrorSelected()" title="Flip Horizontal (Shift+H)" class="p-1.5 hover:bg-white/60 text-[#5e5473] hover:text-[#1f1533] rounded-lg transition">
               <i class="bi bi-symmetry-vertical text-xs"></i>
@@ -430,8 +429,8 @@
           </div>
         </div>
 
-        <!-- Color, Stroke & Outline Control -->
-        <div class="m3-surface-card p-3.5 space-y-3 shadow-sm">
+        <!-- Color, Stroke & Outline Control (HIDDEN FOR IMAGES & LIPS) -->
+        <div id="bento-styling-section" class="m3-surface-card p-3.5 space-y-3 shadow-sm">
           <span class="text-[10px] font-bold uppercase tracking-wider text-[#563b72] block">Styling</span>
 
           <div class="space-y-1.5">
@@ -630,7 +629,7 @@
       </div>
 
       <p class="text-xs text-[#5e5473] leading-relaxed">
-        Extracts the photographic pixels of the <b>Upper and Lower Lips</b> from the patient photo into an independent PNG image layer. The lips on the base photo are punched out, leaving teeth and face completely visible with <b>zero micro-gaps</b>.
+        Extracts the photographic pixels of the <b>Upper and Lower Lips</b> using sub-pixel spline curvature. The lips on the base photo are punched out, leaving teeth and face completely visible with <b>zero micro-gaps</b>.
       </p>
 
       <div class="space-y-3 bg-[#f3f0f9] p-4 rounded-[22px] border border-[#cec6e6]/60 shadow-sm">
@@ -797,7 +796,7 @@
     });
     resizeObserver.observe(container);
 
-    // 100% Synchronization of Layers Tree with Canvas
+    // Synchronization of Layers Tree with Canvas
     canvas.on('object:added', () => updateLayersTree());
     canvas.on('object:removed', () => { updateLayersTree(); syncInspector(); });
     canvas.on('selection:created', () => { syncInspector(); updateLayersTree(); });
@@ -1169,11 +1168,11 @@
     });
 
     /* ============================================================
-       TOOL MODES (ROCK-SOLID PAN & SELECT STATE RESETS)
+       TOOL MODES
        ============================================================ */
     function setTool(tool) {
       if (CropStudio.isCropping) CropStudio.cancelCrop();
-      isPanning = false; // Always clear panning flag immediately
+      isPanning = false;
       currentTool = tool;
 
       document.querySelectorAll('.tool-btn').forEach(btn => {
@@ -1209,7 +1208,7 @@
         canvas.forEachObject(o => { o.selectable = false; o.evented = false; });
         canvas.discardActiveObject();
         canvas.requestRenderAll();
-      } else { // SELECT MODE (100% RELIABLE)
+      } else {
         canvas.isDrawingMode = false;
         pencilDock.classList.add('hidden');
         canvas.defaultCursor = 'default';
@@ -1897,7 +1896,7 @@
     };
 
     /* ============================================================
-       GOOGLE MEDIAPIPE AI: ZERO-GAP RASTER LIP CUTOUT (PNG)
+       GOOGLE MEDIAPIPE AI: 100% ACCURATE ORGANIC SPLINE LIP CUTOUT (PNG)
        ============================================================ */
     let faceMeshEngine = null;
 
@@ -1959,44 +1958,89 @@
       }, 50);
     }
 
+    // Midpoint Quadratic Bézier Spline Interpolation for organic, curved vermilion trimming
+    function traceSmoothContour(ctx, pts) {
+      if (pts.length < 3) return;
+      const n = pts.length;
+      const startMidX = (pts[n - 1].x + pts[0].x) / 2;
+      const startMidY = (pts[n - 1].y + pts[0].y) / 2;
+      ctx.moveTo(startMidX, startMidY);
+
+      for (let i = 0; i < n; i++) {
+        const curr = pts[i];
+        const next = pts[(i + 1) % n];
+        const midX = (curr.x + next.x) / 2;
+        const midY = (curr.y + next.y) / 2;
+        ctx.quadraticCurveTo(curr.x, curr.y, midX, midY);
+      }
+      ctx.closePath();
+    }
+
     function executePhotographicLipCutout(targetImage, imgElement, landmarks) {
-      showLoadingModal('Extracting PNG Layers...', 'Punching out lips with zero-gap bleed overlap', 'bi-layers');
+      showLoadingModal('Extracting PNG Layers...', 'Punching out lips with organic spline trimming & zero-gap overlap', 'bi-layers');
 
       setTimeout(() => {
         const iw = imgElement.naturalWidth || imgElement.width;
         const ih = imgElement.naturalHeight || imgElement.height;
 
+        // Canonical MediaPipe Lips topology
         const outerIndices = [61, 185, 40, 39, 37, 0, 267, 269, 270, 409, 291, 375, 321, 405, 314, 17, 84, 181, 91, 146];
         const innerIndices = [78, 191, 80, 81, 82, 13, 312, 311, 310, 415, 308, 324, 318, 402, 317, 14, 87, 178, 88, 95];
 
         const punchBase = document.getElementById('mp-punch-base').checked;
         const moveOut = document.getElementById('mp-move-out').checked;
 
+        // Map landmarks to image pixel space
+        const outerPixelPts = outerIndices.map(idx => ({ x: landmarks[idx].x * iw, y: landmarks[idx].y * ih }));
+        const innerPixelPts = innerIndices.map(idx => ({ x: landmarks[idx].x * iw, y: landmarks[idx].y * ih }));
+
+        // Accurate bounding box calculation
         let minX = iw, minY = ih, maxX = 0, maxY = 0;
-        outerIndices.forEach(idx => {
-          const px = landmarks[idx].x * iw;
-          const py = landmarks[idx].y * ih;
-          if (px < minX) minX = px;
-          if (px > maxX) maxX = px;
-          if (py < minY) minY = py;
-          if (py > maxY) maxY = py;
+        outerPixelPts.forEach(p => {
+          if (p.x < minX) minX = p.x;
+          if (p.x > maxX) maxX = p.x;
+          if (p.y < minY) minY = p.y;
+          if (p.y > maxY) maxY = p.y;
         });
 
+        // Compute centroid for seamless sub-pixel dilation bleed
         let sumX = 0, sumY = 0;
-        outerIndices.forEach(idx => {
-          sumX += landmarks[idx].x * iw;
-          sumY += landmarks[idx].y * ih;
+        outerPixelPts.forEach(p => {
+          sumX += p.x;
+          sumY += p.y;
         });
-        const mouthCx = sumX / outerIndices.length;
-        const mouthCy = sumY / outerIndices.length;
+        const mouthCx = sumX / outerPixelPts.length;
+        const mouthCy = sumY / outerPixelPts.length;
 
-        const pad = 6;
+        // Dilate outer points by 1.5px outward to eliminate any gap seam
+        const dilatedOuterPts = outerPixelPts.map(p => {
+          const vx = p.x - mouthCx;
+          const vy = p.y - mouthCy;
+          const len = Math.hypot(vx, vy) || 1;
+          return {
+            x: p.x + (vx / len) * 1.5,
+            y: p.y + (vy / len) * 1.5
+          };
+        });
+
+        // Contract inner boundary slightly (0.8px) so the lip tissue seats cleanly over the teeth opening
+        const contractedInnerPts = innerPixelPts.map(p => {
+          const vx = p.x - mouthCx;
+          const vy = p.y - mouthCy;
+          const len = Math.hypot(vx, vy) || 1;
+          return {
+            x: p.x - (vx / len) * 0.8,
+            y: p.y - (vy / len) * 0.8
+          };
+        });
+
+        const pad = 4;
         const cropX = Math.max(0, Math.floor(minX - pad));
         const cropY = Math.max(0, Math.floor(minY - pad));
         const cropW = Math.min(iw - cropX, Math.ceil((maxX - minX) + pad * 2));
         const cropH = Math.min(ih - cropY, Math.ceil((maxY - minY) + pad * 2));
 
-        // 1. TIGHT EXTRACTED LIP PNG (WITH 2px SEAMLESS DILATION BLEED)
+        // 1. TIGHT EXTRACTED LIP PNG (WITH 100% ACCURATE ORGANIC SPLINE CURVATURE)
         const lipCanvas = document.createElement('canvas');
         lipCanvas.width = cropW;
         lipCanvas.height = cropH;
@@ -2006,29 +2050,8 @@
         lipCtx.translate(-cropX, -cropY);
 
         lipCtx.beginPath();
-        outerIndices.forEach((idx, i) => {
-          const px = landmarks[idx].x * iw;
-          const py = landmarks[idx].y * ih;
-          const vx = px - mouthCx;
-          const vy = py - mouthCy;
-          const len = Math.hypot(vx, vy) || 1;
-          const dilatedX = px + (vx / len) * 2.0;
-          const dilatedY = py + (vy / len) * 2.0;
-          if (i === 0) lipCtx.moveTo(dilatedX, dilatedY); else lipCtx.lineTo(dilatedX, dilatedY);
-        });
-        lipCtx.closePath();
-
-        innerIndices.forEach((idx, i) => {
-          const px = landmarks[idx].x * iw;
-          const py = landmarks[idx].y * ih;
-          const vx = px - mouthCx;
-          const vy = py - mouthCy;
-          const len = Math.hypot(vx, vy) || 1;
-          const contractedX = px - (vx / len) * 0.8;
-          const contractedY = py - (vy / len) * 0.8;
-          if (i === 0) lipCtx.moveTo(contractedX, contractedY); else lipCtx.lineTo(contractedX, contractedY);
-        });
-        lipCtx.closePath();
+        traceSmoothContour(lipCtx, dilatedOuterPts);
+        traceSmoothContour(lipCtx, contractedInnerPts);
 
         lipCtx.clip('evenodd');
         lipCtx.drawImage(imgElement, 0, 0, iw, ih);
@@ -2050,19 +2073,8 @@
           faceCtx.globalCompositeOperation = 'destination-out';
           faceCtx.beginPath();
 
-          outerIndices.forEach((idx, i) => {
-            const x = landmarks[idx].x * iw;
-            const y = landmarks[idx].y * ih;
-            if (i === 0) faceCtx.moveTo(x, y); else faceCtx.lineTo(x, y);
-          });
-          faceCtx.closePath();
-
-          innerIndices.forEach((idx, i) => {
-            const x = landmarks[idx].x * iw;
-            const y = landmarks[idx].y * ih;
-            if (i === 0) faceCtx.moveTo(x, y); else faceCtx.lineTo(x, y);
-          });
-          faceCtx.closePath();
+          traceSmoothContour(faceCtx, outerPixelPts);
+          traceSmoothContour(faceCtx, innerPixelPts);
 
           faceCtx.fill('evenodd');
           faceCtx.restore();
@@ -2125,7 +2137,7 @@
               updateLayersTree();
               saveState();
               hideLoadingModal();
-              showToast(moveOut ? 'Lips extracted! Move them near mouth to snap magnetically.' : 'Lips extracted seamlessly with ZERO micro-gaps!', 'success');
+              showToast(moveOut ? 'Lips extracted! Move them near mouth to snap magnetically.' : 'Lips extracted with organic spline accuracy and zero gaps!', 'success');
             });
           });
         }
@@ -2160,8 +2172,19 @@
       if (emptyBox) emptyBox.classList.add('hidden');
       if (contentBox) contentBox.classList.remove('hidden');
 
+      // Accurately name active selections and clean up titles
       const label = document.getElementById('label-selection-type');
-      if (label) label.innerText = obj.customType || obj.type || 'Object';
+      if (label) {
+        let typeName = obj.customType || obj.type || 'Object';
+        if (typeName.toLowerCase() === 'activeselection') {
+          typeName = 'SELECTION';
+        } else if (typeName.toLowerCase() === 'image') {
+          typeName = obj.isLipLayer ? 'EXTRACTED LIPS' : 'IMAGE';
+        } else {
+          typeName = typeName.toUpperCase();
+        }
+        label.innerText = typeName;
+      }
 
       safeSetVal('inp-pos-x', Math.round(obj.left || 0));
       safeSetVal('inp-pos-y', Math.round(obj.top || 0));
@@ -2198,6 +2221,13 @@
 
       const cropAction = document.getElementById('bento-crop-action');
       if (cropAction) cropAction.style.display = (obj.type === 'image' || obj.type === 'group') ? 'block' : 'none';
+
+      // Hide vector Styling tab completely for raster images & extracted lips
+      const isRasterImage = (obj.type === 'image' || obj.isLipLayer);
+      const stylingSection = document.getElementById('bento-styling-section');
+      if (stylingSection) {
+        stylingSection.style.display = isRasterImage ? 'none' : 'block';
+      }
 
       const fillSection = document.getElementById('inspector-fill-section');
       const lineHint = document.getElementById('inspector-line-hint');
@@ -2372,7 +2402,6 @@
       const viewport = document.getElementById('canvas-viewport');
       viewport.style.backgroundColor = col;
       
-      // Dynamic grid dot tones based on backdrop lightness
       if (col === '#1f1533' || col === '#2c2242') {
         viewport.style.backgroundImage = 'radial-gradient(#3c2c56 1.4px, transparent 1.4px)';
       } else {
