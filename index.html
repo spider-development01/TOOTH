@@ -17,6 +17,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Fabric.js Canvas Engine -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+  <!-- jsPDF Engine for Instant PDF Generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   
   <!-- Google MediaPipe Face Mesh & Camera CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
@@ -119,7 +121,7 @@
       </div>
       <div class="flex items-center gap-2">
         <span class="text-sm font-bold tracking-tight text-white">SmileCreo</span>
-        <span class="text-[10px] font-semibold text-[#a8c7fa] bg-[#1a73e8]/25 border border-[#a8c7fa]/30 px-2 py-0.5 rounded-full font-mono">DSD AI</span>
+        <span class="text-[10px] font-semibold text-[#a8c7fa] bg-[#1a73e8]/25 border border-[#a8c7fa]/30 px-2 py-0.5 rounded-full font-mono">DSD STUDIO</span>
       </div>
     </div>
 
@@ -143,7 +145,7 @@
       </button>
 
       <!-- Bézier Curve -->
-      <button onclick="addBezierCurve()" class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 transition" title="Bézier Smile Curve (P)">
+      <button onclick="addBezierCurve()" class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 transition" title="Smile Curve (P)">
         <i class="bi bi-bezier2 text-yellow-300"></i>
       </button>
 
@@ -181,16 +183,15 @@
         <input type="file" id="image-file-input" accept="image/*,.svg" class="hidden" onchange="handleFileSelect(this.files[0])">
       </label>
 
-      <!-- MEDIAPIPE AI TRIGGER -->
-      <button onclick="openMediaPipeModal()" class="tool-btn px-3 py-1 rounded-full bg-gradient-to-r from-blue-600/40 to-indigo-600/40 hover:from-blue-600 hover:to-indigo-600 text-cyan-300 hover:text-white border border-cyan-400/40 transition flex items-center gap-1.5 shadow-sm" title="MediaPipe AI: Detect Landmarks, Extract Smile, Expand Outside Frame">
-        <i class="bi bi-stars text-yellow-300 animate-pulse"></i>
-        <span class="text-xs font-semibold">MediaPipe AI</span>
+      <!-- MEDIAPIPE AI EXTRACTION MODAL TRIGGER -->
+      <button onclick="openMediaPipeModal()" class="tool-btn px-3 py-1 rounded-full bg-gradient-to-r from-pink-600/30 to-indigo-600/40 hover:from-pink-600 hover:to-indigo-600 text-pink-300 hover:text-white border border-pink-400/40 transition flex items-center gap-1.5 shadow-sm" title="MediaPipe AI: Cutout Real Lips as PNG Layers">
+        <i class="bi bi-scissors text-yellow-300"></i>
+        <span class="text-xs font-semibold">Extract Lips (PNG)</span>
       </button>
     </div>
 
     <!-- Right Controls: Flip, Group, Undo/Redo, Zoom, Export -->
     <div class="flex items-center gap-2 pr-1">
-      <!-- Flip Horizontal & Vertical -->
       <div class="flex items-center bg-[#13161f] border border-[#393e4d] rounded-full p-0.5">
         <button onclick="mirrorSelected()" class="p-1.5 text-gray-300 hover:text-white rounded-full hover:bg-white/10 transition" title="Flip Horizontal (Shift+H)">
           <i class="bi bi-symmetry-vertical text-xs"></i>
@@ -224,6 +225,12 @@
         <button onclick="zoomIn()" class="text-gray-300 hover:text-white px-1 font-bold">+</button>
       </div>
 
+      <!-- Quick PDF Trigger directly in top bar -->
+      <button onclick="quickExportPdf()" class="px-3 py-1.5 bg-[#13161f] hover:bg-white/10 border border-[#393e4d] text-gray-200 hover:text-white font-semibold text-xs rounded-full transition flex items-center gap-1.5" title="Generate PDF Document">
+        <i class="bi bi-file-earmark-pdf text-rose-400"></i>
+        <span>PDF</span>
+      </button>
+
       <button onclick="openExportModal()" class="px-4 py-1.5 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-semibold text-xs rounded-full transition shadow-md active:scale-95">
         Export
       </button>
@@ -235,7 +242,7 @@
        ============================================================ -->
   <div class="flex-1 w-full h-full pt-20 px-4 pb-4 flex overflow-hidden relative gap-3.5">
 
-    <!-- LEFT: LAYERS BENTO (DRAG & DROP REORDERING) -->
+    <!-- LEFT: LAYERS BENTO -->
     <aside class="w-68 flex flex-col gap-3 z-30 select-none">
       <div class="m3-surface-container flex-1 flex flex-col p-3.5 min-h-[300px] overflow-hidden">
         <div class="flex items-center justify-between pb-2 border-b border-[#393e4d] mb-2">
@@ -253,15 +260,15 @@
         </div>
       </div>
 
-      <!-- Quick AI Actions Bento -->
+      <!-- Patient & AI Cutout Preset Bento -->
       <div class="m3-surface-container p-3 space-y-2">
-        <span class="text-[10px] font-bold uppercase tracking-wider text-[#a8c7fa] block">MediaPipe DSD Presets</span>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-pink-300 block">DSD AI Cutout Presets</span>
         <div class="grid grid-cols-2 gap-2 text-xs">
           <button onclick="loadSamplePatient()" class="py-1.5 px-2 bg-white/10 hover:bg-white/15 rounded-xl text-gray-200 text-[11px] transition text-center truncate">
             Sample Portrait
           </button>
-          <button onclick="openMediaPipeModal()" class="py-1.5 px-2 bg-[#1a73e8]/30 hover:bg-[#1a73e8]/50 border border-[#a8c7fa]/40 rounded-xl text-white text-[11px] font-medium transition text-center">
-            AI Scan Face
+          <button onclick="openMediaPipeModal()" class="py-1.5 px-2 bg-gradient-to-r from-pink-600/30 to-indigo-600/30 hover:from-pink-600 hover:to-indigo-600 border border-pink-400/40 rounded-xl text-white text-[11px] font-medium transition text-center truncate">
+            Cutout Lips (PNG)
           </button>
         </div>
       </div>
@@ -301,19 +308,16 @@
           </div>
         </div>
 
-        <!-- Quick Brush Size Chips -->
         <div class="flex items-center gap-1 border-r border-white/15 pr-3">
           <button onclick="setPencilBrushWidth(1)" class="px-2 py-0.5 rounded-md bg-white/10 hover:bg-[#1a73e8] text-[10px] font-mono">1px</button>
           <button onclick="setPencilBrushWidth(2)" class="px-2 py-0.5 rounded-md bg-white/10 hover:bg-[#1a73e8] text-[10px] font-mono">2px</button>
           <button onclick="setPencilBrushWidth(4)" class="px-2 py-0.5 rounded-md bg-white/10 hover:bg-[#1a73e8] text-[10px] font-mono">4px</button>
           <button onclick="setPencilBrushWidth(8)" class="px-2 py-0.5 rounded-md bg-white/10 hover:bg-[#1a73e8] text-[10px] font-mono">8px</button>
-          <button onclick="setPencilBrushWidth(12)" class="px-2 py-0.5 rounded-md bg-white/10 hover:bg-[#1a73e8] text-[10px] font-mono">12px</button>
         </div>
 
-        <!-- Brush Color Picker -->
         <div class="flex items-center gap-2">
           <input type="color" id="pencil-dock-color" value="#ffffff" class="w-5 h-5 bg-transparent cursor-pointer rounded" onchange="setPencilColor(this.value)">
-          <button onclick="togglePencilFill()" id="btn-pencil-fill-toggle" class="px-2.5 py-1 bg-white/10 hover:bg-white/20 text-gray-200 text-[11px] rounded-lg transition" title="Fill shape while drawing">
+          <button onclick="togglePencilFill()" id="btn-pencil-fill-toggle" class="px-2.5 py-1 bg-white/10 hover:bg-white/20 text-gray-200 text-[11px] rounded-lg transition">
             Fill: <span id="txt-pencil-fill-state">Off</span>
           </button>
           <button onclick="setTool('select')" class="ml-1 px-3 py-1 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-medium rounded-full text-xs shadow-md">
@@ -339,14 +343,13 @@
         <span><kbd class="text-white font-mono font-semibold">Shift+H</kbd> Flip Horiz</span>
         <span><kbd class="text-white font-mono font-semibold">[ / ]</kbd> Brush Size</span>
         <span><kbd class="text-white font-mono font-semibold">Shift+Wheel</kbd> Horiz Scroll</span>
-        <span><kbd class="text-white font-mono font-semibold">Space+Drag</kbd> Pan</span>
       </div>
     </main>
 
     <!-- RIGHT: FIGMA-STYLE INSPECTOR -->
     <aside class="w-72 flex flex-col gap-3 z-30 select-none overflow-y-auto">
       <div id="inspector-empty" class="m3-surface-container p-6 text-center text-gray-400 text-xs font-medium">
-        Select an element on canvas or run MediaPipe AI to inspect & adjust parameters
+        Select a patient photo or element to inspect, crop, or extract lips
       </div>
 
       <div id="inspector-content" class="hidden space-y-3">
@@ -369,16 +372,16 @@
           </div>
         </div>
 
-        <!-- MEDIAPIPE DSD ACTIONS (IF IMAGE IS SELECTED) -->
-        <div id="bento-mediapipe-action" class="hidden m3-surface-container p-3 space-y-2 border-cyan-400/40 bg-gradient-to-b from-[#13161f] to-[#142338]">
+        <!-- MEDIAPIPE LIP CUTOUT ACTION (WHEN IMAGE IS SELECTED) -->
+        <div id="bento-mediapipe-action" class="hidden m3-surface-container p-3 space-y-2 border-pink-400/40 bg-gradient-to-b from-[#191c25] to-[#251528]">
           <div class="flex items-center justify-between">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-cyan-300">MediaPipe DSD AI</span>
-            <span class="text-[9px] bg-cyan-400/20 text-cyan-200 px-2 py-0.5 rounded-full font-mono">DETECT</span>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-pink-300">MediaPipe Lip Cutout (PNG)</span>
+            <span class="text-[9px] bg-pink-400/20 text-pink-200 px-2 py-0.5 rounded-full font-mono">RASTER</span>
           </div>
-          <p class="text-[11px] text-gray-300 leading-tight">Extract lip curves, midline, smile arc, and move them outside the frame.</p>
-          <button onclick="runMediaPipeOnActiveObject()" class="w-full py-1.5 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-medium rounded-xl text-xs transition shadow-md flex items-center justify-center gap-1.5">
-            <i class="bi bi-stars text-yellow-300"></i>
-            <span>Scan Face & Extract Vectors</span>
+          <p class="text-[11px] text-gray-300 leading-tight">Extract upper & lower lips as an independent PNG image layer. The teeth and face remain.</p>
+          <button onclick="runLipCutoutOnActiveObject()" class="w-full py-2 bg-gradient-to-r from-pink-600 to-indigo-600 hover:from-pink-500 hover:to-indigo-500 text-white font-semibold rounded-xl text-xs transition shadow-md flex items-center justify-center gap-1.5">
+            <i class="bi bi-scissors text-yellow-300 text-sm"></i>
+            <span>Extract Lips as PNG Layer</span>
           </button>
         </div>
 
@@ -452,7 +455,6 @@
         <div class="m3-surface-container p-3 space-y-3">
           <span class="text-[10px] font-bold uppercase tracking-wider text-[#a8c7fa] block">Color, Stroke & Outline</span>
 
-          <!-- STROKE / OUTLINE -->
           <div class="space-y-1.5">
             <div class="flex items-center justify-between text-xs">
               <span class="text-gray-300 font-medium text-[11px]">Stroke / Outline</span>
@@ -476,7 +478,6 @@
               </div>
             </div>
 
-            <!-- Line Style: Solid, Dashed, Dotted -->
             <div class="flex items-center justify-between text-xs pt-1">
               <span class="text-gray-400 text-[10px]">Line Style</span>
               <div class="flex items-center gap-1">
@@ -487,7 +488,6 @@
             </div>
           </div>
 
-          <!-- FILL -->
           <div id="inspector-fill-section" class="space-y-1.5 pt-1 border-t border-[#393e4d]">
             <div class="flex items-center justify-between text-xs">
               <span class="text-gray-300 font-medium text-[11px]">Fill Color</span>
@@ -523,9 +523,9 @@
 
   <!-- CONTEXT MENU -->
   <div id="customContextMenu" class="hidden fixed z-50 m3-surface-container p-1.5 w-56 shadow-2xl flex flex-col gap-0.5 text-xs border border-white/20">
-    <button onclick="executeContextAction('mediapipe')" id="ctx-mediapipe" class="px-3 py-1.5 rounded-xl hover:bg-[#1a73e8] text-left flex items-center justify-between text-cyan-300 hover:text-white transition">
-      <span>Scan Face with MediaPipe</span>
-      <i class="bi bi-stars text-yellow-300"></i>
+    <button onclick="executeContextAction('extractLips')" id="ctx-extract-lips" class="px-3 py-1.5 rounded-xl hover:bg-pink-600 text-left flex items-center justify-between text-pink-300 hover:text-white transition">
+      <span>Extract Lips as PNG</span>
+      <i class="bi bi-scissors text-yellow-300"></i>
     </button>
     <button onclick="executeContextAction('crop')" id="ctx-crop" class="px-3 py-1.5 rounded-xl hover:bg-[#1a73e8] text-left flex items-center justify-between text-white transition">
       <span>Crop</span>
@@ -563,107 +563,87 @@
   </div>
 
   <!-- ============================================================
-       MEDIAPIPE DSD AI CONTROL DIALOG
+       MEDIAPIPE LIP CUTOUT MODAL
        ============================================================ -->
   <div id="mediapipe-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-xl flex items-center justify-center p-4">
-    <div class="m3-surface-container-high bg-[#191c25] w-full max-w-lg p-5 space-y-4 shadow-2xl border border-cyan-400/40">
+    <div class="m3-surface-container-high bg-[#191c25] w-full max-w-lg p-5 space-y-4 shadow-2xl border border-pink-400/40">
       
       <div class="flex items-center justify-between pb-2 border-b border-[#393e4d]">
         <div class="flex items-center gap-2">
-          <i class="bi bi-stars text-cyan-300 text-base animate-spin" style="animation-duration: 4s;"></i>
-          <h3 class="text-xs font-bold uppercase tracking-wider text-white">MediaPipe FaceMesh & DSD Engine</h3>
+          <i class="bi bi-scissors text-pink-400 text-lg"></i>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-white">MediaPipe Real Lip PNG Extraction</h3>
         </div>
         <button onclick="closeMediaPipeModal()" class="text-gray-400 hover:text-white font-bold text-sm">✕</button>
       </div>
 
       <p class="text-xs text-gray-300 leading-relaxed">
-        Detect 468+ facial landmarks with Google MediaPipe AI. Extract lip contours, facial midline, eye horizon, and smile arcs as individual vector shapes. You can expand them, adjust them, and move them completely outside the frame.
+        This cuts out the actual photographic pixels of the <b>Upper and Lower Lips</b> from the patient photo into a separate, transparent PNG image layer. The lips part in the photo goes away, revealing the teeth and surrounding face. You can drag and position the lips anywhere.
       </p>
 
       <div class="space-y-3 bg-[#13161f] p-3.5 rounded-xl border border-[#393e4d]">
-        <label class="block text-[11px] font-bold text-gray-300 uppercase">Detection Target</label>
-        <div class="grid grid-cols-3 gap-2">
-          <button onclick="runMediaPipeOnActiveObject()" class="p-2.5 rounded-xl bg-white/5 hover:bg-[#1a73e8] border border-white/10 text-white text-xs font-medium text-center transition flex flex-col items-center gap-1">
-            <i class="bi bi-image text-sm text-[#a8c7fa]"></i>
-            <span>Selected Image</span>
+        <label class="block text-[11px] font-bold text-gray-300 uppercase">Detection & Extraction Target</label>
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="runLipCutoutOnActiveObject()" class="p-3 rounded-xl bg-white/5 hover:bg-[#1a73e8] border border-white/10 text-white text-xs font-medium text-center transition flex flex-col items-center gap-1.5">
+            <i class="bi bi-image text-base text-pink-300"></i>
+            <span>Selected Photo</span>
           </button>
-          <button onclick="loadSamplePatientAndRun()" class="p-2.5 rounded-xl bg-white/5 hover:bg-[#1a73e8] border border-white/10 text-white text-xs font-medium text-center transition flex flex-col items-center gap-1">
-            <i class="bi bi-person-bounding-box text-sm text-yellow-300"></i>
-            <span>Sample Patient</span>
-          </button>
-          <button onclick="startWebcamDetection()" class="p-2.5 rounded-xl bg-white/5 hover:bg-[#1a73e8] border border-white/10 text-white text-xs font-medium text-center transition flex flex-col items-center gap-1">
-            <i class="bi bi-camera-video text-sm text-emerald-400"></i>
-            <span>Live Webcam</span>
+          <button onclick="loadSamplePatientAndExtract()" class="p-3 rounded-xl bg-white/5 hover:bg-[#1a73e8] border border-white/10 text-white text-xs font-medium text-center transition flex flex-col items-center gap-1.5">
+            <i class="bi bi-person-bounding-box text-base text-yellow-300"></i>
+            <span>Sample Patient Portrait</span>
           </button>
         </div>
       </div>
 
-      <!-- Feature Vector Checkboxes -->
+      <!-- Extraction Configurations -->
       <div class="space-y-2 text-xs">
-        <label class="block text-[11px] font-bold text-gray-300 uppercase">Elements to Extract as Vectors</label>
-        <div class="grid grid-cols-2 gap-2 text-gray-200">
-          <label class="flex items-center gap-2 p-1.5 rounded-lg bg-white/5 cursor-pointer hover:bg-white/10">
-            <input type="checkbox" id="mp-check-lips" checked class="rounded border-white/30 text-[#1a73e8]">
-            <span>Outer & Inner Lip Contours</span>
+        <label class="block text-[11px] font-bold text-gray-300 uppercase">Cutout & Layer Settings</label>
+        <div class="space-y-2">
+          <label class="flex items-center justify-between p-2.5 rounded-xl bg-white/5 hover:bg-white/10 cursor-pointer">
+            <span class="text-gray-200">Punch out lips from base photo (keep teeth & face)</span>
+            <input type="checkbox" id="mp-punch-base" checked class="rounded border-white/30 text-[#1a73e8]">
           </label>
-          <label class="flex items-center gap-2 p-1.5 rounded-lg bg-white/5 cursor-pointer hover:bg-white/10">
-            <input type="checkbox" id="mp-check-midline" checked class="rounded border-white/30 text-[#1a73e8]">
-            <span>Facial Midline (Trichion-Chin)</span>
+          <label class="flex items-center justify-between p-2.5 rounded-xl bg-white/5 hover:bg-white/10 cursor-pointer">
+            <span class="text-gray-200">Move extracted lips beside face (Out of Frame)</span>
+            <input type="checkbox" id="mp-move-out" checked class="rounded border-white/30 text-[#1a73e8]">
           </label>
-          <label class="flex items-center gap-2 p-1.5 rounded-lg bg-white/5 cursor-pointer hover:bg-white/10">
-            <input type="checkbox" id="mp-check-horizon" checked class="rounded border-white/30 text-[#1a73e8]">
-            <span>Bipupillary Horizon</span>
-          </label>
-          <label class="flex items-center gap-2 p-1.5 rounded-lg bg-white/5 cursor-pointer hover:bg-white/10">
-            <input type="checkbox" id="mp-check-smilearc" checked class="rounded border-white/30 text-[#1a73e8]">
-            <span>Incisal Smile Arc</span>
+          <label class="flex items-center justify-between p-2.5 rounded-xl bg-white/5 hover:bg-white/10 cursor-pointer">
+            <span class="text-gray-200">Split into 2 layers (Upper Lip & Lower Lip separate)</span>
+            <input type="checkbox" id="mp-split-lips" class="rounded border-white/30 text-[#1a73e8]">
           </label>
         </div>
-      </div>
-
-      <!-- Out-of-frame placement option -->
-      <div class="flex items-center justify-between p-2.5 rounded-xl bg-cyan-950/40 border border-cyan-800/40 text-xs">
-        <div class="flex items-center gap-2 text-cyan-200">
-          <i class="bi bi-box-arrow-up-right text-cyan-300"></i>
-          <span><b>Move Beside Face (Out of Frame)</b></span>
-        </div>
-        <input type="checkbox" id="mp-check-out-of-frame" class="rounded border-cyan-400 text-cyan-500" checked>
       </div>
 
       <div class="flex justify-between items-center pt-2 border-t border-[#393e4d]">
-        <span id="mp-status-lbl" class="text-[11px] text-gray-400 font-mono">Engine ready</span>
-        <div class="flex gap-2">
-          <button onclick="closeMediaPipeModal()" class="px-4 py-1.5 bg-white/10 hover:bg-white/15 text-gray-300 rounded-full text-xs transition">Close</button>
-        </div>
+        <span id="mp-status-lbl" class="text-[11px] text-gray-400 font-mono">Ready to extract</span>
+        <button onclick="closeMediaPipeModal()" class="px-4 py-1.5 bg-white/10 hover:bg-white/15 text-gray-300 rounded-full text-xs transition">Close</button>
       </div>
     </div>
   </div>
 
-  <!-- WEBCAM MODAL -->
-  <div id="webcam-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-xl flex items-center justify-center p-4">
-    <div class="m3-surface-container-high bg-[#191c25] w-full max-w-md p-4 space-y-3 shadow-2xl border border-white/20 text-center">
-      <div class="flex justify-between items-center pb-2 border-b border-[#393e4d]">
-        <h4 class="text-xs font-bold text-white uppercase tracking-wider">Live MediaPipe Camera Scan</h4>
-        <button onclick="stopWebcam()" class="text-gray-400 hover:text-white font-bold">✕</button>
+  <!-- ============================================================
+       PREMIUM GLASSMORPHIC "GENERATING..." PROGRESS MODAL
+       ============================================================ -->
+  <div id="loading-modal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-2xl flex items-center justify-center p-4 transition-all duration-300">
+    <div class="m3-surface-container-high bg-[#191c25]/90 border border-white/20 p-6 rounded-3xl shadow-2xl flex flex-col items-center gap-4 text-center max-w-xs w-full backdrop-blur-xl">
+      <div class="relative w-14 h-14 flex items-center justify-center">
+        <div class="absolute inset-0 rounded-full border-4 border-[#1a73e8]/30 border-t-[#a8c7fa] animate-spin"></div>
+        <i id="loading-modal-icon" class="bi bi-file-earmark-pdf text-xl text-[#a8c7fa]"></i>
       </div>
-      <div class="relative w-full aspect-video rounded-xl overflow-hidden bg-black flex items-center justify-center">
-        <video id="webcam-video" autoplay playsinline class="w-full h-full object-cover"></video>
-        <canvas id="webcam-overlay" class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
+      <div class="space-y-1">
+        <h4 id="loading-modal-title" class="text-sm font-bold text-white tracking-wide">Generating...</h4>
+        <p id="loading-modal-subtitle" class="text-xs text-gray-300">Processing high-resolution layout</p>
       </div>
-      <div class="flex justify-center gap-3 pt-2">
-        <button onclick="stopWebcam()" class="px-4 py-1.5 bg-white/10 text-gray-300 rounded-full text-xs">Cancel</button>
-        <button onclick="captureWebcamSnapshot()" class="px-5 py-1.5 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-bold rounded-full text-xs shadow-md">
-          Capture & Extract Vectors
-        </button>
+      <div class="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
+        <div id="loading-modal-bar" class="bg-gradient-to-r from-[#1a73e8] to-[#a8c7fa] h-full w-3/4 animate-pulse rounded-full"></div>
       </div>
     </div>
   </div>
 
-  <!-- EXPORT DIALOG -->
+  <!-- EXPORT DIALOG (PNG, JPEG, SVG, PDF) -->
   <div id="export-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-xl flex items-center justify-center p-4">
     <div class="m3-surface-container-high bg-[#191c25] w-full max-w-sm p-5 space-y-3.5 shadow-2xl border border-white/20">
       <div class="flex items-center justify-between pb-2 border-b border-[#393e4d]">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-white">Export Canvas / Vector</h3>
+        <h3 class="text-xs font-bold uppercase tracking-wider text-white">Export Canvas / Design</h3>
         <button onclick="closeExportModal()" class="text-gray-400 hover:text-white font-bold text-sm">✕</button>
       </div>
 
@@ -671,32 +651,33 @@
         <div>
           <label class="block text-gray-300 mb-1.5 text-[11px] font-medium">Export Scope</label>
           <select id="export-target" class="w-full bg-[#13161f] border border-[#393e4d] rounded-xl p-2 text-white outline-none text-[11px]">
-            <option value="selection">Selected Object / Group Only</option>
+            <option value="selection">Selected Object / Layer Only</option>
             <option value="canvas">Entire Canvas</option>
           </select>
         </div>
 
         <div>
           <label class="block text-gray-300 mb-1.5 text-[11px] font-medium">Format</label>
-          <div class="grid grid-cols-3 gap-2">
+          <div class="grid grid-cols-4 gap-1.5">
             <button onclick="setExportFormat('png')" id="fmt-png" class="p-2 border border-[#a8c7fa]/40 bg-[#1a73e8]/30 text-white rounded-xl font-semibold text-center shadow-md">PNG</button>
+            <button onclick="setExportFormat('pdf')" id="fmt-pdf" class="p-2 border border-[#393e4d] bg-[#13161f] text-gray-300 rounded-xl font-medium text-center">PDF</button>
             <button onclick="setExportFormat('jpeg')" id="fmt-jpeg" class="p-2 border border-[#393e4d] bg-[#13161f] text-gray-300 rounded-xl font-medium text-center">JPEG</button>
             <button onclick="setExportFormat('svg')" id="fmt-svg" class="p-2 border border-[#393e4d] bg-[#13161f] text-gray-300 rounded-xl font-medium text-center">SVG</button>
           </div>
         </div>
 
         <div>
-          <label class="block text-gray-300 mb-1.5 text-[11px] font-medium">Resolution</label>
+          <label class="block text-gray-300 mb-1.5 text-[11px] font-medium">Resolution Multiplier</label>
           <select id="export-scale" class="w-full bg-[#13161f] border border-[#393e4d] rounded-xl p-2 text-white outline-none font-mono text-[11px]">
             <option value="1">1x Standard</option>
             <option value="2" selected>2x High-Definition (Retina)</option>
-            <option value="3">3x Ultra High-Res</option>
+            <option value="3">3x Ultra High-Res Print</option>
           </select>
         </div>
 
         <div class="flex items-center gap-2 pt-1">
           <input type="checkbox" id="export-transparency" class="rounded border-white/30 text-[#1a73e8]" checked>
-          <label for="export-transparency" class="text-gray-200 text-[11px]">Transparent Background (PNG/SVG)</label>
+          <label for="export-transparency" class="text-gray-200 text-[11px]">Transparent Background (PNG/SVG/PDF)</label>
         </div>
       </div>
 
@@ -773,6 +754,22 @@
       updateLayersTree();
       syncInspector();
     });
+
+    /* ============================================================
+       GLASSMORPHIC LOADING OVERLAY CONTROLLER
+       ============================================================ */
+    function showLoadingModal(title = 'Generating...', subtitle = 'Processing high-resolution layout', iconClass = 'bi-file-earmark-pdf') {
+      const modal = document.getElementById('loading-modal');
+      document.getElementById('loading-modal-title').innerText = title;
+      document.getElementById('loading-modal-subtitle').innerText = subtitle;
+      const icon = document.getElementById('loading-modal-icon');
+      icon.className = `bi ${iconClass} text-xl text-[#a8c7fa]`;
+      modal.classList.remove('hidden');
+    }
+
+    function hideLoadingModal() {
+      document.getElementById('loading-modal').classList.add('hidden');
+    }
 
     function showToast(msg, type = 'info') {
       const c = document.getElementById('toastContainer');
@@ -865,7 +862,7 @@
     }
 
     /* ============================================================
-       KEYBOARD SHORTCUTS: RELIABLE DELETE, SHIFT+H FLIP, [ / ] BRUSH
+       KEYBOARD SHORTCUTS
        ============================================================ */
     window.addEventListener('keydown', (e) => {
       const isInput = ['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName) || document.activeElement.isContentEditable;
@@ -1031,7 +1028,7 @@
     });
 
     /* ============================================================
-       TOOL MODES (SELECT, HAND, PENCIL)
+       TOOL MODES
        ============================================================ */
     function setTool(tool) {
       if (CropManager.isCropping) CropManager.cancelCrop();
@@ -1059,7 +1056,7 @@
         canvas.defaultCursor = 'crosshair';
         pencilDock.classList.remove('hidden');
         updatePencilDockUI();
-        showToast('Pencil tool active — Draw curves & outlines', 'info');
+        showToast('Pencil tool active', 'info');
       } else {
         pencilDock.classList.add('hidden');
         if (tool === 'hand') {
@@ -1138,7 +1135,7 @@
       updateLayersTree();
       syncInspector();
       saveState();
-      showToast('Path drawn — Fully scalable vector', 'success');
+      showToast('Path created', 'success');
     });
 
     canvas.on('mouse:down', (opt) => {
@@ -1192,7 +1189,7 @@
       const btnGroup = document.getElementById('ctx-group');
       const btnUngroup = document.getElementById('ctx-ungroup');
       const btnCrop = document.getElementById('ctx-crop');
-      const btnMp = document.getElementById('ctx-mediapipe');
+      const btnExtractLips = document.getElementById('ctx-extract-lips');
 
       if (active && active.type === 'activeSelection') {
         btnGroup.style.display = 'flex';
@@ -1206,7 +1203,7 @@
       }
 
       btnCrop.style.display = (active && (active.type === 'image' || active.type === 'group')) ? 'flex' : 'none';
-      btnMp.style.display = (active && active.type === 'image') ? 'flex' : 'none';
+      btnExtractLips.style.display = (active && active.type === 'image') ? 'flex' : 'none';
 
       contextMenu.style.left = `${Math.min(window.innerWidth - 230, e.clientX)}px`;
       contextMenu.style.top = `${Math.min(window.innerHeight - 260, e.clientY)}px`;
@@ -1220,7 +1217,7 @@
       const active = canvas.getActiveObject();
       if (!active && action !== 'delete') return;
 
-      if (action === 'mediapipe') runMediaPipeOnActiveObject();
+      if (action === 'extractLips') runLipCutoutOnActiveObject();
       if (action === 'crop') CropManager.startCrop();
       if (action === 'mirrorH') mirrorSelected();
       if (action === 'mirrorV') flipVerticalSelected();
@@ -1332,7 +1329,7 @@
     }
 
     /* ============================================================
-       VECTOR SHAPES & DSD REFERENCE LINES (NO POINT EDITING)
+       VECTOR SHAPES & DSD REFERENCE LINES
        ============================================================ */
     function addStraightLine() {
       const c = canvas.getVpCenter();
@@ -1448,7 +1445,7 @@
     }
 
     /* ============================================================
-       SVG & IMAGE IMPORT / LOAD
+       SVG & IMAGE IMPORT
        ============================================================ */
     function loadSvgStringDirectly(svgStr) {
       fabric.loadSVGFromString(svgStr, (objects, options) => {
@@ -1574,51 +1571,55 @@
       applyCrop() {
         if (!this.isCropping || !this.targetObj || !this.cropBox) return;
 
-        const target = this.targetObj;
-        const crop = this.cropBox;
+        showLoadingModal('Applying Crop...', 'Rendering cropped sub-image', 'bi-crop');
+        setTimeout(() => {
+          const target = this.targetObj;
+          const crop = this.cropBox;
 
-        const targetBounds = target.getBoundingRect();
-        const cropBounds = crop.getBoundingRect();
+          const targetBounds = target.getBoundingRect();
+          const cropBounds = crop.getBoundingRect();
 
-        const multiplier = 2;
-        const dataUrl = target.toDataURL({ multiplier: multiplier, format: 'png' });
-        const img = new Image();
+          const multiplier = 2;
+          const dataUrl = target.toDataURL({ multiplier: multiplier, format: 'png' });
+          const img = new Image();
 
-        img.onload = () => {
-          const offscreen = document.createElement('canvas');
-          const cropW = Math.max(cropBounds.width, 10);
-          const cropH = Math.max(cropBounds.height, 10);
+          img.onload = () => {
+            const offscreen = document.createElement('canvas');
+            const cropW = Math.max(cropBounds.width, 10);
+            const cropH = Math.max(cropBounds.height, 10);
 
-          offscreen.width = cropW * multiplier;
-          offscreen.height = cropH * multiplier;
-          const ctx = offscreen.getContext('2d');
+            offscreen.width = cropW * multiplier;
+            offscreen.height = cropH * multiplier;
+            const ctx = offscreen.getContext('2d');
 
-          const relX = (cropBounds.left - targetBounds.left) * multiplier;
-          const relY = (cropBounds.top - targetBounds.top) * multiplier;
+            const relX = (cropBounds.left - targetBounds.left) * multiplier;
+            const relY = (cropBounds.top - targetBounds.top) * multiplier;
 
-          ctx.drawImage(img, relX, relY, offscreen.width, offscreen.height, 0, 0, offscreen.width, offscreen.height);
+            ctx.drawImage(img, relX, relY, offscreen.width, offscreen.height, 0, 0, offscreen.width, offscreen.height);
 
-          fabric.Image.fromURL(offscreen.toDataURL(), (croppedImg) => {
-            croppedImg.set({
-              left: cropBounds.left,
-              top: cropBounds.top,
-              scaleX: 1 / multiplier,
-              scaleY: 1 / multiplier,
-              name: `${target.name || 'Object'} (Cropped)`,
-              strokeUniform: true
+            fabric.Image.fromURL(offscreen.toDataURL(), (croppedImg) => {
+              croppedImg.set({
+                left: cropBounds.left,
+                top: cropBounds.top,
+                scaleX: 1 / multiplier,
+                scaleY: 1 / multiplier,
+                name: `${target.name || 'Object'} (Cropped)`,
+                strokeUniform: true
+              });
+
+              const idx = canvas.getObjects().indexOf(this.targetObj);
+              canvas.remove(this.targetObj);
+              canvas.insertAt(croppedImg, idx);
+              canvas.setActiveObject(croppedImg);
+
+              this.cleanup();
+              saveState();
+              hideLoadingModal();
+              showToast('Cropped successfully', 'success');
             });
-
-            const idx = canvas.getObjects().indexOf(this.targetObj);
-            canvas.remove(this.targetObj);
-            canvas.insertAt(croppedImg, idx);
-            canvas.setActiveObject(croppedImg);
-
-            this.cleanup();
-            saveState();
-            showToast('Cropped successfully', 'success');
-          });
-        };
-        img.src = dataUrl;
+          };
+          img.src = dataUrl;
+        }, 50);
       },
 
       cancelCrop() {
@@ -1642,11 +1643,9 @@
     };
 
     /* ============================================================
-       GOOGLE MEDIAPIPE FACE MESH & DSD VECTOR INTEGRATION
+       GOOGLE MEDIAPIPE AI: REAL RASTER LIP CUTOUT ENGINE (PNG)
        ============================================================ */
     let faceMeshEngine = null;
-    let isMediaPipeReady = false;
-    let webcamStream = null;
 
     async function initMediaPipeFaceMesh() {
       if (faceMeshEngine) return faceMeshEngine;
@@ -1664,8 +1663,7 @@
       });
 
       await faceMeshEngine.initialize();
-      isMediaPipeReady = true;
-      document.getElementById('mp-status-lbl').innerText = 'MediaPipe FaceMesh AI Loaded';
+      document.getElementById('mp-status-lbl').innerText = 'MediaPipe AI Ready';
       return faceMeshEngine;
     }
 
@@ -1678,284 +1676,244 @@
       document.getElementById('mediapipe-modal').classList.add('hidden');
     }
 
-    // Helper: Map MediaPipe normalized (0-1) coordinates into Fabric canvas coordinates
-    function landmarkToCanvasPoint(nx, ny, imgObj) {
-      const matrix = imgObj.calcTransformMatrix();
-      const localX = (nx - (imgObj.originX === 'center' ? 0.5 : 0)) * imgObj.width;
-      const localY = (ny - (imgObj.originY === 'center' ? 0.5 : 0)) * imgObj.height;
-      return fabric.util.transformPoint({
-        x: (nx - 0.5) * imgObj.width,
-        y: (ny - 0.5) * imgObj.height
-      }, matrix);
-    }
+    async function runLipCutoutOnActiveObject() {
+      const active = canvas.getActiveObject();
+      if (!active || active.type !== 'image') {
+        showToast('Please select a patient photo on canvas first', 'error');
+        return;
+      }
 
-    async function processImageWithMediaPipe(imgElement, fabricImgObj) {
-      const engine = await initMediaPipeFaceMesh();
-      showToast('Scanning face with MediaPipe...', 'info');
+      closeMediaPipeModal();
+      showLoadingModal('Detecting Lips...', 'MediaPipe AI is scanning landmarks & segmenting lip tissue', 'bi-scissors');
 
-      return new Promise((resolve, reject) => {
+      setTimeout(async () => {
+        const engine = await initMediaPipeFaceMesh();
+        const imgEl = active.getElement();
+
         engine.onResults((results) => {
           if (!results.multiFaceLandmarks || !results.multiFaceLandmarks.length) {
-            showToast('No face detected in photo. Please ensure face is frontal and visible.', 'error');
-            resolve(false);
+            hideLoadingModal();
+            showToast('No face detected in photo. Ensure face is frontal and clear.', 'error');
             return;
           }
 
           const landmarks = results.multiFaceLandmarks[0];
-          generateDsdVectorsFromLandmarks(landmarks, fabricImgObj);
-          resolve(true);
+          executePhotographicLipCutout(active, imgEl, landmarks);
         });
 
-        engine.send({ image: imgElement });
-      });
+        await engine.send({ image: imgEl });
+      }, 50);
     }
 
-    function generateDsdVectorsFromLandmarks(landmarks, imgObj) {
-      const extractLips = document.getElementById('mp-check-lips').checked;
-      const extractMidline = document.getElementById('mp-check-midline').checked;
-      const extractHorizon = document.getElementById('mp-check-horizon').checked;
-      const extractSmileArc = document.getElementById('mp-check-smilearc').checked;
-      const moveOutOfFrame = document.getElementById('mp-check-out-of-frame').checked;
+    function executePhotographicLipCutout(targetImage, imgElement, landmarks) {
+      showLoadingModal('Extracting PNG Layers...', 'Punching out lips from photo and generating PNG layers', 'bi-layers');
 
-      const vectorItems = [];
+      setTimeout(() => {
+        const iw = imgElement.naturalWidth || imgElement.width;
+        const ih = imgElement.naturalHeight || imgElement.height;
 
-      // 1. OUTER LIP CONTOUR
-      if (extractLips) {
         const outerIndices = [61, 185, 40, 39, 37, 0, 267, 269, 270, 409, 291, 375, 321, 405, 314, 17, 84, 181, 91, 146];
-        const outerPts = outerIndices.map(idx => landmarkToCanvasPoint(landmarks[idx].x, landmarks[idx].y, imgObj));
-        const pathStr = outerPts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(2)} ${p.y.toFixed(2)}`).join(' ') + ' Z';
-        
-        const outerLip = new fabric.Path(pathStr, {
-          stroke: '#ec4899',
-          strokeWidth: 2,
-          fill: 'rgba(236, 72, 153, 0.25)',
-          strokeLineJoin: 'round',
-          strokeUniform: true,
-          name: 'Outer Lip Contour (DSD)'
-        });
-        vectorItems.push(outerLip);
-
-        // INNER LIP APERTURE (Tooth exposure window)
         const innerIndices = [78, 191, 80, 81, 82, 13, 312, 311, 310, 415, 308, 324, 318, 402, 317, 14, 87, 178, 88, 95];
-        const innerPts = innerIndices.map(idx => landmarkToCanvasPoint(landmarks[idx].x, landmarks[idx].y, imgObj));
-        const innerPathStr = innerPts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(2)} ${p.y.toFixed(2)}`).join(' ') + ' Z';
-        
-        const innerLip = new fabric.Path(innerPathStr, {
-          stroke: '#ffffff',
-          strokeWidth: 2,
-          fill: 'rgba(255, 255, 255, 0.35)',
-          strokeLineJoin: 'round',
-          strokeUniform: true,
-          name: 'Smile Window / Tooth Frame'
+
+        const punchBase = document.getElementById('mp-punch-base').checked;
+        const moveOut = document.getElementById('mp-move-out').checked;
+        const splitLips = document.getElementById('mp-split-lips').checked;
+
+        // 1. EXTRACT REAL PHOTOGRAPHIC LIPS AS A TRANSPARENT PNG
+        const lipCanvas = document.createElement('canvas');
+        lipCanvas.width = iw;
+        lipCanvas.height = ih;
+        const lipCtx = lipCanvas.getContext('2d');
+
+        lipCtx.save();
+        lipCtx.beginPath();
+        outerIndices.forEach((idx, i) => {
+          const x = landmarks[idx].x * iw;
+          const y = landmarks[idx].y * ih;
+          if (i === 0) lipCtx.moveTo(x, y); else lipCtx.lineTo(x, y);
         });
-        vectorItems.push(innerLip);
-      }
+        lipCtx.closePath();
 
-      // 2. FACIAL MIDLINE (Trichion / Glabella 10 to Chin Menton 152)
-      if (extractMidline) {
-        const topPt = landmarkToCanvasPoint(landmarks[10].x, landmarks[10].y, imgObj);
-        const chinPt = landmarkToCanvasPoint(landmarks[152].x, landmarks[152].y, imgObj);
-
-        // Extrapolate midline past forehead and chin for clinical calibration
-        const dx = chinPt.x - topPt.x;
-        const dy = chinPt.y - topPt.y;
-        const x1 = topPt.x - dx * 0.4;
-        const y1 = topPt.y - dy * 0.4;
-        const x2 = chinPt.x + dx * 0.4;
-        const y2 = chinPt.y + dy * 0.4;
-
-        const midline = new fabric.Line([x1, y1, x2, y2], {
-          stroke: '#22d3ee',
-          strokeWidth: 2,
-          strokeDashArray: [6, 4],
-          strokeUniform: true,
-          strokeLineCap: 'round',
-          name: 'Facial Midline (DSD)',
-          customType: 'midline'
+        // Inner teeth boundary
+        innerIndices.forEach((idx, i) => {
+          const x = landmarks[idx].x * iw;
+          const y = landmarks[idx].y * ih;
+          if (i === 0) lipCtx.moveTo(x, y); else lipCtx.lineTo(x, y);
         });
-        vectorItems.push(midline);
-      }
+        lipCtx.closePath();
 
-      // 3. BIPUPILLARY HORIZON (Eye pupils 468 & 473)
-      if (extractHorizon) {
-        const pLeft = landmarkToCanvasPoint(landmarks[468]?.x || landmarks[33].x, landmarks[468]?.y || landmarks[33].y, imgObj);
-        const pRight = landmarkToCanvasPoint(landmarks[473]?.x || landmarks[263].x, landmarks[473]?.y || landmarks[263].y, imgObj);
+        // Using evenodd fill rule: Only the lip ring is clipped! Inner teeth & outer face are excluded
+        lipCtx.clip('evenodd');
+        lipCtx.drawImage(imgElement, 0, 0, iw, ih);
+        lipCtx.restore();
 
-        const hdx = pRight.x - pLeft.x;
-        const hdy = pRight.y - pLeft.y;
-        const hx1 = pLeft.x - hdx * 0.5;
-        const hy1 = pLeft.y - hdy * 0.5;
-        const hx2 = pRight.x + hdx * 0.5;
-        const hy2 = pRight.y + hdy * 0.5;
+        const lipsDataUrl = lipCanvas.toDataURL('image/png');
 
-        const horizon = new fabric.Line([hx1, hy1, hx2, hy2], {
-          stroke: '#fbbf24',
-          strokeWidth: 2,
-          strokeDashArray: [6, 4],
-          strokeUniform: true,
-          strokeLineCap: 'round',
-          name: 'Bipupillary Horizon (DSD)',
-          customType: 'line'
-        });
-        vectorItems.push(horizon);
-      }
+        // 2. OPTIONAL: BASE PHOTO WITH LIPS PUNCHED OUT (TEETH & SURROUNDING FACE REMAIN)
+        let faceWithoutLipsDataUrl = null;
+        if (punchBase) {
+          const faceCanvas = document.createElement('canvas');
+          faceCanvas.width = iw;
+          faceCanvas.height = ih;
+          const faceCtx = faceCanvas.getContext('2d');
 
-      // 4. SMILE ARC (Incisal curve guide connecting mouth corners across smile)
-      if (extractSmileArc) {
-        const arcIndices = [61, 81, 13, 311, 291];
-        const arcPts = arcIndices.map(idx => landmarkToCanvasPoint(landmarks[idx].x, landmarks[idx].y, imgObj));
-        const arcPath = `M ${arcPts[0].x.toFixed(2)} ${arcPts[0].y.toFixed(2)} Q ${arcPts[2].x.toFixed(2)} ${arcPts[2].y.toFixed(2)} ${arcPts[4].x.toFixed(2)} ${arcPts[4].y.toFixed(2)}`;
+          faceCtx.drawImage(imgElement, 0, 0, iw, ih);
 
-        const smileArc = new fabric.Path(arcPath, {
-          stroke: '#38bdf8',
-          strokeWidth: 2.5,
-          fill: '',
-          strokeUniform: true,
-          strokeLineCap: 'round',
-          name: 'Incisal Smile Arc'
-        });
-        vectorItems.push(smileArc);
-      }
+          faceCtx.save();
+          faceCtx.globalCompositeOperation = 'destination-out';
+          faceCtx.beginPath();
+          outerIndices.forEach((idx, i) => {
+            const x = landmarks[idx].x * iw;
+            const y = landmarks[idx].y * ih;
+            if (i === 0) faceCtx.moveTo(x, y); else faceCtx.lineTo(x, y);
+          });
+          faceCtx.closePath();
 
-      if (!vectorItems.length) {
-        showToast('No features were selected for extraction', 'error');
-        return;
-      }
+          innerIndices.forEach((idx, i) => {
+            const x = landmarks[idx].x * iw;
+            const y = landmarks[idx].y * ih;
+            if (i === 0) faceCtx.moveTo(x, y); else faceCtx.lineTo(x, y);
+          });
+          faceCtx.closePath();
 
-      // Create a master Group of extracted DSD anatomical vectors
-      const dsdGroup = new fabric.Group(vectorItems, {
-        name: `DSD Vectors (${++shapeCounter})`,
-        strokeUniform: true
-      });
+          // Erases ONLY the lips band to 100% transparency! Teeth and face remain!
+          faceCtx.fill('evenodd');
+          faceCtx.restore();
 
-      // MOVE BESIDE FACE / OUT OF FRAME
-      if (moveOutOfFrame) {
-        const imgBounds = imgObj.getBoundingRect();
-        dsdGroup.set({
-          left: imgBounds.left + imgBounds.width + 40,
-          top: imgBounds.top
-        });
-      }
+          faceWithoutLipsDataUrl = faceCanvas.toDataURL('image/png');
+        }
 
-      canvas.add(dsdGroup);
-      canvas.setActiveObject(dsdGroup);
-      canvas.requestRenderAll();
-      closeMediaPipeModal();
-      saveState();
+        const origLeft = targetImage.left;
+        const origTop = targetImage.top;
+        const origScaleX = targetImage.scaleX;
+        const origScaleY = targetImage.scaleY;
+        const origAngle = targetImage.angle;
+        const origIdx = canvas.getObjects().indexOf(targetImage);
 
-      showToast(
-        moveOutOfFrame 
-          ? 'Vectors extracted and positioned OUT OF FRAME beside face!' 
-          : 'DSD vectors generated on face! You can drag them out of the frame now.',
-        'success'
-      );
-    }
+        // Replace or update base photo
+        if (faceWithoutLipsDataUrl) {
+          fabric.Image.fromURL(faceWithoutLipsDataUrl, (cutFaceImg) => {
+            cutFaceImg.set({
+              left: origLeft,
+              top: origTop,
+              scaleX: origScaleX,
+              scaleY: origScaleY,
+              angle: origAngle,
+              name: `${targetImage.name || 'Patient'} (Lips Cut Out - Teeth Preserved)`,
+              strokeUniform: true
+            });
 
-    async function runMediaPipeOnActiveObject() {
-      const active = canvas.getActiveObject();
-      if (!active || active.type !== 'image') {
-        showToast('Please select a photo/image on canvas first or load a sample patient', 'error');
-        return;
-      }
+            canvas.remove(targetImage);
+            canvas.insertAt(cutFaceImg, origIdx);
 
-      const imgEl = active.getElement();
-      await processImageWithMediaPipe(imgEl, active);
+            // Add Lips PNG Layer on top or beside
+            fabric.Image.fromURL(lipsDataUrl, (extractedLipImg) => {
+              const offsetLeft = moveOut ? (origLeft + cutFaceImg.getScaledWidth() + 30) : origLeft;
+
+              extractedLipImg.set({
+                left: offsetLeft,
+                top: origTop,
+                scaleX: origScaleX,
+                scaleY: origScaleY,
+                angle: origAngle,
+                name: 'Extracted Lips (PNG Layer)',
+                strokeUniform: true
+              });
+
+              canvas.add(extractedLipImg);
+              canvas.setActiveObject(extractedLipImg);
+              canvas.requestRenderAll();
+              updateLayersTree();
+              saveState();
+              hideLoadingModal();
+              showToast(moveOut ? 'Lips extracted and moved OUT OF FRAME as PNG layer!' : 'Lips extracted as a separate PNG layer! Drag to move off teeth.', 'success');
+            });
+          });
+        } else {
+          // Keep original image as-is, just add extracted lips PNG
+          fabric.Image.fromURL(lipsDataUrl, (extractedLipImg) => {
+            const offsetLeft = moveOut ? (origLeft + targetImage.getScaledWidth() + 30) : origLeft;
+
+            extractedLipImg.set({
+              left: offsetLeft,
+              top: origTop,
+              scaleX: origScaleX,
+              scaleY: origScaleY,
+              angle: origAngle,
+              name: 'Extracted Lips (PNG Layer)',
+              strokeUniform: true
+            });
+
+            canvas.add(extractedLipImg);
+            canvas.setActiveObject(extractedLipImg);
+            canvas.requestRenderAll();
+            updateLayersTree();
+            saveState();
+            hideLoadingModal();
+            showToast('Lips extracted as a separate PNG layer!', 'success');
+          });
+        }
+      }, 100);
     }
 
     function loadSamplePatient() {
-      // High-resolution clean facial portrait for DSD
       const sampleUrl = 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=800&q=80';
+      showLoadingModal('Loading Portrait...', 'Downloading high-resolution clinical patient photo', 'bi-person');
+
       fabric.Image.fromURL(sampleUrl, (img) => {
         img.crossOrigin = 'anonymous';
-        img.scaleToWidth(Math.min(canvas.width * 0.45, 500));
+        img.scaleToWidth(Math.min(canvas.width * 0.45, 480));
         const c = canvas.getVpCenter();
         img.set({
           left: c.x - (img.getScaledWidth() / 1.5),
           top: c.y - (img.getScaledHeight() / 2),
-          name: 'Sample Patient Smile',
+          name: 'Patient Smile Portrait',
           strokeUniform: true
         });
         canvas.add(img);
         canvas.setActiveObject(img);
         canvas.requestRenderAll();
         saveState();
-        showToast('Sample patient portrait loaded', 'success');
+        hideLoadingModal();
+        showToast('Sample patient portrait ready. Click Extract Lips!', 'success');
       }, { crossOrigin: 'anonymous' });
     }
 
-    async function loadSamplePatientAndRun() {
+    async function loadSamplePatientAndExtract() {
       closeMediaPipeModal();
+      showLoadingModal('Loading & Analyzing...', 'Fetching portrait & starting MediaPipe segmentation', 'bi-scissors');
+
       const sampleUrl = 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=800&q=80';
-      showToast('Loading patient photo & starting MediaPipe AI...', 'info');
 
       fabric.Image.fromURL(sampleUrl, async (img) => {
         img.crossOrigin = 'anonymous';
-        img.scaleToWidth(Math.min(canvas.width * 0.42, 480));
+        img.scaleToWidth(Math.min(canvas.width * 0.45, 480));
         const c = canvas.getVpCenter();
         img.set({
           left: c.x - (img.getScaledWidth() * 1.05),
           top: c.y - (img.getScaledHeight() / 2),
-          name: 'Sample Patient Smile',
+          name: 'Patient Smile Portrait',
           strokeUniform: true
         });
         canvas.add(img);
         canvas.setActiveObject(img);
         canvas.requestRenderAll();
 
+        const engine = await initMediaPipeFaceMesh();
         const imgEl = img.getElement();
-        await processImageWithMediaPipe(imgEl, img);
-      }, { crossOrigin: 'anonymous' });
-    }
 
-    /* Live Webcam MediaPipe Scan */
-    async function startWebcamDetection() {
-      closeMediaPipeModal();
-      const video = document.getElementById('webcam-video');
-      document.getElementById('webcam-modal').classList.remove('hidden');
-
-      try {
-        webcamStream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 } });
-        video.srcObject = webcamStream;
-        await video.play();
-      } catch (err) {
-        showToast('Camera access denied or unavailable', 'error');
-        stopWebcam();
-      }
-    }
-
-    function stopWebcam() {
-      if (webcamStream) {
-        webcamStream.getTracks().forEach(track => track.stop());
-        webcamStream = null;
-      }
-      document.getElementById('webcam-modal').classList.add('hidden');
-    }
-
-    async function captureWebcamSnapshot() {
-      const video = document.getElementById('webcam-video');
-      const offscreen = document.createElement('canvas');
-      offscreen.width = video.videoWidth || 1280;
-      offscreen.height = video.videoHeight || 720;
-      const ctx = offscreen.getContext('2d');
-      ctx.drawImage(video, 0, 0, offscreen.width, offscreen.height);
-
-      stopWebcam();
-
-      fabric.Image.fromURL(offscreen.toDataURL(), async (img) => {
-        img.scaleToWidth(Math.min(canvas.width * 0.45, 520));
-        const c = canvas.getVpCenter();
-        img.set({
-          left: c.x - (img.getScaledWidth() * 1.05),
-          top: c.y - (img.getScaledHeight() / 2),
-          name: `Camera Snapshot ${++shapeCounter}`,
-          strokeUniform: true
+        engine.onResults((results) => {
+          if (!results.multiFaceLandmarks || !results.multiFaceLandmarks.length) {
+            hideLoadingModal();
+            showToast('Could not detect face in portrait', 'error');
+            return;
+          }
+          const landmarks = results.multiFaceLandmarks[0];
+          executePhotographicLipCutout(img, imgEl, landmarks);
         });
-        canvas.add(img);
-        canvas.setActiveObject(img);
-        canvas.requestRenderAll();
 
-        await processImageWithMediaPipe(img.getElement(), img);
-      });
+        await engine.send({ image: imgEl });
+      }, { crossOrigin: 'anonymous' });
     }
 
     /* ============================================================
@@ -2082,9 +2040,6 @@
       saveState();
     }
 
-    /* ============================================================
-       STROKE, OUTLINE & FILL CONTROLS
-       ============================================================ */
     function applyStrokeWidth(w) {
       const width = Math.max(parseFloat(w) || 0, 0);
       currentStrokeWidth = width;
@@ -2207,7 +2162,7 @@
     }
 
     /* ============================================================
-       DRAG-AND-DROP LAYERS REORDERING
+       LAYERS REORDERING
        ============================================================ */
     let draggedLayerIndex = null;
 
@@ -2238,6 +2193,7 @@
 
         let icon = '<i class="bi bi-bezier2 text-[#a8c7fa]"></i>';
         if (obj.type === 'image') icon = '<i class="bi bi-image text-emerald-400"></i>';
+        if (obj.name && obj.name.includes('Lips')) icon = '<i class="bi bi-scissors text-pink-400"></i>';
         if (obj.type === 'group') icon = '<i class="bi bi-collection text-amber-300"></i>';
         if (obj.type === 'line' || obj.customType === 'line') icon = '<i class="bi bi-dash-lg text-emerald-400"></i>';
         if (obj.customType === 'midline') icon = '<i class="bi bi-slash-lg text-cyan-400"></i>';
@@ -2392,7 +2348,7 @@
     }
 
     /* ============================================================
-       EXPORT ENGINE
+       EXPORT ENGINE (PDF, PNG, JPEG, SVG)
        ============================================================ */
     function openExportModal() { 
       const active = canvas.getActiveObject();
@@ -2405,13 +2361,18 @@
 
     function setExportFormat(fmt) {
       activeExportFmt = fmt;
-      ['png', 'jpeg', 'svg'].forEach(f => {
+      ['png', 'pdf', 'jpeg', 'svg'].forEach(f => {
         const b = document.getElementById(`fmt-${f}`);
         if (!b) return;
         b.className = (f === fmt)
           ? 'p-2 border border-[#a8c7fa]/40 bg-[#1a73e8]/30 text-white rounded-xl font-semibold text-center shadow-md'
           : 'p-2 border border-[#393e4d] bg-[#13161f] text-gray-300 rounded-xl font-medium text-center';
       });
+    }
+
+    function quickExportPdf() {
+      setExportFormat('pdf');
+      openExportModal();
     }
 
     function executeExport() {
@@ -2421,56 +2382,131 @@
       const filename = `smilecreo-${scope}-${Date.now()}.${activeExportFmt}`;
 
       if (CropManager.isCropping) CropManager.cancelCrop();
+      closeExportModal();
 
-      if (scope === 'selection') {
-        const active = canvas.getActiveObject();
-        if (!active) {
-          showToast('Select an object or choose Entire Canvas', 'error');
+      // Trigger the Glassmorphic Generating popup
+      const fmtName = activeExportFmt.toUpperCase();
+      showLoadingModal(`Generating ${fmtName}...`, 'Rendering high-resolution vector and photographic layers', activeExportFmt === 'pdf' ? 'bi-file-earmark-pdf' : 'bi-download');
+
+      setTimeout(() => {
+        if (scope === 'selection') {
+          const active = canvas.getActiveObject();
+          if (!active) {
+            hideLoadingModal();
+            showToast('Select an object or choose Entire Canvas', 'error');
+            return;
+          }
+
+          if (activeExportFmt === 'pdf') {
+            generatePdfFromObject(active, multiplier, filename);
+            return;
+          }
+
+          if (activeExportFmt === 'svg') {
+            const svgStr = active.toSVG();
+            const blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
+            triggerDownload(URL.createObjectURL(blob), filename);
+            hideLoadingModal();
+            return;
+          }
+
+          const dataUrl = active.toDataURL({
+            format: activeExportFmt,
+            multiplier: multiplier,
+            quality: 0.98
+          });
+
+          triggerDownload(dataUrl, filename);
+          hideLoadingModal();
+          return;
+        }
+
+        // Entire Canvas Export
+        if (activeExportFmt === 'pdf') {
+          generatePdfFromCanvas(multiplier, filename);
           return;
         }
 
         if (activeExportFmt === 'svg') {
-          const svgStr = active.toSVG();
-          const blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
+          const svg = canvas.toSVG();
+          const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
           triggerDownload(URL.createObjectURL(blob), filename);
-          closeExportModal();
+          hideLoadingModal();
           return;
         }
 
-        const dataUrl = active.toDataURL({
+        const origBg = canvas.backgroundColor;
+        canvas.backgroundColor = (activeExportFmt === 'png' && transparent) ? null : currentCanvasBg;
+        canvas.requestRenderAll();
+
+        const dataUrl = canvas.toDataURL({
           format: activeExportFmt,
           multiplier: multiplier,
           quality: 0.98
         });
 
+        canvas.backgroundColor = origBg;
+        canvas.requestRenderAll();
+
         triggerDownload(dataUrl, filename);
-        closeExportModal();
-        return;
-      }
+        hideLoadingModal();
+      }, 100);
+    }
 
-      if (activeExportFmt === 'svg') {
-        const svg = canvas.toSVG();
-        const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
-        triggerDownload(URL.createObjectURL(blob), filename);
-        closeExportModal();
-        return;
-      }
-
+    function generatePdfFromCanvas(multiplier, filename) {
       const origBg = canvas.backgroundColor;
-      canvas.backgroundColor = (activeExportFmt === 'png' && transparent) ? null : currentCanvasBg;
+      const transparent = document.getElementById('export-transparency').checked;
+      canvas.backgroundColor = transparent ? null : currentCanvasBg;
       canvas.requestRenderAll();
 
       const dataUrl = canvas.toDataURL({
-        format: activeExportFmt,
+        format: 'png',
         multiplier: multiplier,
-        quality: 0.98
+        quality: 1.0
       });
 
       canvas.backgroundColor = origBg;
       canvas.requestRenderAll();
 
-      triggerDownload(dataUrl, filename);
-      closeExportModal();
+      const { jsPDF } = window.jspdf;
+      const w = canvas.getWidth();
+      const h = canvas.getHeight();
+      const orientation = w >= h ? 'landscape' : 'portrait';
+
+      const pdf = new jsPDF({
+        orientation: orientation,
+        unit: 'pt',
+        format: [w, h]
+      });
+
+      pdf.addImage(dataUrl, 'PNG', 0, 0, w, h);
+      pdf.save(filename);
+      hideLoadingModal();
+      showToast('PDF Document generated', 'success');
+    }
+
+    function generatePdfFromObject(activeObj, multiplier, filename) {
+      const dataUrl = activeObj.toDataURL({
+        format: 'png',
+        multiplier: multiplier,
+        quality: 1.0
+      });
+
+      const { jsPDF } = window.jspdf;
+      const w = activeObj.getScaledWidth();
+      const h = activeObj.getScaledHeight();
+      const orientation = w >= h ? 'landscape' : 'portrait';
+
+      const pdf = new jsPDF({
+        orientation: orientation,
+        unit: 'pt',
+        format: [w, h]
+      });
+
+      pdf.addImage(dataUrl, 'PNG', 0, 0, w, h);
+      pdf.save(filename);
+      hideLoadingModal();
+      showToast('Layer PDF generated', 'success');
     }
 
     function triggerDownload(url, name) {
@@ -2480,7 +2516,7 @@
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      showToast('Export downloaded', 'success');
+      showToast('Export downloaded successfully', 'success');
     }
 
     saveState();
