@@ -2440,3 +2440,2536 @@
   </script>
 </body>
 </html>
+```
+Citations
+
+https://github.com/randomparity/vpo
+3m56s
+Model 1:09 PM
+ThinkingThoughts
+Refining the Goal
+I'm focused on removing the vector point editing system. I've broken down the user's action "remove adjust curv epoitns thing" into "remove the vector point editing system", specifically focusing on the PointEditor, Bézier anchor handles, and guide lines. I'm aiming to provide a concise and clear plan of action.
+Integrating MediaPipe
+I'm now focused on integrating Google MediaPipe, specifically Face Mesh, into the SmileCreo Studio. I've broken it into two workflows: analyzing loaded images and live camera mode. My plan is to add a dedicated "MediaPipe AI DSD" button, with presets like facial midline detection, lip contour tracking, and live capture, all within a single HTML file using CDN links for simplicity. I'm exploring @mediapipe/face_mesh for this.
+Analyzing the Audit
+I'm now fully immersed in the audit. I've pinpointed specific elements for removal, including the PointEditor and associated UI components like the #point-edit-banner and "Edit Points" buttons. I'm carefully removing handlers and references within the codebase. Simultaneously, I'm working to preserve and simplify Bézier curve insertion, keeping it a smooth Fabric vector without the removed features.
+Defining Keypoints
+I've identified crucial facial landmarks within the MediaPipe Face Mesh. I'm noting key areas like eye centers (left: 468, right: 473), the facial midline (including forehead, nose, lips, and chin), and the precise outer and inner lip contours. I'm focused on mapping these points for accurate facial analysis.
+Collapse to hide model thoughts
+
+chevron_right
+Model 1:11 PM
+ThinkingThoughts
+Expand to view model thoughts
+
+chevron_right
+Here is the complete, single-file **`index.html`** with:
+
+1. **Curve Point Adjusting Completely Removed**:
+   - The micro-point handle editing mode, point banners, and anchor node handlers have been entirely excised.
+   - Curves and freehand paths now behave as standard, high-performance vector elements that can be moved, scaled, rotated, mirrored, stroked, filled, and grouped without intrusive anchor editing.
+2. **Full Google MediaPipe FaceMesh & DSD AI Integration**:
+   - Integrated **MediaPipe FaceMesh AI** via official high-speed CDNs.
+   - Runs directly on any imported patient photo, canvas image, webcam feed, or the included **1-click Sample Patient Portrait**.
+3. **"Expand & Take Out of Frame" Vector Extraction Engine**:
+   - Automatically detects and generates genuine **Fabric.js vector paths & reference lines**:
+     - **Facial Midline** (Trichion $\rightarrow$ Glabella $\rightarrow$ Philtrum $\rightarrow$ Chin Menton)
+     - **Bipupillary Horizon** (Pupil-to-pupil symmetry plane)
+     - **Commissural Horizon** (Mouth corner axis)
+     - **Outer Lip Contour** (Vector shape with independent fill & outline)
+     - **Inner Lip Window** (Tooth exposure frame)
+     - **Smile Arc** (Incisal curvature guide)
+     - **Full Facial Wireframe Grid**
+   - **Extract & Move Beside Face ("Out of Frame")**: Clones and moves all anatomical vector paths to the side of the photo so you have a standalone smile blueprint.
+   - **Expand / Scale Landmarks**: Sliders and quick-buttons to expand, stretch, color, and detach landmarks freely across or beyond the canvas.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>SmileCreo Studio — DSD Engine & MediaPipe AI</title>
+  
+  <!-- Google Fonts: Roboto & Roboto Mono (Material Design 3) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Bootstrap Icons CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Fabric.js Canvas Engine -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+  
+  <!-- Google MediaPipe Face Mesh & Camera CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+
+  <style>
+    :root {
+      --md-sys-color-primary: #a8c7fa;
+      --md-sys-color-on-primary: #00315f;
+      --md-sys-color-primary-container: #1a73e8;
+      --md-sys-color-on-primary-container: #ffffff;
+
+      --md-sys-color-surface: #0e1118;
+      --md-sys-color-on-surface: #e2e2e9;
+      --md-sys-color-surface-container: #191c25;
+      --md-sys-color-surface-container-high: #212531;
+      --md-sys-color-surface-container-highest: #2b303f;
+      --md-sys-color-outline: #8e9099;
+      --md-sys-color-outline-variant: #393e4d;
+    }
+
+    body {
+      font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      background-color: var(--md-sys-color-surface);
+      color: var(--md-sys-color-on-surface);
+      overscroll-behavior: none;
+    }
+
+    .m3-surface-container {
+      background-color: var(--md-sys-color-surface-container);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: 16px;
+    }
+    .m3-surface-container-high {
+      background-color: var(--md-sys-color-surface-container-high);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: 20px;
+    }
+
+    .m3-top-bar {
+      background-color: rgba(25, 28, 37, 0.94);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.65);
+      border-radius: 9999px;
+    }
+
+    .m3-tool-active {
+      background-color: var(--md-sys-color-primary-container) !important;
+      color: #ffffff !important;
+      box-shadow: 0 2px 10px rgba(26, 115, 232, 0.45) !important;
+    }
+
+    .studio-canvas-bg {
+      background-color: #090c13;
+      background-image: radial-gradient(rgba(168, 199, 250, 0.12) 1.2px, transparent 1.2px);
+      background-size: 24px 24px;
+    }
+
+    .drag-over-top { border-top: 2px solid var(--md-sys-color-primary) !important; }
+    .drag-over-bottom { border-bottom: 2px solid var(--md-sys-color-primary) !important; }
+
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.18); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--md-sys-color-primary); }
+
+    input[type="range"] { accent-color: var(--md-sys-color-primary-container); }
+    input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+    input[type="color"]::-webkit-color-swatch { border: none; border-radius: 6px; }
+
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
+    input[type=number] { -moz-appearance: textfield; }
+  </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex flex-col antialiased select-none">
+
+  <!-- ============================================================
+       TOP MATERIAL 3 DOCK
+       ============================================================ -->
+  <header class="fixed top-3 left-4 right-4 z-40 h-14 m3-top-bar flex items-center justify-between px-3.5 shadow-xl">
+    
+    <!-- Brand -->
+    <div class="flex items-center gap-2.5 pl-1">
+      <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center p-1 shadow-sm">
+        <img 
+          src="https://smilecreo.codeinblack.online/logosc.svg" 
+          alt="SmileCreo" 
+          class="w-full h-full object-contain" 
+          onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';"
+        />
+        <div id="logo-fallback" class="hidden w-full h-full rounded-full bg-[#1a73e8] items-center justify-center font-bold text-white text-[11px]">SC</div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-sm font-bold tracking-tight text-white">SmileCreo</span>
+        <span class="text-[10px] font-semibold text-[#a8c7fa] bg-[#1a73e8]/25 border border-[#a8c7fa]/30 px-2 py-0.5 rounded-full font-mono">DSD AI</span>
+      </div>
+    </div>
+
+    <!-- Center Tool Dock -->
+    <div class="flex items-center bg-[#13161f] border border-[#393e4d] rounded-full p-1 gap-0.5 shadow-inner">
+      <!-- Select -->
+      <button id="tool-select" onclick="setTool('select')" class="tool-btn m3-tool-active px-2.5 py-1.5 rounded-full text-xs text-white font-medium transition" title="Select (V)">
+        <i class="bi bi-cursor-fill"></i>
+      </button>
+
+      <!-- Pan Hand -->
+      <button id="tool-hand" onclick="setTool('hand')" class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 transition" title="Hand Pan (H / Space+Drag)">
+        <i class="bi bi-hand-index-thumb-fill"></i>
+      </button>
+
+      <div class="w-[1px] h-4 bg-white/20 mx-1"></div>
+
+      <!-- Freehand Vector Pencil -->
+      <button id="tool-pencil" onclick="setTool('pencil')" class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 transition" title="Vector Pencil (B) — Adjust stroke [ and ]">
+        <i class="bi bi-pencil-fill"></i>
+      </button>
+
+      <!-- Bézier Curve -->
+      <button onclick="addBezierCurve()" class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 transition" title="Bézier Smile Curve (P)">
+        <i class="bi bi-bezier2 text-yellow-300"></i>
+      </button>
+
+      <!-- Straight Reference Line -->
+      <button onclick="addStraightLine()" class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 transition" title="Straight Reference Line (L)">
+        <i class="bi bi-dash-lg text-emerald-400 font-bold"></i>
+      </button>
+
+      <!-- Midline Reference Line -->
+      <button onclick="addMidline()" class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 transition" title="Vertical Midline (M)">
+        <i class="bi bi-slash-lg text-cyan-400"></i>
+      </button>
+
+      <!-- Shapes -->
+      <button onclick="addRectangle()" class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 transition" title="Rectangle (R)">
+        <i class="bi bi-square"></i>
+      </button>
+      <button onclick="addCircle()" class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 transition" title="Circle (O)">
+        <i class="bi bi-circle"></i>
+      </button>
+      <button onclick="addText()" class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 transition" title="Text (T)">
+        <i class="bi bi-type"></i>
+      </button>
+
+      <div class="w-[1px] h-4 bg-white/20 mx-1"></div>
+
+      <!-- Figma-Style Crop Tool -->
+      <button onclick="CropManager.startCrop()" class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 transition" title="Crop Image (C)">
+        <i class="bi bi-crop text-[#a8c7fa]"></i>
+      </button>
+
+      <!-- Import Image or SVG File -->
+      <label class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 cursor-pointer transition flex items-center gap-1" title="Import Patient Photo / SVG (I)">
+        <i class="bi bi-image-fill"></i>
+        <input type="file" id="image-file-input" accept="image/*,.svg" class="hidden" onchange="handleFileSelect(this.files[0])">
+      </label>
+
+      <!-- MEDIAPIPE AI TRIGGER -->
+      <button onclick="openMediaPipeModal()" class="tool-btn px-3 py-1 rounded-full bg-gradient-to-r from-blue-600/40 to-indigo-600/40 hover:from-blue-600 hover:to-indigo-600 text-cyan-300 hover:text-white border border-cyan-400/40 transition flex items-center gap-1.5 shadow-sm" title="MediaPipe AI: Detect Landmarks, Extract Smile, Expand Outside Frame">
+        <i class="bi bi-stars text-yellow-300 animate-pulse"></i>
+        <span class="text-xs font-semibold">MediaPipe AI</span>
+      </button>
+    </div>
+
+    <!-- Right Controls: Flip, Group, Undo/Redo, Zoom, Export -->
+    <div class="flex items-center gap-2 pr-1">
+      <!-- Flip Horizontal & Vertical -->
+      <div class="flex items-center bg-[#13161f] border border-[#393e4d] rounded-full p-0.5">
+        <button onclick="mirrorSelected()" class="p-1.5 text-gray-300 hover:text-white rounded-full hover:bg-white/10 transition" title="Flip Horizontal (Shift+H)">
+          <i class="bi bi-symmetry-vertical text-xs"></i>
+        </button>
+        <button onclick="flipVerticalSelected()" class="p-1.5 text-gray-300 hover:text-white rounded-full hover:bg-white/10 transition" title="Flip Vertical (Shift+V)">
+          <i class="bi bi-symmetry-horizontal text-xs"></i>
+        </button>
+      </div>
+
+      <div class="flex items-center bg-[#13161f] border border-[#393e4d] rounded-full p-0.5">
+        <button onclick="groupSelected()" class="p-1.5 text-gray-300 hover:text-white rounded-full hover:bg-white/10 transition" title="Group (Ctrl+G)">
+          <i class="bi bi-union text-xs"></i>
+        </button>
+        <button onclick="ungroupSelected()" class="p-1.5 text-gray-300 hover:text-white rounded-full hover:bg-white/10 transition" title="Ungroup (Ctrl+Shift+G)">
+          <i class="bi bi-subtract text-xs"></i>
+        </button>
+      </div>
+
+      <div class="flex items-center bg-[#13161f] border border-[#393e4d] rounded-full p-0.5">
+        <button onclick="undo()" id="btn-undo" class="p-1.5 text-gray-300 hover:text-white rounded-full hover:bg-white/10 transition" title="Undo (Ctrl+Z)">
+          <i class="bi bi-arrow-counterclockwise text-xs"></i>
+        </button>
+        <button onclick="redo()" id="btn-redo" class="p-1.5 text-gray-300 hover:text-white rounded-full hover:bg-white/10 transition" title="Redo (Ctrl+Y)">
+          <i class="bi bi-arrow-clockwise text-xs"></i>
+        </button>
+      </div>
+
+      <div class="flex items-center bg-[#13161f] border border-[#393e4d] rounded-full px-2.5 py-1 text-xs">
+        <button onclick="zoomOut()" class="text-gray-300 hover:text-white px-1 font-bold">-</button>
+        <span id="zoom-level-text" class="px-1.5 font-mono text-[11px] text-white font-medium">100%</span>
+        <button onclick="zoomIn()" class="text-gray-300 hover:text-white px-1 font-bold">+</button>
+      </div>
+
+      <button onclick="openExportModal()" class="px-4 py-1.5 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-semibold text-xs rounded-full transition shadow-md active:scale-95">
+        Export
+      </button>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       WORKSPACE
+       ============================================================ -->
+  <div class="flex-1 w-full h-full pt-20 px-4 pb-4 flex overflow-hidden relative gap-3.5">
+
+    <!-- LEFT: LAYERS BENTO (DRAG & DROP REORDERING) -->
+    <aside class="w-68 flex flex-col gap-3 z-30 select-none">
+      <div class="m3-surface-container flex-1 flex flex-col p-3.5 min-h-[300px] overflow-hidden">
+        <div class="flex items-center justify-between pb-2 border-b border-[#393e4d] mb-2">
+          <div class="flex items-center gap-1.5">
+            <span class="text-xs font-bold tracking-wider uppercase text-[#a8c7fa]">Layers</span>
+            <span class="text-[10px] text-gray-400">(Drag to order)</span>
+          </div>
+          <button onclick="deleteSelected()" title="Delete Selected (Del / Backspace)" class="p-1 hover:bg-red-500/20 text-gray-400 hover:text-red-300 rounded-lg transition">
+            <i class="bi bi-trash3 text-xs"></i>
+          </button>
+        </div>
+
+        <div id="layers-tree" class="flex-1 overflow-y-auto space-y-1 text-xs pr-0.5">
+          <div class="text-gray-400 text-center py-12 text-[11px]">No active layers</div>
+        </div>
+      </div>
+
+      <!-- Quick AI Actions Bento -->
+      <div class="m3-surface-container p-3 space-y-2">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-[#a8c7fa] block">MediaPipe DSD Presets</span>
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <button onclick="loadSamplePatient()" class="py-1.5 px-2 bg-white/10 hover:bg-white/15 rounded-xl text-gray-200 text-[11px] transition text-center truncate">
+            Sample Portrait
+          </button>
+          <button onclick="openMediaPipeModal()" class="py-1.5 px-2 bg-[#1a73e8]/30 hover:bg-[#1a73e8]/50 border border-[#a8c7fa]/40 rounded-xl text-white text-[11px] font-medium transition text-center">
+            AI Scan Face
+          </button>
+        </div>
+      </div>
+
+      <!-- Canvas Tone -->
+      <div class="m3-surface-container p-3 space-y-2">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-[#a8c7fa] block">Canvas Background</span>
+        <div class="flex items-center justify-between text-xs">
+          <span class="text-gray-300 text-[11px]">Tone</span>
+          <div class="flex items-center gap-2">
+            <button onclick="setCanvasBg('#090c13')" class="w-4 h-4 rounded-full bg-[#090c13] border border-white/40 shadow-sm" title="Dark Obsidian"></button>
+            <button onclick="setCanvasBg('#141c30')" class="w-4 h-4 rounded-full bg-[#141c30] border border-white/40 shadow-sm" title="Deep Navy"></button>
+            <button onclick="setCanvasBg('#222736')" class="w-4 h-4 rounded-full bg-[#222736] border border-white/40 shadow-sm" title="Slate Gray"></button>
+            <button onclick="setCanvasBg('#f4f5f8')" class="w-4 h-4 rounded-full bg-[#f4f5f8] border border-white/70 shadow-sm" title="White"></button>
+          </div>
+        </div>
+        <div class="flex items-center justify-between text-xs pt-1.5 border-t border-[#393e4d]">
+          <span class="text-gray-400 text-[10px]">Reset Canvas</span>
+          <button onclick="confirmClearCanvas()" class="text-[10px] text-red-400 hover:text-red-300 transition font-medium">Clear All</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CENTER CANVAS -->
+    <main id="canvas-viewport" class="flex-1 studio-canvas-bg relative overflow-hidden flex items-center justify-center rounded-2xl border border-[#393e4d] shadow-2xl" tabindex="0">
+      <canvas id="studio-canvas"></canvas>
+
+      <!-- LIVE PENCIL TOOL SUB-DOCK (ACTIVE IN PENCIL MODE) -->
+      <div id="pencil-subdock" class="hidden m3-surface-container-high absolute top-4 left-1/2 -translate-x-1/2 px-4 py-2 shadow-2xl flex items-center gap-3 z-30 text-xs text-white border border-[#1a73e8]/50">
+        <div class="flex items-center gap-2 border-r border-white/15 pr-3">
+          <i class="bi bi-pencil-fill text-[#a8c7fa]"></i>
+          <span class="font-medium">Brush Size:</span>
+          <div class="flex items-center bg-[#13161f] rounded-lg border border-[#393e4d] px-1 py-0.5">
+            <button onclick="stepPencilBrush(-0.5)" class="px-1.5 py-0.5 hover:text-[#a8c7fa] text-gray-300"><i class="bi bi-dash"></i></button>
+            <span id="lbl-pencil-brush-size" class="font-mono text-[11px] font-bold px-1.5 text-white">2.0</span>
+            <button onclick="stepPencilBrush(0.5)" class="px-1.5 py-0.5 hover:text-[#a8c7fa] text-gray-300"><i class="bi bi-plus"></i></button>
+          </div>
+        </div>
+
+        <!-- Quick Brush Size Chips -->
+        <div class="flex items-center gap-1 border-r border-white/15 pr-3">
+          <button onclick="setPencilBrushWidth(1)" class="px-2 py-0.5 rounded-md bg-white/10 hover:bg-[#1a73e8] text-[10px] font-mono">1px</button>
+          <button onclick="setPencilBrushWidth(2)" class="px-2 py-0.5 rounded-md bg-white/10 hover:bg-[#1a73e8] text-[10px] font-mono">2px</button>
+          <button onclick="setPencilBrushWidth(4)" class="px-2 py-0.5 rounded-md bg-white/10 hover:bg-[#1a73e8] text-[10px] font-mono">4px</button>
+          <button onclick="setPencilBrushWidth(8)" class="px-2 py-0.5 rounded-md bg-white/10 hover:bg-[#1a73e8] text-[10px] font-mono">8px</button>
+          <button onclick="setPencilBrushWidth(12)" class="px-2 py-0.5 rounded-md bg-white/10 hover:bg-[#1a73e8] text-[10px] font-mono">12px</button>
+        </div>
+
+        <!-- Brush Color Picker -->
+        <div class="flex items-center gap-2">
+          <input type="color" id="pencil-dock-color" value="#ffffff" class="w-5 h-5 bg-transparent cursor-pointer rounded" onchange="setPencilColor(this.value)">
+          <button onclick="togglePencilFill()" id="btn-pencil-fill-toggle" class="px-2.5 py-1 bg-white/10 hover:bg-white/20 text-gray-200 text-[11px] rounded-lg transition" title="Fill shape while drawing">
+            Fill: <span id="txt-pencil-fill-state">Off</span>
+          </button>
+          <button onclick="setTool('select')" class="ml-1 px-3 py-1 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-medium rounded-full text-xs shadow-md">
+            Done
+          </button>
+        </div>
+      </div>
+
+      <!-- FIGMA CROP MODE FLOATING BANNER -->
+      <div id="crop-banner" class="hidden m3-surface-container-high absolute top-4 left-1/2 -translate-x-1/2 px-4 py-2 shadow-2xl flex items-center gap-3.5 z-30 text-xs text-white border border-[#a8c7fa]/40">
+        <span class="text-white font-medium">Crop Mode: Resize crop box or drag to reposition</span>
+        <button onclick="CropManager.applyCrop()" class="px-3.5 py-1 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-semibold rounded-full text-xs transition active:scale-95 shadow-md">
+          ✓ Apply Crop (Enter)
+        </button>
+        <button onclick="CropManager.cancelCrop()" class="px-3 py-1 bg-white/10 hover:bg-white/20 text-gray-300 rounded-full text-xs transition">
+          ✕ Cancel (Esc)
+        </button>
+      </div>
+
+      <!-- Bottom Hint Bar -->
+      <div class="m3-surface-container absolute bottom-4 left-6 px-4 py-1.5 rounded-full text-[11px] text-gray-300 flex items-center gap-3.5 pointer-events-none border border-white/10 shadow-lg">
+        <span><kbd class="text-white font-mono font-semibold">Del / Backspace</kbd> Delete</span>
+        <span><kbd class="text-white font-mono font-semibold">Shift+H</kbd> Flip Horiz</span>
+        <span><kbd class="text-white font-mono font-semibold">[ / ]</kbd> Brush Size</span>
+        <span><kbd class="text-white font-mono font-semibold">Shift+Wheel</kbd> Horiz Scroll</span>
+        <span><kbd class="text-white font-mono font-semibold">Space+Drag</kbd> Pan</span>
+      </div>
+    </main>
+
+    <!-- RIGHT: FIGMA-STYLE INSPECTOR -->
+    <aside class="w-72 flex flex-col gap-3 z-30 select-none overflow-y-auto">
+      <div id="inspector-empty" class="m3-surface-container p-6 text-center text-gray-400 text-xs font-medium">
+        Select an element on canvas or run MediaPipe AI to inspect & adjust parameters
+      </div>
+
+      <div id="inspector-content" class="hidden space-y-3">
+        <!-- Object Header & Quick Actions -->
+        <div class="m3-surface-container p-3 flex items-center justify-between">
+          <span id="label-selection-type" class="text-xs font-bold uppercase tracking-wider text-[#a8c7fa]">Object</span>
+          <div class="flex items-center gap-1">
+            <button onclick="mirrorSelected()" title="Flip Horizontal (Shift+H)" class="p-1.5 hover:bg-white/10 text-gray-300 hover:text-white rounded-lg transition">
+              <i class="bi bi-symmetry-vertical text-xs"></i>
+            </button>
+            <button onclick="flipVerticalSelected()" title="Flip Vertical (Shift+V)" class="p-1.5 hover:bg-white/10 text-gray-300 hover:text-white rounded-lg transition">
+              <i class="bi bi-symmetry-horizontal text-xs"></i>
+            </button>
+            <button onclick="duplicateSelected()" title="Duplicate (Ctrl+D)" class="p-1.5 hover:bg-white/10 text-gray-300 hover:text-white rounded-lg transition">
+              <i class="bi bi-copy text-xs"></i>
+            </button>
+            <button onclick="deleteSelected()" title="Delete (Del / Backspace)" class="p-1.5 hover:bg-red-500/20 text-red-300 rounded-lg transition">
+              <i class="bi bi-trash3 text-xs"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- MEDIAPIPE DSD ACTIONS (IF IMAGE IS SELECTED) -->
+        <div id="bento-mediapipe-action" class="hidden m3-surface-container p-3 space-y-2 border-cyan-400/40 bg-gradient-to-b from-[#13161f] to-[#142338]">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-cyan-300">MediaPipe DSD AI</span>
+            <span class="text-[9px] bg-cyan-400/20 text-cyan-200 px-2 py-0.5 rounded-full font-mono">DETECT</span>
+          </div>
+          <p class="text-[11px] text-gray-300 leading-tight">Extract lip curves, midline, smile arc, and move them outside the frame.</p>
+          <button onclick="runMediaPipeOnActiveObject()" class="w-full py-1.5 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-medium rounded-xl text-xs transition shadow-md flex items-center justify-center gap-1.5">
+            <i class="bi bi-stars text-yellow-300"></i>
+            <span>Scan Face & Extract Vectors</span>
+          </button>
+        </div>
+
+        <!-- Crop Button (For Images/SVGs) -->
+        <div id="bento-crop-action" class="hidden m3-surface-container p-3 space-y-2">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-[#a8c7fa] block">Crop Frame</span>
+          <button onclick="CropManager.startCrop()" class="w-full py-1.5 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-semibold rounded-xl text-xs transition shadow-md flex items-center justify-center gap-1.5">
+            <i class="bi bi-crop"></i>
+            <span>Interactive Crop (C)</span>
+          </button>
+        </div>
+
+        <!-- Transform Matrix -->
+        <div class="m3-surface-container p-3 space-y-2.5">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-[#a8c7fa] block">Transform Matrix</span>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <!-- X -->
+            <div class="flex items-center justify-between bg-[#13161f] rounded-xl border border-[#393e4d] px-2 py-1">
+              <span class="text-gray-400 text-[11px] font-semibold">X</span>
+              <div class="flex items-center">
+                <button onclick="stepVal('inp-pos-x', -1)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-dash-lg text-[10px]"></i></button>
+                <input type="number" id="inp-pos-x" class="w-11 bg-transparent text-center font-mono text-white outline-none" oninput="applyTransform('left', this.value)">
+                <button onclick="stepVal('inp-pos-x', 1)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-plus-lg text-[10px]"></i></button>
+              </div>
+            </div>
+            <!-- Y -->
+            <div class="flex items-center justify-between bg-[#13161f] rounded-xl border border-[#393e4d] px-2 py-1">
+              <span class="text-gray-400 text-[11px] font-semibold">Y</span>
+              <div class="flex items-center">
+                <button onclick="stepVal('inp-pos-y', -1)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-dash-lg text-[10px]"></i></button>
+                <input type="number" id="inp-pos-y" class="w-11 bg-transparent text-center font-mono text-white outline-none" oninput="applyTransform('top', this.value)">
+                <button onclick="stepVal('inp-pos-y', 1)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-plus-lg text-[10px]"></i></button>
+              </div>
+            </div>
+            <!-- W -->
+            <div class="flex items-center justify-between bg-[#13161f] rounded-xl border border-[#393e4d] px-2 py-1">
+              <span class="text-gray-400 text-[11px] font-semibold">W</span>
+              <div class="flex items-center">
+                <button onclick="stepVal('inp-dim-w', -5)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-dash-lg text-[10px]"></i></button>
+                <input type="number" id="inp-dim-w" class="w-11 bg-transparent text-center font-mono text-white outline-none" oninput="applyDimension('width', this.value)">
+                <button onclick="stepVal('inp-dim-w', 5)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-plus-lg text-[10px]"></i></button>
+              </div>
+            </div>
+            <!-- H -->
+            <div class="flex items-center justify-between bg-[#13161f] rounded-xl border border-[#393e4d] px-2 py-1">
+              <span class="text-gray-400 text-[11px] font-semibold">H</span>
+              <div class="flex items-center">
+                <button onclick="stepVal('inp-dim-h', -5)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-dash-lg text-[10px]"></i></button>
+                <input type="number" id="inp-dim-h" class="w-11 bg-transparent text-center font-mono text-white outline-none" oninput="applyDimension('height', this.value)">
+                <button onclick="stepVal('inp-dim-h', 5)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-plus-lg text-[10px]"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rotation & Mirrors -->
+          <div class="flex items-center justify-between gap-2 pt-0.5">
+            <div class="flex-1 flex items-center justify-between bg-[#13161f] rounded-xl border border-[#393e4d] px-2.5 py-1 text-xs">
+              <span class="text-gray-400 font-medium">∡ Angle</span>
+              <div class="flex items-center">
+                <button onclick="stepVal('inp-rotation', -5)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-dash-lg text-[10px]"></i></button>
+                <input type="number" id="inp-rotation" class="w-10 bg-transparent text-center font-mono text-white outline-none" oninput="applyTransform('angle', this.value)">
+                <button onclick="stepVal('inp-rotation', 5)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-plus-lg text-[10px]"></i></button>
+              </div>
+            </div>
+            <button onclick="mirrorSelected()" class="px-2.5 py-1.5 bg-[#13161f] hover:bg-white/10 border border-[#393e4d] rounded-xl text-xs font-mono text-white transition" title="Flip Horizontal (Shift+H)">Flip H</button>
+            <button onclick="rotateBy(90)" class="px-2.5 py-1.5 bg-[#13161f] hover:bg-white/10 border border-[#393e4d] rounded-xl text-xs font-mono text-white transition">⟳ 90°</button>
+          </div>
+        </div>
+
+        <!-- Color, Stroke & Outline Control -->
+        <div class="m3-surface-container p-3 space-y-3">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-[#a8c7fa] block">Color, Stroke & Outline</span>
+
+          <!-- STROKE / OUTLINE -->
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-300 font-medium text-[11px]">Stroke / Outline</span>
+              <div class="flex items-center gap-1.5">
+                <button onclick="toggleActiveOutline()" id="btn-toggle-outline" class="text-[10px] text-[#a8c7fa] hover:underline">Toggle Outline</button>
+                <div class="flex items-center bg-[#13161f] rounded-lg border border-[#393e4d] p-0.5">
+                  <button onclick="stepVal('inp-stroke-width', -0.5)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-dash-lg text-[9px]"></i></button>
+                  <input type="number" id="inp-stroke-width" min="0" max="50" step="0.5" value="2" class="w-8 bg-transparent text-center font-mono text-xs text-white outline-none" oninput="applyStrokeWidth(this.value)">
+                  <button onclick="stepVal('inp-stroke-width', 0.5)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-plus-lg text-[9px]"></i></button>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center bg-[#13161f] p-1.5 rounded-xl border border-[#393e4d] gap-2">
+              <input type="color" id="inp-stroke-picker" value="#ffffff" class="w-5 h-5 bg-transparent cursor-pointer rounded" onchange="applyColor('stroke', this.value)">
+              <input type="text" id="inp-stroke-hex" value="#FFFFFF" class="w-20 bg-transparent font-mono text-[11px] uppercase outline-none text-white" onchange="applyColor('stroke', this.value)">
+              <div class="flex gap-1 ml-auto">
+                <button onclick="applyStrokeWidth(1)" class="px-1.5 py-0.5 bg-white/10 hover:bg-white/20 rounded text-[9px] text-gray-300">1px</button>
+                <button onclick="applyStrokeWidth(2.5)" class="px-1.5 py-0.5 bg-[#1a73e8] rounded text-[9px] text-white font-semibold">2.5px</button>
+                <button onclick="applyStrokeWidth(5)" class="px-1.5 py-0.5 bg-white/10 hover:bg-white/20 rounded text-[9px] text-gray-300">5px</button>
+              </div>
+            </div>
+
+            <!-- Line Style: Solid, Dashed, Dotted -->
+            <div class="flex items-center justify-between text-xs pt-1">
+              <span class="text-gray-400 text-[10px]">Line Style</span>
+              <div class="flex items-center gap-1">
+                <button onclick="applyStrokeDash('solid')" class="px-2 py-0.5 bg-white/10 hover:bg-[#1a73e8] rounded text-[10px] text-gray-200">Solid</button>
+                <button onclick="applyStrokeDash('dashed')" class="px-2 py-0.5 bg-white/10 hover:bg-[#1a73e8] rounded text-[10px] text-gray-200">Dashed</button>
+                <button onclick="applyStrokeDash('dotted')" class="px-2 py-0.5 bg-white/10 hover:bg-[#1a73e8] rounded text-[10px] text-gray-200">Dotted</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- FILL -->
+          <div id="inspector-fill-section" class="space-y-1.5 pt-1 border-t border-[#393e4d]">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-300 font-medium text-[11px]">Fill Color</span>
+              <button onclick="applyColor('fill', 'transparent')" class="text-[10px] text-gray-400 hover:text-red-300" title="Remove Fill">None</button>
+            </div>
+            <div class="flex items-center bg-[#13161f] p-1.5 rounded-xl border border-[#393e4d] gap-2">
+              <input type="color" id="inp-fill-picker" value="#ffffff" class="w-5 h-5 bg-transparent cursor-pointer rounded" onchange="applyColor('fill', this.value)">
+              <input type="text" id="inp-fill-hex" value="TRANSPARENT" class="w-20 bg-transparent font-mono text-[11px] uppercase outline-none text-white" onchange="applyColor('fill', this.value)">
+              <div class="flex gap-1 ml-auto">
+                <button onclick="applyColor('fill', '#ffffff')" class="w-4 h-4 rounded-full bg-white border border-black/30" title="Solid White"></button>
+                <button onclick="applyColor('fill', 'rgba(255,255,255,0.65)')" class="w-4 h-4 rounded-full bg-white/60 border border-white/30" title="Enamel Shade"></button>
+                <button onclick="applyColor('fill', '#ec4899')" class="w-4 h-4 rounded-full bg-pink-500 border border-white/20" title="Lip Pink"></button>
+                <button onclick="applyColor('fill', '#1a73e8')" class="w-4 h-4 rounded-full bg-[#1a73e8] border border-white/20" title="Royal Blue"></button>
+              </div>
+            </div>
+          </div>
+          <div id="inspector-line-hint" class="hidden text-[10px] text-cyan-300/80 bg-cyan-900/20 p-2 rounded-lg border border-cyan-800/40">
+            <i class="bi bi-info-circle mr-1"></i> Reference lines use <b>Stroke</b> only for styling and color.
+          </div>
+        </div>
+
+        <!-- Opacity Slider -->
+        <div class="m3-surface-container p-3 space-y-1.5">
+          <div class="flex justify-between items-center text-xs">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-[#a8c7fa]">Opacity</span>
+            <span id="txt-opacity-val" class="font-mono text-[#a8c7fa] text-xs font-bold">100%</span>
+          </div>
+          <input type="range" id="inp-opacity" min="0" max="100" value="100" class="w-full h-1 bg-white/20 rounded cursor-pointer" oninput="applyOpacity(this.value)">
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- CONTEXT MENU -->
+  <div id="customContextMenu" class="hidden fixed z-50 m3-surface-container p-1.5 w-56 shadow-2xl flex flex-col gap-0.5 text-xs border border-white/20">
+    <button onclick="executeContextAction('mediapipe')" id="ctx-mediapipe" class="px-3 py-1.5 rounded-xl hover:bg-[#1a73e8] text-left flex items-center justify-between text-cyan-300 hover:text-white transition">
+      <span>Scan Face with MediaPipe</span>
+      <i class="bi bi-stars text-yellow-300"></i>
+    </button>
+    <button onclick="executeContextAction('crop')" id="ctx-crop" class="px-3 py-1.5 rounded-xl hover:bg-[#1a73e8] text-left flex items-center justify-between text-white transition">
+      <span>Crop</span>
+      <span class="text-[10px] text-gray-400">C</span>
+    </button>
+    <button onclick="executeContextAction('mirrorH')" class="px-3 py-1.5 rounded-xl hover:bg-white/10 text-left flex items-center justify-between text-gray-200 transition">
+      <span>Flip Horizontal</span>
+      <span class="text-[10px] text-gray-400 font-mono">Shift+H</span>
+    </button>
+    <button onclick="executeContextAction('mirrorV')" class="px-3 py-1.5 rounded-xl hover:bg-white/10 text-left flex items-center justify-between text-gray-200 transition">
+      <span>Flip Vertical</span>
+      <span class="text-[10px] text-gray-400 font-mono">Shift+V</span>
+    </button>
+    <div class="h-[1px] bg-white/10 my-0.5"></div>
+    <button onclick="executeContextAction('ungroup')" id="ctx-ungroup" class="px-3 py-1.5 rounded-xl hover:bg-[#1a73e8] text-left flex items-center justify-between text-white transition">
+      <span>Ungroup</span>
+      <span class="text-[10px] text-gray-400">Ctrl+Shift+G</span>
+    </button>
+    <button onclick="executeContextAction('group')" id="ctx-group" class="px-3 py-1.5 rounded-xl hover:bg-[#1a73e8] text-left flex items-center justify-between text-white transition">
+      <span>Group</span>
+      <span class="text-[10px] text-gray-400">Ctrl+G</span>
+    </button>
+    <div class="h-[1px] bg-white/10 my-0.5"></div>
+    <button onclick="executeContextAction('bringFront')" class="px-3 py-1.5 rounded-xl hover:bg-white/10 text-left text-gray-200 transition">Bring to Front</button>
+    <button onclick="executeContextAction('sendBack')" class="px-3 py-1.5 rounded-xl hover:bg-white/10 text-left text-gray-200 transition">Send to Back</button>
+    <button onclick="executeContextAction('duplicate')" class="px-3 py-1.5 rounded-xl hover:bg-white/10 text-left flex items-center justify-between text-gray-200 transition">
+      <span>Duplicate</span>
+      <span class="text-[10px] text-gray-400">Ctrl+D</span>
+    </button>
+    <div class="h-[1px] bg-white/10 my-0.5"></div>
+    <button onclick="executeContextAction('delete')" class="px-3 py-1.5 rounded-xl hover:bg-red-500/25 text-red-300 text-left flex items-center justify-between transition">
+      <span>Delete</span>
+      <span class="text-[10px] text-gray-400 font-mono">Del / Backspace</span>
+    </button>
+  </div>
+
+  <!-- ============================================================
+       MEDIAPIPE DSD AI CONTROL DIALOG
+       ============================================================ -->
+  <div id="mediapipe-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-xl flex items-center justify-center p-4">
+    <div class="m3-surface-container-high bg-[#191c25] w-full max-w-lg p-5 space-y-4 shadow-2xl border border-cyan-400/40">
+      
+      <div class="flex items-center justify-between pb-2 border-b border-[#393e4d]">
+        <div class="flex items-center gap-2">
+          <i class="bi bi-stars text-cyan-300 text-base animate-spin" style="animation-duration: 4s;"></i>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-white">MediaPipe FaceMesh & DSD Engine</h3>
+        </div>
+        <button onclick="closeMediaPipeModal()" class="text-gray-400 hover:text-white font-bold text-sm">✕</button>
+      </div>
+
+      <p class="text-xs text-gray-300 leading-relaxed">
+        Detect 468+ facial landmarks with Google MediaPipe AI. Extract lip contours, facial midline, eye horizon, and smile arcs as individual vector shapes. You can expand them, adjust them, and move them completely outside the frame.
+      </p>
+
+      <div class="space-y-3 bg-[#13161f] p-3.5 rounded-xl border border-[#393e4d]">
+        <label class="block text-[11px] font-bold text-gray-300 uppercase">Detection Target</label>
+        <div class="grid grid-cols-3 gap-2">
+          <button onclick="runMediaPipeOnActiveObject()" class="p-2.5 rounded-xl bg-white/5 hover:bg-[#1a73e8] border border-white/10 text-white text-xs font-medium text-center transition flex flex-col items-center gap-1">
+            <i class="bi bi-image text-sm text-[#a8c7fa]"></i>
+            <span>Selected Image</span>
+          </button>
+          <button onclick="loadSamplePatientAndRun()" class="p-2.5 rounded-xl bg-white/5 hover:bg-[#1a73e8] border border-white/10 text-white text-xs font-medium text-center transition flex flex-col items-center gap-1">
+            <i class="bi bi-person-bounding-box text-sm text-yellow-300"></i>
+            <span>Sample Patient</span>
+          </button>
+          <button onclick="startWebcamDetection()" class="p-2.5 rounded-xl bg-white/5 hover:bg-[#1a73e8] border border-white/10 text-white text-xs font-medium text-center transition flex flex-col items-center gap-1">
+            <i class="bi bi-camera-video text-sm text-emerald-400"></i>
+            <span>Live Webcam</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Feature Vector Checkboxes -->
+      <div class="space-y-2 text-xs">
+        <label class="block text-[11px] font-bold text-gray-300 uppercase">Elements to Extract as Vectors</label>
+        <div class="grid grid-cols-2 gap-2 text-gray-200">
+          <label class="flex items-center gap-2 p-1.5 rounded-lg bg-white/5 cursor-pointer hover:bg-white/10">
+            <input type="checkbox" id="mp-check-lips" checked class="rounded border-white/30 text-[#1a73e8]">
+            <span>Outer & Inner Lip Contours</span>
+          </label>
+          <label class="flex items-center gap-2 p-1.5 rounded-lg bg-white/5 cursor-pointer hover:bg-white/10">
+            <input type="checkbox" id="mp-check-midline" checked class="rounded border-white/30 text-[#1a73e8]">
+            <span>Facial Midline (Trichion-Chin)</span>
+          </label>
+          <label class="flex items-center gap-2 p-1.5 rounded-lg bg-white/5 cursor-pointer hover:bg-white/10">
+            <input type="checkbox" id="mp-check-horizon" checked class="rounded border-white/30 text-[#1a73e8]">
+            <span>Bipupillary Horizon</span>
+          </label>
+          <label class="flex items-center gap-2 p-1.5 rounded-lg bg-white/5 cursor-pointer hover:bg-white/10">
+            <input type="checkbox" id="mp-check-smilearc" checked class="rounded border-white/30 text-[#1a73e8]">
+            <span>Incisal Smile Arc</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Out-of-frame placement option -->
+      <div class="flex items-center justify-between p-2.5 rounded-xl bg-cyan-950/40 border border-cyan-800/40 text-xs">
+        <div class="flex items-center gap-2 text-cyan-200">
+          <i class="bi bi-box-arrow-up-right text-cyan-300"></i>
+          <span><b>Move Beside Face (Out of Frame)</b></span>
+        </div>
+        <input type="checkbox" id="mp-check-out-of-frame" class="rounded border-cyan-400 text-cyan-500" checked>
+      </div>
+
+      <div class="flex justify-between items-center pt-2 border-t border-[#393e4d]">
+        <span id="mp-status-lbl" class="text-[11px] text-gray-400 font-mono">Engine ready</span>
+        <div class="flex gap-2">
+          <button onclick="closeMediaPipeModal()" class="px-4 py-1.5 bg-white/10 hover:bg-white/15 text-gray-300 rounded-full text-xs transition">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEBCAM MODAL -->
+  <div id="webcam-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-xl flex items-center justify-center p-4">
+    <div class="m3-surface-container-high bg-[#191c25] w-full max-w-md p-4 space-y-3 shadow-2xl border border-white/20 text-center">
+      <div class="flex justify-between items-center pb-2 border-b border-[#393e4d]">
+        <h4 class="text-xs font-bold text-white uppercase tracking-wider">Live MediaPipe Camera Scan</h4>
+        <button onclick="stopWebcam()" class="text-gray-400 hover:text-white font-bold">✕</button>
+      </div>
+      <div class="relative w-full aspect-video rounded-xl overflow-hidden bg-black flex items-center justify-center">
+        <video id="webcam-video" autoplay playsinline class="w-full h-full object-cover"></video>
+        <canvas id="webcam-overlay" class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
+      </div>
+      <div class="flex justify-center gap-3 pt-2">
+        <button onclick="stopWebcam()" class="px-4 py-1.5 bg-white/10 text-gray-300 rounded-full text-xs">Cancel</button>
+        <button onclick="captureWebcamSnapshot()" class="px-5 py-1.5 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-bold rounded-full text-xs shadow-md">
+          Capture & Extract Vectors
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPORT DIALOG -->
+  <div id="export-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-xl flex items-center justify-center p-4">
+    <div class="m3-surface-container-high bg-[#191c25] w-full max-w-sm p-5 space-y-3.5 shadow-2xl border border-white/20">
+      <div class="flex items-center justify-between pb-2 border-b border-[#393e4d]">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-white">Export Canvas / Vector</h3>
+        <button onclick="closeExportModal()" class="text-gray-400 hover:text-white font-bold text-sm">✕</button>
+      </div>
+
+      <div class="space-y-2.5 text-xs">
+        <div>
+          <label class="block text-gray-300 mb-1.5 text-[11px] font-medium">Export Scope</label>
+          <select id="export-target" class="w-full bg-[#13161f] border border-[#393e4d] rounded-xl p-2 text-white outline-none text-[11px]">
+            <option value="selection">Selected Object / Group Only</option>
+            <option value="canvas">Entire Canvas</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-gray-300 mb-1.5 text-[11px] font-medium">Format</label>
+          <div class="grid grid-cols-3 gap-2">
+            <button onclick="setExportFormat('png')" id="fmt-png" class="p-2 border border-[#a8c7fa]/40 bg-[#1a73e8]/30 text-white rounded-xl font-semibold text-center shadow-md">PNG</button>
+            <button onclick="setExportFormat('jpeg')" id="fmt-jpeg" class="p-2 border border-[#393e4d] bg-[#13161f] text-gray-300 rounded-xl font-medium text-center">JPEG</button>
+            <button onclick="setExportFormat('svg')" id="fmt-svg" class="p-2 border border-[#393e4d] bg-[#13161f] text-gray-300 rounded-xl font-medium text-center">SVG</button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-gray-300 mb-1.5 text-[11px] font-medium">Resolution</label>
+          <select id="export-scale" class="w-full bg-[#13161f] border border-[#393e4d] rounded-xl p-2 text-white outline-none font-mono text-[11px]">
+            <option value="1">1x Standard</option>
+            <option value="2" selected>2x High-Definition (Retina)</option>
+            <option value="3">3x Ultra High-Res</option>
+          </select>
+        </div>
+
+        <div class="flex items-center gap-2 pt-1">
+          <input type="checkbox" id="export-transparency" class="rounded border-white/30 text-[#1a73e8]" checked>
+          <label for="export-transparency" class="text-gray-200 text-[11px]">Transparent Background (PNG/SVG)</label>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2.5 pt-2.5 border-t border-[#393e4d]">
+        <button onclick="closeExportModal()" class="px-4 py-1.5 bg-white/10 hover:bg-white/15 text-gray-300 rounded-full text-xs transition">Cancel</button>
+        <button onclick="executeExport()" class="px-4 py-1.5 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-semibold rounded-full text-xs shadow-md shadow-[#1a73e8]/50 transition">Download</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIRM MODAL -->
+  <div id="customConfirmModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="m3-surface-container-high bg-[#191c25] w-full max-w-xs p-5 space-y-3 shadow-2xl border border-white/20 text-center">
+      <h4 id="confirmModalTitle" class="text-xs font-bold text-white uppercase tracking-wider">Confirm Action</h4>
+      <p id="confirmModalMsg" class="text-xs text-gray-300">Are you sure?</p>
+      <div class="flex justify-center gap-2 pt-2 border-t border-white/10">
+        <button id="confirmCancelBtn" class="px-3.5 py-1.5 bg-white/10 hover:bg-white/15 text-gray-300 rounded-full text-xs transition">Cancel</button>
+        <button id="confirmOkBtn" class="px-4 py-1.5 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-bold rounded-full text-xs transition shadow-md">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div id="toastContainer" class="fixed bottom-12 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <script>
+    fabric.perfLimitSizeTotal = 16777216;
+    fabric.maxCacheSideLimit = 8192;
+    fabric.minCachePrimitiveLimit = 256;
+    fabric.Object.prototype.objectCaching = false;
+
+    const container = document.getElementById('canvas-viewport');
+    const canvas = new fabric.Canvas('studio-canvas', {
+      width: container.clientWidth,
+      height: container.clientHeight,
+      preserveObjectStacking: true,
+      selection: true,
+      fireRightClick: true,
+      stopContextMenu: true,
+      backgroundColor: null
+    });
+
+    fabric.Object.prototype.set({
+      transparentCorners: false,
+      cornerColor: '#1a73e8',
+      cornerStrokeColor: '#ffffff',
+      borderColor: '#1a73e8',
+      cornerSize: 7,
+      cornerStyle: 'rect',
+      borderScaleFactor: 1,
+      strokeUniform: true
+    });
+
+    let currentTool = 'select';
+    let isPanning = false;
+    let lastX = 0, lastY = 0;
+    let shapeCounter = 0;
+    let activeExportFmt = 'png';
+    let currentStrokeWidth = 2.0;
+    let currentStrokeColor = '#ffffff';
+    let currentFillColor = 'transparent';
+    let currentCanvasBg = '#090c13';
+    let pencilFillEnabled = false;
+    let _canvasClipboard = null;
+
+    window.addEventListener('resize', () => {
+      canvas.setWidth(container.clientWidth);
+      canvas.setHeight(container.clientHeight);
+      canvas.requestRenderAll();
+    });
+
+    canvas.on('object:added', () => updateLayersTree());
+    canvas.on('object:removed', () => {
+      updateLayersTree();
+      syncInspector();
+    });
+
+    function showToast(msg, type = 'info') {
+      const c = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = 'm3-surface-container-high px-4 py-2 text-xs text-white shadow-2xl flex items-center gap-2 border border-white/20 pointer-events-auto transition-all duration-200 opacity-0 translate-y-2 rounded-full';
+      
+      let icon = '<i class="bi bi-info-circle-fill text-[#a8c7fa]"></i>';
+      if (type === 'success') icon = '<i class="bi bi-check-circle-fill text-emerald-400"></i>';
+      if (type === 'error') icon = '<i class="bi bi-exclamation-triangle-fill text-rose-400"></i>';
+
+      toast.innerHTML = `${icon}<span>${msg}</span>`;
+      c.appendChild(toast);
+
+      requestAnimationFrame(() => toast.classList.remove('opacity-0', 'translate-y-2'));
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 250);
+      }, 2300);
+    }
+
+    function showConfirmModal(title, msg, onConfirm) {
+      const modal = document.getElementById('customConfirmModal');
+      document.getElementById('confirmModalTitle').innerText = title;
+      document.getElementById('confirmModalMsg').innerText = msg;
+      modal.classList.remove('hidden');
+
+      const okBtn = document.getElementById('confirmOkBtn');
+      const cancelBtn = document.getElementById('confirmCancelBtn');
+
+      const cleanup = () => {
+        modal.classList.add('hidden');
+        okBtn.onclick = null;
+        cancelBtn.onclick = null;
+      };
+
+      okBtn.onclick = () => { cleanup(); onConfirm(); };
+      cancelBtn.onclick = cleanup;
+    }
+
+    function confirmClearCanvas() {
+      showConfirmModal('Clear Canvas', 'Are you sure you want to delete all elements?', () => {
+        canvas.clear();
+        canvas.requestRenderAll();
+        updateLayersTree();
+        syncInspector();
+        saveState();
+        showToast('Canvas cleared', 'info');
+      });
+    }
+
+    /* ============================================================
+       SCROLL ENGINE: SHIFT + SCROLL IS HORIZONTAL
+       ============================================================ */
+    canvas.on('mouse:wheel', (opt) => {
+      const e = opt.e;
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (e.ctrlKey || e.metaKey) {
+        let zoom = canvas.getZoom();
+        zoom *= 0.999 ** e.deltaY;
+        if (zoom > 25) zoom = 25;
+        if (zoom < 0.05) zoom = 0.05;
+        canvas.zoomToPoint({ x: e.offsetX, y: e.offsetY }, zoom);
+        updateZoomBadge();
+      } else if (e.shiftKey) {
+        const vpt = canvas.viewportTransform;
+        const delta = e.deltaY !== 0 ? e.deltaY : e.deltaX;
+        vpt[4] -= delta;
+        canvas.requestRenderAll();
+      } else {
+        const vpt = canvas.viewportTransform;
+        vpt[5] -= e.deltaY;
+        vpt[4] -= e.deltaX;
+        canvas.requestRenderAll();
+      }
+    });
+
+    function zoomIn() { canvas.setZoom(Math.min(canvas.getZoom() * 1.25, 25)); updateZoomBadge(); }
+    function zoomOut() { canvas.setZoom(Math.max(canvas.getZoom() / 1.25, 0.05)); updateZoomBadge(); }
+    function updateZoomBadge() { document.getElementById('zoom-level-text').innerText = `${Math.round(canvas.getZoom() * 100)}%`; }
+
+    function cleanToolState() {
+      canvas.forEachObject(o => {
+        if (!o.isInternalHandle) {
+          o.selectable = true;
+          o.evented = true;
+        }
+      });
+    }
+
+    /* ============================================================
+       KEYBOARD SHORTCUTS: RELIABLE DELETE, SHIFT+H FLIP, [ / ] BRUSH
+       ============================================================ */
+    window.addEventListener('keydown', (e) => {
+      const isInput = ['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName) || document.activeElement.isContentEditable;
+      const activeObj = canvas.getActiveObject();
+      const isEditingIText = activeObj && activeObj.isEditing;
+
+      // DELETE / BACKSPACE
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        if (isInput || isEditingIText) return;
+        e.preventDefault();
+        deleteSelected();
+        return;
+      }
+
+      if (isInput || isEditingIText) return;
+
+      // FLIP HORIZONTAL (Shift+H) & FLIP VERTICAL (Shift+V)
+      if (e.shiftKey && (e.key === 'H' || e.key === 'h')) {
+        e.preventDefault();
+        mirrorSelected();
+        return;
+      }
+      if (e.shiftKey && (e.key === 'V' || e.key === 'v')) {
+        e.preventDefault();
+        flipVerticalSelected();
+        return;
+      }
+
+      // PENCIL / STROKE SIZE: [ and ]
+      if (e.key === '[' || e.key === '{') {
+        e.preventDefault();
+        stepPencilBrush(-0.5);
+        return;
+      }
+      if (e.key === ']' || e.key === '}') {
+        e.preventDefault();
+        stepPencilBrush(0.5);
+        return;
+      }
+
+      // GROUP / UNGROUP
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'g' || e.key === 'G')) {
+        e.preventDefault();
+        if (e.shiftKey) ungroupSelected();
+        else groupSelected();
+        return;
+      }
+
+      // NUDGE
+      if (e.key.startsWith('Arrow')) {
+        e.preventDefault();
+        const step = e.shiftKey ? 10 : (e.altKey ? 0.5 : 1);
+        let dx = 0, dy = 0;
+        if (e.key === 'ArrowLeft') dx = -step;
+        if (e.key === 'ArrowRight') dx = step;
+        if (e.key === 'ArrowUp') dy = -step;
+        if (e.key === 'ArrowDown') dy = step;
+
+        if (CropManager.isCropping) {
+          CropManager.nudge(dx, dy);
+          return;
+        }
+
+        if (activeObj) {
+          activeObj.left += dx;
+          activeObj.top += dy;
+          activeObj.setCoords();
+          canvas.requestRenderAll();
+          syncInspector();
+          saveState();
+        }
+        return;
+      }
+
+      // ENTER / ESCAPE (CROP)
+      if (e.key === 'Enter') {
+        if (CropManager.isCropping) { CropManager.applyCrop(); return; }
+      }
+      if (e.key === 'Escape') {
+        if (CropManager.isCropping) { CropManager.cancelCrop(); return; }
+      }
+
+      // TOOLS
+      if (e.key === 'v' || e.key === 'V') setTool('select');
+      if (e.key === 'h' || e.key === 'H') setTool('hand');
+      if (e.key === 'b' || e.key === 'B') setTool('pencil');
+      if (e.key === 'c' || e.key === 'C') CropManager.startCrop();
+      if (e.key === 'p' || e.key === 'P') addBezierCurve();
+      if (e.key === 'l' || e.key === 'L') addStraightLine();
+      if (e.key === 'm' || e.key === 'M') addMidline();
+      if (e.key === 'r' || e.key === 'R') addRectangle();
+      if (e.key === 'o' || e.key === 'O') addCircle();
+      if (e.key === 't' || e.key === 'T') addText();
+
+      // UNDO / REDO / DUPLICATE
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === 'z' || e.key === 'Z') { e.preventDefault(); undo(); }
+        if (e.key === 'y' || e.key === 'Y') { e.preventDefault(); redo(); }
+        if (e.key === 'd' || e.key === 'D') { e.preventDefault(); duplicateSelected(); }
+      }
+    });
+
+    window.addEventListener('copy', (e) => {
+      if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+      const active = canvas.getActiveObject();
+      if (active) {
+        active.clone((cloned) => {
+          _canvasClipboard = cloned;
+          showToast('Copied object', 'info');
+        });
+      }
+    });
+
+    window.addEventListener('paste', async (e) => {
+      if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+      const clipboardData = e.clipboardData || window.clipboardData;
+      if (!clipboardData) return;
+
+      const text = clipboardData.getData('text/plain');
+      if (text && (text.includes('<svg') || text.includes('<path'))) {
+        e.preventDefault();
+        loadSvgStringDirectly(text);
+        return;
+      }
+
+      const items = clipboardData.items;
+      if (items) {
+        for (let i = 0; i < items.length; i++) {
+          if (items[i].type.indexOf('image') !== -1) {
+            e.preventDefault();
+            const file = items[i].getAsFile();
+            if (file) handleFileSelect(file);
+            return;
+          }
+        }
+      }
+
+      if (_canvasClipboard) {
+        e.preventDefault();
+        _canvasClipboard.clone((cloned) => {
+          if (typeof canvas.discardActiveObject === 'function') canvas.discardActiveObject();
+          cloned.set({
+            left: cloned.left + 24,
+            top: cloned.top + 24,
+            evented: true,
+            name: `${cloned.name || 'Object'} (Copy)`
+          });
+          if (cloned.type === 'activeSelection') {
+            cloned.canvas = canvas;
+            cloned.forEachObject((obj) => canvas.add(obj));
+            cloned.setCoords();
+          } else {
+            canvas.add(cloned);
+          }
+          _canvasClipboard.left += 24;
+          _canvasClipboard.top += 24;
+          canvas.setActiveObject(cloned);
+          canvas.requestRenderAll();
+          saveState();
+          showToast('Pasted object', 'info');
+        });
+      }
+    });
+
+    /* ============================================================
+       TOOL MODES (SELECT, HAND, PENCIL)
+       ============================================================ */
+    function setTool(tool) {
+      if (CropManager.isCropping) CropManager.cancelCrop();
+      cleanToolState();
+      currentTool = tool;
+
+      document.querySelectorAll('.tool-btn').forEach(btn => {
+        btn.classList.remove('m3-tool-active');
+        btn.classList.add('text-gray-300');
+      });
+
+      const activeBtn = document.getElementById(`tool-${tool}`);
+      if (activeBtn) {
+        activeBtn.classList.add('m3-tool-active');
+        activeBtn.classList.remove('text-gray-300');
+      }
+
+      const pencilDock = document.getElementById('pencil-subdock');
+
+      if (tool === 'pencil') {
+        canvas.isDrawingMode = true;
+        canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
+        canvas.freeDrawingBrush.width = currentStrokeWidth;
+        canvas.freeDrawingBrush.color = currentStrokeColor;
+        canvas.defaultCursor = 'crosshair';
+        pencilDock.classList.remove('hidden');
+        updatePencilDockUI();
+        showToast('Pencil tool active — Draw curves & outlines', 'info');
+      } else {
+        pencilDock.classList.add('hidden');
+        if (tool === 'hand') {
+          canvas.isDrawingMode = false;
+          canvas.defaultCursor = 'grab';
+          canvas.selection = false;
+          canvas.forEachObject(o => o.selectable = false);
+        } else {
+          canvas.isDrawingMode = false;
+          canvas.defaultCursor = 'default';
+          canvas.selection = true;
+          canvas.forEachObject(o => o.selectable = true);
+        }
+      }
+    }
+
+    function updatePencilDockUI() {
+      const lbl = document.getElementById('lbl-pencil-brush-size');
+      if (lbl) lbl.innerText = currentStrokeWidth.toFixed(1);
+      const colPicker = document.getElementById('pencil-dock-color');
+      if (colPicker && currentStrokeColor.startsWith('#')) colPicker.value = currentStrokeColor;
+      const fillTxt = document.getElementById('txt-pencil-fill-state');
+      if (fillTxt) fillTxt.innerText = pencilFillEnabled ? 'On' : 'Off';
+    }
+
+    function setPencilBrushWidth(w) {
+      const width = Math.max(parseFloat(w) || 1, 0.5);
+      currentStrokeWidth = width;
+      if (canvas.isDrawingMode && canvas.freeDrawingBrush) {
+        canvas.freeDrawingBrush.width = width;
+      }
+      safeSetVal('inp-stroke-width', width);
+      updatePencilDockUI();
+
+      const active = canvas.getActiveObject();
+      if (active) applyStrokeWidth(width);
+      showToast(`Brush Width: ${width}px`, 'info');
+    }
+
+    function stepPencilBrush(delta) {
+      const newW = Math.max(0.5, Math.round((currentStrokeWidth + delta) * 10) / 10);
+      setPencilBrushWidth(newW);
+    }
+
+    function setPencilColor(hex) {
+      currentStrokeColor = hex;
+      if (canvas.isDrawingMode && canvas.freeDrawingBrush) {
+        canvas.freeDrawingBrush.color = hex;
+      }
+      safeSetVal('inp-stroke-hex', hex);
+      safeSetVal('inp-stroke-picker', hex);
+      const active = canvas.getActiveObject();
+      if (active) applyColor('stroke', hex);
+    }
+
+    function togglePencilFill() {
+      pencilFillEnabled = !pencilFillEnabled;
+      updatePencilDockUI();
+      showToast(`Pencil Fill on Draw: ${pencilFillEnabled ? 'Enabled' : 'Disabled'}`, 'info');
+    }
+
+    canvas.on('path:created', (e) => {
+      const path = e.path;
+      path.set({
+        name: `Path ${++shapeCounter}`,
+        fill: pencilFillEnabled ? (currentFillColor === 'transparent' ? 'rgba(255,255,255,0.3)' : currentFillColor) : '',
+        stroke: currentStrokeColor,
+        strokeWidth: currentStrokeWidth,
+        strokeLineCap: 'round',
+        strokeLineJoin: 'round',
+        strokeUniform: true,
+        customType: 'vector-path'
+      });
+      canvas.setActiveObject(path);
+      canvas.requestRenderAll();
+      updateLayersTree();
+      syncInspector();
+      saveState();
+      showToast('Path drawn — Fully scalable vector', 'success');
+    });
+
+    canvas.on('mouse:down', (opt) => {
+      if (document.activeElement && document.activeElement.blur) {
+        document.activeElement.blur();
+      }
+
+      const evt = opt.e;
+      if (currentTool === 'hand' || evt.spaceKey || evt.button === 1) {
+        isPanning = true;
+        canvas.defaultCursor = 'grabbing';
+        lastX = evt.clientX;
+        lastY = evt.clientY;
+      }
+    });
+
+    canvas.on('mouse:move', (opt) => {
+      if (isPanning) {
+        const e = opt.e;
+        const vpt = canvas.viewportTransform;
+        vpt[4] += e.clientX - lastX;
+        vpt[5] += e.clientY - lastY;
+        canvas.requestRenderAll();
+        lastX = e.clientX;
+        lastY = e.clientY;
+      }
+    });
+
+    canvas.on('mouse:up', () => {
+      if (isPanning) {
+        isPanning = false;
+        canvas.defaultCursor = currentTool === 'hand' ? 'grab' : 'default';
+      }
+    });
+
+    /* ============================================================
+       RIGHT-CLICK CONTEXT MENU
+       ============================================================ */
+    const contextMenu = document.getElementById('customContextMenu');
+
+    canvas.upperCanvasEl.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      const target = canvas.findTarget(e);
+      if (target) {
+        canvas.setActiveObject(target);
+        canvas.requestRenderAll();
+        syncInspector();
+      }
+
+      const active = canvas.getActiveObject();
+      const btnGroup = document.getElementById('ctx-group');
+      const btnUngroup = document.getElementById('ctx-ungroup');
+      const btnCrop = document.getElementById('ctx-crop');
+      const btnMp = document.getElementById('ctx-mediapipe');
+
+      if (active && active.type === 'activeSelection') {
+        btnGroup.style.display = 'flex';
+        btnUngroup.style.display = 'none';
+      } else if (active && active.type === 'group') {
+        btnGroup.style.display = 'none';
+        btnUngroup.style.display = 'flex';
+      } else {
+        btnGroup.style.display = 'none';
+        btnUngroup.style.display = 'none';
+      }
+
+      btnCrop.style.display = (active && (active.type === 'image' || active.type === 'group')) ? 'flex' : 'none';
+      btnMp.style.display = (active && active.type === 'image') ? 'flex' : 'none';
+
+      contextMenu.style.left = `${Math.min(window.innerWidth - 230, e.clientX)}px`;
+      contextMenu.style.top = `${Math.min(window.innerHeight - 260, e.clientY)}px`;
+      contextMenu.classList.remove('hidden');
+    });
+
+    window.addEventListener('click', () => contextMenu.classList.add('hidden'));
+
+    function executeContextAction(action) {
+      contextMenu.classList.add('hidden');
+      const active = canvas.getActiveObject();
+      if (!active && action !== 'delete') return;
+
+      if (action === 'mediapipe') runMediaPipeOnActiveObject();
+      if (action === 'crop') CropManager.startCrop();
+      if (action === 'mirrorH') mirrorSelected();
+      if (action === 'mirrorV') flipVerticalSelected();
+      if (action === 'ungroup') ungroupSelected();
+      if (action === 'group') groupSelected();
+      if (action === 'bringFront') { canvas.bringToFront(active); canvas.requestRenderAll(); updateLayersTree(); saveState(); }
+      if (action === 'sendBack') { canvas.sendToBack(active); canvas.requestRenderAll(); updateLayersTree(); saveState(); }
+      if (action === 'duplicate') duplicateSelected();
+      if (action === 'delete') deleteSelected();
+    }
+
+    function groupSelected() {
+      const active = canvas.getActiveObject();
+      if (!active) return;
+      if (active.type === 'activeSelection') {
+        active.toGroup();
+        active.name = `Group ${++shapeCounter}`;
+        canvas.requestRenderAll();
+        updateLayersTree();
+        syncInspector();
+        saveState();
+        showToast('Group created', 'success');
+      }
+    }
+
+    function ungroupSelected() {
+      const active = canvas.getActiveObject();
+      if (!active) return;
+      if (active.type === 'group') {
+        active.toActiveSelection();
+        canvas.requestRenderAll();
+        updateLayersTree();
+        syncInspector();
+        saveState();
+        showToast('Ungrouped', 'info');
+      }
+    }
+
+    function deleteSelected() {
+      if (CropManager.isCropping) {
+        CropManager.cancelCrop();
+        return;
+      }
+
+      const activeObj = canvas.getActiveObject();
+      if (!activeObj) return;
+
+      if (activeObj.type === 'activeSelection') {
+        const objects = activeObj.getObjects().slice();
+        if (typeof canvas.discardActiveObject === 'function') canvas.discardActiveObject();
+        objects.forEach(o => canvas.remove(o));
+      } else {
+        if (typeof canvas.discardActiveObject === 'function') canvas.discardActiveObject();
+        canvas.remove(activeObj);
+      }
+
+      cleanToolState();
+      canvas.requestRenderAll();
+      updateLayersTree();
+      syncInspector();
+      saveState();
+      showToast('Deleted', 'info');
+    }
+
+    function duplicateSelected() {
+      const obj = canvas.getActiveObject();
+      if (!obj) return;
+      obj.clone((cloned) => {
+        cloned.set({
+          left: cloned.left + 24,
+          top: cloned.top + 24,
+          name: `${obj.name || 'Object'} (Copy)`
+        });
+        canvas.add(cloned);
+        canvas.setActiveObject(cloned);
+        canvas.requestRenderAll();
+        updateLayersTree();
+        saveState();
+        showToast('Duplicated', 'info');
+      });
+    }
+
+    function mirrorSelected() {
+      const obj = canvas.getActiveObject();
+      if (!obj) {
+        showToast('Select an element to flip horizontally', 'info');
+        return;
+      }
+      obj.set('flipX', !obj.flipX);
+      obj.setCoords();
+      canvas.requestRenderAll();
+      syncInspector();
+      saveState();
+      showToast(obj.flipX ? 'Flipped Horizontally (Shift+H)' : 'Restored Horizontal Flip', 'info');
+    }
+
+    function flipVerticalSelected() {
+      const obj = canvas.getActiveObject();
+      if (!obj) {
+        showToast('Select an element to flip vertically', 'info');
+        return;
+      }
+      obj.set('flipY', !obj.flipY);
+      obj.setCoords();
+      canvas.requestRenderAll();
+      syncInspector();
+      saveState();
+      showToast(obj.flipY ? 'Flipped Vertically (Shift+V)' : 'Restored Vertical Flip', 'info');
+    }
+
+    /* ============================================================
+       VECTOR SHAPES & DSD REFERENCE LINES (NO POINT EDITING)
+       ============================================================ */
+    function addStraightLine() {
+      const c = canvas.getVpCenter();
+      const line = new fabric.Line([c.x - 120, c.y, c.x + 120, c.y], {
+        stroke: currentStrokeColor || '#ffffff',
+        strokeWidth: currentStrokeWidth || 2,
+        strokeUniform: true,
+        strokeLineCap: 'round',
+        name: `Reference Line ${++shapeCounter}`,
+        customType: 'line'
+      });
+      canvas.add(line);
+      canvas.setActiveObject(line);
+      setTool('select');
+      saveState();
+      showToast('Straight Reference Line added (L)', 'success');
+    }
+
+    function addMidline() {
+      const c = canvas.getVpCenter();
+      const line = new fabric.Line([c.x, c.y - 150, c.x, c.y + 150], {
+        stroke: '#22d3ee',
+        strokeWidth: 2,
+        strokeUniform: true,
+        strokeLineCap: 'round',
+        name: `Midline ${++shapeCounter}`,
+        customType: 'midline'
+      });
+      canvas.add(line);
+      canvas.setActiveObject(line);
+      setTool('select');
+      saveState();
+      showToast('Vertical Midline added (M)', 'success');
+    }
+
+    function addBezierCurve() {
+      const c = canvas.getVpCenter();
+      const p0 = { x: c.x - 110, y: c.y + 30 };
+      const cp = { x: c.x, y: c.y - 50 };
+      const p1 = { x: c.x + 110, y: c.y + 30 };
+      const pathStr = `M ${p0.x} ${p0.y} Q ${cp.x} ${cp.y} ${p1.x} ${p1.y}`;
+
+      const curve = new fabric.Path(pathStr, {
+        stroke: currentStrokeColor || '#f59e0b',
+        fill: '',
+        strokeWidth: currentStrokeWidth || 2.5,
+        strokeLineCap: 'round',
+        strokeLineJoin: 'round',
+        strokeUniform: true,
+        name: `Smile Curve ${++shapeCounter}`,
+        customType: 'bezier'
+      });
+
+      canvas.add(curve);
+      canvas.setActiveObject(curve);
+      setTool('select');
+      saveState();
+      showToast('Smile Curve added', 'success');
+    }
+
+    function addRectangle() {
+      const c = canvas.getVpCenter();
+      const rect = new fabric.Rect({
+        left: c.x - 60,
+        top: c.y - 45,
+        width: 120,
+        height: 90,
+        fill: currentFillColor === 'transparent' ? 'rgba(26, 115, 232, 0.25)' : currentFillColor,
+        stroke: currentStrokeColor,
+        strokeWidth: currentStrokeWidth,
+        rx: 8, ry: 8,
+        strokeUniform: true,
+        name: `Rectangle ${++shapeCounter}`
+      });
+      canvas.add(rect);
+      canvas.setActiveObject(rect);
+      setTool('select');
+      saveState();
+    }
+
+    function addCircle() {
+      const c = canvas.getVpCenter();
+      const circle = new fabric.Circle({
+        left: c.x - 45,
+        top: c.y - 45,
+        radius: 45,
+        fill: currentFillColor === 'transparent' ? 'rgba(26, 115, 232, 0.25)' : currentFillColor,
+        stroke: currentStrokeColor,
+        strokeWidth: currentStrokeWidth,
+        strokeUniform: true,
+        name: `Circle ${++shapeCounter}`
+      });
+      canvas.add(circle);
+      canvas.setActiveObject(circle);
+      setTool('select');
+      saveState();
+    }
+
+    function addText() {
+      const c = canvas.getVpCenter();
+      const text = new fabric.IText('SmileCreo DSD', {
+        left: c.x - 65,
+        top: c.y - 12,
+        fontFamily: 'Roboto',
+        fontSize: 22,
+        fill: '#ffffff',
+        name: `Text ${++shapeCounter}`
+      });
+      canvas.add(text);
+      canvas.setActiveObject(text);
+      setTool('select');
+      saveState();
+    }
+
+    /* ============================================================
+       SVG & IMAGE IMPORT / LOAD
+       ============================================================ */
+    function loadSvgStringDirectly(svgStr) {
+      fabric.loadSVGFromString(svgStr, (objects, options) => {
+        if (!objects || !objects.length) {
+          showToast('Could not parse SVG data', 'error');
+          return;
+        }
+        const svgGroup = fabric.util.groupSVGElements(objects, options);
+        const maxDim = 380;
+        if (svgGroup.width > maxDim || svgGroup.height > maxDim) {
+          svgGroup.scale(maxDim / Math.max(svgGroup.width, svgGroup.height));
+        }
+        const c = canvas.getVpCenter();
+        svgGroup.set({
+          left: c.x - (svgGroup.getScaledWidth() / 2),
+          top: c.y - (svgGroup.getScaledHeight() / 2),
+          name: `Imported SVG ${++shapeCounter}`,
+          strokeUniform: true
+        });
+        canvas.add(svgGroup);
+        canvas.setActiveObject(svgGroup);
+        canvas.requestRenderAll();
+        saveState();
+        showToast('SVG imported successfully', 'success');
+      });
+    }
+
+    function handleFileSelect(file) {
+      if (!file) return;
+      if (file.name.endsWith('.svg') || file.type === 'image/svg+xml') {
+        const reader = new FileReader();
+        reader.onload = (e) => loadSvgStringDirectly(e.target.result);
+        reader.readAsText(file);
+      } else if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          fabric.Image.fromURL(e.target.result, (img) => {
+            const maxDim = 700;
+            if (img.width > maxDim || img.height > maxDim) {
+              img.scale(maxDim / Math.max(img.width, img.height));
+            }
+            const c = canvas.getVpCenter();
+            img.set({
+              left: c.x - (img.getScaledWidth() / 2),
+              top: c.y - (img.getScaledHeight() / 2),
+              name: file.name.replace(/\.[^/.]+$/, ""),
+              strokeUniform: true
+            });
+            canvas.add(img);
+            canvas.setActiveObject(img);
+            canvas.requestRenderAll();
+            saveState();
+            showToast('Patient photo loaded', 'success');
+          });
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    container.addEventListener('dragover', (e) => e.preventDefault());
+    container.addEventListener('drop', (e) => {
+      e.preventDefault();
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        handleFileSelect(e.dataTransfer.files[0]);
+      }
+    });
+
+    /* ============================================================
+       FIGMA-GRADE INTERACTIVE CROPPING
+       ============================================================ */
+    const CropManager = {
+      isCropping: false,
+      targetObj: null,
+      cropBox: null,
+
+      startCrop() {
+        const active = canvas.getActiveObject();
+        if (!active || (active.type !== 'image' && active.type !== 'group')) {
+          showToast('Select an image or group to crop', 'error');
+          return;
+        }
+        this.cancelCrop();
+
+        this.isCropping = true;
+        this.targetObj = active;
+        active.selectable = false;
+        active.evented = false;
+
+        const bounds = active.getBoundingRect();
+
+        this.cropBox = new fabric.Rect({
+          left: bounds.left,
+          top: bounds.top,
+          width: bounds.width,
+          height: bounds.height,
+          fill: 'rgba(26, 115, 232, 0.12)',
+          stroke: '#ffffff',
+          strokeWidth: 2,
+          cornerColor: '#1a73e8',
+          cornerStrokeColor: '#ffffff',
+          cornerSize: 10,
+          transparentCorners: false,
+          lockRotation: true,
+          strokeUniform: true,
+          isInternalHandle: true
+        });
+
+        canvas.add(this.cropBox);
+        canvas.setActiveObject(this.cropBox);
+        document.getElementById('crop-banner').classList.remove('hidden');
+        canvas.requestRenderAll();
+        showToast('Resize box to crop. Enter to apply.', 'info');
+      },
+
+      nudge(dx, dy) {
+        if (!this.cropBox) return;
+        this.cropBox.left += dx;
+        this.cropBox.top += dy;
+        this.cropBox.setCoords();
+        canvas.requestRenderAll();
+      },
+
+      applyCrop() {
+        if (!this.isCropping || !this.targetObj || !this.cropBox) return;
+
+        const target = this.targetObj;
+        const crop = this.cropBox;
+
+        const targetBounds = target.getBoundingRect();
+        const cropBounds = crop.getBoundingRect();
+
+        const multiplier = 2;
+        const dataUrl = target.toDataURL({ multiplier: multiplier, format: 'png' });
+        const img = new Image();
+
+        img.onload = () => {
+          const offscreen = document.createElement('canvas');
+          const cropW = Math.max(cropBounds.width, 10);
+          const cropH = Math.max(cropBounds.height, 10);
+
+          offscreen.width = cropW * multiplier;
+          offscreen.height = cropH * multiplier;
+          const ctx = offscreen.getContext('2d');
+
+          const relX = (cropBounds.left - targetBounds.left) * multiplier;
+          const relY = (cropBounds.top - targetBounds.top) * multiplier;
+
+          ctx.drawImage(img, relX, relY, offscreen.width, offscreen.height, 0, 0, offscreen.width, offscreen.height);
+
+          fabric.Image.fromURL(offscreen.toDataURL(), (croppedImg) => {
+            croppedImg.set({
+              left: cropBounds.left,
+              top: cropBounds.top,
+              scaleX: 1 / multiplier,
+              scaleY: 1 / multiplier,
+              name: `${target.name || 'Object'} (Cropped)`,
+              strokeUniform: true
+            });
+
+            const idx = canvas.getObjects().indexOf(this.targetObj);
+            canvas.remove(this.targetObj);
+            canvas.insertAt(croppedImg, idx);
+            canvas.setActiveObject(croppedImg);
+
+            this.cleanup();
+            saveState();
+            showToast('Cropped successfully', 'success');
+          });
+        };
+        img.src = dataUrl;
+      },
+
+      cancelCrop() {
+        if (!this.isCropping) return;
+        this.cleanup();
+      },
+
+      cleanup() {
+        if (this.cropBox) canvas.remove(this.cropBox);
+        this.cropBox = null;
+        if (this.targetObj) {
+          this.targetObj.selectable = true;
+          this.targetObj.evented = true;
+        }
+        this.targetObj = null;
+        this.isCropping = false;
+        document.getElementById('crop-banner').classList.add('hidden');
+        cleanToolState();
+        canvas.requestRenderAll();
+      }
+    };
+
+    /* ============================================================
+       GOOGLE MEDIAPIPE FACE MESH & DSD VECTOR INTEGRATION
+       ============================================================ */
+    let faceMeshEngine = null;
+    let isMediaPipeReady = false;
+    let webcamStream = null;
+
+    async function initMediaPipeFaceMesh() {
+      if (faceMeshEngine) return faceMeshEngine;
+
+      document.getElementById('mp-status-lbl').innerText = 'Loading MediaPipe FaceMesh AI...';
+      faceMeshEngine = new FaceMesh({
+        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+      });
+
+      faceMeshEngine.setOptions({
+        maxNumFaces: 1,
+        refineLandmarks: true,
+        minDetectionConfidence: 0.5,
+        minTrackingConfidence: 0.5
+      });
+
+      await faceMeshEngine.initialize();
+      isMediaPipeReady = true;
+      document.getElementById('mp-status-lbl').innerText = 'MediaPipe FaceMesh AI Loaded';
+      return faceMeshEngine;
+    }
+
+    function openMediaPipeModal() {
+      initMediaPipeFaceMesh();
+      document.getElementById('mediapipe-modal').classList.remove('hidden');
+    }
+
+    function closeMediaPipeModal() {
+      document.getElementById('mediapipe-modal').classList.add('hidden');
+    }
+
+    // Helper: Map MediaPipe normalized (0-1) coordinates into Fabric canvas coordinates
+    function landmarkToCanvasPoint(nx, ny, imgObj) {
+      const matrix = imgObj.calcTransformMatrix();
+      const localX = (nx - (imgObj.originX === 'center' ? 0.5 : 0)) * imgObj.width;
+      const localY = (ny - (imgObj.originY === 'center' ? 0.5 : 0)) * imgObj.height;
+      return fabric.util.transformPoint({
+        x: (nx - 0.5) * imgObj.width,
+        y: (ny - 0.5) * imgObj.height
+      }, matrix);
+    }
+
+    async function processImageWithMediaPipe(imgElement, fabricImgObj) {
+      const engine = await initMediaPipeFaceMesh();
+      showToast('Scanning face with MediaPipe...', 'info');
+
+      return new Promise((resolve, reject) => {
+        engine.onResults((results) => {
+          if (!results.multiFaceLandmarks || !results.multiFaceLandmarks.length) {
+            showToast('No face detected in photo. Please ensure face is frontal and visible.', 'error');
+            resolve(false);
+            return;
+          }
+
+          const landmarks = results.multiFaceLandmarks[0];
+          generateDsdVectorsFromLandmarks(landmarks, fabricImgObj);
+          resolve(true);
+        });
+
+        engine.send({ image: imgElement });
+      });
+    }
+
+    function generateDsdVectorsFromLandmarks(landmarks, imgObj) {
+      const extractLips = document.getElementById('mp-check-lips').checked;
+      const extractMidline = document.getElementById('mp-check-midline').checked;
+      const extractHorizon = document.getElementById('mp-check-horizon').checked;
+      const extractSmileArc = document.getElementById('mp-check-smilearc').checked;
+      const moveOutOfFrame = document.getElementById('mp-check-out-of-frame').checked;
+
+      const vectorItems = [];
+
+      // 1. OUTER LIP CONTOUR
+      if (extractLips) {
+        const outerIndices = [61, 185, 40, 39, 37, 0, 267, 269, 270, 409, 291, 375, 321, 405, 314, 17, 84, 181, 91, 146];
+        const outerPts = outerIndices.map(idx => landmarkToCanvasPoint(landmarks[idx].x, landmarks[idx].y, imgObj));
+        const pathStr = outerPts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(2)} ${p.y.toFixed(2)}`).join(' ') + ' Z';
+        
+        const outerLip = new fabric.Path(pathStr, {
+          stroke: '#ec4899',
+          strokeWidth: 2,
+          fill: 'rgba(236, 72, 153, 0.25)',
+          strokeLineJoin: 'round',
+          strokeUniform: true,
+          name: 'Outer Lip Contour (DSD)'
+        });
+        vectorItems.push(outerLip);
+
+        // INNER LIP APERTURE (Tooth exposure window)
+        const innerIndices = [78, 191, 80, 81, 82, 13, 312, 311, 310, 415, 308, 324, 318, 402, 317, 14, 87, 178, 88, 95];
+        const innerPts = innerIndices.map(idx => landmarkToCanvasPoint(landmarks[idx].x, landmarks[idx].y, imgObj));
+        const innerPathStr = innerPts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(2)} ${p.y.toFixed(2)}`).join(' ') + ' Z';
+        
+        const innerLip = new fabric.Path(innerPathStr, {
+          stroke: '#ffffff',
+          strokeWidth: 2,
+          fill: 'rgba(255, 255, 255, 0.35)',
+          strokeLineJoin: 'round',
+          strokeUniform: true,
+          name: 'Smile Window / Tooth Frame'
+        });
+        vectorItems.push(innerLip);
+      }
+
+      // 2. FACIAL MIDLINE (Trichion / Glabella 10 to Chin Menton 152)
+      if (extractMidline) {
+        const topPt = landmarkToCanvasPoint(landmarks[10].x, landmarks[10].y, imgObj);
+        const chinPt = landmarkToCanvasPoint(landmarks[152].x, landmarks[152].y, imgObj);
+
+        // Extrapolate midline past forehead and chin for clinical calibration
+        const dx = chinPt.x - topPt.x;
+        const dy = chinPt.y - topPt.y;
+        const x1 = topPt.x - dx * 0.4;
+        const y1 = topPt.y - dy * 0.4;
+        const x2 = chinPt.x + dx * 0.4;
+        const y2 = chinPt.y + dy * 0.4;
+
+        const midline = new fabric.Line([x1, y1, x2, y2], {
+          stroke: '#22d3ee',
+          strokeWidth: 2,
+          strokeDashArray: [6, 4],
+          strokeUniform: true,
+          strokeLineCap: 'round',
+          name: 'Facial Midline (DSD)',
+          customType: 'midline'
+        });
+        vectorItems.push(midline);
+      }
+
+      // 3. BIPUPILLARY HORIZON (Eye pupils 468 & 473)
+      if (extractHorizon) {
+        const pLeft = landmarkToCanvasPoint(landmarks[468]?.x || landmarks[33].x, landmarks[468]?.y || landmarks[33].y, imgObj);
+        const pRight = landmarkToCanvasPoint(landmarks[473]?.x || landmarks[263].x, landmarks[473]?.y || landmarks[263].y, imgObj);
+
+        const hdx = pRight.x - pLeft.x;
+        const hdy = pRight.y - pLeft.y;
+        const hx1 = pLeft.x - hdx * 0.5;
+        const hy1 = pLeft.y - hdy * 0.5;
+        const hx2 = pRight.x + hdx * 0.5;
+        const hy2 = pRight.y + hdy * 0.5;
+
+        const horizon = new fabric.Line([hx1, hy1, hx2, hy2], {
+          stroke: '#fbbf24',
+          strokeWidth: 2,
+          strokeDashArray: [6, 4],
+          strokeUniform: true,
+          strokeLineCap: 'round',
+          name: 'Bipupillary Horizon (DSD)',
+          customType: 'line'
+        });
+        vectorItems.push(horizon);
+      }
+
+      // 4. SMILE ARC (Incisal curve guide connecting mouth corners across smile)
+      if (extractSmileArc) {
+        const arcIndices = [61, 81, 13, 311, 291];
+        const arcPts = arcIndices.map(idx => landmarkToCanvasPoint(landmarks[idx].x, landmarks[idx].y, imgObj));
+        const arcPath = `M ${arcPts[0].x.toFixed(2)} ${arcPts[0].y.toFixed(2)} Q ${arcPts[2].x.toFixed(2)} ${arcPts[2].y.toFixed(2)} ${arcPts[4].x.toFixed(2)} ${arcPts[4].y.toFixed(2)}`;
+
+        const smileArc = new fabric.Path(arcPath, {
+          stroke: '#38bdf8',
+          strokeWidth: 2.5,
+          fill: '',
+          strokeUniform: true,
+          strokeLineCap: 'round',
+          name: 'Incisal Smile Arc'
+        });
+        vectorItems.push(smileArc);
+      }
+
+      if (!vectorItems.length) {
+        showToast('No features were selected for extraction', 'error');
+        return;
+      }
+
+      // Create a master Group of extracted DSD anatomical vectors
+      const dsdGroup = new fabric.Group(vectorItems, {
+        name: `DSD Vectors (${++shapeCounter})`,
+        strokeUniform: true
+      });
+
+      // MOVE BESIDE FACE / OUT OF FRAME
+      if (moveOutOfFrame) {
+        const imgBounds = imgObj.getBoundingRect();
+        dsdGroup.set({
+          left: imgBounds.left + imgBounds.width + 40,
+          top: imgBounds.top
+        });
+      }
+
+      canvas.add(dsdGroup);
+      canvas.setActiveObject(dsdGroup);
+      canvas.requestRenderAll();
+      closeMediaPipeModal();
+      saveState();
+
+      showToast(
+        moveOutOfFrame 
+          ? 'Vectors extracted and positioned OUT OF FRAME beside face!' 
+          : 'DSD vectors generated on face! You can drag them out of the frame now.',
+        'success'
+      );
+    }
+
+    async function runMediaPipeOnActiveObject() {
+      const active = canvas.getActiveObject();
+      if (!active || active.type !== 'image') {
+        showToast('Please select a photo/image on canvas first or load a sample patient', 'error');
+        return;
+      }
+
+      const imgEl = active.getElement();
+      await processImageWithMediaPipe(imgEl, active);
+    }
+
+    function loadSamplePatient() {
+      // High-resolution clean facial portrait for DSD
+      const sampleUrl = 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=800&q=80';
+      fabric.Image.fromURL(sampleUrl, (img) => {
+        img.crossOrigin = 'anonymous';
+        img.scaleToWidth(Math.min(canvas.width * 0.45, 500));
+        const c = canvas.getVpCenter();
+        img.set({
+          left: c.x - (img.getScaledWidth() / 1.5),
+          top: c.y - (img.getScaledHeight() / 2),
+          name: 'Sample Patient Smile',
+          strokeUniform: true
+        });
+        canvas.add(img);
+        canvas.setActiveObject(img);
+        canvas.requestRenderAll();
+        saveState();
+        showToast('Sample patient portrait loaded', 'success');
+      }, { crossOrigin: 'anonymous' });
+    }
+
+    async function loadSamplePatientAndRun() {
+      closeMediaPipeModal();
+      const sampleUrl = 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=800&q=80';
+      showToast('Loading patient photo & starting MediaPipe AI...', 'info');
+
+      fabric.Image.fromURL(sampleUrl, async (img) => {
+        img.crossOrigin = 'anonymous';
+        img.scaleToWidth(Math.min(canvas.width * 0.42, 480));
+        const c = canvas.getVpCenter();
+        img.set({
+          left: c.x - (img.getScaledWidth() * 1.05),
+          top: c.y - (img.getScaledHeight() / 2),
+          name: 'Sample Patient Smile',
+          strokeUniform: true
+        });
+        canvas.add(img);
+        canvas.setActiveObject(img);
+        canvas.requestRenderAll();
+
+        const imgEl = img.getElement();
+        await processImageWithMediaPipe(imgEl, img);
+      }, { crossOrigin: 'anonymous' });
+    }
+
+    /* Live Webcam MediaPipe Scan */
+    async function startWebcamDetection() {
+      closeMediaPipeModal();
+      const video = document.getElementById('webcam-video');
+      document.getElementById('webcam-modal').classList.remove('hidden');
+
+      try {
+        webcamStream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 } });
+        video.srcObject = webcamStream;
+        await video.play();
+      } catch (err) {
+        showToast('Camera access denied or unavailable', 'error');
+        stopWebcam();
+      }
+    }
+
+    function stopWebcam() {
+      if (webcamStream) {
+        webcamStream.getTracks().forEach(track => track.stop());
+        webcamStream = null;
+      }
+      document.getElementById('webcam-modal').classList.add('hidden');
+    }
+
+    async function captureWebcamSnapshot() {
+      const video = document.getElementById('webcam-video');
+      const offscreen = document.createElement('canvas');
+      offscreen.width = video.videoWidth || 1280;
+      offscreen.height = video.videoHeight || 720;
+      const ctx = offscreen.getContext('2d');
+      ctx.drawImage(video, 0, 0, offscreen.width, offscreen.height);
+
+      stopWebcam();
+
+      fabric.Image.fromURL(offscreen.toDataURL(), async (img) => {
+        img.scaleToWidth(Math.min(canvas.width * 0.45, 520));
+        const c = canvas.getVpCenter();
+        img.set({
+          left: c.x - (img.getScaledWidth() * 1.05),
+          top: c.y - (img.getScaledHeight() / 2),
+          name: `Camera Snapshot ${++shapeCounter}`,
+          strokeUniform: true
+        });
+        canvas.add(img);
+        canvas.setActiveObject(img);
+        canvas.requestRenderAll();
+
+        await processImageWithMediaPipe(img.getElement(), img);
+      });
+    }
+
+    /* ============================================================
+       INSPECTOR & REAL-TIME SYNC
+       ============================================================ */
+    function stepVal(id, delta) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      let val = parseFloat(el.value) || 0;
+      val = Math.round((val + delta) * 100) / 100;
+      if (el.min !== "" && val < parseFloat(el.min)) val = parseFloat(el.min);
+      if (el.max !== "" && val > parseFloat(el.max)) val = parseFloat(el.max);
+      el.value = val;
+      el.dispatchEvent(new Event('input'));
+    }
+
+    function syncInspector() {
+      const obj = canvas.getActiveObject();
+      const emptyBox = document.getElementById('inspector-empty');
+      const contentBox = document.getElementById('inspector-content');
+
+      if (!obj) {
+        if (emptyBox) emptyBox.classList.remove('hidden');
+        if (contentBox) contentBox.classList.add('hidden');
+        return;
+      }
+
+      if (emptyBox) emptyBox.classList.add('hidden');
+      if (contentBox) contentBox.classList.remove('hidden');
+
+      const label = document.getElementById('label-selection-type');
+      if (label) label.innerText = obj.customType || obj.type || 'Object';
+
+      safeSetVal('inp-pos-x', Math.round(obj.left || 0));
+      safeSetVal('inp-pos-y', Math.round(obj.top || 0));
+      safeSetVal('inp-dim-w', Math.round(obj.getScaledWidth() || 0));
+      safeSetVal('inp-dim-h', Math.round(obj.getScaledHeight() || 0));
+      safeSetVal('inp-rotation', Math.round(obj.angle || 0));
+
+      const strokeW = (obj.strokeWidth !== undefined && obj.stroke) ? obj.strokeWidth : 0;
+      safeSetVal('inp-stroke-width', strokeW);
+
+      if (obj.stroke && typeof obj.stroke === 'string') {
+        safeSetVal('inp-stroke-hex', obj.stroke);
+        if (obj.stroke.startsWith('#') && obj.stroke.length === 7) {
+          safeSetVal('inp-stroke-picker', obj.stroke);
+        }
+      }
+
+      const fillVal = (obj.fill && typeof obj.fill === 'string') ? obj.fill : 'TRANSPARENT';
+      safeSetVal('inp-fill-hex', fillVal.toUpperCase());
+      if (fillVal.startsWith('#') && fillVal.length === 7) {
+        safeSetVal('inp-fill-picker', fillVal);
+      }
+
+      const op = Math.round((obj.opacity ?? 1) * 100);
+      safeSetVal('inp-opacity', op);
+      const txtOp = document.getElementById('txt-opacity-val');
+      if (txtOp) txtOp.innerText = `${op}%`;
+
+      const mpAction = document.getElementById('bento-mediapipe-action');
+      if (mpAction) mpAction.style.display = (obj.type === 'image') ? 'block' : 'none';
+
+      const cropAction = document.getElementById('bento-crop-action');
+      if (cropAction) cropAction.style.display = (obj.type === 'image' || obj.type === 'group') ? 'block' : 'none';
+
+      const fillSection = document.getElementById('inspector-fill-section');
+      const lineHint = document.getElementById('inspector-line-hint');
+      const isLine = obj.type === 'line' || obj.customType === 'midline' || obj.customType === 'line';
+      if (isLine) {
+        if (fillSection) fillSection.classList.add('hidden');
+        if (lineHint) lineHint.classList.remove('hidden');
+      } else {
+        if (fillSection) fillSection.classList.remove('hidden');
+        if (lineHint) lineHint.classList.add('hidden');
+      }
+    }
+
+    function safeSetVal(id, val) {
+      const el = document.getElementById(id);
+      if (el && document.activeElement !== el) {
+        el.value = val;
+      }
+    }
+
+    canvas.on('selection:created', syncInspector);
+    canvas.on('selection:updated', syncInspector);
+    canvas.on('selection:cleared', () => {
+      if (CropManager.isCropping) CropManager.cancelCrop();
+      syncInspector();
+    });
+    canvas.on('object:modified', () => { syncInspector(); saveState(); });
+    canvas.on('object:moving', syncInspector);
+    canvas.on('object:scaling', syncInspector);
+    canvas.on('object:rotating', syncInspector);
+
+    function applyTransform(prop, val) {
+      const obj = canvas.getActiveObject();
+      if (!obj) return;
+      obj.set(prop, parseFloat(val) || 0);
+      obj.setCoords();
+      canvas.requestRenderAll();
+      saveState();
+    }
+
+    function applyDimension(dim, val) {
+      const obj = canvas.getActiveObject();
+      if (!obj) return;
+      const v = Math.max(parseFloat(val) || 1, 1);
+      if (dim === 'width') obj.scaleToWidth(v);
+      else obj.scaleToHeight(v);
+      obj.setCoords();
+      canvas.requestRenderAll();
+      saveState();
+    }
+
+    function rotateBy(deg) {
+      const obj = canvas.getActiveObject();
+      if (!obj) return;
+      obj.rotate(((obj.angle || 0) + deg) % 360);
+      obj.setCoords();
+      canvas.requestRenderAll();
+      syncInspector();
+      saveState();
+    }
+
+    /* ============================================================
+       STROKE, OUTLINE & FILL CONTROLS
+       ============================================================ */
+    function applyStrokeWidth(w) {
+      const width = Math.max(parseFloat(w) || 0, 0);
+      currentStrokeWidth = width;
+      safeSetVal('inp-stroke-width', width);
+
+      if (canvas.isDrawingMode && canvas.freeDrawingBrush) {
+        canvas.freeDrawingBrush.width = width;
+        updatePencilDockUI();
+      }
+
+      const obj = canvas.getActiveObject();
+      if (!obj) return;
+
+      if (width === 0) {
+        obj.set({ strokeWidth: 0 });
+      } else {
+        const strokeCol = (obj.stroke && obj.stroke !== 'transparent') ? obj.stroke : (currentStrokeColor || '#ffffff');
+        obj.set({
+          stroke: strokeCol,
+          strokeWidth: width,
+          strokeUniform: true
+        });
+        safeSetVal('inp-stroke-hex', strokeCol);
+        if (strokeCol.startsWith('#')) safeSetVal('inp-stroke-picker', strokeCol);
+      }
+
+      obj.setCoords();
+      canvas.requestRenderAll();
+      saveState();
+    }
+
+    function applyStrokeDash(style) {
+      const obj = canvas.getActiveObject();
+      if (!obj) return;
+      if (style === 'solid') obj.set('strokeDashArray', null);
+      else if (style === 'dashed') obj.set('strokeDashArray', [6, 4]);
+      else if (style === 'dotted') obj.set('strokeDashArray', [2, 3]);
+
+      obj.setCoords();
+      canvas.requestRenderAll();
+      saveState();
+      showToast(`Line Style: ${style}`, 'info');
+    }
+
+    function toggleActiveOutline() {
+      const obj = canvas.getActiveObject();
+      if (!obj) return;
+      if (obj.stroke && obj.strokeWidth > 0) {
+        obj.set({ stroke: null, strokeWidth: 0 });
+        showToast('Outline removed', 'info');
+      } else {
+        const color = currentStrokeColor || '#ffffff';
+        const width = currentStrokeWidth || 2;
+        obj.set({ stroke: color, strokeWidth: width, strokeUniform: true });
+        showToast('Outline applied', 'success');
+      }
+      obj.setCoords();
+      canvas.requestRenderAll();
+      syncInspector();
+      saveState();
+    }
+
+    function applyColor(type, col) {
+      const obj = canvas.getActiveObject();
+
+      if (type === 'stroke') {
+        currentStrokeColor = col;
+        safeSetVal('inp-stroke-hex', col);
+        if (col.startsWith('#')) safeSetVal('inp-stroke-picker', col);
+        if (canvas.isDrawingMode && canvas.freeDrawingBrush) {
+          canvas.freeDrawingBrush.color = col;
+          updatePencilDockUI();
+        }
+
+        if (obj) {
+          if (col === 'transparent') {
+            obj.set({ stroke: null, strokeWidth: 0 });
+          } else {
+            const currentW = (obj.strokeWidth && obj.strokeWidth > 0) ? obj.strokeWidth : (currentStrokeWidth || 2);
+            obj.set({
+              stroke: col,
+              strokeWidth: currentW,
+              strokeUniform: true
+            });
+            safeSetVal('inp-stroke-width', currentW);
+          }
+        }
+      } else if (type === 'fill') {
+        currentFillColor = col;
+        safeSetVal('inp-fill-hex', col.toUpperCase());
+        if (col.startsWith('#')) safeSetVal('inp-fill-picker', col);
+
+        if (obj) {
+          obj.set('fill', col === 'transparent' ? '' : col);
+        }
+      }
+
+      if (obj) {
+        obj.setCoords();
+        canvas.requestRenderAll();
+        syncInspector();
+        saveState();
+      }
+    }
+
+    function applyOpacity(val) {
+      const obj = canvas.getActiveObject();
+      if (!obj) return;
+      obj.set('opacity', val / 100);
+      const txt = document.getElementById('txt-opacity-val');
+      if (txt) txt.innerText = `${val}%`;
+      canvas.requestRenderAll();
+      saveState();
+    }
+
+    function setCanvasBg(col) {
+      currentCanvasBg = col;
+      document.getElementById('canvas-viewport').style.backgroundColor = col;
+      canvas.requestRenderAll();
+    }
+
+    /* ============================================================
+       DRAG-AND-DROP LAYERS REORDERING
+       ============================================================ */
+    let draggedLayerIndex = null;
+
+    function updateLayersTree() {
+      const tree = document.getElementById('layers-tree');
+      if (!tree) return;
+      
+      const objects = canvas.getObjects().filter(o => !o.isInternalHandle);
+      const reversedObjects = objects.slice().reverse();
+
+      if (!reversedObjects.length) {
+        tree.innerHTML = '<div class="text-gray-400 text-center py-12 text-[11px]">No active layers</div>';
+        return;
+      }
+
+      tree.innerHTML = '';
+      const active = canvas.getActiveObject();
+
+      reversedObjects.forEach((obj, uiIdx) => {
+        if (!obj.name) obj.name = `Layer ${objects.indexOf(obj) + 1}`;
+
+        const isSel = (obj === active);
+        const div = document.createElement('div');
+        div.draggable = true;
+        div.className = `flex items-center justify-between px-2.5 py-1.5 rounded-xl cursor-grab text-xs transition border ${
+          isSel ? 'bg-[#1a73e8]/30 text-white font-medium border-[#a8c7fa]/40 shadow-sm' : 'hover:bg-white/5 text-gray-300 border-transparent'
+        }`;
+
+        let icon = '<i class="bi bi-bezier2 text-[#a8c7fa]"></i>';
+        if (obj.type === 'image') icon = '<i class="bi bi-image text-emerald-400"></i>';
+        if (obj.type === 'group') icon = '<i class="bi bi-collection text-amber-300"></i>';
+        if (obj.type === 'line' || obj.customType === 'line') icon = '<i class="bi bi-dash-lg text-emerald-400"></i>';
+        if (obj.customType === 'midline') icon = '<i class="bi bi-slash-lg text-cyan-400"></i>';
+
+        div.innerHTML = `
+          <div class="flex items-center gap-2 truncate flex-1 pointer-events-none">
+            <span class="text-[11px]">${icon}</span>
+            <span class="truncate layer-title" title="Double-click to rename">${obj.name}</span>
+          </div>
+          <button class="text-gray-400 hover:text-white ml-2 p-0.5" onclick="event.stopPropagation(); toggleLayerVisibility('${obj.name}')">
+            ${obj.visible ? '<i class="bi bi-eye"></i>' : '<i class="bi bi-eye-slash text-red-400"></i>'}
+          </button>
+        `;
+
+        div.onclick = () => {
+          canvas.setActiveObject(obj);
+          canvas.requestRenderAll();
+          updateLayersTree();
+        };
+
+        div.ondblclick = (e) => {
+          e.stopPropagation();
+          const titleSpan = div.querySelector('.layer-title');
+          const oldName = obj.name;
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.value = oldName;
+          input.className = 'bg-[#13161f] border border-[#1a73e8] rounded px-1.5 text-xs text-white outline-none w-full';
+          
+          titleSpan.replaceWith(input);
+          input.focus();
+          input.select();
+
+          const saveRename = () => {
+            obj.name = input.value.trim() || oldName;
+            updateLayersTree();
+            syncInspector();
+            saveState();
+          };
+
+          input.onblur = saveRename;
+          input.onkeydown = (ke) => {
+            if (ke.key === 'Enter') saveRename();
+            if (ke.key === 'Escape') updateLayersTree();
+          };
+        };
+
+        div.ondragstart = (e) => {
+          draggedLayerIndex = uiIdx;
+          e.dataTransfer.setData('text/plain', uiIdx);
+          div.style.opacity = '0.4';
+        };
+
+        div.ondragend = () => {
+          div.style.opacity = '1';
+          document.querySelectorAll('.drag-over-top, .drag-over-bottom').forEach(el => {
+            el.classList.remove('drag-over-top', 'drag-over-bottom');
+          });
+        };
+
+        div.ondragover = (e) => {
+          e.preventDefault();
+          const rect = div.getBoundingClientRect();
+          const midY = rect.top + rect.height / 2;
+          if (e.clientY < midY) {
+            div.classList.add('drag-over-top');
+            div.classList.remove('drag-over-bottom');
+          } else {
+            div.classList.add('drag-over-bottom');
+            div.classList.remove('drag-over-top');
+          }
+        };
+
+        div.ondragleave = () => {
+          div.classList.remove('drag-over-top', 'drag-over-bottom');
+        };
+
+        div.ondrop = (e) => {
+          e.preventDefault();
+          div.classList.remove('drag-over-top', 'drag-over-bottom');
+          const fromUiIdx = draggedLayerIndex;
+          const toUiIdx = uiIdx;
+
+          if (fromUiIdx === null || fromUiIdx === toUiIdx) return;
+
+          const draggedObj = reversedObjects[fromUiIdx];
+          const targetObj = reversedObjects[toUiIdx];
+          const toCanvasIdx = canvas.getObjects().indexOf(targetObj);
+
+          canvas.moveTo(draggedObj, toCanvasIdx);
+          canvas.requestRenderAll();
+          updateLayersTree();
+          saveState();
+          showToast('Layer reordered', 'info');
+        };
+
+        tree.appendChild(div);
+      });
+    }
+
+    function toggleLayerVisibility(name) {
+      const obj = canvas.getObjects().find(o => o.name === name);
+      if (obj) {
+        obj.visible = !obj.visible;
+        canvas.requestRenderAll();
+        updateLayersTree();
+      }
+    }
+
+    /* ============================================================
+       UNDO & REDO
+       ============================================================ */
+    const history = [];
+    let historyIdx = -1;
+    let isHistoryOperating = false;
+
+    function saveState() {
+      if (isHistoryOperating) return;
+      const json = JSON.stringify(canvas.toJSON(['name', 'customType', 'strokeUniform', 'strokeDashArray']));
+      history.splice(historyIdx + 1);
+      history.push(json);
+      if (history.length > 35) history.shift();
+      historyIdx = history.length - 1;
+    }
+
+    function undo() {
+      if (historyIdx > 0) {
+        isHistoryOperating = true;
+        historyIdx--;
+        canvas.loadFromJSON(history[historyIdx], () => {
+          cleanToolState();
+          canvas.requestRenderAll();
+          isHistoryOperating = false;
+          updateLayersTree();
+          syncInspector();
+        });
+      }
+    }
+
+    function redo() {
+      if (historyIdx < history.length - 1) {
+        isHistoryOperating = true;
+        historyIdx++;
+        canvas.loadFromJSON(history[historyIdx], () => {
+          cleanToolState();
+          canvas.requestRenderAll();
+          isHistoryOperating = false;
+          updateLayersTree();
+          syncInspector();
+        });
+      }
+    }
+
+    /* ============================================================
+       EXPORT ENGINE
+       ============================================================ */
+    function openExportModal() { 
+      const active = canvas.getActiveObject();
+      const targetSelect = document.getElementById('export-target');
+      targetSelect.value = active ? 'selection' : 'canvas';
+      document.getElementById('export-modal').classList.remove('hidden'); 
+    }
+    
+    function closeExportModal() { document.getElementById('export-modal').classList.add('hidden'); }
+
+    function setExportFormat(fmt) {
+      activeExportFmt = fmt;
+      ['png', 'jpeg', 'svg'].forEach(f => {
+        const b = document.getElementById(`fmt-${f}`);
+        if (!b) return;
+        b.className = (f === fmt)
+          ? 'p-2 border border-[#a8c7fa]/40 bg-[#1a73e8]/30 text-white rounded-xl font-semibold text-center shadow-md'
+          : 'p-2 border border-[#393e4d] bg-[#13161f] text-gray-300 rounded-xl font-medium text-center';
+      });
+    }
+
+    function executeExport() {
+      const scope = document.getElementById('export-target').value;
+      const multiplier = parseFloat(document.getElementById('export-scale').value) || 2;
+      const transparent = document.getElementById('export-transparency').checked;
+      const filename = `smilecreo-${scope}-${Date.now()}.${activeExportFmt}`;
+
+      if (CropManager.isCropping) CropManager.cancelCrop();
+
+      if (scope === 'selection') {
+        const active = canvas.getActiveObject();
+        if (!active) {
+          showToast('Select an object or choose Entire Canvas', 'error');
+          return;
+        }
+
+        if (activeExportFmt === 'svg') {
+          const svgStr = active.toSVG();
+          const blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
+          triggerDownload(URL.createObjectURL(blob), filename);
+          closeExportModal();
+          return;
+        }
+
+        const dataUrl = active.toDataURL({
+          format: activeExportFmt,
+          multiplier: multiplier,
+          quality: 0.98
+        });
+
+        triggerDownload(dataUrl, filename);
+        closeExportModal();
+        return;
+      }
+
+      if (activeExportFmt === 'svg') {
+        const svg = canvas.toSVG();
+        const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+        triggerDownload(URL.createObjectURL(blob), filename);
+        closeExportModal();
+        return;
+      }
+
+      const origBg = canvas.backgroundColor;
+      canvas.backgroundColor = (activeExportFmt === 'png' && transparent) ? null : currentCanvasBg;
+      canvas.requestRenderAll();
+
+      const dataUrl = canvas.toDataURL({
+        format: activeExportFmt,
+        multiplier: multiplier,
+        quality: 0.98
+      });
+
+      canvas.backgroundColor = origBg;
+      canvas.requestRenderAll();
+
+      triggerDownload(dataUrl, filename);
+      closeExportModal();
+    }
+
+    function triggerDownload(url, name) {
+      const link = document.createElement('a');
+      link.download = name;
+      link.href = url;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('Export downloaded', 'success');
+    }
+
+    saveState();
+  </script>
+</body>
+</html>
