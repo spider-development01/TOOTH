@@ -13,6 +13,14 @@
   <!-- Bootstrap Icons CDN -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   
+  <!-- Suppress Tailwind runtime warning in production console -->
+  <script>
+    const _origConsoleWarn = console.warn;
+    console.warn = function(...args) {
+      if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) return;
+      _origConsoleWarn.apply(console, args);
+    };
+  </script>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Fabric.js Canvas Engine -->
@@ -174,8 +182,9 @@
       </button>
 
       <!-- Import Image or SVG File -->
-      <label class="tool-btn px-3 py-1.5 rounded-full text-[#5e5473] hover:text-[#1f1533] hover:bg-white/60 cursor-pointer transition flex items-center gap-1" title="Import Patient Photo / SVG (I)">
+      <label class="tool-btn px-3.5 py-1.5 rounded-full text-[#5e5473] hover:text-[#1f1533] hover:bg-white/60 cursor-pointer transition flex items-center gap-1.5" title="Import Patient Photo / SVG (I)">
         <i class="bi bi-image-fill"></i>
+        <span class="text-xs font-semibold">Import</span>
         <input type="file" id="image-file-input" accept="image/*,.svg" class="hidden" onchange="handleFileSelect(this.files[0])">
       </label>
 
@@ -849,6 +858,9 @@
   <!-- TOAST CONTAINER -->
   <div id="toastContainer" class="fixed bottom-12 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
+  <!-- ============================================================
+       APPLICATION CORE JAVASCRIPT
+       ============================================================ -->
   <script>
     fabric.perfLimitSizeTotal = 16777216;
     fabric.maxCacheSideLimit = 8192;
@@ -910,6 +922,91 @@
     canvas.on('selection:created', () => { syncInspector(); updateLayersTree(); });
     canvas.on('selection:updated', () => { syncInspector(); updateLayersTree(); });
     canvas.on('selection:cleared', () => { syncInspector(); updateLayersTree(); });
+
+    /* ============================================================
+       IMAGE & SVG IMPORT ENGINE (FIXED & RESTORED)
+       ============================================================ */
+    function loadSvgStringDirectly(svgStr) {
+      if (!svgStr) return;
+      fabric.loadSVGFromString(svgStr, (objects, options) => {
+        if (!objects || !objects.length) {
+          showToast('Could not parse SVG data', 'error');
+          return;
+        }
+        const svgGroup = fabric.util.groupSVGElements(objects, options);
+        const maxDim = 380;
+        if (svgGroup.width > maxDim || svgGroup.height > maxDim) {
+          svgGroup.scale(maxDim / Math.max(svgGroup.width, svgGroup.height));
+        }
+        const c = canvas.getVpCenter();
+        svgGroup.set({
+          left: c.x - (svgGroup.getScaledWidth() / 2),
+          top: c.y - (svgGroup.getScaledHeight() / 2),
+          name: `Imported SVG ${++shapeCounter}`,
+          strokeUniform: true
+        });
+        canvas.add(svgGroup);
+        canvas.setActiveObject(svgGroup);
+        canvas.requestRenderAll();
+        saveState();
+        showToast('SVG imported successfully', 'success');
+      });
+    }
+
+    function handleFileSelect(file) {
+      if (!file) return;
+      const isSvg = file.name.toLowerCase().endsWith('.svg') || file.type === 'image/svg+xml';
+      const isImage = file.type.startsWith('image/') || /\.(png|jpe?g|webp|gif|bmp)$/i.test(file.name);
+
+      if (isSvg) {
+        const reader = new FileReader();
+        reader.onload = (e) => loadSvgStringDirectly(e.target.result);
+        reader.readAsText(file);
+      } else if (isImage) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          fabric.Image.fromURL(e.target.result, (img) => {
+            const maxDim = 720;
+            if (img.width > maxDim || img.height > maxDim) {
+              img.scale(maxDim / Math.max(img.width, img.height));
+            }
+            const c = canvas.getVpCenter();
+            img.set({
+              left: c.x - (img.getScaledWidth() / 2),
+              top: c.y - (img.getScaledHeight() / 2),
+              name: file.name.replace(/\.[^/.]+$/, "") || `Photo ${++shapeCounter}`,
+              strokeUniform: true
+            });
+            canvas.add(img);
+            canvas.setActiveObject(img);
+            canvas.requestRenderAll();
+            saveState();
+            showToast('Patient photo loaded', 'success');
+          });
+        };
+        reader.readAsDataURL(file);
+      } else {
+        showToast('Unsupported file type. Please select a PNG, JPG, or SVG image.', 'error');
+      }
+
+      // Reset input element so user can upload the same file again if desired
+      const inputEl = document.getElementById('image-file-input');
+      if (inputEl) inputEl.value = '';
+    }
+
+    // Drag-and-drop onto canvas container
+    container.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    });
+
+    container.addEventListener('drop', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+        handleFileSelect(e.dataTransfer.files[0]);
+      }
+    });
 
     /* ============================================================
        DESELECT WHEN CLICKING OUTSIDE CANVAS & EMPTY BACKDROP
@@ -1168,7 +1265,7 @@
     }
 
     /* ============================================================
-       SCROLL ENGINE
+       SCROLL & ZOOM ENGINE
        ============================================================ */
     canvas.on('mouse:wheel', (opt) => {
       const e = opt.e;
@@ -1331,6 +1428,13 @@
       if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
       const clipboardData = e.clipboardData || window.clipboardData;
       if (!clipboardData) return;
+
+      const text = clipboardData.getData('text/plain');
+      if (text && (text.includes('<svg') || text.includes('<path'))) {
+        e.preventDefault();
+        loadSvgStringDirectly(text);
+        return;
+      }
 
       const items = clipboardData.items;
       if (items) {
@@ -1808,9 +1912,8 @@
     }
 
     /* ============================================================
-       TEMPLATES ENGINE (Strictly /templates/ — PNG & JPG Only)
+       TEMPLATES DIRECTORY (/templates/ STRICTLY — NO DEMO PHOTOS)
        ============================================================ */
-    // Default standard list of teeth template filenames hosted in /templates/
     let templatesCatalog = [
       'teeth1.png',
       'teeth2.png',
@@ -1911,18 +2014,14 @@
       pendingTeethTemplateUrl = url;
       pendingTeethTemplateName = name;
 
-      // Find candidate patient face images on canvas (excluding extracted lips and standalone vector shapes)
       const availableImages = canvas.getObjects().filter(o => o.type === 'image' && !o.isLipLayer);
 
       if (availableImages.length === 0) {
-        // No patient photo on canvas, load teeth at center
         placeTeethWithoutAutoFit();
         showToast('Imported teeth template at canvas center', 'info');
       } else if (availableImages.length === 1) {
-        // 1 patient image available on canvas, auto-fit directly to this face
         autoFitTeethToTargetFace(availableImages[0]);
       } else {
-        // Multiple patient photos available on canvas, open selector modal
         openFaceSelectorModal(availableImages);
       }
     }
@@ -2009,21 +2108,14 @@
         const iw = faceImgEl.naturalWidth || faceImgEl.width;
         const ih = faceImgEl.naturalHeight || faceImgEl.height;
 
-        // Canonical MediaPipe landmarks for smile/mouth geometry:
-        // 61: Right commissure (patient's right / image left)
-        // 291: Left commissure (patient's left / image right)
-        // 13: Inner upper lip midpoint (top of teeth opening)
-        // 14: Inner lower lip midpoint (bottom of teeth opening)
         const p61 = { x: lm[61].x * iw, y: lm[61].y * ih };
         const p291 = { x: lm[291].x * iw, y: lm[291].y * ih };
         const p13 = { x: lm[13].x * iw, y: lm[13].y * ih };
         const p14 = { x: lm[14].x * iw, y: lm[14].y * ih };
 
-        // 1. Mouth/Stomion center in face image coordinates
         const stomionX = (p61.x + p291.x) / 2;
-        const stomionY = (p13.y * 0.7 + p14.y * 0.3); // Biased toward upper incisal baseline
+        const stomionY = (p13.y * 0.7 + p14.y * 0.3);
 
-        // 2. Map coordinates through Fabric transformation matrix of the patient photo
         const faceMatrix = targetFaceObj.calcTransformMatrix();
         const localPt = {
           x: stomionX - (targetFaceObj.width / 2),
@@ -2031,12 +2123,10 @@
         };
         const canvasTargetPt = fabric.util.transformPoint(localPt, faceMatrix);
 
-        // 3. Compute smile angle
         const mouthAngleRad = Math.atan2(p291.y - p61.y, p291.x - p61.x);
         const mouthAngleDeg = mouthAngleRad * (180 / Math.PI);
         const totalAngle = (targetFaceObj.angle || 0) + (targetFaceObj.flipX ? -mouthAngleDeg : mouthAngleDeg);
 
-        // 4. Compute anatomical width & scaling (standard anterior dental proportion spans ~82% of intercommissural distance)
         const mouthDist = Math.hypot(p291.x - p61.x, p291.y - p61.y);
         const desiredTeethCanvasWidth = mouthDist * Math.abs(targetFaceObj.scaleX) * 0.84;
 
@@ -2056,7 +2146,6 @@
             strokeUniform: true
           });
 
-          // If the face has an extracted lip layer, place the teeth UNDER the lips for seamless framing
           const lipLayer = canvas.getObjects().find(o => o.isLipLayer && o.targetFaceId === targetFaceObj.dsdFaceId);
           if (lipLayer) {
             const lipIdx = canvas.getObjects().indexOf(lipLayer);
@@ -2182,7 +2271,6 @@
           if (p.y > maxY) maxY = p.y;
         });
 
-        // Compute centroids
         let sumX = 0, sumY = 0;
         outerPixelPts.forEach(p => { sumX += p.x; sumY += p.y; });
         const mouthCx = sumX / outerPixelPts.length;
@@ -2193,7 +2281,6 @@
         const innerCx = sumInX / innerPixelPts.length;
         const innerCy = sumInY / innerPixelPts.length;
 
-        // Dilate outer points outward slightly to cover any boundary seam
         const dilatedOuterPts = outerPixelPts.map(p => {
           const vx = p.x - mouthCx;
           const vy = p.y - mouthCy;
@@ -2204,8 +2291,8 @@
           };
         });
 
-        // CRITICAL: Expand inner points AWAY from the oral cavity center (toward vermilion)
-        // by +1.8px. This guarantees that ZERO teeth or enamel pixels are included inside the lip cutout!
+        // Expand inner points AWAY from the oral cavity center (toward vermilion)
+        // by +1.8px so that ZERO teeth or enamel pixels are included inside the lip cutout
         const pureLipsInnerPts = innerPixelPts.map(p => {
           const vx = p.x - innerCx;
           const vy = p.y - innerCy;
@@ -2834,6 +2921,232 @@
     }
 
     /* ============================================================
+       PHOTOSHOP CROP STUDIO
+       ============================================================ */
+    const CropStudio = {
+      isCropping: false,
+      targetImage: null,
+      box: { x: 0, y: 0, w: 0, h: 0 },
+      stageW: 0,
+      stageH: 0,
+      aspectRatio: 'free',
+      activeHandle: null,
+      startDrag: { mouseX: 0, mouseY: 0, boxX: 0, boxY: 0, boxW: 0, boxH: 0 },
+
+      startCrop() {
+        const active = canvas.getActiveObject();
+        if (!active || active.type !== 'image') {
+          showToast('Select an image on canvas to crop', 'error');
+          return;
+        }
+
+        this.targetImage = active;
+        this.isCropping = true;
+
+        const imgEl = active.getElement();
+        const studioImg = document.getElementById('ps-crop-img');
+        studioImg.src = imgEl.src;
+
+        document.getElementById('ps-crop-studio-modal').classList.remove('hidden');
+
+        studioImg.onload = () => {
+          this.stageW = studioImg.clientWidth;
+          this.stageH = studioImg.clientHeight;
+
+          const wrapper = document.getElementById('ps-crop-wrapper');
+          wrapper.style.width = `${this.stageW}px`;
+          wrapper.style.height = `${this.stageH}px`;
+
+          this.resetBox();
+          this.bindEvents();
+          showToast('Crop Studio active. Drag handles or Enter to apply.', 'info');
+        };
+      },
+
+      setRatio(r) {
+        this.aspectRatio = r;
+        ['free', '1:1', '4:3', '16:9'].forEach(ratio => {
+          const btn = document.getElementById(`crop-ratio-${ratio.replace(':', '-')}`);
+          if (btn) {
+            btn.className = (ratio === r) 
+              ? 'px-3 py-1 rounded-full text-xs bg-[#563b72] text-white' 
+              : 'px-3 py-1 rounded-full text-xs text-[#5e5473] hover:text-[#1f1533]';
+          }
+        });
+
+        if (r !== 'free') {
+          const parts = r.split(':');
+          const targetAspect = parseFloat(parts[0]) / parseFloat(parts[1]);
+          let newH = this.box.w / targetAspect;
+          if (newH > this.stageH) {
+            newH = this.stageH;
+            this.box.w = newH * targetAspect;
+          }
+          this.box.h = newH;
+          this.clamp();
+          this.render();
+        }
+      },
+
+      resetBox() {
+        this.box = { x: 0, y: 0, w: this.stageW, h: this.stageH };
+        this.render();
+      },
+
+      clamp() {
+        const minSize = 25;
+        this.box.w = Math.max(minSize, Math.min(this.box.w, this.stageW));
+        this.box.h = Math.max(minSize, Math.min(this.box.h, this.stageH));
+        this.box.x = Math.max(0, Math.min(this.box.x, this.stageW - this.box.w));
+        this.box.y = Math.max(0, Math.min(this.box.y, this.stageH - this.box.h));
+      },
+
+      render() {
+        const boxEl = document.getElementById('ps-crop-box');
+        boxEl.style.left = `${this.box.x}px`;
+        boxEl.style.top = `${this.box.y}px`;
+        boxEl.style.width = `${this.box.w}px`;
+        boxEl.style.height = `${this.box.h}px`;
+
+        const sT = document.getElementById('ps-scrim-t');
+        const sB = document.getElementById('ps-scrim-b');
+        const sL = document.getElementById('ps-scrim-l');
+        const sR = document.getElementById('ps-scrim-r');
+
+        sT.style.left = '0px'; sT.style.top = '0px'; sT.style.width = '100%'; sT.style.height = `${this.box.y}px`;
+        sB.style.left = '0px'; sB.style.top = `${this.box.y + this.box.h}px`; sB.style.width = '100%'; sB.style.height = `${this.stageH - (this.box.y + this.box.h)}px`;
+        sL.style.left = '0px'; sL.style.top = `${this.box.y}px`; sL.style.width = `${this.box.x}px`; sL.style.height = `${this.box.h}px`;
+        sR.style.left = `${this.box.x + this.box.w}px`; sR.style.top = `${this.box.y}px`; sR.style.width = `${this.stageW - (this.box.x + this.box.w)}px`; sR.style.height = `${this.box.h}px`;
+      },
+
+      bindEvents() {
+        const wrapper = document.getElementById('ps-crop-wrapper');
+        const boxEl = document.getElementById('ps-crop-box');
+
+        const onPointerDown = (e) => {
+          if (!this.isCropping) return;
+          const handle = e.target.dataset.handle;
+          this.activeHandle = handle || (e.target === boxEl || boxEl.contains(e.target) ? 'move' : null);
+
+          if (!this.activeHandle) return;
+          e.preventDefault();
+          e.stopPropagation();
+
+          this.startDrag = {
+            mouseX: e.clientX,
+            mouseY: e.clientY,
+            boxX: this.box.x,
+            boxY: this.box.y,
+            boxW: this.box.w,
+            boxH: this.box.h
+          };
+
+          window.addEventListener('pointermove', onPointerMove);
+          window.addEventListener('pointerup', onPointerUp);
+        };
+
+        const onPointerMove = (e) => {
+          if (!this.activeHandle) return;
+          const dx = e.clientX - this.startDrag.mouseX;
+          const dy = e.clientY - this.startDrag.mouseY;
+
+          if (this.activeHandle === 'move') {
+            this.box.x = this.startDrag.boxX + dx;
+            this.box.y = this.startDrag.boxY + dy;
+          } else {
+            let newX = this.startDrag.boxX;
+            let newY = this.startDrag.boxY;
+            let newW = this.startDrag.boxW;
+            let newH = this.startDrag.boxH;
+
+            if (this.activeHandle.includes('r')) newW += dx;
+            if (this.activeHandle.includes('b')) newH += dy;
+            if (this.activeHandle.includes('l')) { newX += dx; newW -= dx; }
+            if (this.activeHandle.includes('t')) { newY += dy; newH -= dy; }
+
+            if (this.aspectRatio !== 'free') {
+              const parts = this.aspectRatio.split(':');
+              const aspect = parseFloat(parts[0]) / parseFloat(parts[1]);
+              newH = newW / aspect;
+            }
+
+            if (newW >= 25) { this.box.x = newX; this.box.w = newW; }
+            if (newH >= 25) { this.box.y = newY; this.box.h = newH; }
+          }
+
+          this.clamp();
+          this.render();
+        };
+
+        const onPointerUp = () => {
+          this.activeHandle = null;
+          window.removeEventListener('pointermove', onPointerMove);
+          window.removeEventListener('pointerup', onPointerUp);
+        };
+
+        wrapper.onpointerdown = onPointerDown;
+      },
+
+      applyCrop() {
+        if (!this.isCropping || !this.targetImage) return;
+
+        showLoadingModal('Applying Crop...', 'Slicing image pixels at native resolution', 'bi-crop');
+
+        setTimeout(() => {
+          const imgObj = this.targetImage;
+          const rawImg = imgObj.getElement();
+          const naturalW = rawImg.naturalWidth || rawImg.width;
+          const naturalH = rawImg.naturalHeight || rawImg.height;
+
+          const scaleRatioX = naturalW / this.stageW;
+          const scaleRatioY = naturalH / this.stageH;
+
+          const cropPixelX = Math.round(this.box.x * scaleRatioX);
+          const cropPixelY = Math.round(this.box.y * scaleRatioY);
+          const cropPixelW = Math.max(1, Math.round(this.box.w * scaleRatioX));
+          const cropPixelH = Math.max(1, Math.round(this.box.h * scaleRatioY));
+
+          const cropCanvas = document.createElement('canvas');
+          cropCanvas.width = cropPixelW;
+          cropCanvas.height = cropPixelH;
+          const ctx = cropCanvas.getContext('2d');
+
+          ctx.drawImage(rawImg, cropPixelX, cropPixelY, cropPixelW, cropPixelH, 0, 0, cropPixelW, cropPixelH);
+
+          fabric.Image.fromURL(cropCanvas.toDataURL('image/png'), (croppedImg) => {
+            croppedImg.set({
+              left: imgObj.left,
+              top: imgObj.top,
+              scaleX: imgObj.scaleX,
+              scaleY: imgObj.scaleY,
+              angle: imgObj.angle,
+              name: `${imgObj.name || 'Image'} (Cropped)`,
+              strokeUniform: true
+            });
+
+            const idx = canvas.getObjects().indexOf(this.targetImage);
+            canvas.remove(this.targetImage);
+            canvas.insertAt(croppedImg, idx);
+            canvas.setActiveObject(croppedImg);
+
+            this.cancelCrop();
+            saveState();
+            hideLoadingModal();
+            showToast('Crop Applied!', 'success');
+          });
+        }, 60);
+      },
+
+      cancelCrop() {
+        this.isCropping = false;
+        this.targetImage = null;
+        document.getElementById('ps-crop-studio-modal').classList.add('hidden');
+        cleanToolState();
+        canvas.requestRenderAll();
+      }
+    };
+
+    /* ============================================================
        EXPORT ENGINE (PNG, JPEG, SVG)
        ============================================================ */
     function openExportModal() { 
@@ -2932,6 +3245,7 @@
       showToast('Export downloaded successfully', 'success');
     }
 
+    // Save initial blank state
     saveState();
   </script>
 </body>
