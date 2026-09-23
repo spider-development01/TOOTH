@@ -24,11 +24,10 @@
 
   <style>
     :root {
-      /* M3 Lilac & Aubergine Tonal Palette */
-      --m3-bg: #ece8f6;
+      --m3-bg: #ede9f6;
       --m3-surface: #ded8f3;
-      --m3-surface-variant: #d5ceee;
-      --m3-surface-pill: #ffffff;
+      --m3-surface-gray: #f3f0f9;
+      --m3-surface-gray-hover: #e8e4f3;
       --m3-primary: #563b72;
       --m3-on-primary: #ffffff;
       --m3-secondary-pink: #fca3ec;
@@ -36,7 +35,7 @@
       --m3-text-primary: #1f1533;
       --m3-text-secondary: #5e5473;
       --m3-outline: #cec6e6;
-      --m3-outline-subtle: #e5e0f7;
+      --m3-outline-subtle: #e2dcf2;
     }
 
     body {
@@ -55,16 +54,16 @@
     }
 
     .m3-pill-bar {
-      background-color: var(--m3-surface-pill);
-      border: 1px solid rgba(255, 255, 255, 0.9);
-      box-shadow: 0 8px 30px -4px rgba(86, 59, 114, 0.12);
+      background-color: var(--m3-surface-gray);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      box-shadow: 0 8px 30px -4px rgba(86, 59, 114, 0.1);
       border-radius: 9999px;
     }
 
     .m3-tool-active {
       background-color: var(--m3-primary) !important;
       color: var(--m3-on-primary) !important;
-      box-shadow: 0 3px 12px rgba(86, 59, 114, 0.3) !important;
+      box-shadow: 0 3px 12px rgba(86, 59, 114, 0.28) !important;
     }
 
     .m3-pink-accent {
@@ -72,9 +71,10 @@
       color: var(--m3-on-secondary-pink) !important;
     }
 
+    /* Deep Aubergine Default Studio Workbench */
     .studio-canvas-bg {
-      background-color: #ffffff;
-      background-image: radial-gradient(#d3cceb 1.3px, transparent 1.3px);
+      background-color: #1f1533;
+      background-image: radial-gradient(#3c2c56 1.4px, transparent 1.4px);
       background-size: 24px 24px;
     }
 
@@ -180,33 +180,15 @@
         <input type="file" id="image-file-input" accept="image/*,.svg" class="hidden" onchange="handleFileSelect(this.files[0])">
       </label>
 
-      <!-- MEDIAPIPE AI EXTRACTION (M3 PASTEL PINK ACCENT) -->
+      <!-- MEDIAPIPE AI EXTRACTION -->
       <button onclick="openMediaPipeModal()" class="tool-btn px-3.5 py-1.5 rounded-full m3-pink-accent font-semibold text-xs transition flex items-center gap-1.5 shadow-sm hover:brightness-95" title="MediaPipe AI: Cutout Real Lips as PNG Layers">
         <i class="bi bi-scissors"></i>
         <span>Extract Lips</span>
       </button>
     </div>
 
-    <!-- Right Controls: Flip, Group, Undo/Redo, Zoom, Export -->
+    <!-- Right Controls: Undo/Redo, Zoom, Export -->
     <div class="flex items-center gap-2 pr-1">
-      <div class="flex items-center bg-[#ded8f3]/60 rounded-full p-0.5">
-        <button onclick="mirrorSelected()" class="p-1.5 text-[#5e5473] hover:text-[#1f1533] rounded-full hover:bg-white/60 transition" title="Flip Horizontal (Shift+H)">
-          <i class="bi bi-symmetry-vertical text-xs"></i>
-        </button>
-        <button onclick="flipVerticalSelected()" class="p-1.5 text-[#5e5473] hover:text-[#1f1533] rounded-full hover:bg-white/60 transition" title="Flip Vertical (Shift+V)">
-          <i class="bi bi-symmetry-horizontal text-xs"></i>
-        </button>
-      </div>
-
-      <div class="flex items-center bg-[#ded8f3]/60 rounded-full p-0.5">
-        <button onclick="groupSelected()" class="p-1.5 text-[#5e5473] hover:text-[#1f1533] rounded-full hover:bg-white/60 transition" title="Group (Ctrl+G)">
-          <i class="bi bi-union text-xs"></i>
-        </button>
-        <button onclick="ungroupSelected()" class="p-1.5 text-[#5e5473] hover:text-[#1f1533] rounded-full hover:bg-white/60 transition" title="Ungroup (Ctrl+Shift+G)">
-          <i class="bi bi-subtract text-xs"></i>
-        </button>
-      </div>
-
       <div class="flex items-center bg-[#ded8f3]/60 rounded-full p-0.5">
         <button onclick="undo()" id="btn-undo" class="p-1.5 text-[#5e5473] hover:text-[#1f1533] rounded-full hover:bg-white/60 transition" title="Undo (Ctrl+Z)">
           <i class="bi bi-arrow-counterclockwise text-xs"></i>
@@ -233,7 +215,7 @@
        ============================================================ -->
   <div class="flex-1 w-full h-full pt-20 px-4 pb-4 flex overflow-hidden relative gap-3.5">
 
-    <!-- LEFT: LAYERS BENTO (SYNCED 1:1 WITH CANVAS SELECTION) -->
+    <!-- LEFT: LAYERS BENTO -->
     <aside class="w-68 flex flex-col gap-3 z-30 select-none">
       <div class="m3-surface-card flex-1 flex flex-col p-4 min-h-[300px] overflow-hidden shadow-sm">
         <div class="flex items-center justify-between pb-2.5 border-b border-[#cec6e6]/60 mb-2">
@@ -252,20 +234,22 @@
       </div>
 
       <!-- Canvas Tone Bento -->
-      <div class="m3-surface-card p-3.5 space-y-2 shadow-sm">
+      <div class="m3-surface-card p-3.5 space-y-2.5 shadow-sm">
         <span class="text-[10px] font-bold uppercase tracking-wider text-[#563b72] block">Canvas Tone</span>
-        <div class="flex items-center justify-between text-xs">
-          <span class="text-[#5e5473] text-[11px]">Background</span>
-          <div class="flex items-center gap-2">
-            <button onclick="setCanvasBg('#ffffff')" class="w-4 h-4 rounded-full bg-white border border-[#cec6e6] shadow-sm" title="White Paper"></button>
-            <button onclick="setCanvasBg('#ede9f6')" class="w-4 h-4 rounded-full bg-[#ede9f6] border border-[#cec6e6] shadow-sm" title="Soft Lavender"></button>
-            <button onclick="setCanvasBg('#ded8f3')" class="w-4 h-4 rounded-full bg-[#ded8f3] border border-[#cec6e6] shadow-sm" title="Lilac Surface"></button>
-            <button onclick="setCanvasBg('#1f1533')" class="w-4 h-4 rounded-full bg-[#1f1533] border border-[#cec6e6] shadow-sm" title="Deep Aubergine"></button>
+        <div class="flex items-center justify-between text-xs gap-2">
+          <span class="text-[#5e5473] text-[11px] font-medium shrink-0">Backdrop</span>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button onclick="setCanvasBg('#1f1533')" id="btn-tone-aubergine" class="w-5 h-5 rounded-full bg-[#1f1533] border-2 border-white shadow-sm transition hover:scale-110" title="Deep Aubergine (Default)"></button>
+            <button onclick="setCanvasBg('#2c2242')" id="btn-tone-slate" class="w-5 h-5 rounded-full bg-[#2c2242] border border-[#cec6e6] shadow-sm transition hover:scale-110" title="Slate Aubergine"></button>
+            <button onclick="setCanvasBg('#ded8f3')" id="btn-tone-lilac" class="w-5 h-5 rounded-full bg-[#ded8f3] border border-[#cec6e6] shadow-sm transition hover:scale-110" title="Lilac"></button>
+            <button onclick="setCanvasBg('#ffffff')" id="btn-tone-white" class="w-5 h-5 rounded-full bg-white border border-[#cec6e6] shadow-sm transition hover:scale-110" title="White Paper"></button>
           </div>
         </div>
-        <div class="flex items-center justify-between text-xs pt-1.5 border-t border-[#cec6e6]/60">
+        <div class="flex items-center justify-between text-xs pt-2 border-t border-[#cec6e6]/60">
           <span class="text-[#5e5473] text-[10px]">Reset Canvas</span>
-          <button onclick="confirmClearCanvas()" class="text-[10px] text-red-500 hover:text-red-700 transition font-medium">Clear All</button>
+          <button onclick="confirmClearCanvas()" class="text-[10px] text-red-500 hover:text-red-700 font-medium transition flex items-center gap-1">
+            <i class="bi bi-trash3 text-[10px]"></i> Clear All
+          </button>
         </div>
       </div>
     </aside>
@@ -274,7 +258,7 @@
     <main id="canvas-viewport" class="flex-1 studio-canvas-bg relative overflow-hidden flex items-center justify-center rounded-[30px] border border-[#cec6e6]/70 shadow-sm" tabindex="0">
       <canvas id="studio-canvas"></canvas>
 
-      <!-- LIVE PENCIL TOOL SUB-DOCK (ACTIVE IN PENCIL MODE) -->
+      <!-- LIVE PENCIL TOOL SUB-DOCK -->
       <div id="pencil-subdock" class="hidden m3-pill-bar absolute top-4 left-1/2 -translate-x-1/2 px-4 py-2 shadow-lg flex items-center gap-3 z-30 text-xs text-[#1f1533]">
         <div class="flex items-center gap-2 border-r border-[#cec6e6] pr-3">
           <i class="bi bi-pencil-fill text-[#563b72]"></i>
@@ -294,12 +278,12 @@
         </div>
 
         <div class="flex items-center gap-2">
-          <input type="color" id="pencil-dock-color" value="#563b72" class="w-5 h-5 bg-transparent cursor-pointer rounded-full" onchange="setPencilColor(this.value)">
+          <input type="color" id="pencil-dock-color" value="#cec6e6" class="w-5 h-5 bg-transparent cursor-pointer rounded-full" onchange="setPencilColor(this.value)">
           <button onclick="togglePencilFill()" id="btn-pencil-fill-toggle" class="px-2.5 py-1 bg-[#ded8f3]/60 hover:bg-[#ded8f3] text-[#1f1533] text-[11px] rounded-full transition">
             Fill: <span id="txt-pencil-fill-state">Off</span>
           </button>
-          <button onclick="setTool('select')" class="ml-1 px-3 py-1 bg-[#563b72] hover:bg-[#483060] text-white font-medium rounded-full text-xs shadow-sm">
-            Done
+          <button onclick="setTool('select')" class="ml-1 px-3 py-1 bg-[#563b72] hover:bg-[#483060] text-white font-medium rounded-full text-xs shadow-sm flex items-center gap-1">
+            <i class="bi bi-check-lg"></i> Done
           </button>
         </div>
       </div>
@@ -330,6 +314,12 @@
             <button onclick="flipVerticalSelected()" title="Flip Vertical (Shift+V)" class="p-1.5 hover:bg-white/60 text-[#5e5473] hover:text-[#1f1533] rounded-lg transition">
               <i class="bi bi-symmetry-horizontal text-xs"></i>
             </button>
+            <button onclick="groupSelected()" title="Group (Ctrl+G)" class="p-1.5 hover:bg-white/60 text-[#5e5473] hover:text-[#1f1533] rounded-lg transition">
+              <i class="bi bi-union text-xs"></i>
+            </button>
+            <button onclick="ungroupSelected()" title="Ungroup (Ctrl+Shift+G)" class="p-1.5 hover:bg-white/60 text-[#5e5473] hover:text-[#1f1533] rounded-lg transition">
+              <i class="bi bi-subtract text-xs"></i>
+            </button>
             <button onclick="duplicateSelected()" title="Duplicate (Ctrl+D)" class="p-1.5 hover:bg-white/60 text-[#5e5473] hover:text-[#1f1533] rounded-lg transition">
               <i class="bi bi-copy text-xs"></i>
             </button>
@@ -347,11 +337,13 @@
           </div>
           <p class="text-[11px] text-[#5e5473] leading-tight">Drag this layer near the mouth to snap magnetically, or use the quick buttons below.</p>
           <div class="grid grid-cols-2 gap-2 pt-1">
-            <button onclick="snapLipLayerToMouth()" class="py-1.5 px-2 bg-[#563b72] hover:bg-[#483060] text-white font-medium rounded-full text-xs transition shadow-sm flex items-center justify-center gap-1">
-              <span>🧲 Snap to Mouth</span>
+            <button onclick="snapLipLayerToMouth()" class="py-1.5 px-2 bg-[#563b72] hover:bg-[#483060] text-white font-medium rounded-full text-xs transition shadow-sm flex items-center justify-center gap-1.5">
+              <i class="bi bi-magnet text-xs"></i>
+              <span>Snap to Mouth</span>
             </button>
-            <button onclick="moveLipLayerOutOfFrame()" class="py-1.5 px-2 bg-white/70 hover:bg-white text-[#1f1533] font-medium rounded-full text-xs transition shadow-sm">
-              Move Beside
+            <button onclick="moveLipLayerOutOfFrame()" class="py-1.5 px-2 bg-[#f3f0f9] hover:bg-[#e8e4f3] text-[#1f1533] font-medium rounded-full text-xs transition shadow-sm flex items-center justify-center gap-1">
+              <i class="bi bi-box-arrow-up-right text-xs"></i>
+              <span>Move Beside</span>
             </button>
           </div>
         </div>
@@ -362,7 +354,7 @@
             <span class="text-[10px] font-bold uppercase tracking-wider text-[#563b72]">MediaPipe Lip Cutout</span>
             <span class="text-[9px] bg-white text-[#563b72] px-2 py-0.5 rounded-full font-mono shadow-sm">PNG</span>
           </div>
-          <p class="text-[11px] text-[#5e5473] leading-tight">Extract upper & lower lips as an independent PNG image layer. The teeth and face remain with zero micro-gaps.</p>
+          <p class="text-[11px] text-[#5e5473] leading-tight">Extract upper & lower lips as an independent PNG layer with zero micro-gaps.</p>
           <button onclick="runLipCutoutOnActiveObject()" class="w-full py-2 m3-pink-accent font-semibold rounded-full text-xs transition shadow-sm hover:brightness-95 flex items-center justify-center gap-1.5">
             <i class="bi bi-scissors text-sm"></i>
             <span>Extract Lips as PNG Layer</span>
@@ -383,7 +375,7 @@
           <span class="text-[10px] font-bold uppercase tracking-wider text-[#563b72] block">Transform Matrix</span>
           <div class="grid grid-cols-2 gap-2 text-xs">
             <!-- X -->
-            <div class="flex items-center justify-between bg-white rounded-2xl border border-[#cec6e6]/60 px-2.5 py-1 shadow-sm">
+            <div class="flex items-center justify-between bg-[#f3f0f9] rounded-2xl border border-[#cec6e6]/60 px-2.5 py-1 shadow-sm">
               <span class="text-[#5e5473] text-[11px] font-semibold">X</span>
               <div class="flex items-center">
                 <button onclick="stepVal('inp-pos-x', -1)" class="px-1 text-[#5e5473] hover:text-[#1f1533]"><i class="bi bi-dash-lg text-[10px]"></i></button>
@@ -392,7 +384,7 @@
               </div>
             </div>
             <!-- Y -->
-            <div class="flex items-center justify-between bg-white rounded-2xl border border-[#cec6e6]/60 px-2.5 py-1 shadow-sm">
+            <div class="flex items-center justify-between bg-[#f3f0f9] rounded-2xl border border-[#cec6e6]/60 px-2.5 py-1 shadow-sm">
               <span class="text-[#5e5473] text-[11px] font-semibold">Y</span>
               <div class="flex items-center">
                 <button onclick="stepVal('inp-pos-y', -1)" class="px-1 text-[#5e5473] hover:text-[#1f1533]"><i class="bi bi-dash-lg text-[10px]"></i></button>
@@ -401,7 +393,7 @@
               </div>
             </div>
             <!-- W -->
-            <div class="flex items-center justify-between bg-white rounded-2xl border border-[#cec6e6]/60 px-2.5 py-1 shadow-sm">
+            <div class="flex items-center justify-between bg-[#f3f0f9] rounded-2xl border border-[#cec6e6]/60 px-2.5 py-1 shadow-sm">
               <span class="text-[#5e5473] text-[11px] font-semibold">W</span>
               <div class="flex items-center">
                 <button onclick="stepVal('inp-dim-w', -5)" class="px-1 text-[#5e5473] hover:text-[#1f1533]"><i class="bi bi-dash-lg text-[10px]"></i></button>
@@ -410,7 +402,7 @@
               </div>
             </div>
             <!-- H -->
-            <div class="flex items-center justify-between bg-white rounded-2xl border border-[#cec6e6]/60 px-2.5 py-1 shadow-sm">
+            <div class="flex items-center justify-between bg-[#f3f0f9] rounded-2xl border border-[#cec6e6]/60 px-2.5 py-1 shadow-sm">
               <span class="text-[#5e5473] text-[11px] font-semibold">H</span>
               <div class="flex items-center">
                 <button onclick="stepVal('inp-dim-h', -5)" class="px-1 text-[#5e5473] hover:text-[#1f1533]"><i class="bi bi-dash-lg text-[10px]"></i></button>
@@ -420,18 +412,21 @@
             </div>
           </div>
 
-          <!-- Rotation & Mirrors -->
+          <!-- Rotation & Quick Action -->
           <div class="flex items-center justify-between gap-2 pt-0.5">
-            <div class="flex-1 flex items-center justify-between bg-white rounded-2xl border border-[#cec6e6]/60 px-2.5 py-1 text-xs shadow-sm">
-              <span class="text-[#5e5473] font-medium">∡ Angle</span>
+            <div class="flex-1 flex items-center justify-between bg-[#f3f0f9] rounded-2xl border border-[#cec6e6]/60 px-2.5 py-1 text-xs shadow-sm">
+              <span class="text-[#5e5473] font-medium flex items-center gap-1">
+                <i class="bi bi-arrow-repeat text-[10px]"></i> Angle
+              </span>
               <div class="flex items-center">
                 <button onclick="stepVal('inp-rotation', -5)" class="px-1 text-[#5e5473] hover:text-[#1f1533]"><i class="bi bi-dash-lg text-[10px]"></i></button>
                 <input type="number" id="inp-rotation" class="w-10 bg-transparent text-center font-mono text-[#1f1533] outline-none" oninput="applyTransform('angle', this.value)">
                 <button onclick="stepVal('inp-rotation', 5)" class="px-1 text-[#5e5473] hover:text-[#1f1533]"><i class="bi bi-plus-lg text-[10px]"></i></button>
               </div>
             </div>
-            <button onclick="mirrorSelected()" class="px-3 py-1.5 bg-white hover:bg-[#ded8f3]/60 border border-[#cec6e6]/60 rounded-2xl text-xs font-mono text-[#1f1533] shadow-sm transition" title="Flip Horizontal (Shift+H)">Flip H</button>
-            <button onclick="rotateBy(90)" class="px-3 py-1.5 bg-white hover:bg-[#ded8f3]/60 border border-[#cec6e6]/60 rounded-2xl text-xs font-mono text-[#1f1533] shadow-sm transition">⟳ 90°</button>
+            <button onclick="rotateBy(90)" class="px-3 py-1.5 bg-[#f3f0f9] hover:bg-[#e8e4f3] border border-[#cec6e6]/60 rounded-2xl text-xs font-mono text-[#1f1533] shadow-sm transition flex items-center gap-1">
+              <i class="bi bi-arrow-clockwise text-[11px]"></i> 90°
+            </button>
           </div>
         </div>
 
@@ -444,7 +439,7 @@
               <span class="text-[#5e5473] font-medium text-[11px]">Stroke</span>
               <div class="flex items-center gap-1.5">
                 <button onclick="toggleActiveOutline()" id="btn-toggle-outline" class="text-[10px] text-[#563b72] font-semibold hover:underline">Toggle Outline</button>
-                <div class="flex items-center bg-white rounded-xl border border-[#cec6e6]/60 p-0.5 shadow-sm">
+                <div class="flex items-center bg-[#f3f0f9] rounded-xl border border-[#cec6e6]/60 p-0.5 shadow-sm">
                   <button onclick="stepVal('inp-stroke-width', -0.5)" class="px-1 text-[#5e5473] hover:text-[#1f1533]"><i class="bi bi-dash-lg text-[9px]"></i></button>
                   <input type="number" id="inp-stroke-width" min="0" max="50" step="0.5" value="2" class="w-8 bg-transparent text-center font-mono text-xs text-[#1f1533] outline-none" oninput="applyStrokeWidth(this.value)">
                   <button onclick="stepVal('inp-stroke-width', 0.5)" class="px-1 text-[#5e5473] hover:text-[#1f1533]"><i class="bi bi-plus-lg text-[9px]"></i></button>
@@ -452,9 +447,9 @@
               </div>
             </div>
 
-            <div class="flex items-center bg-white p-1.5 rounded-2xl border border-[#cec6e6]/60 gap-2 shadow-sm">
-              <input type="color" id="inp-stroke-picker" value="#563b72" class="w-5 h-5 bg-transparent cursor-pointer rounded-full" onchange="applyColor('stroke', this.value)">
-              <input type="text" id="inp-stroke-hex" value="#563B72" class="w-20 bg-transparent font-mono text-[11px] uppercase outline-none text-[#1f1533]" onchange="applyColor('stroke', this.value)">
+            <div class="flex items-center bg-[#f3f0f9] p-1.5 rounded-2xl border border-[#cec6e6]/60 gap-2 shadow-sm">
+              <input type="color" id="inp-stroke-picker" value="#cec6e6" class="w-5 h-5 bg-transparent cursor-pointer rounded-full" onchange="applyColor('stroke', this.value)">
+              <input type="text" id="inp-stroke-hex" value="#CEC6E6" class="w-20 bg-transparent font-mono text-[11px] uppercase outline-none text-[#1f1533]" onchange="applyColor('stroke', this.value)">
               <div class="flex gap-1 ml-auto">
                 <button onclick="applyStrokeWidth(1)" class="px-2 py-0.5 bg-[#ded8f3]/60 hover:bg-[#ded8f3] rounded-full text-[9px] text-[#1f1533]">1px</button>
                 <button onclick="applyStrokeWidth(2.5)" class="px-2 py-0.5 bg-[#563b72] text-white rounded-full text-[9px] font-semibold">2.5px</button>
@@ -465,9 +460,9 @@
             <div class="flex items-center justify-between text-xs pt-1">
               <span class="text-[#5e5473] text-[10px]">Line Style</span>
               <div class="flex items-center gap-1">
-                <button onclick="applyStrokeDash('solid')" class="px-2.5 py-0.5 bg-white hover:bg-[#ded8f3] rounded-full text-[10px] text-[#1f1533] shadow-sm">Solid</button>
-                <button onclick="applyStrokeDash('dashed')" class="px-2.5 py-0.5 bg-white hover:bg-[#ded8f3] rounded-full text-[10px] text-[#1f1533] shadow-sm">Dashed</button>
-                <button onclick="applyStrokeDash('dotted')" class="px-2.5 py-0.5 bg-white hover:bg-[#ded8f3] rounded-full text-[10px] text-[#1f1533] shadow-sm">Dotted</button>
+                <button onclick="applyStrokeDash('solid')" class="px-2.5 py-0.5 bg-[#f3f0f9] hover:bg-[#ded8f3] rounded-full text-[10px] text-[#1f1533] shadow-sm">Solid</button>
+                <button onclick="applyStrokeDash('dashed')" class="px-2.5 py-0.5 bg-[#f3f0f9] hover:bg-[#ded8f3] rounded-full text-[10px] text-[#1f1533] shadow-sm">Dashed</button>
+                <button onclick="applyStrokeDash('dotted')" class="px-2.5 py-0.5 bg-[#f3f0f9] hover:bg-[#ded8f3] rounded-full text-[10px] text-[#1f1533] shadow-sm">Dotted</button>
               </div>
             </div>
           </div>
@@ -477,18 +472,18 @@
               <span class="text-[#5e5473] font-medium text-[11px]">Fill Color</span>
               <button onclick="applyColor('fill', 'transparent')" class="text-[10px] text-[#5e5473] hover:text-red-500" title="Remove Fill">None</button>
             </div>
-            <div class="flex items-center bg-white p-1.5 rounded-2xl border border-[#cec6e6]/60 gap-2 shadow-sm">
+            <div class="flex items-center bg-[#f3f0f9] p-1.5 rounded-2xl border border-[#cec6e6]/60 gap-2 shadow-sm">
               <input type="color" id="inp-fill-picker" value="#ffffff" class="w-5 h-5 bg-transparent cursor-pointer rounded-full" onchange="applyColor('fill', this.value)">
               <input type="text" id="inp-fill-hex" value="TRANSPARENT" class="w-20 bg-transparent font-mono text-[11px] uppercase outline-none text-[#1f1533]" onchange="applyColor('fill', this.value)">
               <div class="flex gap-1 ml-auto">
-                <button onclick="applyColor('fill', '#ffffff')" class="w-4 h-4 rounded-full bg-white border border-[#cec6e6]" title="Solid White"></button>
+                <button onclick="applyColor('fill', '#ffffff')" class="w-4 h-4 rounded-full bg-white border border-[#cec6e6]" title="White"></button>
                 <button onclick="applyColor('fill', '#ded8f3')" class="w-4 h-4 rounded-full bg-[#ded8f3] border border-[#cec6e6]" title="Lilac"></button>
-                <button onclick="applyColor('fill', '#fca3ec')" class="w-4 h-4 rounded-full bg-[#fca3ec] border border-[#cec6e6]" title="Lip Pink"></button>
+                <button onclick="applyColor('fill', '#fca3ec')" class="w-4 h-4 rounded-full bg-[#fca3ec] border border-[#cec6e6]" title="Candy Pink"></button>
                 <button onclick="applyColor('fill', '#563b72')" class="w-4 h-4 rounded-full bg-[#563b72] border border-[#cec6e6]" title="Deep Aubergine"></button>
               </div>
             </div>
           </div>
-          <div id="inspector-line-hint" class="hidden text-[10px] text-[#563b72] bg-white p-2 rounded-2xl border border-[#cec6e6]/60 shadow-sm">
+          <div id="inspector-line-hint" class="hidden text-[10px] text-[#563b72] bg-[#f3f0f9] p-2 rounded-2xl border border-[#cec6e6]/60 shadow-sm">
             <i class="bi bi-info-circle mr-1"></i> Reference lines use <b>Stroke</b> only for styling and color.
           </div>
         </div>
@@ -549,9 +544,9 @@
   <!-- ============================================================
        PHOTOSHOP CROP STUDIO MODAL
        ============================================================ -->
-  <div id="ps-crop-studio-modal" class="hidden fixed inset-0 z-50 bg-[#1f1533]/80 backdrop-blur-xl flex flex-col select-none overflow-hidden">
+  <div id="ps-crop-studio-modal" class="hidden fixed inset-0 z-50 bg-[#1f1533]/85 backdrop-blur-xl flex flex-col select-none overflow-hidden">
     <!-- Header -->
-    <div class="h-14 bg-white/95 border-b border-[#cec6e6]/60 px-5 flex items-center justify-between text-xs text-[#1f1533] shadow-md z-50">
+    <div class="h-14 bg-[#f3f0f9] border-b border-[#cec6e6]/60 px-5 flex items-center justify-between text-xs text-[#1f1533] shadow-md z-50">
       <div class="flex items-center gap-3">
         <span class="font-bold flex items-center gap-2 text-[#563b72] text-sm">
           <i class="bi bi-crop"></i> Photoshop Crop Studio
@@ -566,9 +561,15 @@
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <button onclick="CropStudio.resetBox()" class="px-3.5 py-1.5 bg-[#ded8f3]/60 hover:bg-[#ded8f3] text-[#1f1533] rounded-full transition">Reset</button>
-        <button onclick="CropStudio.cancelCrop()" class="px-4 py-1.5 bg-[#ded8f3]/60 hover:bg-[#ded8f3] text-[#1f1533] rounded-full transition">✕ Cancel (Esc)</button>
-        <button onclick="CropStudio.applyCrop()" class="px-5 py-1.5 bg-[#563b72] hover:bg-[#483060] text-white font-semibold rounded-full shadow-sm transition">✓ Apply Crop (Enter)</button>
+        <button onclick="CropStudio.resetBox()" class="px-3.5 py-1.5 bg-[#ded8f3]/60 hover:bg-[#ded8f3] text-[#1f1533] rounded-full transition flex items-center gap-1">
+          <i class="bi bi-arrow-counterclockwise"></i> Reset
+        </button>
+        <button onclick="CropStudio.cancelCrop()" class="px-4 py-1.5 bg-[#ded8f3]/60 hover:bg-[#ded8f3] text-[#1f1533] rounded-full transition flex items-center gap-1">
+          <i class="bi bi-x-lg"></i> Cancel (Esc)
+        </button>
+        <button onclick="CropStudio.applyCrop()" class="px-5 py-1.5 bg-[#563b72] hover:bg-[#483060] text-white font-semibold rounded-full shadow-sm transition flex items-center gap-1">
+          <i class="bi bi-check-lg"></i> Apply Crop (Enter)
+        </button>
       </div>
     </div>
 
@@ -598,13 +599,13 @@
             <div></div>
           </div>
 
-          <!-- 4 Corner L-Handles -->
+          <!-- 4 Corner Handles -->
           <div data-handle="tl" class="absolute -top-1.5 -left-1.5 w-4 h-4 border-t-[3px] border-l-[3px] border-white cursor-nwse-resize"></div>
           <div data-handle="tr" class="absolute -top-1.5 -right-1.5 w-4 h-4 border-t-[3px] border-r-[3px] border-white cursor-nesw-resize"></div>
           <div data-handle="bl" class="absolute -bottom-1.5 -left-1.5 w-4 h-4 border-b-[3px] border-l-[3px] border-white cursor-nesw-resize"></div>
           <div data-handle="br" class="absolute -bottom-1.5 -right-1.5 w-4 h-4 border-b-[3px] border-r-[3px] border-white cursor-nwse-resize"></div>
 
-          <!-- 4 Edge Bar Handles -->
+          <!-- 4 Edge Handles -->
           <div data-handle="t" class="absolute -top-1 left-1/2 -translate-x-1/2 w-8 h-1.5 bg-white rounded-full cursor-ns-resize shadow"></div>
           <div data-handle="b" class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-8 h-1.5 bg-white rounded-full cursor-ns-resize shadow"></div>
           <div data-handle="l" class="absolute top-1/2 -left-1 -translate-y-1/2 h-8 w-1.5 bg-white rounded-full cursor-ew-resize shadow"></div>
@@ -632,7 +633,7 @@
         Extracts the photographic pixels of the <b>Upper and Lower Lips</b> from the patient photo into an independent PNG image layer. The lips on the base photo are punched out, leaving teeth and face completely visible with <b>zero micro-gaps</b>.
       </p>
 
-      <div class="space-y-3 bg-white p-4 rounded-[22px] border border-[#cec6e6]/60 shadow-sm">
+      <div class="space-y-3 bg-[#f3f0f9] p-4 rounded-[22px] border border-[#cec6e6]/60 shadow-sm">
         <label class="block text-[11px] font-bold text-[#563b72] uppercase">Target</label>
         <button onclick="runLipCutoutOnActiveObject()" class="w-full p-3 rounded-full bg-[#563b72] hover:bg-[#483060] text-white text-xs font-semibold text-center transition flex items-center justify-center gap-2 shadow-sm">
           <i class="bi bi-image text-sm"></i>
@@ -643,11 +644,11 @@
       <div class="space-y-2 text-xs">
         <label class="block text-[11px] font-bold text-[#563b72] uppercase">Settings</label>
         <div class="space-y-2">
-          <label class="flex items-center justify-between p-3 rounded-2xl bg-white hover:bg-white/80 cursor-pointer shadow-sm">
+          <label class="flex items-center justify-between p-3 rounded-2xl bg-[#f3f0f9] hover:bg-white cursor-pointer shadow-sm">
             <span class="text-[#1f1533]">Punch out lips from base photo (keep teeth & face)</span>
             <input type="checkbox" id="mp-punch-base" checked class="rounded text-[#563b72]">
           </label>
-          <label class="flex items-center justify-between p-3 rounded-2xl bg-white hover:bg-white/80 cursor-pointer shadow-sm">
+          <label class="flex items-center justify-between p-3 rounded-2xl bg-[#f3f0f9] hover:bg-white cursor-pointer shadow-sm">
             <span class="text-[#1f1533]">Move extracted lips beside face (Out of Frame)</span>
             <input type="checkbox" id="mp-move-out" checked class="rounded text-[#563b72]">
           </label>
@@ -656,16 +657,16 @@
 
       <div class="flex justify-between items-center pt-2 border-t border-[#cec6e6]">
         <span id="mp-status-lbl" class="text-[11px] text-[#5e5473] font-mono">Ready to extract</span>
-        <button onclick="closeMediaPipeModal()" class="px-5 py-1.5 bg-white hover:bg-white/80 text-[#1f1533] rounded-full text-xs font-medium transition shadow-sm">Close</button>
+        <button onclick="closeMediaPipeModal()" class="px-5 py-1.5 bg-[#f3f0f9] hover:bg-white text-[#1f1533] rounded-full text-xs font-medium transition shadow-sm">Close</button>
       </div>
     </div>
   </div>
 
   <!-- ============================================================
-       PREMIUM LOADING MODAL
+       LOADING MODAL
        ============================================================ -->
   <div id="loading-modal" class="hidden fixed inset-0 z-50 bg-[#1f1533]/50 backdrop-blur-md flex items-center justify-center p-4 transition-all duration-300">
-    <div class="m3-surface-card bg-white p-6 shadow-2xl flex flex-col items-center gap-4 text-center max-w-xs w-full border border-white">
+    <div class="m3-surface-card bg-[#f3f0f9] p-6 shadow-2xl flex flex-col items-center gap-4 text-center max-w-xs w-full border border-white">
       <div class="relative w-14 h-14 flex items-center justify-center">
         <div class="absolute inset-0 rounded-full border-4 border-[#ded8f3] border-t-[#563b72] animate-spin"></div>
         <i id="loading-modal-icon" class="bi bi-file-earmark-image text-xl text-[#563b72]"></i>
@@ -691,7 +692,7 @@
       <div class="space-y-3 text-xs">
         <div>
           <label class="block text-[#5e5473] mb-1.5 text-[11px] font-medium">Scope</label>
-          <select id="export-target" class="w-full bg-white border border-[#cec6e6] rounded-2xl p-2.5 text-[#1f1533] outline-none text-[11px] shadow-sm">
+          <select id="export-target" class="w-full bg-[#f3f0f9] border border-[#cec6e6] rounded-2xl p-2.5 text-[#1f1533] outline-none text-[11px] shadow-sm">
             <option value="selection">Selected Object Only</option>
             <option value="canvas">Entire Canvas</option>
           </select>
@@ -701,14 +702,14 @@
           <label class="block text-[#5e5473] mb-1.5 text-[11px] font-medium">Format</label>
           <div class="grid grid-cols-3 gap-1.5">
             <button onclick="setExportFormat('png')" id="fmt-png" class="p-2 bg-[#563b72] text-white rounded-2xl font-semibold text-center shadow-sm">PNG</button>
-            <button onclick="setExportFormat('jpeg')" id="fmt-jpeg" class="p-2 bg-white text-[#5e5473] rounded-2xl font-medium text-center shadow-sm">JPEG</button>
-            <button onclick="setExportFormat('svg')" id="fmt-svg" class="p-2 bg-white text-[#5e5473] rounded-2xl font-medium text-center shadow-sm">SVG</button>
+            <button onclick="setExportFormat('jpeg')" id="fmt-jpeg" class="p-2 bg-[#f3f0f9] text-[#5e5473] rounded-2xl font-medium text-center shadow-sm">JPEG</button>
+            <button onclick="setExportFormat('svg')" id="fmt-svg" class="p-2 bg-[#f3f0f9] text-[#5e5473] rounded-2xl font-medium text-center shadow-sm">SVG</button>
           </div>
         </div>
 
         <div>
           <label class="block text-[#5e5473] mb-1.5 text-[11px] font-medium">Resolution</label>
-          <select id="export-scale" class="w-full bg-white border border-[#cec6e6] rounded-2xl p-2.5 text-[#1f1533] outline-none font-mono text-[11px] shadow-sm">
+          <select id="export-scale" class="w-full bg-[#f3f0f9] border border-[#cec6e6] rounded-2xl p-2.5 text-[#1f1533] outline-none font-mono text-[11px] shadow-sm">
             <option value="1">1x Standard</option>
             <option value="2" selected>2x High-Definition</option>
             <option value="3">3x Ultra High-Res</option>
@@ -722,7 +723,7 @@
       </div>
 
       <div class="flex justify-end gap-2.5 pt-2.5 border-t border-[#cec6e6]">
-        <button onclick="closeExportModal()" class="px-4 py-1.5 bg-white hover:bg-white/80 text-[#1f1533] rounded-full text-xs font-medium transition shadow-sm">Cancel</button>
+        <button onclick="closeExportModal()" class="px-4 py-1.5 bg-[#f3f0f9] hover:bg-white text-[#1f1533] rounded-full text-xs font-medium transition shadow-sm">Cancel</button>
         <button onclick="executeExport()" class="px-5 py-1.5 bg-[#563b72] hover:bg-[#483060] text-white font-semibold rounded-full text-xs shadow-sm transition">Download</button>
       </div>
     </div>
@@ -730,7 +731,7 @@
 
   <!-- CONFIRM MODAL -->
   <div id="customConfirmModal" class="hidden fixed inset-0 z-50 bg-[#1f1533]/60 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="m3-surface-card bg-white w-full max-w-xs p-6 space-y-3 shadow-2xl border border-white text-center">
+    <div class="m3-surface-card bg-[#f3f0f9] w-full max-w-xs p-6 space-y-3 shadow-2xl border border-white text-center">
       <h4 id="confirmModalTitle" class="text-xs font-bold text-[#1f1533] uppercase tracking-wider">Confirm Action</h4>
       <p id="confirmModalMsg" class="text-xs text-[#5e5473]">Are you sure?</p>
       <div class="flex justify-center gap-2 pt-2 border-t border-[#cec6e6]/60">
@@ -751,8 +752,8 @@
 
     const container = document.getElementById('canvas-viewport');
     const canvas = new fabric.Canvas('studio-canvas', {
-      width: container.clientWidth,
-      height: container.clientHeight,
+      width: container.clientWidth || 800,
+      height: container.clientHeight || 600,
       preserveObjectStacking: true,
       selection: true,
       fireRightClick: true,
@@ -777,19 +778,26 @@
     let shapeCounter = 0;
     let activeExportFmt = 'png';
     let currentStrokeWidth = 2.0;
-    let currentStrokeColor = '#563b72';
+    let currentStrokeColor = '#cec6e6';
     let currentFillColor = 'transparent';
-    let currentCanvasBg = '#ffffff';
+    let currentCanvasBg = '#1f1533'; // Default deep aubergine
     let pencilFillEnabled = false;
     let _canvasClipboard = null;
 
-    window.addEventListener('resize', () => {
-      canvas.setWidth(container.clientWidth);
-      canvas.setHeight(container.clientHeight);
-      canvas.requestRenderAll();
+    // Responsive Canvas Resize Observer
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        const { width, height } = entry.contentRect;
+        if (width && height) {
+          canvas.setWidth(width);
+          canvas.setHeight(height);
+          canvas.requestRenderAll();
+        }
+      }
     });
+    resizeObserver.observe(container);
 
-    // 100% LOCKSTEP SYNCHRONIZATION OF LAYERS TREE WITH CANVAS
+    // 100% Synchronization of Layers Tree with Canvas
     canvas.on('object:added', () => updateLayersTree());
     canvas.on('object:removed', () => { updateLayersTree(); syncInspector(); });
     canvas.on('selection:created', () => { syncInspector(); updateLayersTree(); });
@@ -848,7 +856,7 @@
             target.isAttachedToMouth = true;
             if (!target._hasSnapped) {
               target._hasSnapped = true;
-              showToast('🧲 Lips snapped seamlessly into mouth!', 'success');
+              showToast('Lips snapped seamlessly into mouth!', 'success');
             }
           } else {
             target.isAttachedToMouth = false;
@@ -1161,11 +1169,11 @@
     });
 
     /* ============================================================
-       TOOL MODES
+       TOOL MODES (ROCK-SOLID PAN & SELECT STATE RESETS)
        ============================================================ */
     function setTool(tool) {
       if (CropStudio.isCropping) CropStudio.cancelCrop();
-      cleanToolState();
+      isPanning = false; // Always clear panning flag immediately
       currentTool = tool;
 
       document.querySelectorAll('.tool-btn').forEach(btn => {
@@ -1183,26 +1191,33 @@
 
       if (tool === 'pencil') {
         canvas.isDrawingMode = true;
+        canvas.selection = false;
+        canvas.defaultCursor = 'crosshair';
         canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
         canvas.freeDrawingBrush.width = currentStrokeWidth;
         canvas.freeDrawingBrush.color = currentStrokeColor;
-        canvas.defaultCursor = 'crosshair';
         pencilDock.classList.remove('hidden');
         updatePencilDockUI();
-        showToast('Pencil tool active', 'info');
-      } else {
+        canvas.forEachObject(o => { o.selectable = false; o.evented = false; });
+      } else if (tool === 'hand') {
+        canvas.isDrawingMode = false;
         pencilDock.classList.add('hidden');
-        if (tool === 'hand') {
-          canvas.isDrawingMode = false;
-          canvas.defaultCursor = 'grab';
-          canvas.selection = false;
-          canvas.forEachObject(o => o.selectable = false);
-        } else {
-          canvas.isDrawingMode = false;
-          canvas.defaultCursor = 'default';
-          canvas.selection = true;
-          canvas.forEachObject(o => o.selectable = true);
-        }
+        canvas.defaultCursor = 'grab';
+        canvas.hoverCursor = 'grab';
+        canvas.selection = false;
+        canvas.skipTargetFind = true;
+        canvas.forEachObject(o => { o.selectable = false; o.evented = false; });
+        canvas.discardActiveObject();
+        canvas.requestRenderAll();
+      } else { // SELECT MODE (100% RELIABLE)
+        canvas.isDrawingMode = false;
+        pencilDock.classList.add('hidden');
+        canvas.defaultCursor = 'default';
+        canvas.hoverCursor = 'move';
+        canvas.selection = true;
+        canvas.skipTargetFind = false;
+        cleanToolState();
+        canvas.requestRenderAll();
       }
     }
 
@@ -1248,7 +1263,7 @@
     function togglePencilFill() {
       pencilFillEnabled = !pencilFillEnabled;
       updatePencilDockUI();
-      showToast(`Pencil Fill on Draw: ${pencilFillEnabled ? 'Enabled' : 'Disabled'}`, 'info');
+      showToast(`Pencil Fill: ${pencilFillEnabled ? 'Enabled' : 'Disabled'}`, 'info');
     }
 
     canvas.on('path:created', (e) => {
@@ -1282,6 +1297,7 @@
         canvas.defaultCursor = 'grabbing';
         lastX = evt.clientX;
         lastY = evt.clientY;
+        return;
       }
     });
 
@@ -1301,6 +1317,13 @@
       if (isPanning) {
         isPanning = false;
         canvas.defaultCursor = currentTool === 'hand' ? 'grab' : 'default';
+      }
+    });
+
+    window.addEventListener('pointerup', () => {
+      if (isPanning) {
+        isPanning = false;
+        if (currentTool === 'hand') canvas.defaultCursor = 'grab';
       }
     });
 
@@ -1467,7 +1490,7 @@
     function addStraightLine() {
       const c = canvas.getVpCenter();
       const line = new fabric.Line([c.x - 120, c.y, c.x + 120, c.y], {
-        stroke: currentStrokeColor || '#563b72',
+        stroke: currentStrokeColor || '#cec6e6',
         strokeWidth: currentStrokeWidth || 2,
         strokeUniform: true,
         strokeLineCap: 'round',
@@ -1483,8 +1506,8 @@
 
     function addMidline() {
       const c = canvas.getVpCenter();
-      const line = new fabric.Line([c.x, c.y - 150, c.x, c.y + 150], {
-        stroke: '#563b72',
+      const line = new fabric.Line([c.x, c.y - 120, c.x, c.y + 120], {
+        stroke: '#cec6e6',
         strokeWidth: 2,
         strokeDashArray: [6, 4],
         strokeUniform: true,
@@ -1507,7 +1530,7 @@
       const pathStr = `M ${p0.x} ${p0.y} Q ${cp.x} ${cp.y} ${p1.x} ${p1.y}`;
 
       const curve = new fabric.Path(pathStr, {
-        stroke: '#563b72',
+        stroke: '#cec6e6',
         fill: '',
         strokeWidth: currentStrokeWidth || 2.5,
         strokeLineCap: 'round',
@@ -1531,7 +1554,7 @@
         top: c.y - 45,
         width: 120,
         height: 90,
-        fill: currentFillColor === 'transparent' ? 'rgba(86,59,114,0.12)' : currentFillColor,
+        fill: currentFillColor === 'transparent' ? 'rgba(206,198,230,0.2)' : currentFillColor,
         stroke: currentStrokeColor,
         strokeWidth: currentStrokeWidth,
         rx: 16, ry: 16,
@@ -1550,7 +1573,7 @@
         left: c.x - 45,
         top: c.y - 45,
         radius: 45,
-        fill: currentFillColor === 'transparent' ? 'rgba(86,59,114,0.12)' : currentFillColor,
+        fill: currentFillColor === 'transparent' ? 'rgba(206,198,230,0.2)' : currentFillColor,
         stroke: currentStrokeColor,
         strokeWidth: currentStrokeWidth,
         strokeUniform: true,
@@ -1569,7 +1592,7 @@
         top: c.y - 12,
         fontFamily: 'Roboto',
         fontSize: 22,
-        fill: '#1f1533',
+        fill: '#cec6e6',
         name: `Text ${++shapeCounter}`
       });
       canvas.add(text);
@@ -2245,7 +2268,7 @@
       if (width === 0) {
         obj.set({ strokeWidth: 0 });
       } else {
-        const strokeCol = (obj.stroke && obj.stroke !== 'transparent') ? obj.stroke : (currentStrokeColor || '#563b72');
+        const strokeCol = (obj.stroke && obj.stroke !== 'transparent') ? obj.stroke : (currentStrokeColor || '#cec6e6');
         obj.set({
           stroke: strokeCol,
           strokeWidth: width,
@@ -2280,7 +2303,7 @@
         obj.set({ stroke: null, strokeWidth: 0 });
         showToast('Outline removed', 'info');
       } else {
-        const color = currentStrokeColor || '#563b72';
+        const color = currentStrokeColor || '#cec6e6';
         const width = currentStrokeWidth || 2;
         obj.set({ stroke: color, strokeWidth: width, strokeUniform: true });
         showToast('Outline applied', 'success');
@@ -2346,12 +2369,22 @@
 
     function setCanvasBg(col) {
       currentCanvasBg = col;
-      document.getElementById('canvas-viewport').style.backgroundColor = col;
+      const viewport = document.getElementById('canvas-viewport');
+      viewport.style.backgroundColor = col;
+      
+      // Dynamic grid dot tones based on backdrop lightness
+      if (col === '#1f1533' || col === '#2c2242') {
+        viewport.style.backgroundImage = 'radial-gradient(#3c2c56 1.4px, transparent 1.4px)';
+      } else {
+        viewport.style.backgroundImage = 'radial-gradient(#cec6e6 1.4px, transparent 1.4px)';
+      }
+
       canvas.requestRenderAll();
+      showToast('Backdrop updated', 'info');
     }
 
     /* ============================================================
-       PERFECTLY SYNCED LAYERS TREE (M3 LILAC/AUBERGINE)
+       PERFECTLY SYNCED LAYERS TREE
        ============================================================ */
     let draggedLayerIndex = null;
 
@@ -2377,7 +2410,7 @@
         const div = document.createElement('div');
         div.draggable = true;
         div.className = `flex items-center justify-between px-3 py-2 rounded-2xl cursor-grab text-xs transition shadow-sm ${
-          isSel ? 'bg-[#563b72] text-white font-semibold' : 'bg-white hover:bg-white/80 text-[#1f1533]'
+          isSel ? 'bg-[#563b72] text-white font-semibold' : 'bg-[#f3f0f9] hover:bg-[#e8e4f3] text-[#1f1533]'
         }`;
 
         let icon = `<i class="bi bi-bezier2 ${isSel ? 'text-white' : 'text-[#563b72]'}"></i>`;
@@ -2557,7 +2590,7 @@
         if (!b) return;
         b.className = (f === fmt)
           ? 'p-2 bg-[#563b72] text-white rounded-2xl font-semibold text-center shadow-sm'
-          : 'p-2 bg-white text-[#5e5473] rounded-2xl font-medium text-center shadow-sm';
+          : 'p-2 bg-[#f3f0f9] text-[#5e5473] rounded-2xl font-medium text-center shadow-sm';
       });
     }
 
