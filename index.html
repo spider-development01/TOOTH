@@ -343,6 +343,22 @@
           </div>
         </div>
 
+        <!-- PULL NEAR TEETH BENTO (VISIBLE FOR ALL IMAGES) -->
+        <div id="bento-pull-teeth" class="hidden m3-surface-card p-3.5 space-y-2 border border-[#cec6e6]/80 shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-[#563b72] flex items-center gap-1.5">
+              <i class="bi bi-magic text-[#563b72]"></i>
+              <span>Smart Teeth Alignment</span>
+            </span>
+            <span class="text-[9px] bg-white text-[#563b72] px-2 py-0.5 rounded-full font-mono font-bold shadow-sm">AI DSD</span>
+          </div>
+          <p class="text-[11px] text-[#5e5473] leading-tight">Auto-fit and pull this teeth image directly onto any person's face with seamless angle & size.</p>
+          <button onclick="openPullNearTeethModal()" class="w-full py-2 bg-[#563b72] hover:bg-[#483060] text-white font-semibold rounded-full text-xs transition shadow-sm flex items-center justify-center gap-1.5 active:scale-95">
+            <i class="bi bi-box-arrow-in-down-right text-xs"></i>
+            <span>Pull near teeth</span>
+          </button>
+        </div>
+
         <!-- FIX / UNFIX POSITION CONTROL -->
         <div id="bento-fix-position" class="m3-surface-card p-3 flex items-center justify-between shadow-sm border border-[#cec6e6]/70">
           <div class="flex items-center gap-2.5">
@@ -533,6 +549,10 @@
 
   <!-- CONTEXT MENU -->
   <div id="customContextMenu" class="hidden fixed z-50 m3-surface-card p-1.5 w-56 shadow-xl flex flex-col gap-0.5 text-xs border border-white">
+    <button onclick="executeContextAction('pullNearTeeth')" id="ctx-pull-teeth" class="px-3 py-1.5 rounded-xl hover:bg-[#ded8f3] text-left flex items-center justify-between text-[#563b72] font-semibold transition">
+      <span>Pull Near Teeth</span>
+      <i class="bi bi-box-arrow-in-down-right text-[#563b72]"></i>
+    </button>
     <button onclick="executeContextAction('fixToggle')" id="ctx-fix-toggle" class="px-3 py-1.5 rounded-xl hover:bg-[#ded8f3] text-left flex items-center justify-between text-[#563b72] font-medium transition">
       <span id="ctx-fix-label">Fix Position</span>
       <i id="ctx-fix-icon" class="bi bi-pin-angle text-[#563b72]"></i>
@@ -574,6 +594,36 @@
       <span>Delete</span>
       <span class="text-[10px] text-[#5e5473] font-mono">Del / Backspace</span>
     </button>
+  </div>
+
+  <!-- ============================================================
+       PULL NEAR TEETH SELECTOR MODAL (MATERIAL 3)
+       ============================================================ -->
+  <div id="pull-teeth-modal" class="hidden fixed inset-0 z-50 bg-[#1f1533]/70 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="m3-surface-card bg-[#ded8f3] w-full max-w-md p-6 space-y-4 shadow-2xl border border-white">
+      
+      <div class="flex items-center justify-between pb-2 border-b border-[#cec6e6]">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-[#563b72] text-white flex items-center justify-center text-sm shadow-sm">
+            <i class="bi bi-box-arrow-in-down-right"></i>
+          </div>
+          <div>
+            <h4 class="text-xs font-bold uppercase tracking-wider text-[#1f1533]">Pull Teeth Near Face</h4>
+            <p class="text-[10px] text-[#5e5473]">Select the patient photo you want to attach these teeth to:</p>
+          </div>
+        </div>
+        <button onclick="closePullNearTeethModal()" class="w-7 h-7 rounded-full bg-[#f3f0f9] hover:bg-white flex items-center justify-center text-[#5e5473] hover:text-[#1f1533] font-bold text-xs transition">✕</button>
+      </div>
+
+      <div id="pull-teeth-faces-list" class="space-y-2 max-h-64 overflow-y-auto pr-1">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <div class="flex items-center justify-between pt-2 border-t border-[#cec6e6]">
+        <span class="text-[11px] text-[#5e5473]">MediaPipe auto-scales and rotates to match lips</span>
+        <button onclick="closePullNearTeethModal()" class="px-4 py-1.5 bg-[#f3f0f9] hover:bg-white text-[#1f1533] rounded-full text-xs font-medium transition shadow-sm">Cancel</button>
+      </div>
+    </div>
   </div>
 
   <!-- ============================================================
@@ -620,40 +670,6 @@
           <span>Click any teeth photo to auto-align, scale, and angle it onto a face</span>
         </div>
         <button onclick="closeTemplatesModal()" class="px-4 py-1.5 bg-[#f3f0f9] hover:bg-white text-[#1f1533] rounded-full text-xs font-medium transition shadow-sm">Close</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ============================================================
-       TARGET FACE SELECTOR MODAL (AUTO-FIT TEETH VIA MEDIAPIPE)
-       ============================================================ -->
-  <div id="face-selector-modal" class="hidden fixed inset-0 z-50 bg-[#1f1533]/70 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="m3-surface-card bg-[#ded8f3] w-full max-w-md p-5 space-y-4 shadow-2xl border border-white">
-      
-      <div class="flex items-center justify-between pb-2 border-b border-[#cec6e6]">
-        <div class="flex items-center gap-2">
-          <div class="w-7 h-7 rounded-full bg-[#563b72] text-white flex items-center justify-center text-xs">
-            <i class="bi bi-person-bounding-box"></i>
-          </div>
-          <div>
-            <h4 class="text-xs font-bold uppercase tracking-wider text-[#1f1533]">Auto-Fit Teeth to Face</h4>
-            <p class="text-[10px] text-[#5e5473]">Select the patient photo to receive the teeth template</p>
-          </div>
-        </div>
-        <button onclick="closeFaceSelectorModal()" class="text-[#5e5473] hover:text-[#1f1533] font-bold text-xs">✕</button>
-      </div>
-
-      <div id="face-selector-list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
-        <!-- Populated dynamically with canvas images -->
-      </div>
-
-      <div class="flex items-center justify-between pt-2 border-t border-[#cec6e6]">
-        <button onclick="placeTeethWithoutAutoFit()" class="px-3 py-1.5 bg-[#f3f0f9] hover:bg-white text-[#563b72] rounded-full text-[11px] font-medium transition shadow-sm">
-          Insert Freely (No Auto-Fit)
-        </button>
-        <button onclick="closeFaceSelectorModal()" class="px-4 py-1.5 bg-[#f3f0f9] hover:bg-white text-[#1f1533] rounded-full text-xs font-medium transition shadow-sm">
-          Cancel
-        </button>
       </div>
     </div>
   </div>
@@ -924,7 +940,7 @@
     canvas.on('selection:cleared', () => { syncInspector(); updateLayersTree(); });
 
     /* ============================================================
-       IMAGE & SVG IMPORT ENGINE (FIXED & RESTORED)
+       IMAGE & SVG IMPORT ENGINE
        ============================================================ */
     function loadSvgStringDirectly(svgStr) {
       if (!svgStr) return;
@@ -989,12 +1005,10 @@
         showToast('Unsupported file type. Please select a PNG, JPG, or SVG image.', 'error');
       }
 
-      // Reset input element so user can upload the same file again if desired
       const inputEl = document.getElementById('image-file-input');
       if (inputEl) inputEl.value = '';
     }
 
-    // Drag-and-drop onto canvas container
     container.addEventListener('dragover', (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -1045,7 +1059,7 @@
     });
 
     window.addEventListener('pointerdown', (e) => {
-      const isInteractiveUI = e.target.closest('header, aside, #customContextMenu, #ps-crop-studio-modal, #mediapipe-modal, #templates-modal, #face-selector-modal, #export-modal, #loading-modal, #customConfirmModal, #pencil-subdock, .tool-btn');
+      const isInteractiveUI = e.target.closest('header, aside, #customContextMenu, #ps-crop-studio-modal, #mediapipe-modal, #templates-modal, #pull-teeth-modal, #export-modal, #loading-modal, #customConfirmModal, #pencil-subdock, .tool-btn');
       const isInsideCanvas = e.target.closest('#canvas-viewport');
       
       if (!isInteractiveUI && !isInsideCanvas) {
@@ -1200,6 +1214,154 @@
     }
 
     /* ============================================================
+       PULL NEAR TEETH (AUTOMATED MEDIAPIPE FACE ALIGNMENT)
+       ============================================================ */
+    function openPullNearTeethModal() {
+      const activeObj = canvas.getActiveObject();
+      if (!activeObj || activeObj.type !== 'image') {
+        showToast('Please select a teeth image first', 'info');
+        return;
+      }
+
+      // Filter other available images on canvas that act as the patient face photo
+      const candidateFaces = canvas.getObjects().filter(o => o.type === 'image' && o !== activeObj && !o.isLipLayer);
+
+      if (candidateFaces.length === 0) {
+        showToast('No patient photo found on canvas. Import a patient face photo first.', 'info');
+        return;
+      }
+
+      // If only 1 patient photo exists, immediately auto-fit to it
+      if (candidateFaces.length === 1) {
+        executePullNearTeethOnFace(activeObj, candidateFaces[0]);
+        return;
+      }
+
+      // If multiple, show the selector modal
+      const listEl = document.getElementById('pull-teeth-faces-list');
+      listEl.innerHTML = candidateFaces.map((faceObj, idx) => {
+        const thumbUrl = faceObj.getElement().src;
+        const name = faceObj.name || `Patient Photo ${idx + 1}`;
+        return `
+          <div onclick="selectFaceForPullNearTeeth(${idx})" class="flex items-center gap-3 p-2.5 rounded-2xl bg-[#f3f0f9] hover:bg-white border border-[#cec6e6]/60 cursor-pointer transition shadow-sm group">
+            <img src="${thumbUrl}" class="w-12 h-12 rounded-xl object-cover border border-[#cec6e6]" />
+            <div class="flex-1 truncate">
+              <span class="text-xs font-bold text-[#1f1533] block truncate group-hover:text-[#563b72]">${name}</span>
+              <span class="text-[10px] text-[#5e5473]">Click to auto-fit and rotate teeth onto this face</span>
+            </div>
+            <i class="bi bi-box-arrow-in-down-right text-[#563b72] text-sm pr-1"></i>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('pull-teeth-modal').classList.remove('hidden');
+    }
+
+    function closePullNearTeethModal() {
+      document.getElementById('pull-teeth-modal').classList.add('hidden');
+    }
+
+    function selectFaceForPullNearTeeth(faceIndex) {
+      closePullNearTeethModal();
+      const activeObj = canvas.getActiveObject();
+      if (!activeObj) return;
+
+      const candidateFaces = canvas.getObjects().filter(o => o.type === 'image' && o !== activeObj && !o.isLipLayer);
+      const targetFace = candidateFaces[faceIndex];
+      if (targetFace) {
+        executePullNearTeethOnFace(activeObj, targetFace);
+      }
+    }
+
+    async function executePullNearTeethOnFace(teethObj, targetFaceObj) {
+      showLoadingModal('Pulling Near Teeth...', 'MediaPipe AI analyzing anatomical smile arc, size & angle', 'bi-magic');
+
+      const engine = await initMediaPipeFaceMesh();
+      const faceImgEl = targetFaceObj.getElement();
+
+      engine.onResults((results) => {
+        if (!results.multiFaceLandmarks || !results.multiFaceLandmarks.length) {
+          hideLoadingModal();
+          showToast('Could not detect face in photo. Ensure frontal clear photo.', 'error');
+          return;
+        }
+
+        const lm = results.multiFaceLandmarks[0];
+        const iw = faceImgEl.naturalWidth || faceImgEl.width;
+        const ih = faceImgEl.naturalHeight || faceImgEl.height;
+
+        // Canonical MediaPipe landmarks:
+        // 61: Right commissure (image left)
+        // 291: Left commissure (image right)
+        // 13: Inner upper lip midpoint (top of teeth opening)
+        // 14: Inner lower lip midpoint (bottom of teeth opening)
+        const p61 = { x: lm[61].x * iw, y: lm[61].y * ih };
+        const p291 = { x: lm[291].x * iw, y: lm[291].y * ih };
+        const p13 = { x: lm[13].x * iw, y: lm[13].y * ih };
+        const p14 = { x: lm[14].x * iw, y: lm[14].y * ih };
+
+        // 1. Mouth/Stomion center in face coordinates (biased toward upper incisal baseline)
+        const stomionX = (p61.x + p291.x) / 2;
+        const stomionY = (p13.y * 0.72 + p14.y * 0.28);
+
+        // 2. Map coordinates through Fabric transformation matrix of the patient photo
+        const faceMatrix = targetFaceObj.calcTransformMatrix();
+        const localPt = {
+          x: stomionX - (targetFaceObj.width / 2),
+          y: stomionY - (targetFaceObj.height / 2)
+        };
+        const canvasTargetPt = fabric.util.transformPoint(localPt, faceMatrix);
+
+        // 3. Compute smile angle & head tilt
+        const mouthAngleRad = Math.atan2(p291.y - p61.y, p291.x - p61.x);
+        const mouthAngleDeg = mouthAngleRad * (180 / Math.PI);
+        const totalAngle = (targetFaceObj.angle || 0) + (targetFaceObj.flipX ? -mouthAngleDeg : mouthAngleDeg);
+
+        // 4. Compute anatomical width & scaling (standard anterior dental proportion spans ~84% of intercommissural distance)
+        const mouthDist = Math.hypot(p291.x - p61.x, p291.y - p61.y);
+        const desiredTeethCanvasWidth = mouthDist * Math.abs(targetFaceObj.scaleX) * 0.84;
+        const teethScale = desiredTeethCanvasWidth / teethObj.width;
+
+        // 5. Apply seamless transform directly to the teeth PNG
+        teethObj.set({
+          originX: 'center',
+          originY: 'center',
+          left: canvasTargetPt.x,
+          top: canvasTargetPt.y,
+          scaleX: teethScale,
+          scaleY: teethScale,
+          angle: totalAngle,
+          flipX: targetFaceObj.flipX,
+          name: `${teethObj.name || 'Teeth'} (Aligned)`,
+          strokeUniform: true
+        });
+
+        // 6. Link to face & slip under extracted lips if present for 10/10 seamless framing
+        const dsdId = targetFaceObj.dsdFaceId || ('face_' + Date.now());
+        targetFaceObj.dsdFaceId = dsdId;
+        teethObj.targetFaceId = dsdId;
+
+        const lipLayer = canvas.getObjects().find(o => o.isLipLayer && o.targetFaceId === dsdId);
+        if (lipLayer) {
+          const lipIdx = canvas.getObjects().indexOf(lipLayer);
+          canvas.remove(teethObj);
+          canvas.insertAt(teethObj, lipIdx);
+        }
+
+        teethObj.setCoords();
+        canvas.setActiveObject(teethObj);
+        canvas.requestRenderAll();
+        syncInspector();
+        updateLayersTree();
+        saveState();
+        hideLoadingModal();
+        showToast('Teeth pulled onto face & auto-fitted seamlessly!', 'success');
+      });
+
+      await engine.send({ image: faceImgEl });
+    }
+
+    /* ============================================================
        LOADING OVERLAY & TOASTS
        ============================================================ */
     function showLoadingModal(title = 'Generating...', subtitle = 'Processing layout', iconClass = 'bi-file-earmark-image') {
@@ -1327,7 +1489,7 @@
       if (e.key === 'Escape') {
         if (CropStudio.isCropping) { CropStudio.cancelCrop(); return; }
         if (!document.getElementById('templates-modal').classList.contains('hidden')) { closeTemplatesModal(); return; }
-        if (!document.getElementById('face-selector-modal').classList.contains('hidden')) { closeFaceSelectorModal(); return; }
+        if (!document.getElementById('pull-teeth-modal').classList.contains('hidden')) { closePullNearTeethModal(); return; }
         if (activeObj) {
           canvas.discardActiveObject();
           canvas.requestRenderAll();
@@ -1647,6 +1809,7 @@
       const btnCrop = document.getElementById('ctx-crop');
       const btnExtractLips = document.getElementById('ctx-extract-lips');
       const btnFixToggle = document.getElementById('ctx-fix-toggle');
+      const btnPullTeeth = document.getElementById('ctx-pull-teeth');
       const lblFix = document.getElementById('ctx-fix-label');
       const iconFix = document.getElementById('ctx-fix-icon');
 
@@ -1668,6 +1831,7 @@
 
       btnCrop.style.display = (active.type === 'image' || active.type === 'group') ? 'flex' : 'none';
       btnExtractLips.style.display = (active.type === 'image' && !active.isLipLayer) ? 'flex' : 'none';
+      btnPullTeeth.style.display = (active.type === 'image' && !active.isLipLayer) ? 'flex' : 'none';
 
       contextMenu.style.left = `${Math.min(window.innerWidth - 230, e.clientX)}px`;
       contextMenu.style.top = `${Math.min(window.innerHeight - 280, e.clientY)}px`;
@@ -1681,6 +1845,7 @@
       const active = canvas.getActiveObject();
       if (!active && action !== 'delete') return;
 
+      if (action === 'pullNearTeeth') openPullNearTeethModal();
       if (action === 'fixToggle') toggleFixPosition();
       if (action === 'extractLips') runLipCutoutOnActiveObject();
       if (action === 'crop') CropStudio.startCrop();
@@ -2006,67 +2171,11 @@
       }).join('');
     }
 
-    /* ============================================================
-       TARGET FACE SELECTOR & MEDIAPIPE AUTOMATIC TEETH FITTING
-       ============================================================ */
     function selectTeethTemplate(url, name) {
       closeTemplatesModal();
-      pendingTeethTemplateUrl = url;
-      pendingTeethTemplateName = name;
+      showLoadingModal('Importing Teeth...', 'Adding template to canvas', 'bi-image');
 
-      const availableImages = canvas.getObjects().filter(o => o.type === 'image' && !o.isLipLayer);
-
-      if (availableImages.length === 0) {
-        placeTeethWithoutAutoFit();
-        showToast('Imported teeth template at canvas center', 'info');
-      } else if (availableImages.length === 1) {
-        autoFitTeethToTargetFace(availableImages[0]);
-      } else {
-        openFaceSelectorModal(availableImages);
-      }
-    }
-
-    function openFaceSelectorModal(images) {
-      const listEl = document.getElementById('face-selector-list');
-      listEl.innerHTML = images.map((imgObj, idx) => {
-        const thumbUrl = imgObj.getElement().src;
-        const name = imgObj.name || `Patient Photo ${idx + 1}`;
-        return `
-          <div onclick="executeSelectorAutoFit(${idx})" class="flex items-center gap-3 p-2 rounded-2xl bg-[#f3f0f9] hover:bg-white border border-[#cec6e6]/60 cursor-pointer transition shadow-sm">
-            <img src="${thumbUrl}" class="w-12 h-12 rounded-xl object-cover border border-[#cec6e6]" />
-            <div class="flex-1 truncate">
-              <span class="text-xs font-bold text-[#1f1533] block truncate">${name}</span>
-              <span class="text-[10px] text-[#5e5473]">Click to auto-align & size teeth here</span>
-            </div>
-            <i class="bi bi-magic text-[#563b72] text-sm pr-1"></i>
-          </div>
-        `;
-      }).join('');
-
-      document.getElementById('face-selector-modal').classList.remove('hidden');
-    }
-
-    function closeFaceSelectorModal() {
-      document.getElementById('face-selector-modal').classList.add('hidden');
-    }
-
-    function executeSelectorAutoFit(imageIndex) {
-      closeFaceSelectorModal();
-      const availableImages = canvas.getObjects().filter(o => o.type === 'image' && !o.isLipLayer);
-      const targetFace = availableImages[imageIndex];
-      if (targetFace) {
-        autoFitTeethToTargetFace(targetFace);
-      } else {
-        placeTeethWithoutAutoFit();
-      }
-    }
-
-    function placeTeethWithoutAutoFit() {
-      closeFaceSelectorModal();
-      if (!pendingTeethTemplateUrl) return;
-
-      showLoadingModal('Importing Teeth...', 'Adding template to canvas center', 'bi-image');
-      fabric.Image.fromURL(pendingTeethTemplateUrl, (teethImg) => {
+      fabric.Image.fromURL(url, (teethImg) => {
         const maxDim = 380;
         if (teethImg.width > maxDim || teethImg.height > maxDim) {
           teethImg.scale(maxDim / Math.max(teethImg.width, teethImg.height));
@@ -2075,7 +2184,7 @@
         teethImg.set({
           left: c.x - (teethImg.getScaledWidth() / 2),
           top: c.y - (teethImg.getScaledHeight() / 2),
-          name: pendingTeethTemplateName || 'Teeth Template',
+          name: name || 'Teeth Template',
           strokeUniform: true
         });
 
@@ -2084,85 +2193,8 @@
         canvas.requestRenderAll();
         saveState();
         hideLoadingModal();
-        showToast('Teeth template added to canvas', 'success');
+        showToast('Teeth template added. Click "Pull near teeth" to auto-align!', 'success');
       }, { crossOrigin: 'anonymous' });
-    }
-
-    async function autoFitTeethToTargetFace(targetFaceObj) {
-      if (!pendingTeethTemplateUrl) return;
-
-      showLoadingModal('MediaPipe Auto-Fitting...', 'Analyzing facial landmarks, smile angle, and dental proportions', 'bi-magic');
-
-      const engine = await initMediaPipeFaceMesh();
-      const faceImgEl = targetFaceObj.getElement();
-
-      engine.onResults((results) => {
-        if (!results.multiFaceLandmarks || !results.multiFaceLandmarks.length) {
-          hideLoadingModal();
-          showToast('Could not detect face in photo. Inserting teeth template at center.', 'error');
-          placeTeethWithoutAutoFit();
-          return;
-        }
-
-        const lm = results.multiFaceLandmarks[0];
-        const iw = faceImgEl.naturalWidth || faceImgEl.width;
-        const ih = faceImgEl.naturalHeight || faceImgEl.height;
-
-        const p61 = { x: lm[61].x * iw, y: lm[61].y * ih };
-        const p291 = { x: lm[291].x * iw, y: lm[291].y * ih };
-        const p13 = { x: lm[13].x * iw, y: lm[13].y * ih };
-        const p14 = { x: lm[14].x * iw, y: lm[14].y * ih };
-
-        const stomionX = (p61.x + p291.x) / 2;
-        const stomionY = (p13.y * 0.7 + p14.y * 0.3);
-
-        const faceMatrix = targetFaceObj.calcTransformMatrix();
-        const localPt = {
-          x: stomionX - (targetFaceObj.width / 2),
-          y: stomionY - (targetFaceObj.height / 2)
-        };
-        const canvasTargetPt = fabric.util.transformPoint(localPt, faceMatrix);
-
-        const mouthAngleRad = Math.atan2(p291.y - p61.y, p291.x - p61.x);
-        const mouthAngleDeg = mouthAngleRad * (180 / Math.PI);
-        const totalAngle = (targetFaceObj.angle || 0) + (targetFaceObj.flipX ? -mouthAngleDeg : mouthAngleDeg);
-
-        const mouthDist = Math.hypot(p291.x - p61.x, p291.y - p61.y);
-        const desiredTeethCanvasWidth = mouthDist * Math.abs(targetFaceObj.scaleX) * 0.84;
-
-        fabric.Image.fromURL(pendingTeethTemplateUrl, (teethImg) => {
-          const teethScale = desiredTeethCanvasWidth / teethImg.width;
-
-          teethImg.set({
-            left: canvasTargetPt.x,
-            top: canvasTargetPt.y,
-            originX: 'center',
-            originY: 'center',
-            scaleX: teethScale,
-            scaleY: teethScale,
-            angle: totalAngle,
-            flipX: targetFaceObj.flipX,
-            name: `${pendingTeethTemplateName || 'Teeth'} (Auto-Fitted)`,
-            strokeUniform: true
-          });
-
-          const lipLayer = canvas.getObjects().find(o => o.isLipLayer && o.targetFaceId === targetFaceObj.dsdFaceId);
-          if (lipLayer) {
-            const lipIdx = canvas.getObjects().indexOf(lipLayer);
-            canvas.insertAt(teethImg, lipIdx);
-          } else {
-            canvas.add(teethImg);
-          }
-
-          canvas.setActiveObject(teethImg);
-          canvas.requestRenderAll();
-          saveState();
-          hideLoadingModal();
-          showToast('Teeth seamlessly auto-fitted onto face with MediaPipe!', 'success');
-        }, { crossOrigin: 'anonymous' });
-      });
-
-      await engine.send({ image: faceImgEl });
     }
 
     /* ============================================================
@@ -2452,6 +2484,12 @@
           typeName = typeName.toUpperCase();
         }
         label.innerText = typeName;
+      }
+
+      // Show "Pull near teeth" button for all normal images (excluding extracted lip layers)
+      const bentoPullTeeth = document.getElementById('bento-pull-teeth');
+      if (bentoPullTeeth) {
+        bentoPullTeeth.style.display = (obj.type === 'image' && !obj.isLipLayer) ? 'block' : 'none';
       }
 
       const isFixed = Boolean(obj.isPositionFixed);
@@ -3245,7 +3283,7 @@
       showToast('Export downloaded successfully', 'success');
     }
 
-    // Save initial blank state
+    // Save initial state
     saveState();
   </script>
 </body>
