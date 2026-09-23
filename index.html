@@ -134,17 +134,22 @@
       <div class="w-[1px] h-4 bg-white/20 mx-1"></div>
 
       <!-- Freehand Vector Pencil -->
-      <button id="tool-pencil" onclick="setTool('pencil')" class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 transition" title="Vector Pencil (B) — Draw & Fill SVG">
+      <button id="tool-pencil" onclick="setTool('pencil')" class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 transition" title="Vector Pencil (B) — Adjust stroke [ and ]">
         <i class="bi bi-pencil-fill"></i>
       </button>
 
       <!-- Bézier Curve -->
-      <button onclick="addBezierCurve()" class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 transition" title="Bézier Curve (P) — Editable at Micro Level">
+      <button onclick="addBezierCurve()" class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 transition" title="Bézier Curve (P) — Direct vector control">
         <i class="bi bi-bezier2 text-yellow-300"></i>
       </button>
 
+      <!-- Straight Reference Line -->
+      <button onclick="addStraightLine()" class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 transition" title="Straight Reference Line (L)">
+        <i class="bi bi-dash-lg text-emerald-400 font-bold"></i>
+      </button>
+
       <!-- Midline Reference Line -->
-      <button onclick="addMidline()" class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 transition" title="Midline Reference Line (L)">
+      <button onclick="addMidline()" class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 transition" title="Vertical Midline (M)">
         <i class="bi bi-slash-lg text-cyan-400"></i>
       </button>
 
@@ -173,8 +178,18 @@
       </label>
     </div>
 
-    <!-- Right Controls: Group, Undo/Redo, Zoom, Export -->
+    <!-- Right Controls: Flip, Group, Undo/Redo, Zoom, Export -->
     <div class="flex items-center gap-2 pr-1">
+      <!-- Flip Horizontal & Vertical -->
+      <div class="flex items-center bg-[#13161f] border border-[#393e4d] rounded-full p-0.5">
+        <button onclick="mirrorSelected()" class="p-1.5 text-gray-300 hover:text-white rounded-full hover:bg-white/10 transition" title="Flip Horizontal (Shift+H)">
+          <i class="bi bi-symmetry-vertical text-xs"></i>
+        </button>
+        <button onclick="flipVerticalSelected()" class="p-1.5 text-gray-300 hover:text-white rounded-full hover:bg-white/10 transition" title="Flip Vertical (Shift+V)">
+          <i class="bi bi-symmetry-horizontal text-xs"></i>
+        </button>
+      </div>
+
       <div class="flex items-center bg-[#13161f] border border-[#393e4d] rounded-full p-0.5">
         <button onclick="groupSelected()" class="p-1.5 text-gray-300 hover:text-white rounded-full hover:bg-white/10 transition" title="Group (Ctrl+G)">
           <i class="bi bi-union text-xs"></i>
@@ -218,7 +233,7 @@
             <span class="text-xs font-bold tracking-wider uppercase text-[#a8c7fa]">Layers</span>
             <span class="text-[10px] text-gray-400">(Drag to order)</span>
           </div>
-          <button onclick="deleteSelected()" title="Delete Selected" class="p-1 hover:bg-red-500/20 text-gray-400 hover:text-red-300 rounded-lg transition">
+          <button onclick="deleteSelected()" title="Delete Selected (Del / Backspace)" class="p-1 hover:bg-red-500/20 text-gray-400 hover:text-red-300 rounded-lg transition">
             <i class="bi bi-trash3 text-xs"></i>
           </button>
         </div>
@@ -251,6 +266,39 @@
     <main id="canvas-viewport" class="flex-1 studio-canvas-bg relative overflow-hidden flex items-center justify-center rounded-2xl border border-[#393e4d] shadow-2xl" tabindex="0">
       <canvas id="studio-canvas"></canvas>
 
+      <!-- LIVE PENCIL TOOL SUB-DOCK (ACTIVE IN PENCIL MODE) -->
+      <div id="pencil-subdock" class="hidden m3-surface-container-high absolute top-4 left-1/2 -translate-x-1/2 px-4 py-2 shadow-2xl flex items-center gap-3 z-30 text-xs text-white border border-[#1a73e8]/50">
+        <div class="flex items-center gap-2 border-r border-white/15 pr-3">
+          <i class="bi bi-pencil-fill text-[#a8c7fa]"></i>
+          <span class="font-medium">Brush Size:</span>
+          <div class="flex items-center bg-[#13161f] rounded-lg border border-[#393e4d] px-1 py-0.5">
+            <button onclick="stepPencilBrush(-0.5)" class="px-1.5 py-0.5 hover:text-[#a8c7fa] text-gray-300"><i class="bi bi-dash"></i></button>
+            <span id="lbl-pencil-brush-size" class="font-mono text-[11px] font-bold px-1.5 text-white">2.0</span>
+            <button onclick="stepPencilBrush(0.5)" class="px-1.5 py-0.5 hover:text-[#a8c7fa] text-gray-300"><i class="bi bi-plus"></i></button>
+          </div>
+        </div>
+
+        <!-- Quick Brush Size Chips -->
+        <div class="flex items-center gap-1 border-r border-white/15 pr-3">
+          <button onclick="setPencilBrushWidth(1)" class="px-2 py-0.5 rounded-md bg-white/10 hover:bg-[#1a73e8] text-[10px] font-mono">1px</button>
+          <button onclick="setPencilBrushWidth(2)" class="px-2 py-0.5 rounded-md bg-white/10 hover:bg-[#1a73e8] text-[10px] font-mono">2px</button>
+          <button onclick="setPencilBrushWidth(4)" class="px-2 py-0.5 rounded-md bg-white/10 hover:bg-[#1a73e8] text-[10px] font-mono">4px</button>
+          <button onclick="setPencilBrushWidth(8)" class="px-2 py-0.5 rounded-md bg-white/10 hover:bg-[#1a73e8] text-[10px] font-mono">8px</button>
+          <button onclick="setPencilBrushWidth(12)" class="px-2 py-0.5 rounded-md bg-white/10 hover:bg-[#1a73e8] text-[10px] font-mono">12px</button>
+        </div>
+
+        <!-- Brush Color Picker -->
+        <div class="flex items-center gap-2">
+          <input type="color" id="pencil-dock-color" value="#ffffff" class="w-5 h-5 bg-transparent cursor-pointer rounded" onchange="setPencilColor(this.value)">
+          <button onclick="togglePencilFill()" id="btn-pencil-fill-toggle" class="px-2.5 py-1 bg-white/10 hover:bg-white/20 text-gray-200 text-[11px] rounded-lg transition" title="Fill shape while drawing">
+            Fill: <span id="txt-pencil-fill-state">Off</span>
+          </button>
+          <button onclick="setTool('select')" class="ml-1 px-3 py-1 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-medium rounded-full text-xs shadow-md">
+            Done
+          </button>
+        </div>
+      </div>
+
       <!-- VECTOR POINT EDIT MODE M3 FLOATING BANNER -->
       <div id="point-edit-banner" class="hidden m3-surface-container-high absolute top-4 left-1/2 -translate-x-1/2 px-4 py-2 shadow-2xl flex items-center gap-3.5 z-30 text-xs text-white border border-[#1a73e8]/50">
         <span class="w-2 h-2 rounded-full bg-[#a8c7fa] animate-ping"></span>
@@ -273,11 +321,11 @@
 
       <!-- Bottom Hint Bar -->
       <div class="m3-surface-container absolute bottom-4 left-6 px-4 py-1.5 rounded-full text-[11px] text-gray-300 flex items-center gap-3.5 pointer-events-none border border-white/10 shadow-lg">
-        <span><kbd class="text-white font-mono font-semibold">Shift+Wheel</kbd> Horizontal Scroll</span>
-        <span><kbd class="text-white font-mono font-semibold">Wheel</kbd> Vertical Scroll</span>
-        <span><kbd class="text-white font-mono font-semibold">Space+Drag</kbd> Pan</span>
         <span><kbd class="text-white font-mono font-semibold">Del / Backspace</kbd> Delete</span>
-        <span><kbd class="text-white font-mono font-semibold">Ctrl+V</kbd> Paste SVG / Image</span>
+        <span><kbd class="text-white font-mono font-semibold">Shift+H</kbd> Flip Horiz</span>
+        <span><kbd class="text-white font-mono font-semibold">[ / ]</kbd> Stroke Size</span>
+        <span><kbd class="text-white font-mono font-semibold">Shift+Wheel</kbd> Horiz Scroll</span>
+        <span><kbd class="text-white font-mono font-semibold">Space+Drag</kbd> Pan</span>
       </div>
     </main>
 
@@ -295,11 +343,14 @@
             <button onclick="PointEditor.toggleEdit()" id="btn-quick-edit-points" title="Edit Vector Points" class="p-1.5 hover:bg-white/10 text-[#a8c7fa] rounded-lg transition">
               <i class="bi bi-bezier text-xs"></i>
             </button>
-            <button onclick="duplicateSelected()" title="Duplicate (Ctrl+D)" class="p-1.5 hover:bg-white/10 text-gray-300 rounded-lg transition">
-              <i class="bi bi-copy text-xs"></i>
-            </button>
-            <button onclick="mirrorSelected()" title="Mirror Horizontal" class="p-1.5 hover:bg-white/10 text-gray-300 rounded-lg transition">
+            <button onclick="mirrorSelected()" title="Flip Horizontal (Shift+H)" class="p-1.5 hover:bg-white/10 text-gray-300 hover:text-white rounded-lg transition">
               <i class="bi bi-symmetry-vertical text-xs"></i>
+            </button>
+            <button onclick="flipVerticalSelected()" title="Flip Vertical (Shift+V)" class="p-1.5 hover:bg-white/10 text-gray-300 hover:text-white rounded-lg transition">
+              <i class="bi bi-symmetry-horizontal text-xs"></i>
+            </button>
+            <button onclick="duplicateSelected()" title="Duplicate (Ctrl+D)" class="p-1.5 hover:bg-white/10 text-gray-300 hover:text-white rounded-lg transition">
+              <i class="bi bi-copy text-xs"></i>
             </button>
             <button onclick="deleteSelected()" title="Delete (Del / Backspace)" class="p-1.5 hover:bg-red-500/20 text-red-300 rounded-lg transition">
               <i class="bi bi-trash3 text-xs"></i>
@@ -307,7 +358,7 @@
           </div>
         </div>
 
-        <!-- Vector Point Edit Action Banner -->
+        <!-- Vector Path Quick Actions -->
         <div id="bento-point-action" class="m3-surface-container p-3 space-y-2 border-[#1a73e8]/60">
           <div class="flex items-center justify-between">
             <span class="text-[10px] font-bold uppercase tracking-wider text-[#a8c7fa]">Vector Path</span>
@@ -375,7 +426,7 @@
             </div>
           </div>
 
-          <!-- Rotation -->
+          <!-- Rotation & Mirrors -->
           <div class="flex items-center justify-between gap-2 pt-0.5">
             <div class="flex-1 flex items-center justify-between bg-[#13161f] rounded-xl border border-[#393e4d] px-2.5 py-1 text-xs">
               <span class="text-gray-400 font-medium">∡ Angle</span>
@@ -385,50 +436,69 @@
                 <button onclick="stepVal('inp-rotation', 5)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-plus-lg text-[10px]"></i></button>
               </div>
             </div>
+            <button onclick="mirrorSelected()" class="px-2.5 py-1.5 bg-[#13161f] hover:bg-white/10 border border-[#393e4d] rounded-xl text-xs font-mono text-white transition" title="Flip Horizontal (Shift+H)">Flip H</button>
             <button onclick="rotateBy(90)" class="px-2.5 py-1.5 bg-[#13161f] hover:bg-white/10 border border-[#393e4d] rounded-xl text-xs font-mono text-white transition">⟳ 90°</button>
           </div>
         </div>
 
-        <!-- Professional Figma-Style Fill & Stroke -->
+        <!-- Professional Fill & Stroke / Outline Control -->
         <div class="m3-surface-container p-3 space-y-3">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-[#a8c7fa] block">Color & Styling</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider text-[#a8c7fa] block">Color, Stroke & Outline</span>
 
-          <!-- Fill -->
+          <!-- STROKE / OUTLINE (APPLIES TO DRAWN PATHS, LINES, SHAPES) -->
           <div class="space-y-1.5">
             <div class="flex items-center justify-between text-xs">
-              <span class="text-gray-300 font-medium text-[11px]">Fill</span>
-              <button onclick="applyColor('fill', 'transparent')" class="text-[10px] text-gray-400 hover:text-red-300" title="Remove Fill">None</button>
-            </div>
-            <div class="flex items-center bg-[#13161f] p-1.5 rounded-xl border border-[#393e4d] gap-2">
-              <input type="color" id="inp-fill-picker" value="#ffffff" class="w-5 h-5 bg-transparent cursor-pointer rounded" onchange="applyColor('fill', this.value)">
-              <input type="text" id="inp-fill-hex" value="#FFFFFF" class="w-20 bg-transparent font-mono text-[11px] uppercase outline-none text-white" onchange="applyColor('fill', this.value)">
-              <div class="flex gap-1 ml-auto">
-                <button onclick="applyColor('fill', '#ffffff')" class="w-4 h-4 rounded-full bg-white border border-black/30" title="Solid White"></button>
-                <button onclick="applyColor('fill', 'rgba(255,255,255,0.6)')" class="w-4 h-4 rounded-full bg-white/60 border border-white/30" title="Translucent"></button>
-                <button onclick="applyColor('fill', '#1a73e8')" class="w-4 h-4 rounded-full bg-[#1a73e8] border border-white/20" title="Royal Blue"></button>
+              <span class="text-gray-300 font-medium text-[11px]">Stroke / Outline</span>
+              <div class="flex items-center gap-1.5">
+                <button onclick="toggleActiveOutline()" id="btn-toggle-outline" class="text-[10px] text-[#a8c7fa] hover:underline">Toggle Outline</button>
+                <div class="flex items-center bg-[#13161f] rounded-lg border border-[#393e4d] p-0.5">
+                  <button onclick="stepVal('inp-stroke-width', -0.5)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-dash-lg text-[9px]"></i></button>
+                  <input type="number" id="inp-stroke-width" min="0" max="50" step="0.5" value="2" class="w-8 bg-transparent text-center font-mono text-xs text-white outline-none" oninput="applyStrokeWidth(this.value)">
+                  <button onclick="stepVal('inp-stroke-width', 0.5)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-plus-lg text-[9px]"></i></button>
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- Stroke -->
-          <div class="space-y-1.5">
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-gray-300 font-medium text-[11px]">Stroke</span>
-              <div class="flex items-center bg-[#13161f] rounded-lg border border-[#393e4d] p-0.5">
-                <button onclick="stepVal('inp-stroke-width', -0.5)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-dash-lg text-[9px]"></i></button>
-                <input type="number" id="inp-stroke-width" min="0" max="50" step="0.5" value="1.5" class="w-8 bg-transparent text-center font-mono text-xs text-white outline-none" oninput="applyStrokeWidth(this.value)">
-                <button onclick="stepVal('inp-stroke-width', 0.5)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-plus-lg text-[9px]"></i></button>
-              </div>
-            </div>
             <div class="flex items-center bg-[#13161f] p-1.5 rounded-xl border border-[#393e4d] gap-2">
               <input type="color" id="inp-stroke-picker" value="#ffffff" class="w-5 h-5 bg-transparent cursor-pointer rounded" onchange="applyColor('stroke', this.value)">
               <input type="text" id="inp-stroke-hex" value="#FFFFFF" class="w-20 bg-transparent font-mono text-[11px] uppercase outline-none text-white" onchange="applyColor('stroke', this.value)">
               <div class="flex gap-1 ml-auto">
-                <button onclick="applyStrokeWidth(0.5)" class="px-1.5 py-0.5 bg-white/10 hover:bg-white/20 rounded text-[9px] text-gray-300">0.5</button>
-                <button onclick="applyStrokeWidth(1.5)" class="px-1.5 py-0.5 bg-[#1a73e8] rounded text-[9px] text-white font-semibold">1.5</button>
-                <button onclick="applyStrokeWidth(3)" class="px-1.5 py-0.5 bg-white/10 hover:bg-white/20 rounded text-[9px] text-gray-300">3.0</button>
+                <button onclick="applyStrokeWidth(1)" class="px-1.5 py-0.5 bg-white/10 hover:bg-white/20 rounded text-[9px] text-gray-300">1px</button>
+                <button onclick="applyStrokeWidth(2.5)" class="px-1.5 py-0.5 bg-[#1a73e8] rounded text-[9px] text-white font-semibold">2.5px</button>
+                <button onclick="applyStrokeWidth(5)" class="px-1.5 py-0.5 bg-white/10 hover:bg-white/20 rounded text-[9px] text-gray-300">5px</button>
               </div>
             </div>
+
+            <!-- Stroke Dash Presets (Solid, Dashed, Dotted) -->
+            <div class="flex items-center justify-between text-xs pt-1">
+              <span class="text-gray-400 text-[10px]">Line Style</span>
+              <div class="flex items-center gap-1">
+                <button onclick="applyStrokeDash('solid')" class="px-2 py-0.5 bg-white/10 hover:bg-[#1a73e8] rounded text-[10px] text-gray-200">Solid</button>
+                <button onclick="applyStrokeDash('dashed')" class="px-2 py-0.5 bg-white/10 hover:bg-[#1a73e8] rounded text-[10px] text-gray-200">Dashed</button>
+                <button onclick="applyStrokeDash('dotted')" class="px-2 py-0.5 bg-white/10 hover:bg-[#1a73e8] rounded text-[10px] text-gray-200">Dotted</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- FILL (CAN BE COMBINED WITH STROKE) -->
+          <div id="inspector-fill-section" class="space-y-1.5 pt-1 border-t border-[#393e4d]">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-300 font-medium text-[11px]">Fill Color</span>
+              <button onclick="applyColor('fill', 'transparent')" class="text-[10px] text-gray-400 hover:text-red-300" title="Remove Fill">None (Transparent)</button>
+            </div>
+            <div class="flex items-center bg-[#13161f] p-1.5 rounded-xl border border-[#393e4d] gap-2">
+              <input type="color" id="inp-fill-picker" value="#ffffff" class="w-5 h-5 bg-transparent cursor-pointer rounded" onchange="applyColor('fill', this.value)">
+              <input type="text" id="inp-fill-hex" value="TRANSPARENT" class="w-20 bg-transparent font-mono text-[11px] uppercase outline-none text-white" onchange="applyColor('fill', this.value)">
+              <div class="flex gap-1 ml-auto">
+                <button onclick="applyColor('fill', '#ffffff')" class="w-4 h-4 rounded-full bg-white border border-black/30" title="Solid White"></button>
+                <button onclick="applyColor('fill', 'rgba(255,255,255,0.65)')" class="w-4 h-4 rounded-full bg-white/60 border border-white/30" title="Tooth Translucent"></button>
+                <button onclick="applyColor('fill', '#1a73e8')" class="w-4 h-4 rounded-full bg-[#1a73e8] border border-white/20" title="Royal Blue"></button>
+                <button onclick="applyColor('fill', '#22d3ee')" class="w-4 h-4 rounded-full bg-cyan-400 border border-white/20" title="Cyan"></button>
+              </div>
+            </div>
+          </div>
+          <div id="inspector-line-hint" class="hidden text-[10px] text-cyan-300/80 bg-cyan-900/20 p-2 rounded-lg border border-cyan-800/40">
+            <i class="bi bi-info-circle mr-1"></i> Reference Lines use <b>Stroke</b> only for styling and color.
           </div>
         </div>
 
@@ -445,7 +515,7 @@
   </div>
 
   <!-- CONTEXT MENU -->
-  <div id="customContextMenu" class="hidden fixed z-50 m3-surface-container p-1.5 w-52 shadow-2xl flex flex-col gap-0.5 text-xs border border-white/20">
+  <div id="customContextMenu" class="hidden fixed z-50 m3-surface-container p-1.5 w-56 shadow-2xl flex flex-col gap-0.5 text-xs border border-white/20">
     <button onclick="executeContextAction('editPoints')" id="ctx-edit-points" class="px-3 py-1.5 rounded-xl hover:bg-[#1a73e8] text-left flex items-center justify-between text-white transition">
       <span>Edit Vector Points</span>
       <span class="text-[10px] text-gray-400">Dbl-Click</span>
@@ -454,6 +524,15 @@
       <span>Crop</span>
       <span class="text-[10px] text-gray-400">C</span>
     </button>
+    <button onclick="executeContextAction('mirrorH')" class="px-3 py-1.5 rounded-xl hover:bg-white/10 text-left flex items-center justify-between text-gray-200 transition">
+      <span>Flip Horizontal</span>
+      <span class="text-[10px] text-gray-400 font-mono">Shift+H</span>
+    </button>
+    <button onclick="executeContextAction('mirrorV')" class="px-3 py-1.5 rounded-xl hover:bg-white/10 text-left flex items-center justify-between text-gray-200 transition">
+      <span>Flip Vertical</span>
+      <span class="text-[10px] text-gray-400 font-mono">Shift+V</span>
+    </button>
+    <div class="h-[1px] bg-white/10 my-0.5"></div>
     <button onclick="executeContextAction('ungroup')" id="ctx-ungroup" class="px-3 py-1.5 rounded-xl hover:bg-[#1a73e8] text-left flex items-center justify-between text-white transition">
       <span>Ungroup</span>
       <span class="text-[10px] text-gray-400">Ctrl+Shift+G</span>
@@ -472,7 +551,7 @@
     <div class="h-[1px] bg-white/10 my-0.5"></div>
     <button onclick="executeContextAction('delete')" class="px-3 py-1.5 rounded-xl hover:bg-red-500/25 text-red-300 text-left flex items-center justify-between transition">
       <span>Delete</span>
-      <span class="text-[10px] text-gray-400">Del</span>
+      <span class="text-[10px] text-gray-400 font-mono">Del / Backspace</span>
     </button>
   </div>
 
@@ -573,10 +652,11 @@
     let lastX = 0, lastY = 0;
     let shapeCounter = 0;
     let activeExportFmt = 'png';
-    let currentStrokeWidth = 1.5;
+    let currentStrokeWidth = 2.0;
     let currentStrokeColor = '#ffffff';
     let currentFillColor = 'transparent';
     let currentCanvasBg = '#090c13';
+    let pencilFillEnabled = false;
     let _canvasClipboard = null;
 
     window.addEventListener('resize', () => {
@@ -608,7 +688,7 @@
       setTimeout(() => {
         toast.classList.add('opacity-0', 'translate-y-2');
         setTimeout(() => toast.remove(), 250);
-      }, 2500);
+      }, 2300);
     }
 
     function showConfirmModal(title, msg, onConfirm) {
@@ -688,22 +768,53 @@
     }
 
     /* ============================================================
-       KEYBOARD SHORTCUTS & 100% RELIABLE DELETE
+       KEYBOARD SHORTCUTS: 100% RELIABLE DELETE, SHIFT+H FLIP & [ / ]
        ============================================================ */
     window.addEventListener('keydown', (e) => {
-      // Allow normal typing inside input/textarea
-      if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName) || document.activeElement.isContentEditable) {
-        return;
-      }
+      const isInput = ['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName) || document.activeElement.isContentEditable;
+      const activeObj = canvas.getActiveObject();
+      const isEditingIText = activeObj && activeObj.isEditing;
 
-      // Delete / Backspace: Always works!
+      // 1. DELETE / BACKSPACE — Always works reliably when not typing inside an input/IText
       if (e.key === 'Delete' || e.key === 'Backspace') {
+        if (isInput || isEditingIText) {
+          return; // Allow regular character deletion
+        }
         e.preventDefault();
         deleteSelected();
         return;
       }
 
-      // Group / Ungroup
+      // If typing inside an input or IText, do not trigger single-key hotkeys
+      if (isInput || isEditingIText) {
+        return;
+      }
+
+      // 2. FLIP HORIZONTAL (Shift+H) & FLIP VERTICAL (Shift+V)
+      if (e.shiftKey && (e.key === 'H' || e.key === 'h')) {
+        e.preventDefault();
+        mirrorSelected();
+        return;
+      }
+      if (e.shiftKey && (e.key === 'V' || e.key === 'v')) {
+        e.preventDefault();
+        flipVerticalSelected();
+        return;
+      }
+
+      // 3. PENCIL / STROKE SIZE SHORTCUTS: [ (decrease) and ] (increase)
+      if (e.key === '[' || e.key === '{') {
+        e.preventDefault();
+        stepPencilBrush(-0.5);
+        return;
+      }
+      if (e.key === ']' || e.key === '}') {
+        e.preventDefault();
+        stepPencilBrush(0.5);
+        return;
+      }
+
+      // 4. GROUP / UNGROUP
       if ((e.ctrlKey || e.metaKey) && (e.key === 'g' || e.key === 'G')) {
         e.preventDefault();
         if (e.shiftKey) ungroupSelected();
@@ -711,7 +822,7 @@
         return;
       }
 
-      // Arrow Nudging
+      // 5. ARROW KEYS (NUDGE)
       if (e.key.startsWith('Arrow')) {
         e.preventDefault();
         const step = e.shiftKey ? 10 : (e.altKey ? 0.5 : 1);
@@ -730,11 +841,10 @@
           return;
         }
 
-        const active = canvas.getActiveObject();
-        if (active) {
-          active.left += dx;
-          active.top += dy;
-          active.setCoords();
+        if (activeObj) {
+          activeObj.left += dx;
+          activeObj.top += dy;
+          activeObj.setCoords();
           canvas.requestRenderAll();
           syncInspector();
           saveState();
@@ -742,7 +852,7 @@
         return;
       }
 
-      // Mode Confirmations
+      // 6. ENTER / ESCAPE MODAL CONFIRMATIONS
       if (e.key === 'Enter') {
         if (PointEditor.isEditing) { PointEditor.stopEditing(); return; }
         if (CropManager.isCropping) { CropManager.applyCrop(); return; }
@@ -752,22 +862,23 @@
         if (CropManager.isCropping) { CropManager.cancelCrop(); return; }
       }
 
-      // Tool selection shortcuts
+      // 7. TOOL SELECTION SHORTCUTS
       if (e.key === 'v' || e.key === 'V') setTool('select');
       if (e.key === 'h' || e.key === 'H') setTool('hand');
       if (e.key === 'b' || e.key === 'B') setTool('pencil');
       if (e.key === 'c' || e.key === 'C') CropManager.startCrop();
       if (e.key === 'p' || e.key === 'P') addBezierCurve();
-      if (e.key === 'l' || e.key === 'L') addMidline();
+      if (e.key === 'l' || e.key === 'L') addStraightLine();
+      if (e.key === 'm' || e.key === 'M') addMidline();
       if (e.key === 'r' || e.key === 'R') addRectangle();
       if (e.key === 'o' || e.key === 'O') addCircle();
       if (e.key === 't' || e.key === 'T') addText();
 
-      // Undo / Redo
+      // 8. UNDO / REDO / DUPLICATE
       if (e.ctrlKey || e.metaKey) {
-        if (e.key === 'z') { e.preventDefault(); undo(); }
-        if (e.key === 'y') { e.preventDefault(); redo(); }
-        if (e.key === 'd') { e.preventDefault(); duplicateSelected(); }
+        if (e.key === 'z' || e.key === 'Z') { e.preventDefault(); undo(); }
+        if (e.key === 'y' || e.key === 'Y') { e.preventDefault(); redo(); }
+        if (e.key === 'd' || e.key === 'D') { e.preventDefault(); duplicateSelected(); }
       }
     });
 
@@ -814,7 +925,7 @@
       if (_canvasClipboard) {
         e.preventDefault();
         _canvasClipboard.clone((cloned) => {
-          canvas.discardActiveGroup();
+          if (typeof canvas.discardActiveObject === 'function') canvas.discardActiveObject();
           cloned.set({
             left: cloned.left + 24,
             top: cloned.top + 24,
@@ -858,33 +969,92 @@
         activeBtn.classList.remove('text-gray-300');
       }
 
+      const pencilDock = document.getElementById('pencil-subdock');
+
       if (tool === 'pencil') {
         canvas.isDrawingMode = true;
         canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
         canvas.freeDrawingBrush.width = currentStrokeWidth;
         canvas.freeDrawingBrush.color = currentStrokeColor;
         canvas.defaultCursor = 'crosshair';
-      } else if (tool === 'hand') {
-        canvas.isDrawingMode = false;
-        canvas.defaultCursor = 'grab';
-        canvas.selection = false;
-        canvas.forEachObject(o => o.selectable = false);
+        pencilDock.classList.remove('hidden');
+        updatePencilDockUI();
+        showToast('Pencil tool active — Draw curves & shapes', 'info');
       } else {
-        canvas.isDrawingMode = false;
-        canvas.defaultCursor = 'default';
-        canvas.selection = true;
-        canvas.forEachObject(o => o.selectable = true);
+        pencilDock.classList.add('hidden');
+        if (tool === 'hand') {
+          canvas.isDrawingMode = false;
+          canvas.defaultCursor = 'grab';
+          canvas.selection = false;
+          canvas.forEachObject(o => o.selectable = false);
+        } else {
+          canvas.isDrawingMode = false;
+          canvas.defaultCursor = 'default';
+          canvas.selection = true;
+          canvas.forEachObject(o => o.selectable = true);
+        }
       }
     }
 
-    // Pencil Drawing Created -> Direct Vector Path with Live Fill
+    /* ============================================================
+       PENCIL SETTINGS & DYNAMIC BRUSH CONTROLS
+       ============================================================ */
+    function updatePencilDockUI() {
+      const lbl = document.getElementById('lbl-pencil-brush-size');
+      if (lbl) lbl.innerText = currentStrokeWidth.toFixed(1);
+      const colPicker = document.getElementById('pencil-dock-color');
+      if (colPicker && currentStrokeColor.startsWith('#')) colPicker.value = currentStrokeColor;
+      const fillTxt = document.getElementById('txt-pencil-fill-state');
+      if (fillTxt) fillTxt.innerText = pencilFillEnabled ? 'On' : 'Off';
+    }
+
+    function setPencilBrushWidth(w) {
+      const width = Math.max(parseFloat(w) || 1, 0.5);
+      currentStrokeWidth = width;
+      if (canvas.isDrawingMode && canvas.freeDrawingBrush) {
+        canvas.freeDrawingBrush.width = width;
+      }
+      safeSetVal('inp-stroke-width', width);
+      updatePencilDockUI();
+
+      // If an object is active, sync its stroke width too
+      const active = canvas.getActiveObject();
+      if (active) applyStrokeWidth(width);
+      showToast(`Brush Width: ${width}px`, 'info');
+    }
+
+    function stepPencilBrush(delta) {
+      const newW = Math.max(0.5, Math.round((currentStrokeWidth + delta) * 10) / 10);
+      setPencilBrushWidth(newW);
+    }
+
+    function setPencilColor(hex) {
+      currentStrokeColor = hex;
+      if (canvas.isDrawingMode && canvas.freeDrawingBrush) {
+        canvas.freeDrawingBrush.color = hex;
+      }
+      safeSetVal('inp-stroke-hex', hex);
+      safeSetVal('inp-stroke-picker', hex);
+      const active = canvas.getActiveObject();
+      if (active) applyColor('stroke', hex);
+    }
+
+    function togglePencilFill() {
+      pencilFillEnabled = !pencilFillEnabled;
+      updatePencilDockUI();
+      showToast(`Pencil Fill on Draw: ${pencilFillEnabled ? 'Enabled' : 'Disabled'}`, 'info');
+    }
+
+    // Pencil Drawing Created -> Direct Vector Path with Independent Stroke & Fill
     canvas.on('path:created', (e) => {
       const path = e.path;
       path.set({
         name: `Path ${++shapeCounter}`,
-        fill: currentFillColor === 'transparent' ? '' : currentFillColor,
+        fill: pencilFillEnabled ? (currentFillColor === 'transparent' ? 'rgba(255,255,255,0.3)' : currentFillColor) : '',
         stroke: currentStrokeColor,
         strokeWidth: currentStrokeWidth,
+        strokeLineCap: 'round',
+        strokeLineJoin: 'round',
         strokeUniform: true,
         customType: 'vector-path'
       });
@@ -893,11 +1063,11 @@
       updateLayersTree();
       syncInspector();
       saveState();
-      showToast('Drawn as vector SVG', 'success');
+      showToast('Path drawn — Add/edit outline & fill in inspector', 'success');
     });
 
     canvas.on('mouse:down', (opt) => {
-      // Clear input focus so delete key works reliably
+      // Clear input focus so delete/shortcuts work reliably
       if (document.activeElement && document.activeElement.blur) {
         document.activeElement.blur();
       }
@@ -964,8 +1134,8 @@
       btnEditPts.style.display = (active && active.type === 'path') ? 'flex' : 'none';
       btnCrop.style.display = (active && (active.type === 'image' || active.type === 'group')) ? 'flex' : 'none';
 
-      contextMenu.style.left = `${Math.min(window.innerWidth - 220, e.clientX)}px`;
-      contextMenu.style.top = `${Math.min(window.innerHeight - 240, e.clientY)}px`;
+      contextMenu.style.left = `${Math.min(window.innerWidth - 230, e.clientX)}px`;
+      contextMenu.style.top = `${Math.min(window.innerHeight - 260, e.clientY)}px`;
       contextMenu.classList.remove('hidden');
     });
 
@@ -974,10 +1144,12 @@
     function executeContextAction(action) {
       contextMenu.classList.add('hidden');
       const active = canvas.getActiveObject();
-      if (!active) return;
+      if (!active && action !== 'delete') return;
 
       if (action === 'editPoints') PointEditor.startEditing(active);
       if (action === 'crop') CropManager.startCrop();
+      if (action === 'mirrorH') mirrorSelected();
+      if (action === 'mirrorV') flipVerticalSelected();
       if (action === 'ungroup') ungroupSelected();
       if (action === 'group') groupSelected();
       if (action === 'bringFront') { canvas.bringToFront(active); canvas.requestRenderAll(); updateLayersTree(); saveState(); }
@@ -987,7 +1159,7 @@
     }
 
     /* ============================================================
-       GROUPING & ATOMIC DELETION
+       GROUPING & ATOMIC DELETION (ROBUST DELETE)
        ============================================================ */
     function groupSelected() {
       const active = canvas.getActiveObject();
@@ -1017,8 +1189,12 @@
     }
 
     function deleteSelected() {
+      // If editing vector points, delete the active point
       if (PointEditor.isEditing) {
-        if (PointEditor.deleteActiveNode()) return;
+        if (PointEditor.deleteActiveNode()) {
+          showToast('Anchor point deleted', 'info');
+          return;
+        }
         PointEditor.stopEditing();
       }
       if (CropManager.isCropping) {
@@ -1031,10 +1207,10 @@
 
       if (activeObj.type === 'activeSelection') {
         const objects = activeObj.getObjects().slice();
-        canvas.discardActiveGroup();
+        if (typeof canvas.discardActiveObject === 'function') canvas.discardActiveObject();
         objects.forEach(o => canvas.remove(o));
       } else {
-        canvas.discardActiveGroup();
+        if (typeof canvas.discardActiveObject === 'function') canvas.discardActiveObject();
         canvas.remove(activeObj);
       }
 
@@ -1065,8 +1241,73 @@
     }
 
     /* ============================================================
-       BÉZIER CURVES & REFERENCE LINES
+       MIRROR & FLIP ENGINE (SHIFT+H & SHIFT+V)
        ============================================================ */
+    function mirrorSelected() {
+      const obj = canvas.getActiveObject();
+      if (!obj) {
+        showToast('Select an element to flip horizontally', 'info');
+        return;
+      }
+      obj.set('flipX', !obj.flipX);
+      obj.setCoords();
+      canvas.requestRenderAll();
+      syncInspector();
+      saveState();
+      showToast(obj.flipX ? 'Flipped Horizontally (Shift+H)' : 'Restored Horizontal Flip', 'info');
+    }
+
+    function flipVerticalSelected() {
+      const obj = canvas.getActiveObject();
+      if (!obj) {
+        showToast('Select an element to flip vertically', 'info');
+        return;
+      }
+      obj.set('flipY', !obj.flipY);
+      obj.setCoords();
+      canvas.requestRenderAll();
+      syncInspector();
+      saveState();
+      showToast(obj.flipY ? 'Flipped Vertically (Shift+V)' : 'Restored Vertical Flip', 'info');
+    }
+
+    /* ============================================================
+       STRAIGHT LINE, MIDLINE & BÉZIER CURVES
+       ============================================================ */
+    function addStraightLine() {
+      const c = canvas.getVpCenter();
+      const line = new fabric.Line([c.x - 120, c.y, c.x + 120, c.y], {
+        stroke: currentStrokeColor || '#ffffff',
+        strokeWidth: currentStrokeWidth || 2,
+        strokeUniform: true,
+        strokeLineCap: 'round',
+        name: `Line ${++shapeCounter}`,
+        customType: 'line'
+      });
+      canvas.add(line);
+      canvas.setActiveObject(line);
+      setTool('select');
+      saveState();
+      showToast('Straight Reference Line added (L)', 'success');
+    }
+
+    function addMidline() {
+      const c = canvas.getVpCenter();
+      const line = new fabric.Line([c.x, c.y - 150, c.x, c.y + 150], {
+        stroke: '#22d3ee',
+        strokeWidth: 2,
+        strokeUniform: true,
+        strokeLineCap: 'round',
+        name: `Midline ${++shapeCounter}`,
+        customType: 'midline'
+      });
+      canvas.add(line);
+      canvas.setActiveObject(line);
+      setTool('select');
+      saveState();
+      showToast('Vertical Midline added (M)', 'success');
+    }
+
     function addBezierCurve() {
       const c = canvas.getVpCenter();
       const p0 = { x: c.x - 120, y: c.y + 35 };
@@ -1079,6 +1320,7 @@
         fill: '',
         strokeWidth: currentStrokeWidth,
         strokeLineCap: 'round',
+        strokeLineJoin: 'round',
         strokeUniform: true,
         name: `Curve ${++shapeCounter}`,
         customType: 'bezier'
@@ -1090,22 +1332,6 @@
       saveState();
       PointEditor.startEditing(curve);
       showToast('Bézier curve added — Drag handles to bend', 'success');
-    }
-
-    function addMidline() {
-      const c = canvas.getVpCenter();
-      const line = new fabric.Line([c.x, c.y - 140, c.x, c.y + 140], {
-        stroke: '#22d3ee',
-        strokeWidth: 1.5,
-        strokeUniform: true,
-        name: `Midline ${++shapeCounter}`,
-        customType: 'midline'
-      });
-      canvas.add(line);
-      canvas.setActiveObject(line);
-      setTool('select');
-      saveState();
-      showToast('Midline reference added', 'success');
     }
 
     function addRectangle() {
@@ -1172,7 +1398,7 @@
         active.setCoords();
         canvas.requestRenderAll();
         saveState();
-        showToast('Path closed', 'success');
+        showToast('Path closed into solid vector shape', 'success');
       }
     }
 
@@ -1275,8 +1501,6 @@
         this.stopEditing();
         this.isEditing = true;
 
-        // Step 1: Normalize all commands to Absolute Canvas Coordinates
-        // This guarantees the shape NEVER jumps when editing!
         const matrix = pathObj.calcTransformMatrix();
         const offset = pathObj.pathOffset || { x: 0, y: 0 };
         const rawCmds = JSON.parse(JSON.stringify(pathObj.path));
@@ -1296,21 +1520,19 @@
             const cp2 = fabric.util.transformPoint({ x: cmd[3] - offset.x, y: cmd[4] - offset.y }, matrix);
             const pt = fabric.util.transformPoint({ x: cmd[5] - offset.x, y: cmd[6] - offset.y }, matrix);
             newCmd.push(cp1.x, cp1.y, cp2.x, cp2.y, pt.x, pt.y);
-          } else if (op === 'Z') {
-            // Close command
           }
           return newCmd;
         });
 
         this.absCommands = absCmds;
 
-        // Replace original object with the canvas-space normalized path
         const absPathStr = this.buildPathString(absCmds);
         const normPath = new fabric.Path(absPathStr, {
           fill: pathObj.fill,
           stroke: pathObj.stroke,
           strokeWidth: pathObj.strokeWidth,
           strokeLineCap: 'round',
+          strokeLineJoin: 'round',
           strokeUniform: true,
           selectable: false,
           evented: false,
@@ -1323,7 +1545,6 @@
         canvas.insertAt(normPath, origIdx);
         this.activePath = normPath;
 
-        // Step 2: Render Anchor Nodes & Bézier Tangent Guides
         this.createHandles();
 
         document.getElementById('point-edit-banner').classList.remove('hidden');
@@ -1352,7 +1573,6 @@
             canvas.add(anchor);
             lastAnchorPt = { x: cmd[1], y: cmd[2] };
           } else if (op === 'Q') {
-            // Quadratic Curve: [Q, cx, cy, x, y]
             const cpHandle = this.makeControlHandle(cmd[1], cmd[2], cmdIdx, 1, 2);
             const anchor = this.makeAnchorHandle(cmd[3], cmd[4], cmdIdx, 3, 4);
 
@@ -1372,7 +1592,6 @@
             canvas.add(cpHandle, anchor);
             lastAnchorPt = { x: cmd[3], y: cmd[4] };
           } else if (op === 'C') {
-            // Cubic Curve: [C, cp1x, cp1y, cp2x, cp2y, x, y]
             const cp1 = this.makeControlHandle(cmd[1], cmd[2], cmdIdx, 1, 2);
             const cp2 = this.makeControlHandle(cmd[3], cmd[4], cmdIdx, 3, 4);
             const anchor = this.makeAnchorHandle(cmd[5], cmd[6], cmdIdx, 5, 6);
@@ -1454,11 +1673,9 @@
       },
 
       onHandleMove(handle) {
-        // Update the absolute command coordinates 1:1
         this.absCommands[handle.cmdIdx][handle.xIdx] = handle.left;
         this.absCommands[handle.cmdIdx][handle.yIdx] = handle.top;
 
-        // Re-render the normalized path instantly without any jump
         const pathStr = this.buildPathString(this.absCommands);
         const pIdx = canvas.getObjects().indexOf(this.activePath);
         canvas.remove(this.activePath);
@@ -1468,6 +1685,7 @@
           stroke: this.activePath.stroke,
           strokeWidth: this.activePath.strokeWidth,
           strokeLineCap: 'round',
+          strokeLineJoin: 'round',
           strokeUniform: true,
           selectable: false,
           evented: false,
@@ -1478,7 +1696,6 @@
         canvas.insertAt(updatedPath, pIdx);
         this.activePath = updatedPath;
 
-        // Update connected guide lines
         if (handle.guides) {
           handle.guides.forEach(g => {
             if (handle.nodeType === 'control') {
@@ -1513,6 +1730,8 @@
           fill: this.activePath.fill,
           stroke: this.activePath.stroke,
           strokeWidth: this.activePath.strokeWidth,
+          strokeLineCap: 'round',
+          strokeLineJoin: 'round',
           strokeUniform: true,
           selectable: false,
           evented: false,
@@ -1585,7 +1804,6 @@
 
         const bounds = active.getBoundingRect();
 
-        // Crop frame with edge and corner resize handles
         this.cropBox = new fabric.Rect({
           left: bounds.left,
           top: bounds.top,
@@ -1627,7 +1845,6 @@
         const targetBounds = target.getBoundingRect();
         const cropBounds = crop.getBoundingRect();
 
-        // High-res pixel render of the target
         const multiplier = 2;
         const dataUrl = target.toDataURL({ multiplier: multiplier, format: 'png' });
         const img = new Image();
@@ -1726,7 +1943,7 @@
       safeSetVal('inp-dim-h', Math.round(obj.getScaledHeight() || 0));
       safeSetVal('inp-rotation', Math.round(obj.angle || 0));
 
-      const strokeW = obj.strokeWidth || 1.5;
+      const strokeW = (obj.strokeWidth !== undefined && obj.stroke) ? obj.strokeWidth : 0;
       safeSetVal('inp-stroke-width', strokeW);
 
       if (obj.stroke && typeof obj.stroke === 'string') {
@@ -1736,11 +1953,10 @@
         }
       }
 
-      if (obj.fill && typeof obj.fill === 'string') {
-        safeSetVal('inp-fill-hex', obj.fill);
-        if (obj.fill.startsWith('#') && obj.fill.length === 7) {
-          safeSetVal('inp-fill-picker', obj.fill);
-        }
+      const fillVal = (obj.fill && typeof obj.fill === 'string') ? obj.fill : 'TRANSPARENT';
+      safeSetVal('inp-fill-hex', fillVal.toUpperCase());
+      if (fillVal.startsWith('#') && fillVal.length === 7) {
+        safeSetVal('inp-fill-picker', fillVal);
       }
 
       const op = Math.round((obj.opacity ?? 1) * 100);
@@ -1753,6 +1969,18 @@
 
       const cropAction = document.getElementById('bento-crop-action');
       if (cropAction) cropAction.style.display = (obj.type === 'image' || obj.type === 'group') ? 'block' : 'none';
+
+      // Line / Midline Elements use Stroke exclusively
+      const fillSection = document.getElementById('inspector-fill-section');
+      const lineHint = document.getElementById('inspector-line-hint');
+      const isLine = obj.type === 'line' || obj.customType === 'midline' || obj.customType === 'line';
+      if (isLine) {
+        if (fillSection) fillSection.classList.add('hidden');
+        if (lineHint) lineHint.classList.remove('hidden');
+      } else {
+        if (fillSection) fillSection.classList.remove('hidden');
+        if (lineHint) lineHint.classList.add('hidden');
+      }
     }
 
     function safeSetVal(id, val) {
@@ -1804,50 +2032,112 @@
       saveState();
     }
 
-    function mirrorSelected() {
-      const obj = canvas.getActiveObject();
-      if (!obj) return;
-      obj.set('flipX', !obj.flipX);
-      canvas.requestRenderAll();
-      saveState();
-    }
-
+    /* ============================================================
+       STROKE, OUTLINE & FILL CONTROLS
+       ============================================================ */
     function applyStrokeWidth(w) {
-      const width = parseFloat(w) || 1.5;
+      const width = Math.max(parseFloat(w) || 0, 0);
       currentStrokeWidth = width;
       safeSetVal('inp-stroke-width', width);
 
       if (canvas.isDrawingMode && canvas.freeDrawingBrush) {
         canvas.freeDrawingBrush.width = width;
+        updatePencilDockUI();
       }
 
       const obj = canvas.getActiveObject();
       if (!obj) return;
-      obj.set({ strokeWidth: width, strokeUniform: true });
+
+      if (width === 0) {
+        obj.set({ strokeWidth: 0 });
+      } else {
+        const strokeCol = (obj.stroke && obj.stroke !== 'transparent') ? obj.stroke : (currentStrokeColor || '#ffffff');
+        obj.set({
+          stroke: strokeCol,
+          strokeWidth: width,
+          strokeUniform: true
+        });
+        safeSetVal('inp-stroke-hex', strokeCol);
+        if (strokeCol.startsWith('#')) safeSetVal('inp-stroke-picker', strokeCol);
+      }
+
+      obj.setCoords();
       canvas.requestRenderAll();
       saveState();
     }
 
-    function applyColor(type, col) {
-      if (type === 'stroke') {
-        currentStrokeColor = col;
-        safeSetVal('inp-stroke-hex', col);
-        safeSetVal('inp-stroke-picker', col);
-        if (canvas.isDrawingMode && canvas.freeDrawingBrush) {
-          canvas.freeDrawingBrush.color = col;
-        }
-      } else if (type === 'fill') {
-        currentFillColor = col;
-        safeSetVal('inp-fill-hex', col);
-        if (col.startsWith('#')) safeSetVal('inp-fill-picker', col);
-      }
-
+    function applyStrokeDash(style) {
       const obj = canvas.getActiveObject();
       if (!obj) return;
-      obj.set(type, col === 'transparent' ? '' : col);
+      if (style === 'solid') obj.set('strokeDashArray', null);
+      else if (style === 'dashed') obj.set('strokeDashArray', [6, 4]);
+      else if (style === 'dotted') obj.set('strokeDashArray', [2, 3]);
+
+      obj.setCoords();
+      canvas.requestRenderAll();
+      saveState();
+      showToast(`Line Style: ${style}`, 'info');
+    }
+
+    function toggleActiveOutline() {
+      const obj = canvas.getActiveObject();
+      if (!obj) return;
+      if (obj.stroke && obj.strokeWidth > 0) {
+        obj.set({ stroke: null, strokeWidth: 0 });
+        showToast('Outline removed', 'info');
+      } else {
+        const color = currentStrokeColor || '#ffffff';
+        const width = currentStrokeWidth || 2;
+        obj.set({ stroke: color, strokeWidth: width, strokeUniform: true });
+        showToast('Outline applied', 'success');
+      }
+      obj.setCoords();
       canvas.requestRenderAll();
       syncInspector();
       saveState();
+    }
+
+    function applyColor(type, col) {
+      const obj = canvas.getActiveObject();
+
+      if (type === 'stroke') {
+        currentStrokeColor = col;
+        safeSetVal('inp-stroke-hex', col);
+        if (col.startsWith('#')) safeSetVal('inp-stroke-picker', col);
+        if (canvas.isDrawingMode && canvas.freeDrawingBrush) {
+          canvas.freeDrawingBrush.color = col;
+          updatePencilDockUI();
+        }
+
+        if (obj) {
+          if (col === 'transparent') {
+            obj.set({ stroke: null, strokeWidth: 0 });
+          } else {
+            const currentW = (obj.strokeWidth && obj.strokeWidth > 0) ? obj.strokeWidth : (currentStrokeWidth || 2);
+            obj.set({
+              stroke: col,
+              strokeWidth: currentW,
+              strokeUniform: true
+            });
+            safeSetVal('inp-stroke-width', currentW);
+          }
+        }
+      } else if (type === 'fill') {
+        currentFillColor = col;
+        safeSetVal('inp-fill-hex', col.toUpperCase());
+        if (col.startsWith('#')) safeSetVal('inp-fill-picker', col);
+
+        if (obj) {
+          obj.set('fill', col === 'transparent' ? '' : col);
+        }
+      }
+
+      if (obj) {
+        obj.setCoords();
+        canvas.requestRenderAll();
+        syncInspector();
+        saveState();
+      }
     }
 
     function applyOpacity(val) {
@@ -1899,6 +2189,7 @@
         let icon = '<i class="bi bi-bezier2 text-[#a8c7fa]"></i>';
         if (obj.type === 'image') icon = '<i class="bi bi-image text-emerald-400"></i>';
         if (obj.type === 'group') icon = '<i class="bi bi-collection text-amber-300"></i>';
+        if (obj.type === 'line' || obj.customType === 'line') icon = '<i class="bi bi-dash-lg text-emerald-400"></i>';
         if (obj.customType === 'midline') icon = '<i class="bi bi-slash-lg text-cyan-400"></i>';
 
         div.innerHTML = `
@@ -2015,7 +2306,7 @@
 
     function saveState() {
       if (isHistoryOperating) return;
-      const json = JSON.stringify(canvas.toJSON(['name', 'customType', 'strokeUniform']));
+      const json = JSON.stringify(canvas.toJSON(['name', 'customType', 'strokeUniform', 'strokeDashArray']));
       history.splice(historyIdx + 1);
       history.push(json);
       if (history.length > 35) history.shift();
