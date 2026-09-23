@@ -170,8 +170,8 @@
 
       <div class="w-[1px] h-4 bg-white/20 mx-1"></div>
 
-      <!-- Real Photoshop-Style Cropper -->
-      <button onclick="CropStudio.startCrop()" class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 transition" title="Photoshop-Style Cropper (C)">
+      <!-- Photoshop-Style Cropper -->
+      <button onclick="CropStudio.startCrop()" class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 transition" title="Photoshop Crop (C)">
         <i class="bi bi-crop text-[#a8c7fa]"></i>
       </button>
 
@@ -305,68 +305,6 @@
         </div>
       </div>
 
-      <!-- ============================================================
-           AUTHENTIC PHOTOSHOP CROP STUDIO OVERLAY
-           ============================================================ -->
-      <div id="ps-crop-overlay" class="hidden absolute inset-0 z-40 pointer-events-auto select-none overflow-hidden flex flex-col">
-        <!-- Top Crop Controls Bar -->
-        <div class="h-12 bg-[#13161f]/95 backdrop-blur-2xl border-b border-white/15 px-4 flex items-center justify-between text-xs text-white z-50 shadow-2xl">
-          <div class="flex items-center gap-3">
-            <span class="font-bold flex items-center gap-1.5 text-[#a8c7fa]">
-              <i class="bi bi-crop"></i> Photoshop Crop Studio
-            </span>
-            <div class="h-4 w-[1px] bg-white/20"></div>
-            <span class="text-gray-400 text-[11px]">Ratio:</span>
-            <div class="flex items-center bg-black/40 rounded-lg p-0.5 border border-white/10">
-              <button onclick="CropStudio.setRatio('free')" id="crop-ratio-free" class="px-2 py-0.5 rounded text-[11px] bg-[#1a73e8] text-white">Free</button>
-              <button onclick="CropStudio.setRatio('1:1')" id="crop-ratio-1-1" class="px-2 py-0.5 rounded text-[11px] text-gray-300 hover:text-white">1:1</button>
-              <button onclick="CropStudio.setRatio('4:3')" id="crop-ratio-4-3" class="px-2 py-0.5 rounded text-[11px] text-gray-300 hover:text-white">4:3</button>
-              <button onclick="CropStudio.setRatio('16:9')" id="crop-ratio-16-9" class="px-2 py-0.5 rounded text-[11px] text-gray-300 hover:text-white">16:9</button>
-            </div>
-          </div>
-          <div class="flex items-center gap-2">
-            <button onclick="CropStudio.resetCrop()" class="px-3 py-1 bg-white/10 hover:bg-white/15 text-gray-300 rounded-full transition">Reset</button>
-            <button onclick="CropStudio.cancelCrop()" class="px-3.5 py-1 bg-white/10 hover:bg-white/15 text-gray-300 rounded-full transition">✕ Cancel (Esc)</button>
-            <button onclick="CropStudio.applyCrop()" class="px-4 py-1 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-semibold rounded-full shadow-md transition">✓ Apply Crop (Enter)</button>
-          </div>
-        </div>
-
-        <!-- Scrim Stage & Interactive Crop Box -->
-        <div id="ps-crop-stage" class="relative flex-1 w-full h-full overflow-hidden">
-          <div id="scrim-top" class="absolute bg-black/75 pointer-events-none transition-none"></div>
-          <div id="scrim-bottom" class="absolute bg-black/75 pointer-events-none transition-none"></div>
-          <div id="scrim-left" class="absolute bg-black/75 pointer-events-none transition-none"></div>
-          <div id="scrim-right" class="absolute bg-black/75 pointer-events-none transition-none"></div>
-
-          <div id="ps-crop-box" class="absolute border border-white cursor-move pointer-events-auto shadow-2xl">
-            <!-- Rule of Thirds Grid -->
-            <div class="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none opacity-40">
-              <div class="border-r border-b border-white/70"></div>
-              <div class="border-r border-b border-white/70"></div>
-              <div class="border-b border-white/70"></div>
-              <div class="border-r border-b border-white/70"></div>
-              <div class="border-r border-b border-white/70"></div>
-              <div class="border-b border-white/70"></div>
-              <div class="border-r border-white/70"></div>
-              <div class="border-r border-white/70"></div>
-              <div></div>
-            </div>
-
-            <!-- Corner L-Handles -->
-            <div data-handle="tl" class="crop-hdl absolute -top-1.5 -left-1.5 w-4 h-4 border-t-[3px] border-l-[3px] border-white cursor-nwse-resize"></div>
-            <div data-handle="tr" class="crop-hdl absolute -top-1.5 -right-1.5 w-4 h-4 border-t-[3px] border-r-[3px] border-white cursor-nesw-resize"></div>
-            <div data-handle="bl" class="crop-hdl absolute -bottom-1.5 -left-1.5 w-4 h-4 border-b-[3px] border-l-[3px] border-white cursor-nesw-resize"></div>
-            <div data-handle="br" class="crop-hdl absolute -bottom-1.5 -right-1.5 w-4 h-4 border-b-[3px] border-r-[3px] border-white cursor-nwse-resize"></div>
-
-            <!-- Edge Bar Handles -->
-            <div data-handle="t" class="crop-hdl absolute -top-1 left-1/2 -translate-x-1/2 w-8 h-1.5 bg-white rounded-full cursor-ns-resize shadow"></div>
-            <div data-handle="b" class="crop-hdl absolute -bottom-1 left-1/2 -translate-x-1/2 w-8 h-1.5 bg-white rounded-full cursor-ns-resize shadow"></div>
-            <div data-handle="l" class="crop-hdl absolute top-1/2 -left-1 -translate-y-1/2 h-8 w-1.5 bg-white rounded-full cursor-ew-resize shadow"></div>
-            <div data-handle="r" class="crop-hdl absolute top-1/2 -right-1 -translate-y-1/2 h-8 w-1.5 bg-white rounded-full cursor-ew-resize shadow"></div>
-          </div>
-        </div>
-      </div>
-
       <!-- Bottom Hint Bar -->
       <div class="m3-surface-container absolute bottom-4 left-6 px-4 py-1.5 rounded-full text-[11px] text-gray-300 flex items-center gap-3.5 pointer-events-none border border-white/10 shadow-lg">
         <span><kbd class="text-white font-mono font-semibold">Del / Backspace</kbd> Delete</span>
@@ -408,7 +346,7 @@
             <span class="text-[10px] font-bold uppercase tracking-wider text-pink-300">Extracted Lip Layer</span>
             <span class="text-[9px] bg-pink-400/20 text-pink-200 px-2 py-0.5 rounded-full font-mono">SEAMLESS</span>
           </div>
-          <p class="text-[11px] text-gray-300 leading-tight">This is an authentic PNG layer. Drag it near the mouth to snap magnetically, or use the buttons below.</p>
+          <p class="text-[11px] text-gray-300 leading-tight">Drag this layer near the mouth to snap magnetically, or use the quick buttons below.</p>
           <div class="grid grid-cols-2 gap-2 pt-1">
             <button onclick="snapLipLayerToMouth()" class="py-1.5 px-2 bg-gradient-to-r from-pink-600 to-indigo-600 hover:from-pink-500 hover:to-indigo-500 text-white font-medium rounded-xl text-xs transition shadow flex items-center justify-center gap-1">
               <span>🧲 Snap to Mouth</span>
@@ -432,7 +370,7 @@
           </button>
         </div>
 
-        <!-- Crop Button (For Images/SVGs) -->
+        <!-- Crop Button -->
         <div id="bento-crop-action" class="hidden m3-surface-container p-3 space-y-2">
           <span class="text-[10px] font-bold uppercase tracking-wider text-[#a8c7fa] block">Crop Frame</span>
           <button onclick="CropStudio.startCrop()" class="w-full py-1.5 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-semibold rounded-xl text-xs transition shadow-md flex items-center justify-center gap-1.5">
@@ -610,6 +548,75 @@
   </div>
 
   <!-- ============================================================
+       PHOTOSHOP CROP STUDIO MODAL (ISOLATED, PRECISE & ZERO-RESIDUE)
+       ============================================================ -->
+  <div id="ps-crop-studio-modal" class="hidden fixed inset-0 z-50 bg-[#07090e]/90 backdrop-blur-2xl flex flex-col select-none overflow-hidden">
+    <!-- Header -->
+    <div class="h-14 bg-[#13161f]/95 border-b border-white/10 px-5 flex items-center justify-between text-xs text-white shadow-xl z-50">
+      <div class="flex items-center gap-3">
+        <span class="font-bold flex items-center gap-2 text-cyan-300 text-sm">
+          <i class="bi bi-crop"></i> Photoshop Crop Studio
+        </span>
+        <div class="h-4 w-[1px] bg-white/20"></div>
+        <span class="text-gray-400">Aspect Ratio:</span>
+        <div class="flex items-center bg-black/40 rounded-lg p-0.5 border border-white/10">
+          <button onclick="CropStudio.setRatio('free')" id="crop-ratio-free" class="px-2.5 py-1 rounded text-xs bg-[#1a73e8] text-white">Free</button>
+          <button onclick="CropStudio.setRatio('1:1')" id="crop-ratio-1-1" class="px-2.5 py-1 rounded text-xs text-gray-300 hover:text-white">1:1</button>
+          <button onclick="CropStudio.setRatio('4:3')" id="crop-ratio-4-3" class="px-2.5 py-1 rounded text-xs text-gray-300 hover:text-white">4:3</button>
+          <button onclick="CropStudio.setRatio('16:9')" id="crop-ratio-16-9" class="px-2.5 py-1 rounded text-xs text-gray-300 hover:text-white">16:9</button>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="CropStudio.resetBox()" class="px-3.5 py-1.5 bg-white/10 hover:bg-white/15 text-gray-300 rounded-full transition">Reset</button>
+        <button onclick="CropStudio.cancelCrop()" class="px-4 py-1.5 bg-white/10 hover:bg-white/15 text-gray-300 rounded-full transition">✕ Cancel (Esc)</button>
+        <button onclick="CropStudio.applyCrop()" class="px-5 py-1.5 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-semibold rounded-full shadow-md transition">✓ Apply Crop (Enter)</button>
+      </div>
+    </div>
+
+    <!-- Interactive Working Stage -->
+    <div id="ps-crop-stage-container" class="relative flex-1 w-full h-full flex items-center justify-center p-6 overflow-hidden">
+      <!-- Container for Image + Scrim + Crop Frame -->
+      <div id="ps-crop-wrapper" class="relative shadow-2xl overflow-hidden">
+        <img id="ps-crop-img" class="block max-h-[78vh] max-w-[78vw] object-contain pointer-events-none" />
+        
+        <!-- Scrim Panels (Darkens outside area) -->
+        <div id="ps-scrim-t" class="absolute bg-black/75 pointer-events-none"></div>
+        <div id="ps-scrim-b" class="absolute bg-black/75 pointer-events-none"></div>
+        <div id="ps-scrim-l" class="absolute bg-black/75 pointer-events-none"></div>
+        <div id="ps-scrim-r" class="absolute bg-black/75 pointer-events-none"></div>
+
+        <!-- The Crop Box -->
+        <div id="ps-crop-box" class="absolute border border-white cursor-move pointer-events-auto shadow-2xl">
+          <!-- Rule of Thirds Grid -->
+          <div class="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none opacity-40">
+            <div class="border-r border-b border-white"></div>
+            <div class="border-r border-b border-white"></div>
+            <div class="border-b border-white"></div>
+            <div class="border-r border-b border-white"></div>
+            <div class="border-r border-b border-white"></div>
+            <div class="border-b border-white"></div>
+            <div class="border-r border-white"></div>
+            <div class="border-r border-white"></div>
+            <div></div>
+          </div>
+
+          <!-- 4 Corner L-Handles -->
+          <div data-handle="tl" class="absolute -top-1.5 -left-1.5 w-4 h-4 border-t-[3px] border-l-[3px] border-white cursor-nwse-resize"></div>
+          <div data-handle="tr" class="absolute -top-1.5 -right-1.5 w-4 h-4 border-t-[3px] border-r-[3px] border-white cursor-nesw-resize"></div>
+          <div data-handle="bl" class="absolute -bottom-1.5 -left-1.5 w-4 h-4 border-b-[3px] border-l-[3px] border-white cursor-nesw-resize"></div>
+          <div data-handle="br" class="absolute -bottom-1.5 -right-1.5 w-4 h-4 border-b-[3px] border-r-[3px] border-white cursor-nwse-resize"></div>
+
+          <!-- 4 Edge Bar Handles -->
+          <div data-handle="t" class="absolute -top-1 left-1/2 -translate-x-1/2 w-8 h-1.5 bg-white rounded-full cursor-ns-resize shadow"></div>
+          <div data-handle="b" class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-8 h-1.5 bg-white rounded-full cursor-ns-resize shadow"></div>
+          <div data-handle="l" class="absolute top-1/2 -left-1 -translate-y-1/2 h-8 w-1.5 bg-white rounded-full cursor-ew-resize shadow"></div>
+          <div data-handle="r" class="absolute top-1/2 -right-1 -translate-y-1/2 h-8 w-1.5 bg-white rounded-full cursor-ew-resize shadow"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
        MEDIAPIPE LIP CUTOUT MODAL
        ============================================================ -->
   <div id="mediapipe-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-xl flex items-center justify-center p-4">
@@ -624,7 +631,7 @@
       </div>
 
       <p class="text-xs text-gray-300 leading-relaxed">
-        This cuts out the actual photographic pixels of the <b>Upper and Lower Lips</b> from the patient photo into a separate, transparent PNG image layer. The lips part in the photo goes away, revealing the teeth and surrounding face. You can drag and position the lips anywhere.
+        Extracts the photographic pixels of the <b>Upper and Lower Lips</b> from the patient photo into an independent PNG image layer. The lips on the base photo are punched out, leaving teeth and face completely visible with <b>zero micro-gaps</b>.
       </p>
 
       <div class="space-y-3 bg-[#13161f] p-3.5 rounded-xl border border-[#393e4d]">
@@ -792,58 +799,108 @@
     canvas.on('selection:cleared', () => { syncInspector(); updateLayersTree(); });
 
     /* ============================================================
-       MAGNETIC SNAPPING FOR EXTRACTED LIPS
+       LIVE DYNAMIC LOCKSTEP MOVEMENT & MAGNETIC SNAPPING
        ============================================================ */
+    function getLiveMouthCanvasCoords(faceObj, lipObj) {
+      const matrix = faceObj.calcTransformMatrix();
+      const localPt = {
+        x: lipObj.mouthLocalX,
+        y: lipObj.mouthLocalY
+      };
+      return fabric.util.transformPoint(localPt, matrix);
+    }
+
     canvas.on('object:moving', (e) => {
-      const obj = e.target;
-      if (obj && obj.mouthAnchor) {
-        const dx = Math.abs(obj.left - obj.mouthAnchor.left);
-        const dy = Math.abs(obj.top - obj.mouthAnchor.top);
-        // Magnetic snap distance threshold of 24px
-        if (dx < 24 && dy < 24) {
-          obj.left = obj.mouthAnchor.left;
-          obj.top = obj.mouthAnchor.top;
-          obj.setCoords();
-          if (!obj._hasSnapped) {
-            obj._hasSnapped = true;
-            showToast('🧲 Snapped into mouth seamlessly!', 'success');
+      const target = e.target;
+      if (!target) return;
+
+      // 1. If Face is moving, any attached lip layer moves in lockstep with the face!
+      if (target.dsdFaceId) {
+        const lips = canvas.getObjects().find(o => o.targetFaceId === target.dsdFaceId);
+        if (lips && lips.isAttachedToMouth) {
+          const liveMouth = getLiveMouthCanvasCoords(target, lips);
+          lips.set({
+            left: liveMouth.x,
+            top: liveMouth.y,
+            scaleX: target.scaleX,
+            scaleY: target.scaleY,
+            angle: target.angle
+          });
+          lips.setCoords();
+        }
+      }
+
+      // 2. If Extracted Lips are moving, dynamically snap to the LIVE current location of the face
+      if (target.isLipLayer && target.targetFaceId) {
+        const face = canvas.getObjects().find(o => o.dsdFaceId === target.targetFaceId);
+        if (face) {
+          const liveMouth = getLiveMouthCanvasCoords(face, target);
+          const dx = Math.abs(target.left - liveMouth.x);
+          const dy = Math.abs(target.top - liveMouth.y);
+
+          // Magnetic snap threshold: 24px
+          if (dx < 24 && dy < 24) {
+            target.set({
+              left: liveMouth.x,
+              top: liveMouth.y,
+              scaleX: face.scaleX,
+              scaleY: face.scaleY,
+              angle: face.angle
+            });
+            target.setCoords();
+            target.isAttachedToMouth = true;
+            if (!target._hasSnapped) {
+              target._hasSnapped = true;
+              showToast('🧲 Lips snapped seamlessly into mouth!', 'success');
+            }
+          } else {
+            target.isAttachedToMouth = false;
+            target._hasSnapped = false;
           }
-        } else {
-          obj._hasSnapped = false;
         }
       }
     });
 
     function snapLipLayerToMouth() {
       const active = canvas.getActiveObject();
-      if (active && active.mouthAnchor) {
-        active.set({
-          left: active.mouthAnchor.left,
-          top: active.mouthAnchor.top,
-          scaleX: active.mouthAnchor.scaleX,
-          scaleY: active.mouthAnchor.scaleY,
-          angle: active.mouthAnchor.angle
-        });
-        active.setCoords();
-        canvas.requestRenderAll();
-        syncInspector();
-        saveState();
-        showToast('Lips snapped seamlessly back into place!', 'success');
+      if (active && active.isLipLayer && active.targetFaceId) {
+        const face = canvas.getObjects().find(o => o.dsdFaceId === active.targetFaceId);
+        if (face) {
+          const liveMouth = getLiveMouthCanvasCoords(face, active);
+          active.set({
+            left: liveMouth.x,
+            top: liveMouth.y,
+            scaleX: face.scaleX,
+            scaleY: face.scaleY,
+            angle: face.angle
+          });
+          active.isAttachedToMouth = true;
+          active.setCoords();
+          canvas.requestRenderAll();
+          syncInspector();
+          saveState();
+          showToast('Lips snapped seamlessly back into place!', 'success');
+        }
       }
     }
 
     function moveLipLayerOutOfFrame() {
       const active = canvas.getActiveObject();
-      if (active && active.mouthAnchor) {
-        active.set({
-          left: active.mouthAnchor.left + (active.getScaledWidth() * 1.5 + 40),
-          top: active.mouthAnchor.top
-        });
-        active.setCoords();
-        canvas.requestRenderAll();
-        syncInspector();
-        saveState();
-        showToast('Moved lips out of frame', 'info');
+      if (active && active.isLipLayer && active.targetFaceId) {
+        const face = canvas.getObjects().find(o => o.dsdFaceId === active.targetFaceId);
+        if (face) {
+          const liveMouth = getLiveMouthCanvasCoords(face, active);
+          active.set({
+            left: liveMouth.x + (active.getScaledWidth() * 1.5 + 40),
+            top: liveMouth.y
+          });
+          active.isAttachedToMouth = false;
+          active.setCoords();
+          canvas.requestRenderAll();
+          syncInspector();
+          saveState();
+          showToast('Moved lips out of frame', 'info');
+        }
       }
     }
 
@@ -1593,16 +1650,17 @@
     });
 
     /* ============================================================
-       REAL PHOTOSHOP-STYLE CROP STUDIO
+       PHOTOSHOP CROP STUDIO (ISOLATED, PRECISE & ZERO-RESIDUE)
        ============================================================ */
     const CropStudio = {
       isCropping: false,
       targetImage: null,
-      box: { left: 0, top: 0, width: 0, height: 0 },
-      imgBounds: { left: 0, top: 0, width: 0, height: 0 },
-      currentRatio: 'free',
+      box: { x: 0, y: 0, w: 0, h: 0 },
+      stageW: 0,
+      stageH: 0,
+      aspectRatio: 'free',
       activeHandle: null,
-      dragStart: { mouseX: 0, mouseY: 0, boxLeft: 0, boxTop: 0, boxWidth: 0, boxHeight: 0 },
+      startDrag: { mouseX: 0, mouseY: 0, boxX: 0, boxY: 0, boxW: 0, boxH: 0 },
 
       startCrop() {
         const active = canvas.getActiveObject();
@@ -1614,104 +1672,84 @@
         this.targetImage = active;
         this.isCropping = true;
 
-        // Calculate screen viewport coordinates of active image
-        const bound = active.getBoundingRect();
-        const vpt = canvas.viewportTransform;
-        const screenLeft = bound.left * vpt[0] + vpt[4];
-        const screenTop = bound.top * vpt[3] + vpt[5];
-        const screenWidth = bound.width * vpt[0];
-        const screenHeight = bound.height * vpt[3];
+        const imgEl = active.getElement();
+        const studioImg = document.getElementById('ps-crop-img');
+        studioImg.src = imgEl.src;
 
-        this.imgBounds = { left: screenLeft, top: screenTop, width: screenWidth, height: screenHeight };
-        this.box = { left: screenLeft, top: screenTop, width: screenWidth, height: screenHeight };
+        document.getElementById('ps-crop-studio-modal').classList.remove('hidden');
 
-        document.getElementById('ps-crop-overlay').classList.remove('hidden');
-        this.updateDOM();
-        this.bindEvents();
-        showToast('Photoshop Crop Studio active. Drag handles or Enter to apply.', 'info');
+        studioImg.onload = () => {
+          this.stageW = studioImg.clientWidth;
+          this.stageH = studioImg.clientHeight;
+
+          const wrapper = document.getElementById('ps-crop-wrapper');
+          wrapper.style.width = `${this.stageW}px`;
+          wrapper.style.height = `${this.stageH}px`;
+
+          this.resetBox();
+          this.bindEvents();
+          showToast('Photoshop Crop Studio active. Drag handles or Enter to apply.', 'info');
+        };
       },
 
       setRatio(r) {
-        this.currentRatio = r;
+        this.aspectRatio = r;
         ['free', '1:1', '4:3', '16:9'].forEach(ratio => {
           const btn = document.getElementById(`crop-ratio-${ratio.replace(':', '-')}`);
           if (btn) {
             btn.className = (ratio === r) 
-              ? 'px-2 py-0.5 rounded text-[11px] bg-[#1a73e8] text-white' 
-              : 'px-2 py-0.5 rounded text-[11px] text-gray-300 hover:text-white';
+              ? 'px-2.5 py-1 rounded text-xs bg-[#1a73e8] text-white' 
+              : 'px-2.5 py-1 rounded text-xs text-gray-300 hover:text-white';
           }
         });
 
         if (r !== 'free') {
           const parts = r.split(':');
           const targetAspect = parseFloat(parts[0]) / parseFloat(parts[1]);
-          let newH = this.box.width / targetAspect;
-          if (newH > this.imgBounds.height) {
-            newH = this.imgBounds.height;
-            this.box.width = newH * targetAspect;
+          let newH = this.box.w / targetAspect;
+          if (newH > this.stageH) {
+            newH = this.stageH;
+            this.box.w = newH * targetAspect;
           }
-          this.box.height = newH;
-          this.clampBox();
-          this.updateDOM();
+          this.box.h = newH;
+          this.clamp();
+          this.render();
         }
       },
 
-      resetCrop() {
-        this.box = { ...this.imgBounds };
-        this.updateDOM();
+      resetBox() {
+        this.box = { x: 0, y: 0, w: this.stageW, h: this.stageH };
+        this.render();
       },
 
-      updateDOM() {
+      clamp() {
+        const minSize = 25;
+        this.box.w = Math.max(minSize, Math.min(this.box.w, this.stageW));
+        this.box.h = Math.max(minSize, Math.min(this.box.h, this.stageH));
+        this.box.x = Math.max(0, Math.min(this.box.x, this.stageW - this.box.w));
+        this.box.y = Math.max(0, Math.min(this.box.y, this.stageH - this.box.h));
+      },
+
+      render() {
         const boxEl = document.getElementById('ps-crop-box');
-        boxEl.style.left = `${this.box.left}px`;
-        boxEl.style.top = `${this.box.top}px`;
-        boxEl.style.width = `${this.box.width}px`;
-        boxEl.style.height = `${this.box.height}px`;
+        boxEl.style.left = `${this.box.x}px`;
+        boxEl.style.top = `${this.box.y}px`;
+        boxEl.style.width = `${this.box.w}px`;
+        boxEl.style.height = `${this.box.h}px`;
 
-        const sTop = document.getElementById('scrim-top');
-        const sBottom = document.getElementById('scrim-bottom');
-        const sLeft = document.getElementById('scrim-left');
-        const sRight = document.getElementById('scrim-right');
+        const sT = document.getElementById('ps-scrim-t');
+        const sB = document.getElementById('ps-scrim-b');
+        const sL = document.getElementById('ps-scrim-l');
+        const sR = document.getElementById('ps-scrim-r');
 
-        sTop.style.left = '0px';
-        sTop.style.top = '0px';
-        sTop.style.width = '100%';
-        sTop.style.height = `${Math.max(0, this.box.top)}px`;
-
-        sBottom.style.left = '0px';
-        sBottom.style.top = `${this.box.top + this.box.height}px`;
-        sBottom.style.width = '100%';
-        sBottom.style.height = `calc(100% - ${this.box.top + this.box.height}px)`;
-
-        sLeft.style.left = '0px';
-        sLeft.style.top = `${this.box.top}px`;
-        sLeft.style.width = `${Math.max(0, this.box.left)}px`;
-        sLeft.style.height = `${this.box.height}px`;
-
-        sRight.style.left = `${this.box.left + this.box.width}px`;
-        sRight.style.top = `${this.box.top}px`;
-        sRight.style.width = `calc(100% - ${this.box.left + this.box.width}px)`;
-        sRight.style.height = `${this.box.height}px`;
-      },
-
-      clampBox() {
-        const minDim = 30;
-        this.box.width = Math.max(minDim, Math.min(this.box.width, this.imgBounds.width));
-        this.box.height = Math.max(minDim, Math.min(this.box.height, this.imgBounds.height));
-
-        if (this.box.left < this.imgBounds.left) this.box.left = this.imgBounds.left;
-        if (this.box.top < this.imgBounds.top) this.box.top = this.imgBounds.top;
-
-        if (this.box.left + this.box.width > this.imgBounds.left + this.imgBounds.width) {
-          this.box.left = this.imgBounds.left + this.imgBounds.width - this.box.width;
-        }
-        if (this.box.top + this.box.height > this.imgBounds.top + this.imgBounds.height) {
-          this.box.top = this.imgBounds.top + this.imgBounds.height - this.box.height;
-        }
+        sT.style.left = '0px'; sT.style.top = '0px'; sT.style.width = '100%'; sT.style.height = `${this.box.y}px`;
+        sB.style.left = '0px'; sB.style.top = `${this.box.y + this.box.h}px`; sB.style.width = '100%'; sB.style.height = `${this.stageH - (this.box.y + this.box.h)}px`;
+        sL.style.left = '0px'; sL.style.top = `${this.box.y}px`; sL.style.width = `${this.box.x}px`; sL.style.height = `${this.box.h}px`;
+        sR.style.left = `${this.box.x + this.box.w}px`; sR.style.top = `${this.box.y}px`; sR.style.width = `${this.stageW - (this.box.x + this.box.w)}px`; sR.style.height = `${this.box.h}px`;
       },
 
       bindEvents() {
-        const stage = document.getElementById('ps-crop-stage');
+        const wrapper = document.getElementById('ps-crop-wrapper');
         const boxEl = document.getElementById('ps-crop-box');
 
         const onPointerDown = (e) => {
@@ -1723,13 +1761,13 @@
           e.preventDefault();
           e.stopPropagation();
 
-          this.dragStart = {
+          this.startDrag = {
             mouseX: e.clientX,
             mouseY: e.clientY,
-            boxLeft: this.box.left,
-            boxTop: this.box.top,
-            boxWidth: this.box.width,
-            boxHeight: this.box.height
+            boxX: this.box.x,
+            boxY: this.box.y,
+            boxW: this.box.w,
+            boxH: this.box.h
           };
 
           window.addEventListener('pointermove', onPointerMove);
@@ -1738,35 +1776,35 @@
 
         const onPointerMove = (e) => {
           if (!this.activeHandle) return;
-          const dx = e.clientX - this.dragStart.mouseX;
-          const dy = e.clientY - this.dragStart.mouseY;
+          const dx = e.clientX - this.startDrag.mouseX;
+          const dy = e.clientY - this.startDrag.mouseY;
 
           if (this.activeHandle === 'move') {
-            this.box.left = this.dragStart.boxLeft + dx;
-            this.box.top = this.dragStart.boxTop + dy;
+            this.box.x = this.startDrag.boxX + dx;
+            this.box.y = this.startDrag.boxY + dy;
           } else {
-            let newL = this.dragStart.boxLeft;
-            let newT = this.dragStart.boxTop;
-            let newW = this.dragStart.boxWidth;
-            let newH = this.dragStart.boxHeight;
+            let newX = this.startDrag.boxX;
+            let newY = this.startDrag.boxY;
+            let newW = this.startDrag.boxW;
+            let newH = this.startDrag.boxH;
 
             if (this.activeHandle.includes('r')) newW += dx;
             if (this.activeHandle.includes('b')) newH += dy;
-            if (this.activeHandle.includes('l')) { newL += dx; newW -= dx; }
-            if (this.activeHandle.includes('t')) { newT += dy; newH -= dy; }
+            if (this.activeHandle.includes('l')) { newX += dx; newW -= dx; }
+            if (this.activeHandle.includes('t')) { newY += dy; newH -= dy; }
 
-            if (this.currentRatio !== 'free') {
-              const parts = this.currentRatio.split(':');
+            if (this.aspectRatio !== 'free') {
+              const parts = this.aspectRatio.split(':');
               const aspect = parseFloat(parts[0]) / parseFloat(parts[1]);
               newH = newW / aspect;
             }
 
-            if (newW >= 30) { this.box.left = newL; this.box.width = newW; }
-            if (newH >= 30) { this.box.top = newT; this.box.height = newH; }
+            if (newW >= 25) { this.box.x = newX; this.box.w = newW; }
+            if (newH >= 25) { this.box.y = newY; this.box.h = newH; }
           }
 
-          this.clampBox();
-          this.updateDOM();
+          this.clamp();
+          this.render();
         };
 
         const onPointerUp = () => {
@@ -1775,80 +1813,71 @@
           window.removeEventListener('pointerup', onPointerUp);
         };
 
-        stage.onpointerdown = onPointerDown;
+        wrapper.onpointerdown = onPointerDown;
       },
 
       applyCrop() {
         if (!this.isCropping || !this.targetImage) return;
 
-        showLoadingModal('Applying Crop...', 'Rendering cropped sub-image at retina resolution', 'bi-crop');
+        showLoadingModal('Applying Crop...', 'Slicing original image pixels at native resolution', 'bi-crop');
 
         setTimeout(() => {
           const imgObj = this.targetImage;
-          const vpt = canvas.viewportTransform;
+          const rawImg = imgObj.getElement();
+          const naturalW = rawImg.naturalWidth || rawImg.width;
+          const naturalH = rawImg.naturalHeight || rawImg.height;
 
-          // Convert screen box coordinates back to canvas coordinates
-          const canvasBoxLeft = (this.box.left - vpt[4]) / vpt[0];
-          const canvasBoxTop = (this.box.top - vpt[5]) / vpt[3];
-          const canvasBoxW = this.box.width / vpt[0];
-          const canvasBoxH = this.box.height / vpt[3];
+          // Convert stage scale back to exact raw image pixels
+          const scaleRatioX = naturalW / this.stageW;
+          const scaleRatioY = naturalH / this.stageH;
 
-          const imgBounds = imgObj.getBoundingRect();
+          const cropPixelX = Math.round(this.box.x * scaleRatioX);
+          const cropPixelY = Math.round(this.box.y * scaleRatioY);
+          const cropPixelW = Math.max(1, Math.round(this.box.w * scaleRatioX));
+          const cropPixelH = Math.max(1, Math.round(this.box.h * scaleRatioY));
 
-          const multiplier = 2;
-          const dataUrl = imgObj.toDataURL({ multiplier: multiplier, format: 'png' });
-          const img = new Image();
+          const cropCanvas = document.createElement('canvas');
+          cropCanvas.width = cropPixelW;
+          cropCanvas.height = cropPixelH;
+          const ctx = cropCanvas.getContext('2d');
 
-          img.onload = () => {
-            const offscreen = document.createElement('canvas');
-            const cropW = Math.max(canvasBoxW, 10);
-            const cropH = Math.max(canvasBoxH, 10);
+          ctx.drawImage(rawImg, cropPixelX, cropPixelY, cropPixelW, cropPixelH, 0, 0, cropPixelW, cropPixelH);
 
-            offscreen.width = cropW * multiplier;
-            offscreen.height = cropH * multiplier;
-            const ctx = offscreen.getContext('2d');
-
-            const relX = (canvasBoxLeft - imgBounds.left) * multiplier;
-            const relY = (canvasBoxTop - imgBounds.top) * multiplier;
-
-            ctx.drawImage(img, relX, relY, offscreen.width, offscreen.height, 0, 0, offscreen.width, offscreen.height);
-
-            fabric.Image.fromURL(offscreen.toDataURL(), (croppedImg) => {
-              croppedImg.set({
-                left: canvasBoxLeft,
-                top: canvasBoxTop,
-                scaleX: 1 / multiplier,
-                scaleY: 1 / multiplier,
-                name: `${imgObj.name || 'Image'} (Cropped)`,
-                strokeUniform: true
-              });
-
-              const idx = canvas.getObjects().indexOf(this.targetImage);
-              canvas.remove(this.targetImage);
-              canvas.insertAt(croppedImg, idx);
-              canvas.setActiveObject(croppedImg);
-
-              this.cancelCrop();
-              saveState();
-              hideLoadingModal();
-              showToast('Photoshop Crop Applied!', 'success');
+          fabric.Image.fromURL(cropCanvas.toDataURL('image/png'), (croppedImg) => {
+            croppedImg.set({
+              left: imgObj.left,
+              top: imgObj.top,
+              scaleX: imgObj.scaleX,
+              scaleY: imgObj.scaleY,
+              angle: imgObj.angle,
+              name: `${imgObj.name || 'Image'} (Cropped)`,
+              strokeUniform: true
             });
-          };
-          img.src = dataUrl;
-        }, 50);
+
+            const idx = canvas.getObjects().indexOf(this.targetImage);
+            canvas.remove(this.targetImage);
+            canvas.insertAt(croppedImg, idx);
+            canvas.setActiveObject(croppedImg);
+
+            this.cancelCrop();
+            saveState();
+            hideLoadingModal();
+            showToast('Photoshop Crop Applied!', 'success');
+          });
+        }, 60);
       },
 
       cancelCrop() {
         this.isCropping = false;
         this.targetImage = null;
-        document.getElementById('ps-crop-overlay').classList.add('hidden');
+        document.getElementById('ps-crop-studio-modal').classList.add('hidden');
         cleanToolState();
         canvas.requestRenderAll();
       }
     };
 
     /* ============================================================
-       GOOGLE MEDIAPIPE AI: SEAMLESS TIGHT RASTER LIP CUTOUT (PNG)
+       GOOGLE MEDIAPIPE AI: ZERO-GAP RASTER LIP CUTOUT (PNG)
        ============================================================ */
     let faceMeshEngine = null;
 
@@ -1911,7 +1940,7 @@
     }
 
     function executePhotographicLipCutout(targetImage, imgElement, landmarks) {
-      showLoadingModal('Extracting PNG Layers...', 'Punching out lips and calculating magnetic snap coordinates', 'bi-layers');
+      showLoadingModal('Extracting PNG Layers...', 'Punching out lips with zero-gap bleed overlap', 'bi-layers');
 
       setTimeout(() => {
         const iw = imgElement.naturalWidth || imgElement.width;
@@ -1923,7 +1952,7 @@
         const punchBase = document.getElementById('mp-punch-base').checked;
         const moveOut = document.getElementById('mp-move-out').checked;
 
-        // CALCULATE TIGHT PIXEL BOUNDING BOX OF LIPS (NOT WHOLE FACE!)
+        // CALCULATE TIGHT PIXEL BOUNDING BOX OF LIPS
         let minX = iw, minY = ih, maxX = 0, maxY = 0;
         outerIndices.forEach(idx => {
           const px = landmarks[idx].x * iw;
@@ -1934,14 +1963,23 @@
           if (py > maxY) maxY = py;
         });
 
-        // 3px bleed for perfect zero-seam overlap
-        const pad = 3;
+        // Compute mouth centroid for seamless sub-pixel dilation bleed
+        let sumX = 0, sumY = 0;
+        outerIndices.forEach(idx => {
+          sumX += landmarks[idx].x * iw;
+          sumY += landmarks[idx].y * ih;
+        });
+        const mouthCx = sumX / outerIndices.length;
+        const mouthCy = sumY / outerIndices.length;
+
+        // 6px safety padding around the tight box
+        const pad = 6;
         const cropX = Math.max(0, Math.floor(minX - pad));
         const cropY = Math.max(0, Math.floor(minY - pad));
         const cropW = Math.min(iw - cropX, Math.ceil((maxX - minX) + pad * 2));
         const cropH = Math.min(ih - cropY, Math.ceil((maxY - minY) + pad * 2));
 
-        // 1. TIGHT EXTRACTED LIP PNG (JUST THE LIPS PIXELS)
+        // 1. TIGHT EXTRACTED LIP PNG (WITH 2px SEAMLESS DILATION BLEED)
         const lipCanvas = document.createElement('canvas');
         lipCanvas.width = cropW;
         lipCanvas.height = cropH;
@@ -1949,18 +1987,31 @@
 
         lipCtx.save();
         lipCtx.translate(-cropX, -cropY);
+
+        // Dilate outer lip contour outward by 2px into skin to eliminate ANY micro gap
         lipCtx.beginPath();
         outerIndices.forEach((idx, i) => {
-          const x = landmarks[idx].x * iw;
-          const y = landmarks[idx].y * ih;
-          if (i === 0) lipCtx.moveTo(x, y); else lipCtx.lineTo(x, y);
+          const px = landmarks[idx].x * iw;
+          const py = landmarks[idx].y * ih;
+          const vx = px - mouthCx;
+          const vy = py - mouthCy;
+          const len = Math.hypot(vx, vy) || 1;
+          const dilatedX = px + (vx / len) * 2.0;
+          const dilatedY = py + (vy / len) * 2.0;
+          if (i === 0) lipCtx.moveTo(dilatedX, dilatedY); else lipCtx.lineTo(dilatedX, dilatedY);
         });
         lipCtx.closePath();
 
+        // Inner teeth boundary (contracted slightly by 0.8px for overlap)
         innerIndices.forEach((idx, i) => {
-          const x = landmarks[idx].x * iw;
-          const y = landmarks[idx].y * ih;
-          if (i === 0) lipCtx.moveTo(x, y); else lipCtx.lineTo(x, y);
+          const px = landmarks[idx].x * iw;
+          const py = landmarks[idx].y * ih;
+          const vx = px - mouthCx;
+          const vy = py - mouthCy;
+          const len = Math.hypot(vx, vy) || 1;
+          const contractedX = px - (vx / len) * 0.8;
+          const contractedY = py - (vy / len) * 0.8;
+          if (i === 0) lipCtx.moveTo(contractedX, contractedY); else lipCtx.lineTo(contractedX, contractedY);
         });
         lipCtx.closePath();
 
@@ -1970,7 +2021,7 @@
 
         const tightLipsDataUrl = lipCanvas.toDataURL('image/png');
 
-        // 2. BASE PHOTO PUNCH-OUT (TEETH & FACE REMAIN, LIPS BECOME HOLE)
+        // 2. BASE PHOTO PUNCH-OUT (TEETH & FACE REMAIN, ZERO MICRO-GAP)
         let faceWithoutLipsDataUrl = null;
         if (punchBase) {
           const faceCanvas = document.createElement('canvas');
@@ -1983,6 +2034,8 @@
           faceCtx.save();
           faceCtx.globalCompositeOperation = 'destination-out';
           faceCtx.beginPath();
+
+          // Cut hole using exact standard coordinates
           outerIndices.forEach((idx, i) => {
             const x = landmarks[idx].x * iw;
             const y = landmarks[idx].y * ih;
@@ -2010,13 +2063,13 @@
         const origAngle = targetImage.angle;
         const origIdx = canvas.getObjects().indexOf(targetImage);
 
-        // Calculate exact canvas coordinates for the tight lip box
-        const matrix = targetImage.calcTransformMatrix();
-        const localPt = {
-          x: cropX - (targetImage.width / 2),
-          y: cropY - (targetImage.height / 2)
-        };
-        const mouthCanvasAnchor = fabric.util.transformPoint(localPt, matrix);
+        // Calculate exact local offset of the tight mouth box relative to image center
+        const mouthLocalX = cropX - (targetImage.width / 2);
+        const mouthLocalY = cropY - (targetImage.height / 2);
+
+        // Assign unique identifier to the face
+        const dsdFaceId = 'face_' + Date.now();
+        targetImage.dsdFaceId = dsdFaceId;
 
         // Process Base Photo replacement
         if (faceWithoutLipsDataUrl) {
@@ -2028,6 +2081,7 @@
               scaleY: origScaleY,
               angle: origAngle,
               name: `${targetImage.name || 'Patient'} (Lips Cut Out - Teeth Preserved)`,
+              dsdFaceId: dsdFaceId,
               strokeUniform: true
             });
 
@@ -2035,8 +2089,10 @@
             canvas.insertAt(cutFaceImg, origIdx);
 
             fabric.Image.fromURL(tightLipsDataUrl, (extractedLipImg) => {
-              const startX = moveOut ? (mouthCanvasAnchor.x + cutFaceImg.getScaledWidth() * 0.7 + 50) : mouthCanvasAnchor.x;
-              const startY = mouthCanvasAnchor.y;
+              // Calculate live mouth placement on canvas
+              const liveMouth = getLiveMouthCanvasCoords(cutFaceImg, { mouthLocalX, mouthLocalY });
+              const startX = moveOut ? (liveMouth.x + cutFaceImg.getScaledWidth() * 0.7 + 40) : liveMouth.x;
+              const startY = liveMouth.y;
 
               extractedLipImg.set({
                 left: startX,
@@ -2045,18 +2101,13 @@
                 scaleY: origScaleY,
                 angle: origAngle,
                 name: 'Extracted Lips (PNG Layer)',
+                targetFaceId: dsdFaceId,
+                mouthLocalX: mouthLocalX,
+                mouthLocalY: mouthLocalY,
+                isLipLayer: true,
+                isAttachedToMouth: !moveOut,
                 strokeUniform: true
               });
-
-              // Attach magnetic snap anchor directly to object
-              extractedLipImg.mouthAnchor = {
-                left: mouthCanvasAnchor.x,
-                top: mouthCanvasAnchor.y,
-                scaleX: origScaleX,
-                scaleY: origScaleY,
-                angle: origAngle
-              };
-              extractedLipImg.isLipLayer = true;
 
               canvas.add(extractedLipImg);
               canvas.setActiveObject(extractedLipImg);
@@ -2064,7 +2115,7 @@
               updateLayersTree();
               saveState();
               hideLoadingModal();
-              showToast(moveOut ? 'Lips extracted! Move them near mouth to snap magnetically.' : 'Lips extracted seamlessly! Drag to reveal teeth underneath.', 'success');
+              showToast(moveOut ? 'Lips extracted! Move them near mouth to snap magnetically.' : 'Lips extracted seamlessly with ZERO micro-gaps!', 'success');
             });
           });
         }
@@ -2158,7 +2209,6 @@
     }
 
     canvas.on('object:modified', () => { syncInspector(); saveState(); });
-    canvas.on('object:moving', syncInspector);
     canvas.on('object:scaling', syncInspector);
     canvas.on('object:rotating', syncInspector);
 
@@ -2336,7 +2386,6 @@
       reversedObjects.forEach((obj, uiIdx) => {
         if (!obj.name) obj.name = `Layer ${objects.indexOf(obj) + 1}`;
 
-        // Accurate active selection check
         const isSel = activeObjects.includes(obj);
         const div = document.createElement('div');
         div.draggable = true;
@@ -2467,7 +2516,7 @@
 
     function saveState() {
       if (isHistoryOperating) return;
-      const json = JSON.stringify(canvas.toJSON(['name', 'customType', 'strokeUniform', 'strokeDashArray', 'mouthAnchor', 'isLipLayer']));
+      const json = JSON.stringify(canvas.toJSON(['name', 'customType', 'strokeUniform', 'strokeDashArray', 'dsdFaceId', 'targetFaceId', 'mouthLocalX', 'mouthLocalY', 'isLipLayer', 'isAttachedToMouth']));
       history.splice(historyIdx + 1);
       history.push(json);
       if (history.length > 35) history.shift();
