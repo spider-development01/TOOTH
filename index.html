@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>SmileCreo Studio — Material Design 3 DSD Edition</title>
+  <title>SmileCreo Studio — Peak Vector & DSD Engine</title>
   
-  <!-- Google Fonts: Roboto & Google Sans / Roboto Flex for Material 3 -->
+  <!-- Google Fonts: Roboto & Roboto Mono (Material Design 3) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -19,45 +19,19 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
 
   <style>
-    /* ============================================================
-       MATERIAL DESIGN 3 (MATERIAL YOU) ROLE-BASED COLOR SYSTEM
-       ============================================================ */
     :root {
-      /* M3 Primary Dynamic Palette */
       --md-sys-color-primary: #a8c7fa;
       --md-sys-color-on-primary: #00315f;
       --md-sys-color-primary-container: #1a73e8;
       --md-sys-color-on-primary-container: #ffffff;
 
-      /* M3 Secondary & Tertiary */
-      --md-sys-color-secondary: #bec6dc;
-      --md-sys-color-on-secondary: #283141;
-      --md-sys-color-secondary-container: #3b4455;
-      --md-sys-color-on-secondary-container: #dae2f9;
-
-      --md-sys-color-tertiary: #a6c8ff;
-      --md-sys-color-on-tertiary: #003060;
-      --md-sys-color-tertiary-container: #004a77;
-      --md-sys-color-on-tertiary-container: #d5e3ff;
-
-      /* M3 Surface Tones */
-      --md-sys-color-surface: #10131a;
+      --md-sys-color-surface: #0e1118;
       --md-sys-color-on-surface: #e2e2e9;
-      --md-sys-color-surface-container-lowest: #0b0d13;
-      --md-sys-color-surface-container-low: #151821;
-      --md-sys-color-surface-container: #1c202c;
-      --md-sys-color-surface-container-high: #242938;
-      --md-sys-color-surface-container-highest: #2d3345;
-
-      /* M3 Outlines & Borders */
+      --md-sys-color-surface-container: #191c25;
+      --md-sys-color-surface-container-high: #212531;
+      --md-sys-color-surface-container-highest: #2b303f;
       --md-sys-color-outline: #8e9099;
-      --md-sys-color-outline-variant: #3e4453;
-
-      /* M3 Error */
-      --md-sys-color-error: #ffb4ab;
-      --md-sys-color-on-error: #690005;
-      --md-sys-color-error-container: #93000a;
-      --md-sys-color-on-error-container: #ffdad6;
+      --md-sys-color-outline-variant: #393e4d;
     }
 
     body {
@@ -69,7 +43,6 @@
       overscroll-behavior: none;
     }
 
-    /* M3 Surface Cards & Bento Elevation */
     .m3-surface-container {
       background-color: var(--md-sys-color-surface-container);
       border: 1px solid var(--md-sys-color-outline-variant);
@@ -80,46 +53,31 @@
       border: 1px solid var(--md-sys-color-outline-variant);
       border-radius: 20px;
     }
-    .m3-surface-container-highest {
-      background-color: var(--md-sys-color-surface-container-highest);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 28px;
-    }
 
-    /* Floating M3 Top Bar */
     .m3-top-bar {
-      background-color: rgba(28, 32, 44, 0.88);
+      background-color: rgba(25, 28, 37, 0.92);
       backdrop-filter: blur(24px) saturate(180%);
       -webkit-backdrop-filter: blur(24px) saturate(180%);
       border: 1px solid var(--md-sys-color-outline-variant);
-      box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.65);
       border-radius: 9999px;
     }
 
-    /* M3 Active Segmented Tool Button */
     .m3-tool-active {
       background-color: var(--md-sys-color-primary-container) !important;
       color: #ffffff !important;
       box-shadow: 0 2px 10px rgba(26, 115, 232, 0.45) !important;
     }
 
-    /* DSD Precision Dot Grid */
     .studio-canvas-bg {
-      background-color: #0b0e16;
-      background-image: radial-gradient(rgba(168, 199, 250, 0.14) 1.2px, transparent 1.2px);
+      background-color: #090c13;
+      background-image: radial-gradient(rgba(168, 199, 250, 0.12) 1.2px, transparent 1.2px);
       background-size: 24px 24px;
-      transition: background-color 0.2s ease;
     }
 
-    /* Drag & Drop Layer Reordering Indicators */
-    .drag-over-top {
-      border-top: 2px solid var(--md-sys-color-primary) !important;
-    }
-    .drag-over-bottom {
-      border-bottom: 2px solid var(--md-sys-color-primary) !important;
-    }
+    .drag-over-top { border-top: 2px solid var(--md-sys-color-primary) !important; }
+    .drag-over-bottom { border-bottom: 2px solid var(--md-sys-color-primary) !important; }
 
-    /* Scrollbars */
     ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.18); border-radius: 4px; }
@@ -129,25 +87,22 @@
     input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
     input[type="color"]::-webkit-color-swatch { border: none; border-radius: 6px; }
 
-    /* Stepper number input reset */
     input[type=number]::-webkit-inner-spin-button, 
     input[type=number]::-webkit-outer-spin-button { 
       -webkit-appearance: none; 
       margin: 0; 
     }
-    input[type=number] {
-      -moz-appearance: textfield;
-    }
+    input[type=number] { -moz-appearance: textfield; }
   </style>
 </head>
 <body class="h-screen w-screen overflow-hidden flex flex-col antialiased select-none">
 
   <!-- ============================================================
-       FLOATING MATERIAL 3 TOP APP BAR
+       TOP MATERIAL 3 DOCK
        ============================================================ -->
   <header class="fixed top-3 left-4 right-4 z-40 h-14 m3-top-bar flex items-center justify-between px-3.5 shadow-xl">
     
-    <!-- Left: Studio Brand with M3 Pill Badge -->
+    <!-- Brand -->
     <div class="flex items-center gap-2.5 pl-1">
       <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center p-1 shadow-sm">
         <img 
@@ -160,98 +115,67 @@
       </div>
       <div class="flex items-center gap-2">
         <span class="text-sm font-bold tracking-tight text-white">SmileCreo</span>
-        <span class="text-[10px] font-semibold text-[#a8c7fa] bg-[#1a73e8]/25 border border-[#a8c7fa]/30 px-2 py-0.5 rounded-full font-mono">DSD STUDIO</span>
+        <span class="text-[10px] font-semibold text-[#a8c7fa] bg-[#1a73e8]/25 border border-[#a8c7fa]/30 px-2 py-0.5 rounded-full font-mono">STUDIO</span>
       </div>
     </div>
 
-    <!-- Center: M3 Tool Segmented Dock -->
-    <div class="flex items-center bg-[#151821] border border-[#3e4453] rounded-full p-1 gap-0.5 shadow-inner">
-      <!-- Select Pointer -->
-      <button id="tool-select" onclick="setTool('select')" class="tool-btn m3-tool-active px-2.5 py-1.5 rounded-full text-xs text-white font-medium transition" title="Select Pointer (V) — Arrow keys to nudge">
+    <!-- Center Tool Dock -->
+    <div class="flex items-center bg-[#13161f] border border-[#393e4d] rounded-full p-1 gap-0.5 shadow-inner">
+      <!-- Select -->
+      <button id="tool-select" onclick="setTool('select')" class="tool-btn m3-tool-active px-2.5 py-1.5 rounded-full text-xs text-white font-medium transition" title="Select (V)">
         <i class="bi bi-cursor-fill"></i>
       </button>
 
-      <!-- Hand Pan Tool -->
+      <!-- Pan Hand -->
       <button id="tool-hand" onclick="setTool('hand')" class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 transition" title="Hand Pan (H / Space+Drag)">
         <i class="bi bi-hand-index-thumb-fill"></i>
       </button>
 
       <div class="w-[1px] h-4 bg-white/20 mx-1"></div>
 
-      <!-- Freehand Dental Pencil -->
-      <button id="tool-pencil" onclick="setTool('pencil')" class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 transition" title="Dental Pencil (B) — Draw & Fill SVG">
+      <!-- Freehand Vector Pencil -->
+      <button id="tool-pencil" onclick="setTool('pencil')" class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 transition" title="Vector Pencil (B) — Draw & Fill SVG">
         <i class="bi bi-pencil-fill"></i>
       </button>
 
-      <!-- Dental Reference Lines -->
-      <button onclick="addFacialMidline()" class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 transition" title="Add Facial Midline Guide (L)">
-        <i class="bi bi-slash-lg text-cyan-400"></i>
-      </button>
-      <button onclick="addSmileCurve()" class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 transition" title="Add Smile Esthetic Curve (P)">
+      <!-- Bézier Curve -->
+      <button onclick="addBezierCurve()" class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 transition" title="Bézier Curve (P) — Editable at Micro Level">
         <i class="bi bi-bezier2 text-yellow-300"></i>
       </button>
 
-      <!-- Dropdown: Dental Stencil Veneer Outlines -->
-      <div class="relative inline-block">
-        <button onclick="toggleStencilMenu(event)" class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 transition flex items-center gap-1" title="Dental Stencil Templates">
-          <i class="bi bi-grid-3x3-gap-fill text-[#a8c7fa]"></i>
-          <span class="text-[11px] font-medium hidden md:inline">Stencils</span>
-        </button>
-        <!-- Stencil Dropdown Menu -->
-        <div id="stencilDropdown" class="hidden absolute top-10 left-0 w-60 m3-surface-container-high p-2 shadow-2xl z-50 flex flex-col gap-1 text-xs">
-          <span class="text-[10px] font-bold text-[#a8c7fa] px-2 py-1 uppercase tracking-wider">Upper Anterior Veneers</span>
-          <button onclick="insertFullSmileTemplate()" class="px-2.5 py-2 hover:bg-white/10 rounded-xl text-left text-white flex items-center justify-between transition">
-            <span>✨ 6-Anterior Smile Arch</span>
-            <span class="text-[10px] text-gray-400">13 - 23</span>
-          </button>
-          <button onclick="insertSingleVeneer('central')" class="px-2.5 py-1.5 hover:bg-white/10 rounded-xl text-left text-gray-200 flex items-center justify-between transition">
-            <span>Central Incisor</span>
-            <span class="text-[10px] text-gray-400">#11 / #21</span>
-          </button>
-          <button onclick="insertSingleVeneer('lateral')" class="px-2.5 py-1.5 hover:bg-white/10 rounded-xl text-left text-gray-200 flex items-center justify-between transition">
-            <span>Lateral Incisor</span>
-            <span class="text-[10px] text-gray-400">#12 / #22</span>
-          </button>
-          <button onclick="insertSingleVeneer('canine')" class="px-2.5 py-1.5 hover:bg-white/10 rounded-xl text-left text-gray-200 flex items-center justify-between transition">
-            <span>Canine Cusp</span>
-            <span class="text-[10px] text-gray-400">#13 / #23</span>
-          </button>
-        </div>
-      </div>
+      <!-- Midline Reference Line -->
+      <button onclick="addMidline()" class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 transition" title="Midline Reference Line (L)">
+        <i class="bi bi-slash-lg text-cyan-400"></i>
+      </button>
 
-      <div class="w-[1px] h-4 bg-white/20 mx-1"></div>
-
-      <!-- Basic Shapes & Typography -->
+      <!-- Shapes -->
       <button onclick="addRectangle()" class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 transition" title="Rectangle (R)">
         <i class="bi bi-square"></i>
       </button>
       <button onclick="addCircle()" class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 transition" title="Circle (O)">
         <i class="bi bi-circle"></i>
       </button>
-      <button onclick="addText()" class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 transition" title="Annotation Text (T)">
+      <button onclick="addText()" class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 transition" title="Text (T)">
         <i class="bi bi-type"></i>
       </button>
 
       <div class="w-[1px] h-4 bg-white/20 mx-1"></div>
 
+      <!-- Figma-Style Crop Tool -->
+      <button onclick="CropManager.startCrop()" class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 transition" title="Crop Image or SVG (C)">
+        <i class="bi bi-crop text-[#a8c7fa]"></i>
+      </button>
+
       <!-- Import Image or SVG File -->
-      <label class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 cursor-pointer transition flex items-center gap-1" title="Import Patient Photo or SVG (I)">
-        <i class="bi bi-image-fill text-[#a8c7fa]"></i>
+      <label class="tool-btn px-2.5 py-1.5 rounded-full text-gray-300 hover:text-white hover:bg-white/10 cursor-pointer transition flex items-center gap-1" title="Import Image or SVG (I)">
+        <i class="bi bi-image-fill"></i>
         <input type="file" id="image-file-input" accept="image/*,.svg" class="hidden" onchange="handleFileSelect(this.files[0])">
       </label>
     </div>
 
-    <!-- Right: SmileCreo AI, Group Actions, Zoom & Export -->
+    <!-- Right Controls: Group, Undo/Redo, Zoom, Export -->
     <div class="flex items-center gap-2 pr-1">
-      
-      <!-- Primary Action: SmileCreo AI Veneers Studio -->
-      <button onclick="openAiInpaintStudio()" class="px-3.5 py-1.5 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-medium text-xs rounded-full shadow-md shadow-[#1a73e8]/40 flex items-center gap-1.5 transition active:scale-95">
-        <i class="bi bi-stars text-amber-300 text-sm"></i>
-        <span class="font-semibold">SmileCreo AI</span>
-      </button>
-
-      <!-- Quick Grouping -->
-      <div class="flex items-center bg-[#151821] border border-[#3e4453] rounded-full p-0.5">
+      <div class="flex items-center bg-[#13161f] border border-[#393e4d] rounded-full p-0.5">
         <button onclick="groupSelected()" class="p-1.5 text-gray-300 hover:text-white rounded-full hover:bg-white/10 transition" title="Group (Ctrl+G)">
           <i class="bi bi-union text-xs"></i>
         </button>
@@ -260,8 +184,7 @@
         </button>
       </div>
 
-      <!-- Undo / Redo -->
-      <div class="flex items-center bg-[#151821] border border-[#3e4453] rounded-full p-0.5">
+      <div class="flex items-center bg-[#13161f] border border-[#393e4d] rounded-full p-0.5">
         <button onclick="undo()" id="btn-undo" class="p-1.5 text-gray-300 hover:text-white rounded-full hover:bg-white/10 transition" title="Undo (Ctrl+Z)">
           <i class="bi bi-arrow-counterclockwise text-xs"></i>
         </button>
@@ -270,34 +193,32 @@
         </button>
       </div>
 
-      <!-- Zoom Percentage Controls -->
-      <div class="flex items-center bg-[#151821] border border-[#3e4453] rounded-full px-2.5 py-1 text-xs">
+      <div class="flex items-center bg-[#13161f] border border-[#393e4d] rounded-full px-2.5 py-1 text-xs">
         <button onclick="zoomOut()" class="text-gray-300 hover:text-white px-1 font-bold">-</button>
         <span id="zoom-level-text" class="px-1.5 font-mono text-[11px] text-white font-medium">100%</span>
         <button onclick="zoomIn()" class="text-gray-300 hover:text-white px-1 font-bold">+</button>
       </div>
 
-      <!-- Export Modal Trigger -->
-      <button onclick="openExportModal()" class="px-3.5 py-1.5 bg-white/10 hover:bg-white/15 border border-white/20 text-white font-medium text-xs rounded-full transition active:scale-95">
+      <button onclick="openExportModal()" class="px-4 py-1.5 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-semibold text-xs rounded-full transition shadow-md active:scale-95">
         Export
       </button>
     </div>
   </header>
 
   <!-- ============================================================
-       WORKSPACE CONTAINER
+       WORKSPACE
        ============================================================ -->
   <div class="flex-1 w-full h-full pt-20 px-4 pb-4 flex overflow-hidden relative gap-3.5">
 
-    <!-- LEFT M3 BENTO: NATIVE DRAG & DROP LAYERS -->
+    <!-- LEFT: LAYERS BENTO (DRAG & DROP REORDERING) -->
     <aside class="w-68 flex flex-col gap-3 z-30 select-none">
-      <div class="m3-surface-container flex-1 flex flex-col p-3.5 min-h-[280px] overflow-hidden">
-        <div class="flex items-center justify-between pb-2 border-b border-[#3e4453] mb-2">
+      <div class="m3-surface-container flex-1 flex flex-col p-3.5 min-h-[300px] overflow-hidden">
+        <div class="flex items-center justify-between pb-2 border-b border-[#393e4d] mb-2">
           <div class="flex items-center gap-1.5">
             <span class="text-xs font-bold tracking-wider uppercase text-[#a8c7fa]">Layers</span>
-            <span class="text-[10px] text-gray-400">(Drag to sort)</span>
+            <span class="text-[10px] text-gray-400">(Drag to order)</span>
           </div>
-          <button onclick="deleteSelected()" title="Delete Selected Layer" class="p-1 hover:bg-red-500/20 text-gray-400 hover:text-red-300 rounded-lg transition">
+          <button onclick="deleteSelected()" title="Delete Selected" class="p-1 hover:bg-red-500/20 text-gray-400 hover:text-red-300 rounded-lg transition">
             <i class="bi bi-trash3 text-xs"></i>
           </button>
         </div>
@@ -307,59 +228,71 @@
         </div>
       </div>
 
-      <!-- Canvas Tone Selector -->
+      <!-- Canvas Tone -->
       <div class="m3-surface-container p-3 space-y-2">
-        <span class="text-[10px] font-bold uppercase tracking-wider text-[#a8c7fa] block">Canvas Tone</span>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-[#a8c7fa] block">Canvas Background</span>
         <div class="flex items-center justify-between text-xs">
-          <span class="text-gray-300 text-[11px]">Background</span>
+          <span class="text-gray-300 text-[11px]">Tone</span>
           <div class="flex items-center gap-2">
-            <button onclick="setCanvasBg('#0b0e16')" class="w-4 h-4 rounded-full bg-[#0b0e16] border border-white/40 shadow-sm" title="Dark Obsidian"></button>
+            <button onclick="setCanvasBg('#090c13')" class="w-4 h-4 rounded-full bg-[#090c13] border border-white/40 shadow-sm" title="Dark Obsidian"></button>
             <button onclick="setCanvasBg('#141c30')" class="w-4 h-4 rounded-full bg-[#141c30] border border-white/40 shadow-sm" title="Deep Navy"></button>
             <button onclick="setCanvasBg('#222736')" class="w-4 h-4 rounded-full bg-[#222736] border border-white/40 shadow-sm" title="Slate Gray"></button>
-            <button onclick="setCanvasBg('#f4f5f8')" class="w-4 h-4 rounded-full bg-[#f4f5f8] border border-white/70 shadow-sm" title="Clinical White"></button>
+            <button onclick="setCanvasBg('#f4f5f8')" class="w-4 h-4 rounded-full bg-[#f4f5f8] border border-white/70 shadow-sm" title="White"></button>
           </div>
         </div>
-        <div class="flex items-center justify-between text-xs pt-1.5 border-t border-[#3e4453]">
+        <div class="flex items-center justify-between text-xs pt-1.5 border-t border-[#393e4d]">
           <span class="text-gray-400 text-[10px]">Reset Canvas</span>
           <button onclick="confirmClearCanvas()" class="text-[10px] text-red-400 hover:text-red-300 transition font-medium">Clear All</button>
         </div>
       </div>
     </aside>
 
-    <!-- CENTER CANVAS VIEWPORT -->
-    <main id="canvas-viewport" class="flex-1 studio-canvas-bg relative overflow-hidden flex items-center justify-center rounded-2xl border border-[#3e4453] shadow-2xl">
+    <!-- CENTER CANVAS -->
+    <main id="canvas-viewport" class="flex-1 studio-canvas-bg relative overflow-hidden flex items-center justify-center rounded-2xl border border-[#393e4d] shadow-2xl" tabindex="0">
       <canvas id="studio-canvas"></canvas>
 
-      <!-- POINT EDIT MODE M3 FLOATING BANNER -->
-      <div id="point-edit-banner" class="hidden m3-surface-container-high absolute top-4 left-1/2 -translate-x-1/2 px-4 py-2 shadow-2xl flex items-center gap-3 z-30 text-xs text-white">
+      <!-- VECTOR POINT EDIT MODE M3 FLOATING BANNER -->
+      <div id="point-edit-banner" class="hidden m3-surface-container-high absolute top-4 left-1/2 -translate-x-1/2 px-4 py-2 shadow-2xl flex items-center gap-3.5 z-30 text-xs text-white border border-[#1a73e8]/50">
         <span class="w-2 h-2 rounded-full bg-[#a8c7fa] animate-ping"></span>
-        <span class="font-medium">Point Mode: Drag any point to deform the tooth outline</span>
-        <button onclick="PointEditor.stopEditing()" class="px-3.5 py-1 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-semibold rounded-full text-xs transition">
+        <span class="font-medium">Vector Mode: Drag anchor points or Bézier handles • Arrow keys to nudge</span>
+        <button onclick="PointEditor.stopEditing()" class="px-3.5 py-1 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-semibold rounded-full text-xs transition active:scale-95 shadow-md">
           ✓ Done (Enter)
         </button>
       </div>
 
-      <!-- Status Bar Hint -->
-      <div class="m3-surface-container absolute bottom-4 left-6 px-3.5 py-1.5 rounded-full text-[11px] text-gray-300 flex items-center gap-3 pointer-events-none border border-white/10 shadow-lg">
-        <span><kbd class="text-white font-mono font-semibold">Shift+Wheel</kbd> Scroll Horizontally</span>
-        <span><kbd class="text-white font-mono font-semibold">Wheel</kbd> Scroll Vertically</span>
+      <!-- FIGMA CROP MODE FLOATING BANNER -->
+      <div id="crop-banner" class="hidden m3-surface-container-high absolute top-4 left-1/2 -translate-x-1/2 px-4 py-2 shadow-2xl flex items-center gap-3.5 z-30 text-xs text-white border border-[#a8c7fa]/40">
+        <span class="text-white font-medium">Crop Mode: Resize crop box or drag to reposition</span>
+        <button onclick="CropManager.applyCrop()" class="px-3.5 py-1 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-semibold rounded-full text-xs transition active:scale-95 shadow-md">
+          ✓ Apply Crop (Enter)
+        </button>
+        <button onclick="CropManager.cancelCrop()" class="px-3 py-1 bg-white/10 hover:bg-white/20 text-gray-300 rounded-full text-xs transition">
+          ✕ Cancel (Esc)
+        </button>
+      </div>
+
+      <!-- Bottom Hint Bar -->
+      <div class="m3-surface-container absolute bottom-4 left-6 px-4 py-1.5 rounded-full text-[11px] text-gray-300 flex items-center gap-3.5 pointer-events-none border border-white/10 shadow-lg">
+        <span><kbd class="text-white font-mono font-semibold">Shift+Wheel</kbd> Horizontal Scroll</span>
+        <span><kbd class="text-white font-mono font-semibold">Wheel</kbd> Vertical Scroll</span>
         <span><kbd class="text-white font-mono font-semibold">Space+Drag</kbd> Pan</span>
-        <span><kbd class="text-white font-mono font-semibold">Ctrl+V</kbd> Paste SVG/Image</span>
+        <span><kbd class="text-white font-mono font-semibold">Del / Backspace</kbd> Delete</span>
+        <span><kbd class="text-white font-mono font-semibold">Ctrl+V</kbd> Paste SVG / Image</span>
       </div>
     </main>
 
-    <!-- RIGHT M3 BENTO INSPECTOR -->
+    <!-- RIGHT: FIGMA-STYLE INSPECTOR -->
     <aside class="w-72 flex flex-col gap-3 z-30 select-none overflow-y-auto">
       <div id="inspector-empty" class="m3-surface-container p-6 text-center text-gray-400 text-xs font-medium">
-        Select an element or stencil on canvas to inspect & edit properties
+        Select an element or vector path on canvas to inspect & edit properties
       </div>
 
       <div id="inspector-content" class="hidden space-y-3">
-        <!-- Selection Header & Quick Actions -->
+        <!-- Object Header & Quick Actions -->
         <div class="m3-surface-container p-3 flex items-center justify-between">
           <span id="label-selection-type" class="text-xs font-bold uppercase tracking-wider text-[#a8c7fa]">Object</span>
           <div class="flex items-center gap-1">
-            <button onclick="PointEditor.toggleEdit()" id="btn-quick-edit-points" title="Edit Points" class="p-1.5 hover:bg-white/10 text-[#a8c7fa] rounded-lg transition">
+            <button onclick="PointEditor.toggleEdit()" id="btn-quick-edit-points" title="Edit Vector Points" class="p-1.5 hover:bg-white/10 text-[#a8c7fa] rounded-lg transition">
               <i class="bi bi-bezier text-xs"></i>
             </button>
             <button onclick="duplicateSelected()" title="Duplicate (Ctrl+D)" class="p-1.5 hover:bg-white/10 text-gray-300 rounded-lg transition">
@@ -368,30 +301,44 @@
             <button onclick="mirrorSelected()" title="Mirror Horizontal" class="p-1.5 hover:bg-white/10 text-gray-300 rounded-lg transition">
               <i class="bi bi-symmetry-vertical text-xs"></i>
             </button>
-            <button onclick="deleteSelected()" title="Delete (Del)" class="p-1.5 hover:bg-red-500/20 text-red-300 rounded-lg transition">
+            <button onclick="deleteSelected()" title="Delete (Del / Backspace)" class="p-1.5 hover:bg-red-500/20 text-red-300 rounded-lg transition">
               <i class="bi bi-trash3 text-xs"></i>
             </button>
           </div>
         </div>
 
-        <!-- Point Anchors Action Card -->
+        <!-- Vector Point Edit Action Banner -->
         <div id="bento-point-action" class="m3-surface-container p-3 space-y-2 border-[#1a73e8]/60">
           <div class="flex items-center justify-between">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-[#a8c7fa]">Vector Path Points</span>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-[#a8c7fa]">Vector Path</span>
             <span class="text-[9px] bg-[#1a73e8]/30 text-white px-2 py-0.5 rounded-full font-mono">SVG</span>
           </div>
-          <p class="text-[10px] text-gray-300 leading-tight">Drag vertices directly on canvas to reshape tooth embrasures, smile curves, or custom contours.</p>
-          <button onclick="PointEditor.toggleEdit()" id="btn-inspector-edit-points" class="w-full py-1.5 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-medium rounded-full text-xs transition shadow-sm">
-            Edit Vector Points
+          <p class="text-[10px] text-gray-300 leading-tight">Drag vertices directly on canvas to reshape curves at the micro level.</p>
+          <div class="grid grid-cols-2 gap-2 pt-0.5">
+            <button onclick="PointEditor.toggleEdit()" id="btn-inspector-edit-points" class="py-1.5 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-medium rounded-xl text-xs transition shadow-sm">
+              Edit Points
+            </button>
+            <button onclick="closeActivePath()" class="py-1.5 bg-white/10 hover:bg-white/20 text-gray-200 font-medium rounded-xl text-xs transition">
+              Close Shape
+            </button>
+          </div>
+        </div>
+
+        <!-- Crop Button (For Images/SVGs) -->
+        <div id="bento-crop-action" class="hidden m3-surface-container p-3 space-y-2">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-[#a8c7fa] block">Crop Frame</span>
+          <button onclick="CropManager.startCrop()" class="w-full py-1.5 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-semibold rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5">
+            <i class="bi bi-crop"></i>
+            <span>Interactive Crop (C)</span>
           </button>
         </div>
 
-        <!-- Transform Geometry Matrix with Steppers -->
+        <!-- Transform Matrix -->
         <div class="m3-surface-container p-3 space-y-2.5">
           <span class="text-[10px] font-bold uppercase tracking-wider text-[#a8c7fa] block">Transform Matrix</span>
           <div class="grid grid-cols-2 gap-2 text-xs">
             <!-- X -->
-            <div class="flex items-center justify-between bg-[#151821] rounded-xl border border-[#3e4453] px-2 py-1">
+            <div class="flex items-center justify-between bg-[#13161f] rounded-xl border border-[#393e4d] px-2 py-1">
               <span class="text-gray-400 text-[11px] font-semibold">X</span>
               <div class="flex items-center">
                 <button onclick="stepVal('inp-pos-x', -1)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-dash-lg text-[10px]"></i></button>
@@ -400,7 +347,7 @@
               </div>
             </div>
             <!-- Y -->
-            <div class="flex items-center justify-between bg-[#151821] rounded-xl border border-[#3e4453] px-2 py-1">
+            <div class="flex items-center justify-between bg-[#13161f] rounded-xl border border-[#393e4d] px-2 py-1">
               <span class="text-gray-400 text-[11px] font-semibold">Y</span>
               <div class="flex items-center">
                 <button onclick="stepVal('inp-pos-y', -1)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-dash-lg text-[10px]"></i></button>
@@ -409,7 +356,7 @@
               </div>
             </div>
             <!-- W -->
-            <div class="flex items-center justify-between bg-[#151821] rounded-xl border border-[#3e4453] px-2 py-1">
+            <div class="flex items-center justify-between bg-[#13161f] rounded-xl border border-[#393e4d] px-2 py-1">
               <span class="text-gray-400 text-[11px] font-semibold">W</span>
               <div class="flex items-center">
                 <button onclick="stepVal('inp-dim-w', -5)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-dash-lg text-[10px]"></i></button>
@@ -418,7 +365,7 @@
               </div>
             </div>
             <!-- H -->
-            <div class="flex items-center justify-between bg-[#151821] rounded-xl border border-[#3e4453] px-2 py-1">
+            <div class="flex items-center justify-between bg-[#13161f] rounded-xl border border-[#393e4d] px-2 py-1">
               <span class="text-gray-400 text-[11px] font-semibold">H</span>
               <div class="flex items-center">
                 <button onclick="stepVal('inp-dim-h', -5)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-dash-lg text-[10px]"></i></button>
@@ -430,7 +377,7 @@
 
           <!-- Rotation -->
           <div class="flex items-center justify-between gap-2 pt-0.5">
-            <div class="flex-1 flex items-center justify-between bg-[#151821] rounded-xl border border-[#3e4453] px-2.5 py-1 text-xs">
+            <div class="flex-1 flex items-center justify-between bg-[#13161f] rounded-xl border border-[#393e4d] px-2.5 py-1 text-xs">
               <span class="text-gray-400 font-medium">∡ Angle</span>
               <div class="flex items-center">
                 <button onclick="stepVal('inp-rotation', -5)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-dash-lg text-[10px]"></i></button>
@@ -438,55 +385,49 @@
                 <button onclick="stepVal('inp-rotation', 5)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-plus-lg text-[10px]"></i></button>
               </div>
             </div>
-            <button onclick="rotateBy(90)" class="px-2.5 py-1.5 bg-[#151821] hover:bg-white/10 border border-[#3e4453] rounded-xl text-xs font-mono text-white transition">⟳ 90°</button>
+            <button onclick="rotateBy(90)" class="px-2.5 py-1.5 bg-[#13161f] hover:bg-white/10 border border-[#393e4d] rounded-xl text-xs font-mono text-white transition">⟳ 90°</button>
           </div>
         </div>
 
-        <!-- Fill & Stroke Color Studio -->
-        <div class="m3-surface-container p-3 space-y-2.5">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-[#a8c7fa] block">Color & Veneer Enamel</span>
-          
-          <!-- Stroke width presets -->
-          <div class="flex items-center justify-between">
-            <div class="flex gap-1" id="stroke-preset-container">
-              <button onclick="applyStrokeWidth(0.5)" class="px-2 py-0.5 bg-[#151821] hover:bg-white/10 border border-[#3e4453] rounded-lg text-[10px] text-gray-300 transition">0.5</button>
-              <button onclick="applyStrokeWidth(1)" class="px-2 py-0.5 bg-[#1a73e8] text-white border border-[#a8c7fa]/40 rounded-lg text-[10px] font-semibold shadow-sm transition">1.0</button>
-              <button onclick="applyStrokeWidth(1.5)" class="px-2 py-0.5 bg-[#151821] hover:bg-white/10 border border-[#3e4453] rounded-lg text-[10px] text-gray-300 transition">1.5</button>
-              <button onclick="applyStrokeWidth(2)" class="px-2 py-0.5 bg-[#151821] hover:bg-white/10 border border-[#3e4453] rounded-lg text-[10px] text-gray-300 transition">2.0</button>
-            </div>
-            <div class="flex items-center bg-[#151821] rounded-lg border border-[#3e4453] p-0.5">
-              <button onclick="stepVal('inp-stroke-width', -0.25)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-dash-lg text-[9px]"></i></button>
-              <input type="number" id="inp-stroke-width" min="0" max="40" step="0.25" value="1" class="w-8 bg-transparent text-center font-mono text-xs text-white outline-none" oninput="applyStrokeWidth(this.value)">
-              <button onclick="stepVal('inp-stroke-width', 0.25)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-plus-lg text-[9px]"></i></button>
-            </div>
-          </div>
+        <!-- Professional Figma-Style Fill & Stroke -->
+        <div class="m3-surface-container p-3 space-y-3">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-[#a8c7fa] block">Color & Styling</span>
 
-          <!-- Color Pickers -->
-          <div class="grid grid-cols-2 gap-2 text-xs">
-            <!-- Stroke Color -->
-            <div class="flex items-center bg-[#151821] p-1.5 rounded-xl border border-[#3e4453] gap-1.5">
-              <input type="color" id="inp-stroke-picker" value="#ffffff" class="w-5 h-5 bg-transparent cursor-pointer rounded" onchange="applyColor('stroke', this.value)">
-              <span class="text-gray-300 text-[11px] font-medium">Stroke</span>
-              <input type="text" id="inp-stroke-hex" value="#FFFFFF" class="w-12 bg-transparent font-mono text-[10px] uppercase outline-none text-gray-400 text-right ml-auto" onchange="applyColor('stroke', this.value)">
+          <!-- Fill -->
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-300 font-medium text-[11px]">Fill</span>
+              <button onclick="applyColor('fill', 'transparent')" class="text-[10px] text-gray-400 hover:text-red-300" title="Remove Fill">None</button>
             </div>
-            <!-- Fill Color -->
-            <div class="flex items-center bg-[#151821] p-1.5 rounded-xl border border-[#3e4453] gap-1.5">
+            <div class="flex items-center bg-[#13161f] p-1.5 rounded-xl border border-[#393e4d] gap-2">
               <input type="color" id="inp-fill-picker" value="#ffffff" class="w-5 h-5 bg-transparent cursor-pointer rounded" onchange="applyColor('fill', this.value)">
-              <span class="text-gray-300 text-[11px] font-medium">Fill</span>
-              <button onclick="applyColor('fill', '')" class="ml-auto text-[10px] text-gray-400 hover:text-red-300 px-1" title="Transparent Fill">
-                <i class="bi bi-slash-circle"></i>
-              </button>
+              <input type="text" id="inp-fill-hex" value="#FFFFFF" class="w-20 bg-transparent font-mono text-[11px] uppercase outline-none text-white" onchange="applyColor('fill', this.value)">
+              <div class="flex gap-1 ml-auto">
+                <button onclick="applyColor('fill', '#ffffff')" class="w-4 h-4 rounded-full bg-white border border-black/30" title="Solid White"></button>
+                <button onclick="applyColor('fill', 'rgba(255,255,255,0.6)')" class="w-4 h-4 rounded-full bg-white/60 border border-white/30" title="Translucent"></button>
+                <button onclick="applyColor('fill', '#1a73e8')" class="w-4 h-4 rounded-full bg-[#1a73e8] border border-white/20" title="Royal Blue"></button>
+              </div>
             </div>
           </div>
 
-          <!-- Quick Veneer Shade Presets -->
-          <div class="pt-1 border-t border-[#3e4453]">
-            <span class="text-[9px] text-gray-400 block mb-1.5 font-medium">Veneer Shade Presets:</span>
-            <div class="grid grid-cols-4 gap-1 text-[10px] text-center">
-              <button onclick="applyColor('fill', 'rgba(255,255,255,0.75)')" class="p-1 bg-white/10 hover:bg-white/20 rounded border border-white/20 text-white">Bleach 1</button>
-              <button onclick="applyColor('fill', 'rgba(253,251,247,0.75)')" class="p-1 bg-white/10 hover:bg-white/20 rounded border border-white/20 text-white">Vita BL2</button>
-              <button onclick="applyColor('fill', 'rgba(244,240,230,0.75)')" class="p-1 bg-white/10 hover:bg-white/20 rounded border border-white/20 text-white">Vita A1</button>
-              <button onclick="applyColor('fill', 'rgba(168,199,250,0.35)')" class="p-1 bg-[#1a73e8]/20 hover:bg-[#1a73e8]/40 rounded border border-[#a8c7fa]/30 text-[#a8c7fa]">Blueprint</button>
+          <!-- Stroke -->
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-300 font-medium text-[11px]">Stroke</span>
+              <div class="flex items-center bg-[#13161f] rounded-lg border border-[#393e4d] p-0.5">
+                <button onclick="stepVal('inp-stroke-width', -0.5)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-dash-lg text-[9px]"></i></button>
+                <input type="number" id="inp-stroke-width" min="0" max="50" step="0.5" value="1.5" class="w-8 bg-transparent text-center font-mono text-xs text-white outline-none" oninput="applyStrokeWidth(this.value)">
+                <button onclick="stepVal('inp-stroke-width', 0.5)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-plus-lg text-[9px]"></i></button>
+              </div>
+            </div>
+            <div class="flex items-center bg-[#13161f] p-1.5 rounded-xl border border-[#393e4d] gap-2">
+              <input type="color" id="inp-stroke-picker" value="#ffffff" class="w-5 h-5 bg-transparent cursor-pointer rounded" onchange="applyColor('stroke', this.value)">
+              <input type="text" id="inp-stroke-hex" value="#FFFFFF" class="w-20 bg-transparent font-mono text-[11px] uppercase outline-none text-white" onchange="applyColor('stroke', this.value)">
+              <div class="flex gap-1 ml-auto">
+                <button onclick="applyStrokeWidth(0.5)" class="px-1.5 py-0.5 bg-white/10 hover:bg-white/20 rounded text-[9px] text-gray-300">0.5</button>
+                <button onclick="applyStrokeWidth(1.5)" class="px-1.5 py-0.5 bg-[#1a73e8] rounded text-[9px] text-white font-semibold">1.5</button>
+                <button onclick="applyStrokeWidth(3)" class="px-1.5 py-0.5 bg-white/10 hover:bg-white/20 rounded text-[9px] text-gray-300">3.0</button>
+              </div>
             </div>
           </div>
         </div>
@@ -494,7 +435,7 @@
         <!-- Opacity Slider -->
         <div class="m3-surface-container p-3 space-y-1.5">
           <div class="flex justify-between items-center text-xs">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-[#a8c7fa]">Layer Opacity</span>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-[#a8c7fa]">Opacity</span>
             <span id="txt-opacity-val" class="font-mono text-[#a8c7fa] text-xs font-bold">100%</span>
           </div>
           <input type="range" id="inp-opacity" min="0" max="100" value="100" class="w-full h-1 bg-white/20 rounded cursor-pointer" oninput="applyOpacity(this.value)">
@@ -503,13 +444,15 @@
     </aside>
   </div>
 
-  <!-- ============================================================
-       CUSTOM CONTEXT MENU
-       ============================================================ -->
-  <div id="customContextMenu" class="hidden fixed z-50 m3-surface-container-highest p-1.5 w-52 shadow-2xl flex flex-col gap-0.5 text-xs">
+  <!-- CONTEXT MENU -->
+  <div id="customContextMenu" class="hidden fixed z-50 m3-surface-container p-1.5 w-52 shadow-2xl flex flex-col gap-0.5 text-xs border border-white/20">
     <button onclick="executeContextAction('editPoints')" id="ctx-edit-points" class="px-3 py-1.5 rounded-xl hover:bg-[#1a73e8] text-left flex items-center justify-between text-white transition">
       <span>Edit Vector Points</span>
       <span class="text-[10px] text-gray-400">Dbl-Click</span>
+    </button>
+    <button onclick="executeContextAction('crop')" id="ctx-crop" class="px-3 py-1.5 rounded-xl hover:bg-[#1a73e8] text-left flex items-center justify-between text-white transition">
+      <span>Crop</span>
+      <span class="text-[10px] text-gray-400">C</span>
     </button>
     <button onclick="executeContextAction('ungroup')" id="ctx-ungroup" class="px-3 py-1.5 rounded-xl hover:bg-[#1a73e8] text-left flex items-center justify-between text-white transition">
       <span>Ungroup</span>
@@ -533,193 +476,19 @@
     </button>
   </div>
 
-  <!-- ============================================================
-       SMILECREO AI MODAL (VENEERS ONLY & TWO-STEP LOCK)
-       ============================================================ -->
-  <div id="clinicalInpaintModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-xl flex items-center justify-center p-4">
-    <div class="m3-surface-container-highest bg-[#1c202c] w-full max-w-lg p-5 space-y-4 shadow-2xl border border-white/20 flex flex-col max-h-[92vh]">
-      
-      <!-- Modal Header -->
-      <div class="flex items-center justify-between pb-2 border-b border-[#3e4453] shrink-0">
-        <div class="flex items-center gap-2">
-          <i class="bi bi-stars text-amber-300 text-base"></i>
-          <h3 class="text-xs font-bold uppercase tracking-wider text-white">SmileCreo AI — Precision Veneers Engine</h3>
-        </div>
-        <button onclick="closeAiInpaintStudio()" class="text-gray-400 hover:text-white font-bold text-sm">✕</button>
-      </div>
-
-      <div class="flex-1 overflow-y-auto space-y-3.5 text-xs pr-1">
-        <!-- Step 1 Instruction -->
-        <div class="space-y-1.5">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold text-[#a8c7fa]">Step 1: Dental Mask Conditioning</span>
-            <button onclick="autoGenerateMaskFromStencils()" class="text-[11px] text-white bg-[#1a73e8] hover:bg-[#1557b0] px-3 py-1 rounded-full border border-white/20 transition active:scale-95 shadow-sm font-medium">
-              ⚡ 1. Auto-Generate Mask from Stencils
-            </button>
-          </div>
-          <p class="text-[11px] text-gray-300 leading-normal">
-            Align your dental stencils/outlines over the patient's teeth on canvas, then click the button above. The engine renders the exact silhouette into a surgical inpaint mask.
-          </p>
-        </div>
-
-        <!-- Inpaint Canvas Preview (Non-destructive clear preview) -->
-        <div class="relative w-full aspect-video bg-black rounded-2xl overflow-hidden border border-[#3e4453] flex items-center justify-center">
-          <canvas id="inpaintBaseCanvas" class="block max-h-full max-w-full"></canvas>
-          <canvas id="inpaintMaskCanvas" class="absolute inset-0 cursor-crosshair"></canvas>
-          <div class="absolute bottom-2.5 right-2.5 flex items-center gap-2 bg-[#151821]/90 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] border border-white/10 shadow-lg">
-            <span class="text-gray-300 font-medium">Brush:</span>
-            <input type="range" id="inpaintBrushSize" min="4" max="60" value="20" class="w-16">
-            <button onclick="setMaskDrawMode('brush')" id="btn-mask-brush" class="px-2 py-0.5 bg-[#1a73e8] text-white rounded-md font-semibold">Brush</button>
-            <button onclick="setMaskDrawMode('eraser')" id="btn-mask-eraser" class="px-2 py-0.5 bg-white/10 text-gray-300 rounded-md">Eraser</button>
-            <button onclick="clearInpaintMask()" class="text-red-400 hover:text-white ml-1">Clear</button>
-          </div>
-        </div>
-
-        <!-- Aesthetic Style Selection -->
-        <div class="space-y-1.5">
-          <span class="text-xs font-semibold text-[#a8c7fa] block">Veneer Esthetic Style Preset</span>
-          <div class="grid grid-cols-2 gap-2 text-[11px]">
-            <label class="flex items-center gap-2 p-2.5 rounded-xl border border-[#1a73e8] bg-[#1a73e8]/15 cursor-pointer">
-              <input type="radio" name="veneer-style" value="natural" checked class="text-[#1a73e8]">
-              <div>
-                <span class="font-bold text-white block">Natural Aesthetic (Vita A1)</span>
-                <span class="text-[10px] text-gray-400">Realistic translucency & mamelons</span>
-              </div>
-            </label>
-            <label class="flex items-center gap-2 p-2.5 rounded-xl border border-white/15 bg-white/5 cursor-pointer">
-              <input type="radio" name="veneer-style" value="bleach" class="text-[#1a73e8]">
-              <div>
-                <span class="font-bold text-white block">Hollywood Bleach (BL2)</span>
-                <span class="text-[10px] text-gray-400">Radiant bright white symmetry</span>
-              </div>
-            </label>
-            <label class="flex items-center gap-2 p-2.5 rounded-xl border border-white/15 bg-white/5 cursor-pointer">
-              <input type="radio" name="veneer-style" value="feminine" class="text-[#1a73e8]">
-              <div>
-                <span class="font-bold text-white block">Soft Feminine</span>
-                <span class="text-[10px] text-gray-400">Rounded embrasures & curvature</span>
-              </div>
-            </label>
-            <label class="flex items-center gap-2 p-2.5 rounded-xl border border-white/15 bg-white/5 cursor-pointer">
-              <input type="radio" name="veneer-style" value="masculine" class="text-[#1a73e8]">
-              <div>
-                <span class="font-bold text-white block">Defined Aesthetic</span>
-                <span class="text-[10px] text-gray-400">Strong central incisor dominance</span>
-              </div>
-            </label>
-          </div>
-        </div>
-
-        <div class="p-2.5 bg-white/5 rounded-xl border border-white/10 text-[10px] space-y-1 text-gray-300">
-          <div class="font-semibold text-white flex items-center gap-1.5">
-            <i class="bi bi-shield-check text-emerald-400"></i> Clinical DSD Adherence:
-          </div>
-          <p>
-            Strictly preserves patient facial anatomy, lip line, skin tones, and camera perspective while replacing the teeth inside the mask zone with symmetrical, photorealistic porcelain veneers.
-          </p>
-        </div>
-      </div>
-
-      <!-- Footer Action Buttons with Step Lock -->
-      <div class="flex items-center justify-between pt-2 border-t border-[#3e4453] shrink-0">
-        <button onclick="closeAiInpaintStudio()" class="px-4 py-2 bg-white/10 hover:bg-white/15 text-gray-300 rounded-full text-xs transition">
-          Cancel
-        </button>
-        <button onclick="executeClinicalInpaint()" id="btnRunInpaint" disabled class="px-5 py-2.5 bg-gray-700/50 text-gray-400 font-bold rounded-full text-xs cursor-not-allowed border border-white/10 opacity-60 flex items-center gap-1.5 transition">
-          <span>1. Generate Mask First</span>
-        </button>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- PROCESSING PROGRESS VIEW -->
-  <div id="processingView" class="hidden fixed inset-0 bg-black/85 backdrop-blur-xl z-50 flex items-center justify-center p-4">
-    <div class="m3-surface-container-highest p-6 max-w-xs w-full text-center space-y-3.5 shadow-2xl border border-white/20">
-      <div class="relative w-12 h-12 mx-auto flex items-center justify-center">
-        <div class="absolute inset-0 rounded-full border-3 border-blue-400/30 border-t-[#1a73e8] animate-spin"></div>
-        <i class="bi bi-stars text-amber-300 text-lg"></i>
-      </div>
-      <div class="space-y-0.5">
-        <h3 id="processingStepText" class="text-xs font-bold text-white">Synthesizing veneer anatomy...</h3>
-        <p class="text-[10px] text-gray-400">SmileCreo AI Neural Engine</p>
-      </div>
-      <div class="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
-        <div id="progressBar" class="bg-[#1a73e8] h-full rounded-full transition-all duration-300 w-1/4"></div>
-      </div>
-      <span id="timerText" class="text-[10px] font-mono text-gray-400 block">Processing... 0s</span>
-    </div>
-  </div>
-
-  <!-- BEFORE / AFTER COMPARISON SLIDER -->
-  <div id="comparisonView" class="hidden fixed inset-0 bg-black/95 z-50 flex flex-col justify-between p-3 overflow-hidden">
-    <div class="flex items-center justify-between w-full max-w-lg mx-auto z-20 shrink-0 mb-1 px-1">
-      <button onclick="closeComparisonView()" class="m3-surface-container px-3.5 py-1.5 rounded-full text-xs font-semibold text-white flex items-center gap-1.5 active:scale-95 transition">
-        <span>← Studio</span>
-      </button>
-
-      <span class="text-xs font-bold text-white uppercase tracking-wider">Before / After Review</span>
-
-      <button id="compDownloadBtn" class="bg-[#1a73e8] hover:bg-[#1557b0] text-white px-4 py-1.5 rounded-full text-xs font-semibold shadow-md active:scale-95 transition">
-        Export Result
-      </button>
-    </div>
-
-    <div id="compareViewportWrapper" class="flex-1 min-h-0 w-full flex items-center justify-center overflow-hidden my-auto relative">
-      <div id="compareContainer" class="relative rounded-2xl select-none bg-black overflow-hidden shadow-2xl border border-white/15" style="touch-action: none;">
-        <div id="compareViewport" class="relative select-none" style="transform-origin: 0 0;">
-          <img id="imgOriginal" class="block rounded-2xl pointer-events-none" draggable="false" alt="Original" />
-          <div class="absolute top-3 right-3 z-10 px-2.5 py-0.5 bg-black/70 backdrop-blur-md rounded-full text-[9px] font-bold text-white border border-white/20 uppercase">
-            Original
-          </div>
-
-          <div id="imgOverlayWrapper" class="absolute top-0 left-0 h-full overflow-hidden rounded-2xl z-10" style="width: 50%;">
-            <img id="imgGenerated" class="block rounded-2xl pointer-events-none max-w-none" draggable="false" alt="Veneers" />
-            <div class="absolute top-3 left-3 z-10 px-2.5 py-0.5 bg-[#1a73e8]/90 backdrop-blur-md rounded-full text-[9px] font-bold text-white border border-blue-300/40 uppercase">
-              SmileCreo AI
-            </div>
-          </div>
-        </div>
-
-        <div id="sliderHandle" class="absolute top-0 bottom-0 flex flex-col items-center justify-center cursor-ew-resize z-20" style="left: 50%; transform: translateX(-50%); width: 36px;">
-          <div class="absolute top-0 bottom-0 w-0.5 bg-white shadow-xl"></div>
-          <div class="relative w-8 h-8 bg-white rounded-full shadow-2xl flex items-center justify-center border-2 border-[#1a73e8] text-[#1a73e8] active:scale-90 transition">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="text-center text-[11px] font-medium text-gray-400 pb-1 shrink-0">
-      Slide divider to inspect cosmetic porcelain veneer restoration
-    </div>
-  </div>
-
-  <!-- CONFIRMATION DIALOG -->
-  <div id="customConfirmModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="m3-surface-container-highest bg-[#1c202c] w-full max-w-xs p-5 space-y-3 shadow-2xl border border-white/20 text-center">
-      <h4 id="confirmModalTitle" class="text-xs font-bold text-white uppercase tracking-wider">Confirm Action</h4>
-      <p id="confirmModalMsg" class="text-xs text-gray-300">Are you sure?</p>
-      <div class="flex justify-center gap-2 pt-2 border-t border-white/10">
-        <button id="confirmCancelBtn" class="px-3.5 py-1.5 bg-white/10 hover:bg-white/15 text-gray-300 rounded-full text-xs transition">Cancel</button>
-        <button id="confirmOkBtn" class="px-4 py-1.5 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-bold rounded-full text-xs transition shadow-md">Confirm</button>
-      </div>
-    </div>
-  </div>
-
   <!-- EXPORT DIALOG -->
   <div id="export-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-xl flex items-center justify-center p-4">
-    <div class="m3-surface-container-highest bg-[#1c202c] w-full max-w-sm p-5 space-y-3.5 shadow-2xl border border-white/20">
-      <div class="flex items-center justify-between pb-2 border-b border-[#3e4453]">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-white">Export Design</h3>
+    <div class="m3-surface-container-high bg-[#191c25] w-full max-w-sm p-5 space-y-3.5 shadow-2xl border border-white/20">
+      <div class="flex items-center justify-between pb-2 border-b border-[#393e4d]">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-white">Export Canvas / Vector</h3>
         <button onclick="closeExportModal()" class="text-gray-400 hover:text-white font-bold text-sm">✕</button>
       </div>
 
       <div class="space-y-2.5 text-xs">
         <div>
           <label class="block text-gray-300 mb-1.5 text-[11px] font-medium">Export Scope</label>
-          <select id="export-target" class="w-full bg-[#151821] border border-[#3e4453] rounded-xl p-2 text-white outline-none text-[11px]">
-            <option value="selection">Selected Stencil / Group Only</option>
+          <select id="export-target" class="w-full bg-[#13161f] border border-[#393e4d] rounded-xl p-2 text-white outline-none text-[11px]">
+            <option value="selection">Selected Object / Group Only</option>
             <option value="canvas">Entire Canvas</option>
           </select>
         </div>
@@ -728,14 +497,14 @@
           <label class="block text-gray-300 mb-1.5 text-[11px] font-medium">Format</label>
           <div class="grid grid-cols-3 gap-2">
             <button onclick="setExportFormat('png')" id="fmt-png" class="p-2 border border-[#a8c7fa]/40 bg-[#1a73e8]/30 text-white rounded-xl font-semibold text-center shadow-md">PNG</button>
-            <button onclick="setExportFormat('jpeg')" id="fmt-jpeg" class="p-2 border border-[#3e4453] bg-[#151821] text-gray-300 rounded-xl font-medium text-center">JPEG</button>
-            <button onclick="setExportFormat('svg')" id="fmt-svg" class="p-2 border border-[#3e4453] bg-[#151821] text-gray-300 rounded-xl font-medium text-center">SVG</button>
+            <button onclick="setExportFormat('jpeg')" id="fmt-jpeg" class="p-2 border border-[#393e4d] bg-[#13161f] text-gray-300 rounded-xl font-medium text-center">JPEG</button>
+            <button onclick="setExportFormat('svg')" id="fmt-svg" class="p-2 border border-[#393e4d] bg-[#13161f] text-gray-300 rounded-xl font-medium text-center">SVG</button>
           </div>
         </div>
 
         <div>
           <label class="block text-gray-300 mb-1.5 text-[11px] font-medium">Resolution</label>
-          <select id="export-scale" class="w-full bg-[#151821] border border-[#3e4453] rounded-xl p-2 text-white outline-none font-mono text-[11px]">
+          <select id="export-scale" class="w-full bg-[#13161f] border border-[#393e4d] rounded-xl p-2 text-white outline-none font-mono text-[11px]">
             <option value="1">1x Standard</option>
             <option value="2" selected>2x High-Definition (Retina)</option>
             <option value="3">3x Ultra High-Res</option>
@@ -748,28 +517,34 @@
         </div>
       </div>
 
-      <div class="flex justify-end gap-2.5 pt-2.5 border-t border-[#3e4453]">
+      <div class="flex justify-end gap-2.5 pt-2.5 border-t border-[#393e4d]">
         <button onclick="closeExportModal()" class="px-4 py-1.5 bg-white/10 hover:bg-white/15 text-gray-300 rounded-full text-xs transition">Cancel</button>
         <button onclick="executeExport()" class="px-4 py-1.5 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-semibold rounded-full text-xs shadow-md shadow-[#1a73e8]/50 transition">Download</button>
       </div>
     </div>
   </div>
 
-  <!-- FLOATING M3 TOAST (SNACKBAR) -->
+  <!-- CONFIRM MODAL -->
+  <div id="customConfirmModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="m3-surface-container-high bg-[#191c25] w-full max-w-xs p-5 space-y-3 shadow-2xl border border-white/20 text-center">
+      <h4 id="confirmModalTitle" class="text-xs font-bold text-white uppercase tracking-wider">Confirm Action</h4>
+      <p id="confirmModalMsg" class="text-xs text-gray-300">Are you sure?</p>
+      <div class="flex justify-center gap-2 pt-2 border-t border-white/10">
+        <button id="confirmCancelBtn" class="px-3.5 py-1.5 bg-white/10 hover:bg-white/15 text-gray-300 rounded-full text-xs transition">Cancel</button>
+        <button id="confirmOkBtn" class="px-4 py-1.5 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-bold rounded-full text-xs transition shadow-md">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
   <div id="toastContainer" class="fixed bottom-12 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-  <!-- ============================================================
-       APPLICATION LOGIC & ENGINES
-       ============================================================ -->
   <script>
-    /* ============================================================
-       FABRIC ENGINE & HIGH-DPI ZERO-VANISH CONFIGURATION
-       ============================================================ */
-    // Prevent images or SVGs from vanishing when zooming in/out
-    fabric.perfLimitSizeTotal = 16777216; // 4096 x 4096 buffer
+    // Fabric.js Object Caching Disabled = Zero Vanishing Images at Any Zoom
+    fabric.perfLimitSizeTotal = 16777216;
     fabric.maxCacheSideLimit = 8192;
     fabric.minCachePrimitiveLimit = 256;
-    fabric.Object.prototype.objectCaching = false; // Always render directly without texture clipping!
+    fabric.Object.prototype.objectCaching = false;
 
     const container = document.getElementById('canvas-viewport');
     const canvas = new fabric.Canvas('studio-canvas', {
@@ -798,34 +573,29 @@
     let lastX = 0, lastY = 0;
     let shapeCounter = 0;
     let activeExportFmt = 'png';
-    let currentStrokeWidth = 1;
+    let currentStrokeWidth = 1.5;
     let currentStrokeColor = '#ffffff';
-    let currentFillColor = 'transparent'; // Pencil & SVG fill color
-    let currentCanvasBg = '#0b0e16';
-    let isMaskGenerated = false;
+    let currentFillColor = 'transparent';
+    let currentCanvasBg = '#090c13';
     let _canvasClipboard = null;
 
-    // Window Resize Handling
     window.addEventListener('resize', () => {
       canvas.setWidth(container.clientWidth);
       canvas.setHeight(container.clientHeight);
       canvas.requestRenderAll();
     });
 
-    // Lifecycle Synchronization: layers stay 100% in sync with canvas
+    // Auto-sync layers whenever objects change
     canvas.on('object:added', () => updateLayersTree());
     canvas.on('object:removed', () => {
       updateLayersTree();
       syncInspector();
     });
 
-    /* ============================================================
-       M3 TOAST NOTIFICATIONS & CONFIRMATION
-       ============================================================ */
     function showToast(msg, type = 'info') {
       const c = document.getElementById('toastContainer');
       const toast = document.createElement('div');
-      toast.className = 'm3-surface-container-high px-4 py-2.5 text-xs text-white shadow-2xl flex items-center gap-2 border border-white/20 pointer-events-auto transition-all duration-300 opacity-0 translate-y-2 rounded-full';
+      toast.className = 'm3-surface-container-high px-4 py-2 text-xs text-white shadow-2xl flex items-center gap-2 border border-white/20 pointer-events-auto transition-all duration-200 opacity-0 translate-y-2 rounded-full';
       
       let icon = '<i class="bi bi-info-circle-fill text-[#a8c7fa]"></i>';
       if (type === 'success') icon = '<i class="bi bi-check-circle-fill text-emerald-400"></i>';
@@ -834,14 +604,11 @@
       toast.innerHTML = `${icon}<span>${msg}</span>`;
       c.appendChild(toast);
 
-      requestAnimationFrame(() => {
-        toast.classList.remove('opacity-0', 'translate-y-2');
-      });
-
+      requestAnimationFrame(() => toast.classList.remove('opacity-0', 'translate-y-2'));
       setTimeout(() => {
         toast.classList.add('opacity-0', 'translate-y-2');
-        setTimeout(() => toast.remove(), 300);
-      }, 3000);
+        setTimeout(() => toast.remove(), 250);
+      }, 2500);
     }
 
     function showConfirmModal(title, msg, onConfirm) {
@@ -859,10 +626,7 @@
         cancelBtn.onclick = null;
       };
 
-      okBtn.onclick = () => {
-        cleanup();
-        onConfirm();
-      };
+      okBtn.onclick = () => { cleanup(); onConfirm(); };
       cancelBtn.onclick = cleanup;
     }
 
@@ -878,7 +642,7 @@
     }
 
     /* ============================================================
-       NAVIGATION ENGINE: SHIFT + SCROLL IS HORIZONTAL SCROLL
+       SCROLL ENGINE: SHIFT + SCROLL IS HORIZONTAL
        ============================================================ */
     canvas.on('mouse:wheel', (opt) => {
       const e = opt.e;
@@ -886,7 +650,6 @@
       e.stopPropagation();
 
       if (e.ctrlKey || e.metaKey) {
-        // Zoom to pointer
         let zoom = canvas.getZoom();
         zoom *= 0.999 ** e.deltaY;
         if (zoom > 25) zoom = 25;
@@ -913,7 +676,7 @@
     function updateZoomBadge() { document.getElementById('zoom-level-text').innerText = `${Math.round(canvas.getZoom() * 100)}%`; }
 
     /* ============================================================
-       TOOL CLEANUP & SAFETY
+       CLEAN TOOL STATE
        ============================================================ */
     function cleanToolState() {
       canvas.forEachObject(o => {
@@ -925,13 +688,22 @@
     }
 
     /* ============================================================
-       KEYBOARD SHORTCUTS, NUDGING & ATOMIC CLIPBOARD
+       KEYBOARD SHORTCUTS & 100% RELIABLE DELETE
        ============================================================ */
     window.addEventListener('keydown', (e) => {
+      // Allow normal typing inside input/textarea
       if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName) || document.activeElement.isContentEditable) {
         return;
       }
 
+      // Delete / Backspace: Always works!
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        e.preventDefault();
+        deleteSelected();
+        return;
+      }
+
+      // Group / Ungroup
       if ((e.ctrlKey || e.metaKey) && (e.key === 'g' || e.key === 'G')) {
         e.preventDefault();
         if (e.shiftKey) ungroupSelected();
@@ -939,6 +711,7 @@
         return;
       }
 
+      // Arrow Nudging
       if (e.key.startsWith('Arrow')) {
         e.preventDefault();
         const step = e.shiftKey ? 10 : (e.altKey ? 0.5 : 1);
@@ -950,6 +723,10 @@
 
         if (PointEditor.isEditing && PointEditor.activeNode) {
           PointEditor.nudge(dx, dy);
+          return;
+        }
+        if (CropManager.isCropping) {
+          CropManager.nudge(dx, dy);
           return;
         }
 
@@ -965,55 +742,54 @@
         return;
       }
 
-      if (e.key === 'Enter' && PointEditor.isEditing) {
-        PointEditor.stopEditing();
-        return;
+      // Mode Confirmations
+      if (e.key === 'Enter') {
+        if (PointEditor.isEditing) { PointEditor.stopEditing(); return; }
+        if (CropManager.isCropping) { CropManager.applyCrop(); return; }
       }
       if (e.key === 'Escape') {
-        if (PointEditor.isEditing) PointEditor.stopEditing();
-        document.getElementById('stencilDropdown').classList.add('hidden');
-        return;
+        if (PointEditor.isEditing) { PointEditor.stopEditing(); return; }
+        if (CropManager.isCropping) { CropManager.cancelCrop(); return; }
       }
 
+      // Tool selection shortcuts
       if (e.key === 'v' || e.key === 'V') setTool('select');
       if (e.key === 'h' || e.key === 'H') setTool('hand');
       if (e.key === 'b' || e.key === 'B') setTool('pencil');
-      if (e.key === 'l' || e.key === 'L') addFacialMidline();
-      if (e.key === 'p' || e.key === 'P') addSmileCurve();
+      if (e.key === 'c' || e.key === 'C') CropManager.startCrop();
+      if (e.key === 'p' || e.key === 'P') addBezierCurve();
+      if (e.key === 'l' || e.key === 'L') addMidline();
       if (e.key === 'r' || e.key === 'R') addRectangle();
       if (e.key === 'o' || e.key === 'O') addCircle();
       if (e.key === 't' || e.key === 'T') addText();
-      if (e.key === 'Delete' || e.key === 'Backspace') deleteSelected();
 
+      // Undo / Redo
       if (e.ctrlKey || e.metaKey) {
         if (e.key === 'z') { e.preventDefault(); undo(); }
         if (e.key === 'y') { e.preventDefault(); redo(); }
         if (e.key === 'd') { e.preventDefault(); duplicateSelected(); }
-        if (e.key === 'c') {
-          // Handled via copy event
-        }
       }
     });
 
-    // Object Copy to internal clipboard
+    // Copy Canvas Object
     window.addEventListener('copy', (e) => {
       if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
       const active = canvas.getActiveObject();
       if (active) {
         active.clone((cloned) => {
           _canvasClipboard = cloned;
-          showToast('Copied object to clipboard', 'info');
+          showToast('Copied object', 'info');
         });
       }
     });
 
-    // Universal Paste: Direct SVG String, Image Blob, or Canvas Object
+    // Universal Paste: Direct SVG Strings, Clipboard Images, or Copied Canvas Objects
     window.addEventListener('paste', async (e) => {
       if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
       const clipboardData = e.clipboardData || window.clipboardData;
       if (!clipboardData) return;
 
-      // 1. Text SVG paste
+      // 1. Text SVG Paste
       const text = clipboardData.getData('text/plain');
       if (text && (text.includes('<svg') || text.includes('<path'))) {
         e.preventDefault();
@@ -1021,7 +797,7 @@
         return;
       }
 
-      // 2. Image files in clipboard
+      // 2. Image Files in Clipboard
       const items = clipboardData.items;
       if (items) {
         for (let i = 0; i < items.length; i++) {
@@ -1034,7 +810,7 @@
         }
       }
 
-      // 3. Internal Fabric object clipboard
+      // 3. Canvas Object Clipboard
       if (_canvasClipboard) {
         e.preventDefault();
         _canvasClipboard.clone((cloned) => {
@@ -1063,11 +839,11 @@
     });
 
     /* ============================================================
-       TOOL MODES: SELECT, HAND, PENCIL
+       TOOL MODES (SELECT, HAND, PENCIL)
        ============================================================ */
     function setTool(tool) {
       if (PointEditor.isEditing) PointEditor.stopEditing();
-      document.getElementById('stencilDropdown').classList.add('hidden');
+      if (CropManager.isCropping) CropManager.cancelCrop();
       cleanToolState();
       currentTool = tool;
 
@@ -1101,27 +877,31 @@
       }
     }
 
-    // Pencil Drawing Created: Converts to live vector Path with chosen Fill
+    // Pencil Drawing Created -> Direct Vector Path with Live Fill
     canvas.on('path:created', (e) => {
       const path = e.path;
       path.set({
-        name: `Dental Contour ${++shapeCounter}`,
+        name: `Path ${++shapeCounter}`,
         fill: currentFillColor === 'transparent' ? '' : currentFillColor,
         stroke: currentStrokeColor,
         strokeWidth: currentStrokeWidth,
         strokeUniform: true,
-        customType: 'svg-contour'
+        customType: 'vector-path'
       });
       canvas.setActiveObject(path);
       canvas.requestRenderAll();
       updateLayersTree();
       syncInspector();
       saveState();
-      showToast('Pencil drawing created as vector SVG', 'success');
+      showToast('Drawn as vector SVG', 'success');
     });
 
-    // Panning with mouse
     canvas.on('mouse:down', (opt) => {
+      // Clear input focus so delete key works reliably
+      if (document.activeElement && document.activeElement.blur) {
+        document.activeElement.blur();
+      }
+
       const evt = opt.e;
       if (currentTool === 'hand' || evt.spaceKey || evt.button === 1) {
         isPanning = true;
@@ -1168,6 +948,7 @@
       const btnGroup = document.getElementById('ctx-group');
       const btnUngroup = document.getElementById('ctx-ungroup');
       const btnEditPts = document.getElementById('ctx-edit-points');
+      const btnCrop = document.getElementById('ctx-crop');
 
       if (active && active.type === 'activeSelection') {
         btnGroup.style.display = 'flex';
@@ -1180,44 +961,33 @@
         btnUngroup.style.display = 'none';
       }
 
-      btnEditPts.style.display = (active && (active.type === 'path' || active.customType === 'bezier' || active.customType === 'svg-contour')) ? 'flex' : 'none';
+      btnEditPts.style.display = (active && active.type === 'path') ? 'flex' : 'none';
+      btnCrop.style.display = (active && (active.type === 'image' || active.type === 'group')) ? 'flex' : 'none';
 
       contextMenu.style.left = `${Math.min(window.innerWidth - 220, e.clientX)}px`;
       contextMenu.style.top = `${Math.min(window.innerHeight - 240, e.clientY)}px`;
       contextMenu.classList.remove('hidden');
     });
 
-    window.addEventListener('click', () => {
-      contextMenu.classList.add('hidden');
-      document.getElementById('stencilDropdown').classList.add('hidden');
-    });
+    window.addEventListener('click', () => contextMenu.classList.add('hidden'));
 
     function executeContextAction(action) {
       contextMenu.classList.add('hidden');
       const active = canvas.getActiveObject();
-      if (!active && action !== 'clear') return;
+      if (!active) return;
 
       if (action === 'editPoints') PointEditor.startEditing(active);
+      if (action === 'crop') CropManager.startCrop();
       if (action === 'ungroup') ungroupSelected();
       if (action === 'group') groupSelected();
-      if (action === 'bringFront') {
-        canvas.bringToFront(active);
-        canvas.requestRenderAll();
-        updateLayersTree();
-        saveState();
-      }
-      if (action === 'sendBack') {
-        canvas.sendToBack(active);
-        canvas.requestRenderAll();
-        updateLayersTree();
-        saveState();
-      }
+      if (action === 'bringFront') { canvas.bringToFront(active); canvas.requestRenderAll(); updateLayersTree(); saveState(); }
+      if (action === 'sendBack') { canvas.sendToBack(active); canvas.requestRenderAll(); updateLayersTree(); saveState(); }
       if (action === 'duplicate') duplicateSelected();
       if (action === 'delete') deleteSelected();
     }
 
     /* ============================================================
-       GROUPING & ATOMIC DELETION (NO GHOST LAYERS)
+       GROUPING & ATOMIC DELETION
        ============================================================ */
     function groupSelected() {
       const active = canvas.getActiveObject();
@@ -1247,15 +1017,22 @@
     }
 
     function deleteSelected() {
-      if (PointEditor.isEditing) PointEditor.stopEditing();
+      if (PointEditor.isEditing) {
+        if (PointEditor.deleteActiveNode()) return;
+        PointEditor.stopEditing();
+      }
+      if (CropManager.isCropping) {
+        CropManager.cancelCrop();
+        return;
+      }
+
       const activeObj = canvas.getActiveObject();
       if (!activeObj) return;
 
-      // Discard active selection before removing to avoid ghost references
       if (activeObj.type === 'activeSelection') {
         const objects = activeObj.getObjects().slice();
         canvas.discardActiveGroup();
-        objects.forEach(obj => canvas.remove(obj));
+        objects.forEach(o => canvas.remove(o));
       } else {
         canvas.discardActiveGroup();
         canvas.remove(activeObj);
@@ -1274,8 +1051,8 @@
       if (!obj) return;
       obj.clone((cloned) => {
         cloned.set({
-          left: cloned.left + 20,
-          top: cloned.top + 20,
+          left: cloned.left + 24,
+          top: cloned.top + 24,
           name: `${obj.name || 'Object'} (Copy)`
         });
         canvas.add(cloned);
@@ -1288,46 +1065,22 @@
     }
 
     /* ============================================================
-       DENTAL STENCILS & CLINICAL REFERENCE GUIDES
+       BÉZIER CURVES & REFERENCE LINES
        ============================================================ */
-    function toggleStencilMenu(e) {
-      e.stopPropagation();
-      const menu = document.getElementById('stencilDropdown');
-      menu.classList.toggle('hidden');
-    }
-
-    // Facial Midline Guide with Perpendicular Inter-Incisal Tick
-    function addFacialMidline() {
+    function addBezierCurve() {
       const c = canvas.getVpCenter();
-      const line = new fabric.Line([c.x, c.y - 140, c.x, c.y + 140], {
-        stroke: '#22d3ee',
-        strokeWidth: 1.5,
-        strokeUniform: true,
-        name: `Facial Midline ${++shapeCounter}`,
-        customType: 'midline'
-      });
-      canvas.add(line);
-      canvas.setActiveObject(line);
-      setTool('select');
-      saveState();
-      showToast('Facial Midline inserted', 'success');
-    }
-
-    // Esthetic Smile Curve
-    function addSmileCurve() {
-      const c = canvas.getVpCenter();
-      const p0 = { x: c.x - 120, y: c.y + 30 };
-      const p1 = { x: c.x, y: c.y - 50 };
-      const p2 = { x: c.x + 120, y: c.y + 30 };
-      const pathStr = `M ${p0.x} ${p0.y} Q ${p1.x} ${p1.y} ${p2.x} ${p2.y}`;
+      const p0 = { x: c.x - 120, y: c.y + 35 };
+      const cp = { x: c.x, y: c.y - 65 };
+      const p1 = { x: c.x + 120, y: c.y + 35 };
+      const pathStr = `M ${p0.x} ${p0.y} Q ${cp.x} ${cp.y} ${p1.x} ${p1.y}`;
 
       const curve = new fabric.Path(pathStr, {
-        stroke: '#facc15',
+        stroke: currentStrokeColor,
         fill: '',
-        strokeWidth: 2,
+        strokeWidth: currentStrokeWidth,
         strokeLineCap: 'round',
         strokeUniform: true,
-        name: `Smile Curve ${++shapeCounter}`,
+        name: `Curve ${++shapeCounter}`,
         customType: 'bezier'
       });
 
@@ -1335,91 +1088,26 @@
       canvas.setActiveObject(curve);
       setTool('select');
       saveState();
-      showToast('Smile Curve inserted', 'success');
+      PointEditor.startEditing(curve);
+      showToast('Bézier curve added — Drag handles to bend', 'success');
     }
 
-    // 1-Click 6-Anterior Smile Template (Upper Anterior Veneers #13 - #23)
-    function insertFullSmileTemplate() {
-      document.getElementById('stencilDropdown').classList.add('hidden');
+    function addMidline() {
       const c = canvas.getVpCenter();
-
-      // Anatomical upper anterior arch contours
-      const svgArch = `
-        <svg viewBox="0 0 340 120" xmlns="http://www.w3.org/2000/svg">
-          <!-- Canine 13 -->
-          <path d="M 28 32 C 22 45 20 70 28 92 C 34 98 42 100 48 94 C 54 74 54 48 44 32 C 38 24 32 24 28 32 Z" fill="rgba(255,255,255,0.7)" stroke="#ffffff" stroke-width="1.5" />
-          <!-- Lateral 12 -->
-          <path d="M 58 26 C 52 40 50 68 56 94 C 62 100 74 100 80 94 C 84 72 84 44 76 26 C 70 18 64 18 58 26 Z" fill="rgba(255,255,255,0.7)" stroke="#ffffff" stroke-width="1.5" />
-          <!-- Central 11 -->
-          <path d="M 92 18 C 84 35 82 72 90 104 C 98 112 116 112 124 104 C 130 75 130 40 120 18 C 112 10 100 10 92 18 Z" fill="rgba(255,255,255,0.75)" stroke="#ffffff" stroke-width="1.5" />
-          <!-- Central 21 -->
-          <path d="M 144 18 C 134 40 134 75 140 104 C 148 112 166 112 174 104 C 182 72 180 35 172 18 C 164 10 152 10 144 18 Z" fill="rgba(255,255,255,0.75)" stroke="#ffffff" stroke-width="1.5" />
-          <!-- Lateral 22 -->
-          <path d="M 188 26 C 180 44 180 72 184 94 C 190 100 202 100 208 94 C 214 68 212 40 206 26 C 200 18 194 18 188 26 Z" fill="rgba(255,255,255,0.7)" stroke="#ffffff" stroke-width="1.5" />
-          <!-- Canine 23 -->
-          <path d="M 220 32 C 210 48 210 74 216 94 C 222 100 230 98 236 92 C 244 70 242 45 236 32 C 232 24 226 24 220 32 Z" fill="rgba(255,255,255,0.7)" stroke="#ffffff" stroke-width="1.5" />
-        </svg>
-      `;
-
-      fabric.loadSVGFromString(svgArch, (objects, options) => {
-        const group = fabric.util.groupSVGElements(objects, options);
-        group.scaleToWidth(300);
-        group.set({
-          left: c.x - 150,
-          top: c.y - 55,
-          name: `6-Anterior Smile Arch ${++shapeCounter}`,
-          strokeUniform: true,
-          customType: 'smile-arch'
-        });
-        canvas.add(group);
-        canvas.setActiveObject(group);
-        canvas.requestRenderAll();
-        saveState();
-        showToast('6-Anterior Smile Template added', 'success');
-      });
-    }
-
-    // Insert Individual Tooth Stencil
-    function insertSingleVeneer(type) {
-      document.getElementById('stencilDropdown').classList.add('hidden');
-      const c = canvas.getVpCenter();
-      let pathD = '';
-      let title = '';
-
-      if (type === 'central') {
-        // Upper Central Incisor (#11/#21)
-        pathD = "M 35 15 C 24 35 22 72 30 106 C 38 114 62 114 70 106 C 78 72 76 35 65 15 C 55 5 45 5 35 15 Z";
-        title = `Central Incisor ${++shapeCounter}`;
-      } else if (type === 'lateral') {
-        // Upper Lateral Incisor (#12/#22)
-        pathD = "M 32 20 C 24 38 22 68 28 96 C 34 102 52 102 58 96 C 64 68 62 38 54 20 C 48 10 38 10 32 20 Z";
-        title = `Lateral Incisor ${++shapeCounter}`;
-      } else {
-        // Upper Canine (#13/#23)
-        pathD = "M 30 22 C 22 42 20 70 28 92 C 34 98 44 100 50 94 C 58 70 56 42 48 22 C 42 12 36 12 30 22 Z";
-        title = `Canine Cusp ${++shapeCounter}`;
-      }
-
-      const tooth = new fabric.Path(pathD, {
-        left: c.x - 40,
-        top: c.y - 55,
-        fill: 'rgba(255, 255, 255, 0.75)',
-        stroke: '#ffffff',
+      const line = new fabric.Line([c.x, c.y - 140, c.x, c.y + 140], {
+        stroke: '#22d3ee',
         strokeWidth: 1.5,
         strokeUniform: true,
-        name: title,
-        customType: 'veneer-tooth'
+        name: `Midline ${++shapeCounter}`,
+        customType: 'midline'
       });
-
-      canvas.add(tooth);
-      canvas.setActiveObject(tooth);
+      canvas.add(line);
+      canvas.setActiveObject(line);
+      setTool('select');
       saveState();
-      showToast(`${title} added`, 'success');
+      showToast('Midline reference added', 'success');
     }
 
-    /* ============================================================
-       BASIC GEOMETRIC SHAPES
-       ============================================================ */
     function addRectangle() {
       const c = canvas.getVpCenter();
       const rect = new fabric.Rect({
@@ -1427,11 +1115,10 @@
         top: c.y - 45,
         width: 120,
         height: 90,
-        fill: 'rgba(26, 115, 232, 0.25)',
+        fill: currentFillColor === 'transparent' ? 'rgba(26, 115, 232, 0.25)' : currentFillColor,
         stroke: currentStrokeColor,
         strokeWidth: currentStrokeWidth,
-        rx: 8,
-        ry: 8,
+        rx: 8, ry: 8,
         strokeUniform: true,
         name: `Rectangle ${++shapeCounter}`
       });
@@ -1447,7 +1134,7 @@
         left: c.x - 45,
         top: c.y - 45,
         radius: 45,
-        fill: 'rgba(26, 115, 232, 0.25)',
+        fill: currentFillColor === 'transparent' ? 'rgba(26, 115, 232, 0.25)' : currentFillColor,
         stroke: currentStrokeColor,
         strokeWidth: currentStrokeWidth,
         strokeUniform: true,
@@ -1461,11 +1148,11 @@
 
     function addText() {
       const c = canvas.getVpCenter();
-      const text = new fabric.IText('SmileCreo DSD', {
-        left: c.x - 60,
+      const text = new fabric.IText('SmileCreo', {
+        left: c.x - 50,
         top: c.y - 12,
         fontFamily: 'Roboto',
-        fontSize: 20,
+        fontSize: 22,
         fill: '#ffffff',
         name: `Text ${++shapeCounter}`
       });
@@ -1475,8 +1162,22 @@
       saveState();
     }
 
+    function closeActivePath() {
+      const active = canvas.getActiveObject();
+      if (!active || active.type !== 'path') return;
+      const cmds = active.path;
+      if (cmds[cmds.length - 1][0] !== 'Z') {
+        cmds.push(['Z']);
+        active._setPath(cmds.map(c => c.join(' ')).join(' '));
+        active.setCoords();
+        canvas.requestRenderAll();
+        saveState();
+        showToast('Path closed', 'success');
+      }
+    }
+
     /* ============================================================
-       SVG & PATIENT IMAGE IMPORT / PASTE
+       SVG & IMAGE IMPORT / PASTE ENGINE
        ============================================================ */
     function loadSvgStringDirectly(svgStr) {
       fabric.loadSVGFromString(svgStr, (objects, options) => {
@@ -1514,7 +1215,7 @@
         const reader = new FileReader();
         reader.onload = (e) => {
           fabric.Image.fromURL(e.target.result, (img) => {
-            const maxDim = 650;
+            const maxDim = 700;
             if (img.width > maxDim || img.height > maxDim) {
               img.scale(maxDim / Math.max(img.width, img.height));
             }
@@ -1529,7 +1230,7 @@
             canvas.setActiveObject(img);
             canvas.requestRenderAll();
             saveState();
-            showToast('Patient photo loaded', 'success');
+            showToast('Image loaded', 'success');
           });
         };
         reader.readAsDataURL(file);
@@ -1545,134 +1246,247 @@
     });
 
     /* ============================================================
-       INTUITIVE SVG & PATH POINT EDITOR (NO COMPLICATED TOOLS)
+       FIGMA-GRADE VECTOR POINT & CURVE EDITOR (NO JUMPING)
        ============================================================ */
     const PointEditor = {
       isEditing: false,
       activePath: null,
       handles: [],
+      guideLines: [],
       activeNode: null,
+      absCommands: [],
 
       toggleEdit() {
         if (this.isEditing) {
           this.stopEditing();
         } else {
           const active = canvas.getActiveObject();
-          if (active && (active.type === 'path' || active.customType === 'bezier' || active.customType === 'svg-contour')) {
+          if (active && active.type === 'path') {
             this.startEditing(active);
           } else {
-            showToast('Select an SVG path or curve to edit points', 'error');
+            showToast('Select a vector path or curve to edit points', 'error');
           }
         }
       },
 
       startEditing(pathObj) {
         if (!pathObj || !pathObj.path) return;
+        if (CropManager.isCropping) CropManager.cancelCrop();
         this.stopEditing();
         this.isEditing = true;
-        this.activePath = pathObj;
 
-        pathObj.selectable = false;
-        pathObj.evented = false;
-
+        // Step 1: Normalize all commands to Absolute Canvas Coordinates
+        // This guarantees the shape NEVER jumps when editing!
         const matrix = pathObj.calcTransformMatrix();
         const offset = pathObj.pathOffset || { x: 0, y: 0 };
-        this.handles = [];
+        const rawCmds = JSON.parse(JSON.stringify(pathObj.path));
 
-        // Traverse each path segment command (M, L, Q, C) and place anchor nodes
-        pathObj.path.forEach((cmd, cmdIdx) => {
+        const absCmds = rawCmds.map(cmd => {
           const op = cmd[0];
-          let points = [];
-
+          const newCmd = [op];
           if (op === 'M' || op === 'L') {
-            points.push({ xIdx: 1, yIdx: 2 });
+            const pt = fabric.util.transformPoint({ x: cmd[1] - offset.x, y: cmd[2] - offset.y }, matrix);
+            newCmd.push(pt.x, pt.y);
           } else if (op === 'Q') {
-            points.push({ xIdx: 1, yIdx: 2 });
-            points.push({ xIdx: 3, yIdx: 4 });
+            const cp = fabric.util.transformPoint({ x: cmd[1] - offset.x, y: cmd[2] - offset.y }, matrix);
+            const pt = fabric.util.transformPoint({ x: cmd[3] - offset.x, y: cmd[4] - offset.y }, matrix);
+            newCmd.push(cp.x, cp.y, pt.x, pt.y);
           } else if (op === 'C') {
-            points.push({ xIdx: 1, yIdx: 2 });
-            points.push({ xIdx: 3, yIdx: 4 });
-            points.push({ xIdx: 5, yIdx: 6 });
+            const cp1 = fabric.util.transformPoint({ x: cmd[1] - offset.x, y: cmd[2] - offset.y }, matrix);
+            const cp2 = fabric.util.transformPoint({ x: cmd[3] - offset.x, y: cmd[4] - offset.y }, matrix);
+            const pt = fabric.util.transformPoint({ x: cmd[5] - offset.x, y: cmd[6] - offset.y }, matrix);
+            newCmd.push(cp1.x, cp1.y, cp2.x, cp2.y, pt.x, pt.y);
+          } else if (op === 'Z') {
+            // Close command
           }
-
-          points.forEach(pt => {
-            const localX = cmd[pt.xIdx] - offset.x;
-            const localY = cmd[pt.yIdx] - offset.y;
-            const canvasPt = fabric.util.transformPoint({ x: localX, y: localY }, matrix);
-
-            const handle = new fabric.Circle({
-              left: canvasPt.x,
-              top: canvasPt.y,
-              radius: 6,
-              fill: '#a8c7fa',
-              stroke: '#00315f',
-              strokeWidth: 2,
-              originX: 'center',
-              originY: 'center',
-              hasBorders: false,
-              hasControls: false,
-              cmdIdx: cmdIdx,
-              xIdx: pt.xIdx,
-              yIdx: pt.yIdx,
-              isInternalHandle: true
-            });
-
-            handle.on('moving', () => {
-              this.activeNode = handle;
-              this.updatePathPoint(handle);
-            });
-
-            handle.on('selected', () => {
-              this.activeNode = handle;
-            });
-
-            this.handles.push(handle);
-            canvas.add(handle);
-          });
+          return newCmd;
         });
 
-        this.handles.forEach(h => canvas.bringToFront(h));
-        document.getElementById('point-edit-banner').classList.remove('hidden');
-        document.getElementById('btn-inspector-edit-points').innerText = 'Done (Finish Points)';
-        canvas.requestRenderAll();
-      },
+        this.absCommands = absCmds;
 
-      updatePathPoint(handle) {
-        if (!this.activePath) return;
-        const matrix = this.activePath.calcTransformMatrix();
-        const invMatrix = fabric.util.invertTransform(matrix);
-        const offset = this.activePath.pathOffset || { x: 0, y: 0 };
-
-        const localPt = fabric.util.transformPoint({ x: handle.left, y: handle.top }, invMatrix);
-        const cmd = this.activePath.path[handle.cmdIdx];
-        cmd[handle.xIdx] = localPt.x + offset.x;
-        cmd[handle.yIdx] = localPt.y + offset.y;
-
-        // Rebuild path string
-        const pathStr = this.activePath.path.map(c => c[0] + ' ' + c.slice(1).join(' ')).join(' ');
-        const fill = this.activePath.fill;
-        const stroke = this.activePath.stroke;
-        const strokeWidth = this.activePath.strokeWidth;
-        const name = this.activePath.name;
-        const customType = this.activePath.customType;
-
-        const idx = canvas.getObjects().indexOf(this.activePath);
-        canvas.remove(this.activePath);
-
-        const newPath = new fabric.Path(pathStr, {
-          fill: fill,
-          stroke: stroke,
-          strokeWidth: strokeWidth,
+        // Replace original object with the canvas-space normalized path
+        const absPathStr = this.buildPathString(absCmds);
+        const normPath = new fabric.Path(absPathStr, {
+          fill: pathObj.fill,
+          stroke: pathObj.stroke,
+          strokeWidth: pathObj.strokeWidth,
           strokeLineCap: 'round',
           strokeUniform: true,
           selectable: false,
           evented: false,
-          name: name,
-          customType: customType
+          name: pathObj.name,
+          customType: pathObj.customType
         });
 
-        this.activePath = newPath;
-        canvas.insertAt(newPath, idx);
+        const origIdx = canvas.getObjects().indexOf(pathObj);
+        canvas.remove(pathObj);
+        canvas.insertAt(normPath, origIdx);
+        this.activePath = normPath;
+
+        // Step 2: Render Anchor Nodes & Bézier Tangent Guides
+        this.createHandles();
+
+        document.getElementById('point-edit-banner').classList.remove('hidden');
+        document.getElementById('btn-inspector-edit-points').innerText = 'Done Editing';
+        canvas.requestRenderAll();
+      },
+
+      buildPathString(cmds) {
+        return cmds.map(c => c[0] + ' ' + c.slice(1).map(n => Number(n).toFixed(2)).join(' ')).join(' ');
+      },
+
+      createHandles() {
+        this.handles.forEach(h => canvas.remove(h));
+        this.guideLines.forEach(g => canvas.remove(g));
+        this.handles = [];
+        this.guideLines = [];
+
+        let lastAnchorPt = null;
+
+        this.absCommands.forEach((cmd, cmdIdx) => {
+          const op = cmd[0];
+
+          if (op === 'M' || op === 'L') {
+            const anchor = this.makeAnchorHandle(cmd[1], cmd[2], cmdIdx, 1, 2);
+            this.handles.push(anchor);
+            canvas.add(anchor);
+            lastAnchorPt = { x: cmd[1], y: cmd[2] };
+          } else if (op === 'Q') {
+            // Quadratic Curve: [Q, cx, cy, x, y]
+            const cpHandle = this.makeControlHandle(cmd[1], cmd[2], cmdIdx, 1, 2);
+            const anchor = this.makeAnchorHandle(cmd[3], cmd[4], cmdIdx, 3, 4);
+
+            if (lastAnchorPt) {
+              const guide1 = new fabric.Line([lastAnchorPt.x, lastAnchorPt.y, cmd[1], cmd[2]], {
+                stroke: '#1a73e8', strokeDashArray: [3, 3], selectable: false, evented: false, isInternalHandle: true
+              });
+              const guide2 = new fabric.Line([cmd[1], cmd[2], cmd[3], cmd[4]], {
+                stroke: '#1a73e8', strokeDashArray: [3, 3], selectable: false, evented: false, isInternalHandle: true
+              });
+              this.guideLines.push(guide1, guide2);
+              canvas.add(guide1, guide2);
+              cpHandle.guides = [guide1, guide2];
+            }
+
+            this.handles.push(cpHandle, anchor);
+            canvas.add(cpHandle, anchor);
+            lastAnchorPt = { x: cmd[3], y: cmd[4] };
+          } else if (op === 'C') {
+            // Cubic Curve: [C, cp1x, cp1y, cp2x, cp2y, x, y]
+            const cp1 = this.makeControlHandle(cmd[1], cmd[2], cmdIdx, 1, 2);
+            const cp2 = this.makeControlHandle(cmd[3], cmd[4], cmdIdx, 3, 4);
+            const anchor = this.makeAnchorHandle(cmd[5], cmd[6], cmdIdx, 5, 6);
+
+            if (lastAnchorPt) {
+              const guide1 = new fabric.Line([lastAnchorPt.x, lastAnchorPt.y, cmd[1], cmd[2]], {
+                stroke: '#1a73e8', strokeDashArray: [3, 3], selectable: false, evented: false, isInternalHandle: true
+              });
+              const guide2 = new fabric.Line([cmd[3], cmd[4], cmd[5], cmd[6]], {
+                stroke: '#1a73e8', strokeDashArray: [3, 3], selectable: false, evented: false, isInternalHandle: true
+              });
+              this.guideLines.push(guide1, guide2);
+              canvas.add(guide1, guide2);
+              cp1.guides = [guide1];
+              cp2.guides = [guide2];
+            }
+
+            this.handles.push(cp1, cp2, anchor);
+            canvas.add(cp1, cp2, anchor);
+            lastAnchorPt = { x: cmd[5], y: cmd[6] };
+          }
+        });
+
+        this.handles.forEach(h => canvas.bringToFront(h));
+      },
+
+      makeAnchorHandle(x, y, cmdIdx, xIdx, yIdx) {
+        const handle = new fabric.Circle({
+          left: x,
+          top: y,
+          radius: 5.5,
+          fill: '#ffffff',
+          stroke: '#1a73e8',
+          strokeWidth: 2,
+          originX: 'center',
+          originY: 'center',
+          hasBorders: false,
+          hasControls: false,
+          cmdIdx: cmdIdx,
+          xIdx: xIdx,
+          yIdx: yIdx,
+          nodeType: 'anchor',
+          isInternalHandle: true
+        });
+
+        handle.on('moving', () => {
+          this.activeNode = handle;
+          this.onHandleMove(handle);
+        });
+        handle.on('selected', () => { this.activeNode = handle; });
+        return handle;
+      },
+
+      makeControlHandle(x, y, cmdIdx, xIdx, yIdx) {
+        const handle = new fabric.Circle({
+          left: x,
+          top: y,
+          radius: 4.5,
+          fill: '#1a73e8',
+          stroke: '#ffffff',
+          strokeWidth: 1.5,
+          originX: 'center',
+          originY: 'center',
+          hasBorders: false,
+          hasControls: false,
+          cmdIdx: cmdIdx,
+          xIdx: xIdx,
+          yIdx: yIdx,
+          nodeType: 'control',
+          isInternalHandle: true
+        });
+
+        handle.on('moving', () => {
+          this.activeNode = handle;
+          this.onHandleMove(handle);
+        });
+        handle.on('selected', () => { this.activeNode = handle; });
+        return handle;
+      },
+
+      onHandleMove(handle) {
+        // Update the absolute command coordinates 1:1
+        this.absCommands[handle.cmdIdx][handle.xIdx] = handle.left;
+        this.absCommands[handle.cmdIdx][handle.yIdx] = handle.top;
+
+        // Re-render the normalized path instantly without any jump
+        const pathStr = this.buildPathString(this.absCommands);
+        const pIdx = canvas.getObjects().indexOf(this.activePath);
+        canvas.remove(this.activePath);
+
+        const updatedPath = new fabric.Path(pathStr, {
+          fill: this.activePath.fill,
+          stroke: this.activePath.stroke,
+          strokeWidth: this.activePath.strokeWidth,
+          strokeLineCap: 'round',
+          strokeUniform: true,
+          selectable: false,
+          evented: false,
+          name: this.activePath.name,
+          customType: this.activePath.customType
+        });
+
+        canvas.insertAt(updatedPath, pIdx);
+        this.activePath = updatedPath;
+
+        // Update connected guide lines
+        if (handle.guides) {
+          handle.guides.forEach(g => {
+            if (handle.nodeType === 'control') {
+              g.set({ x2: handle.left, y2: handle.top });
+            }
+          });
+        }
+
         canvas.requestRenderAll();
       },
 
@@ -1681,38 +1495,199 @@
         this.activeNode.left += dx;
         this.activeNode.top += dy;
         this.activeNode.setCoords();
-        this.updatePathPoint(this.activeNode);
+        this.onHandleMove(this.activeNode);
+      },
+
+      deleteActiveNode() {
+        if (!this.activeNode || this.absCommands.length <= 2) return false;
+        const cIdx = this.activeNode.cmdIdx;
+        this.absCommands.splice(cIdx, 1);
+        this.activeNode = null;
+        this.createHandles();
+
+        const pathStr = this.buildPathString(this.absCommands);
+        const pIdx = canvas.getObjects().indexOf(this.activePath);
+        canvas.remove(this.activePath);
+
+        const updatedPath = new fabric.Path(pathStr, {
+          fill: this.activePath.fill,
+          stroke: this.activePath.stroke,
+          strokeWidth: this.activePath.strokeWidth,
+          strokeUniform: true,
+          selectable: false,
+          evented: false,
+          name: this.activePath.name
+        });
+
+        canvas.insertAt(updatedPath, pIdx);
+        this.activePath = updatedPath;
+        canvas.requestRenderAll();
+        return true;
       },
 
       stopEditing() {
         if (!this.isEditing) return;
         this.handles.forEach(h => canvas.remove(h));
+        this.guideLines.forEach(g => canvas.remove(g));
         this.handles = [];
+        this.guideLines = [];
         this.activeNode = null;
 
         if (this.activePath) {
-          this.activePath.selectable = true;
-          this.activePath.evented = true;
+          this.activePath.set({ selectable: true, evented: true });
+          this.activePath.setCoords();
           canvas.setActiveObject(this.activePath);
         }
 
         this.isEditing = false;
         this.activePath = null;
         document.getElementById('point-edit-banner').classList.add('hidden');
-        document.getElementById('btn-inspector-edit-points').innerText = 'Edit Vector Points';
+        document.getElementById('btn-inspector-edit-points').innerText = 'Edit Points';
         cleanToolState();
         canvas.requestRenderAll();
         saveState();
-        showToast('Vector points updated', 'info');
+        showToast('Vector edits applied', 'info');
       }
     };
 
-    // Double-click triggers point editing for paths
+    // Double-click triggers point editing on any path or crop on image
     canvas.on('mouse:dblclick', (opt) => {
-      if (opt.target && (opt.target.type === 'path' || opt.target.customType === 'bezier' || opt.target.customType === 'svg-contour')) {
-        PointEditor.startEditing(opt.target);
+      if (opt.target) {
+        if (opt.target.type === 'path') {
+          PointEditor.startEditing(opt.target);
+        } else if (opt.target.type === 'image' || opt.target.type === 'group') {
+          CropManager.startCrop();
+        }
       }
     });
+
+    /* ============================================================
+       FIGMA-GRADE INTERACTIVE CROPPING (IMAGES & SVGS)
+       ============================================================ */
+    const CropManager = {
+      isCropping: false,
+      targetObj: null,
+      cropBox: null,
+
+      startCrop() {
+        const active = canvas.getActiveObject();
+        if (!active || (active.type !== 'image' && active.type !== 'group')) {
+          showToast('Select an image or SVG group to crop', 'error');
+          return;
+        }
+        if (PointEditor.isEditing) PointEditor.stopEditing();
+        this.cancelCrop();
+
+        this.isCropping = true;
+        this.targetObj = active;
+        active.selectable = false;
+        active.evented = false;
+
+        const bounds = active.getBoundingRect();
+
+        // Crop frame with edge and corner resize handles
+        this.cropBox = new fabric.Rect({
+          left: bounds.left,
+          top: bounds.top,
+          width: bounds.width,
+          height: bounds.height,
+          fill: 'rgba(26, 115, 232, 0.12)',
+          stroke: '#ffffff',
+          strokeWidth: 2,
+          cornerColor: '#1a73e8',
+          cornerStrokeColor: '#ffffff',
+          cornerSize: 10,
+          transparentCorners: false,
+          lockRotation: true,
+          strokeUniform: true,
+          isInternalHandle: true
+        });
+
+        canvas.add(this.cropBox);
+        canvas.setActiveObject(this.cropBox);
+        document.getElementById('crop-banner').classList.remove('hidden');
+        canvas.requestRenderAll();
+        showToast('Resize box to crop. Enter to apply.', 'info');
+      },
+
+      nudge(dx, dy) {
+        if (!this.cropBox) return;
+        this.cropBox.left += dx;
+        this.cropBox.top += dy;
+        this.cropBox.setCoords();
+        canvas.requestRenderAll();
+      },
+
+      applyCrop() {
+        if (!this.isCropping || !this.targetObj || !this.cropBox) return;
+
+        const target = this.targetObj;
+        const crop = this.cropBox;
+
+        const targetBounds = target.getBoundingRect();
+        const cropBounds = crop.getBoundingRect();
+
+        // High-res pixel render of the target
+        const multiplier = 2;
+        const dataUrl = target.toDataURL({ multiplier: multiplier, format: 'png' });
+        const img = new Image();
+
+        img.onload = () => {
+          const offscreen = document.createElement('canvas');
+          const cropW = Math.max(cropBounds.width, 10);
+          const cropH = Math.max(cropBounds.height, 10);
+
+          offscreen.width = cropW * multiplier;
+          offscreen.height = cropH * multiplier;
+          const ctx = offscreen.getContext('2d');
+
+          const relX = (cropBounds.left - targetBounds.left) * multiplier;
+          const relY = (cropBounds.top - targetBounds.top) * multiplier;
+
+          ctx.drawImage(img, relX, relY, offscreen.width, offscreen.height, 0, 0, offscreen.width, offscreen.height);
+
+          fabric.Image.fromURL(offscreen.toDataURL(), (croppedImg) => {
+            croppedImg.set({
+              left: cropBounds.left,
+              top: cropBounds.top,
+              scaleX: 1 / multiplier,
+              scaleY: 1 / multiplier,
+              name: `${target.name || 'Object'} (Cropped)`,
+              strokeUniform: true
+            });
+
+            const idx = canvas.getObjects().indexOf(this.targetObj);
+            canvas.remove(this.targetObj);
+            canvas.insertAt(croppedImg, idx);
+            canvas.setActiveObject(croppedImg);
+
+            this.cleanup();
+            saveState();
+            showToast('Cropped successfully', 'success');
+          });
+        };
+        img.src = dataUrl;
+      },
+
+      cancelCrop() {
+        if (!this.isCropping) return;
+        this.cleanup();
+      },
+
+      cleanup() {
+        if (this.cropBox) canvas.remove(this.cropBox);
+        this.cropBox = null;
+        if (this.targetObj) {
+          this.targetObj.selectable = true;
+          this.targetObj.evented = true;
+        }
+        this.targetObj = null;
+        this.isCropping = false;
+        document.getElementById('crop-banner').classList.add('hidden');
+        cleanToolState();
+        canvas.requestRenderAll();
+      }
+    };
 
     /* ============================================================
        INSPECTOR & REAL-TIME SYNC
@@ -1751,7 +1726,7 @@
       safeSetVal('inp-dim-h', Math.round(obj.getScaledHeight() || 0));
       safeSetVal('inp-rotation', Math.round(obj.angle || 0));
 
-      const strokeW = obj.strokeWidth || 1;
+      const strokeW = obj.strokeWidth || 1.5;
       safeSetVal('inp-stroke-width', strokeW);
 
       if (obj.stroke && typeof obj.stroke === 'string') {
@@ -1761,15 +1736,23 @@
         }
       }
 
+      if (obj.fill && typeof obj.fill === 'string') {
+        safeSetVal('inp-fill-hex', obj.fill);
+        if (obj.fill.startsWith('#') && obj.fill.length === 7) {
+          safeSetVal('inp-fill-picker', obj.fill);
+        }
+      }
+
       const op = Math.round((obj.opacity ?? 1) * 100);
       safeSetVal('inp-opacity', op);
       const txtOp = document.getElementById('txt-opacity-val');
       if (txtOp) txtOp.innerText = `${op}%`;
 
       const ptAction = document.getElementById('bento-point-action');
-      if (ptAction) {
-        ptAction.style.display = (obj.type === 'path' || obj.customType === 'bezier' || obj.customType === 'svg-contour') ? 'block' : 'none';
-      }
+      if (ptAction) ptAction.style.display = (obj.type === 'path') ? 'block' : 'none';
+
+      const cropAction = document.getElementById('bento-crop-action');
+      if (cropAction) cropAction.style.display = (obj.type === 'image' || obj.type === 'group') ? 'block' : 'none';
     }
 
     function safeSetVal(id, val) {
@@ -1783,6 +1766,7 @@
     canvas.on('selection:updated', syncInspector);
     canvas.on('selection:cleared', () => {
       if (PointEditor.isEditing) PointEditor.stopEditing();
+      if (CropManager.isCropping) CropManager.cancelCrop();
       syncInspector();
     });
     canvas.on('object:modified', () => { syncInspector(); saveState(); });
@@ -1829,7 +1813,7 @@
     }
 
     function applyStrokeWidth(w) {
-      const width = parseFloat(w) || 1;
+      const width = parseFloat(w) || 1.5;
       currentStrokeWidth = width;
       safeSetVal('inp-stroke-width', width);
 
@@ -1854,11 +1838,13 @@
         }
       } else if (type === 'fill') {
         currentFillColor = col;
+        safeSetVal('inp-fill-hex', col);
+        if (col.startsWith('#')) safeSetVal('inp-fill-picker', col);
       }
 
       const obj = canvas.getActiveObject();
       if (!obj) return;
-      obj.set(type, col);
+      obj.set(type, col === 'transparent' ? '' : col);
       canvas.requestRenderAll();
       syncInspector();
       saveState();
@@ -1876,13 +1862,12 @@
 
     function setCanvasBg(col) {
       currentCanvasBg = col;
-      const viewport = document.getElementById('canvas-viewport');
-      viewport.style.backgroundColor = col;
+      document.getElementById('canvas-viewport').style.backgroundColor = col;
       canvas.requestRenderAll();
     }
 
     /* ============================================================
-       DRAG-AND-DROP LAYERS REORDERING & INLINE RENAME
+       DRAG-AND-DROP LAYERS REORDERING
        ============================================================ */
     let draggedLayerIndex = null;
 
@@ -1911,17 +1896,15 @@
           isSel ? 'bg-[#1a73e8]/30 text-white font-medium border-[#a8c7fa]/40 shadow-sm' : 'hover:bg-white/5 text-gray-300 border-transparent'
         }`;
 
-        let icon = '<i class="bi bi-box text-[#a8c7fa]"></i>';
+        let icon = '<i class="bi bi-bezier2 text-[#a8c7fa]"></i>';
         if (obj.type === 'image') icon = '<i class="bi bi-image text-emerald-400"></i>';
         if (obj.type === 'group') icon = '<i class="bi bi-collection text-amber-300"></i>';
-        if (obj.customType === 'bezier') icon = '<i class="bi bi-bezier2 text-yellow-300"></i>';
         if (obj.customType === 'midline') icon = '<i class="bi bi-slash-lg text-cyan-400"></i>';
-        if (obj.name && obj.name.includes('Contour')) icon = '<i class="bi bi-pencil text-pink-400"></i>';
 
         div.innerHTML = `
           <div class="flex items-center gap-2 truncate flex-1 pointer-events-none">
             <span class="text-[11px]">${icon}</span>
-            <span class="truncate layer-title" title="Double click to rename">${obj.name}</span>
+            <span class="truncate layer-title" title="Double-click to rename">${obj.name}</span>
           </div>
           <button class="text-gray-400 hover:text-white ml-2 p-0.5" onclick="event.stopPropagation(); toggleLayerVisibility('${obj.name}')">
             ${obj.visible ? '<i class="bi bi-eye"></i>' : '<i class="bi bi-eye-slash text-red-400"></i>'}
@@ -1934,7 +1917,6 @@
           updateLayersTree();
         };
 
-        // Double click to rename
         div.ondblclick = (e) => {
           e.stopPropagation();
           const titleSpan = div.querySelector('.layer-title');
@@ -1942,15 +1924,14 @@
           const input = document.createElement('input');
           input.type = 'text';
           input.value = oldName;
-          input.className = 'bg-[#151821] border border-[#1a73e8] rounded px-1.5 text-xs text-white outline-none w-full';
+          input.className = 'bg-[#13161f] border border-[#1a73e8] rounded px-1.5 text-xs text-white outline-none w-full';
           
           titleSpan.replaceWith(input);
           input.focus();
           input.select();
 
           const saveRename = () => {
-            const newName = input.value.trim() || oldName;
-            obj.name = newName;
+            obj.name = input.value.trim() || oldName;
             updateLayersTree();
             syncInspector();
             saveState();
@@ -1963,7 +1944,6 @@
           };
         };
 
-        // Native Drag-and-Snap
         div.ondragstart = (e) => {
           draggedLayerIndex = uiIdx;
           e.dataTransfer.setData('text/plain', uiIdx);
@@ -2027,7 +2007,7 @@
     }
 
     /* ============================================================
-       UNDO & REDO STACK
+       UNDO & REDO
        ============================================================ */
     const history = [];
     let historyIdx = -1;
@@ -2071,470 +2051,12 @@
     }
 
     /* ============================================================
-       SMILECREO AI PRECISION INPAINTING (VENEERS ONLY)
-       ============================================================ */
-    let isDrawingInpaintMask = false;
-    let maskDrawMode = 'brush'; // 'brush' or 'eraser'
-    const inpaintBaseCanvas = document.getElementById('inpaintBaseCanvas');
-    const inpaintMaskCanvas = document.getElementById('inpaintMaskCanvas');
-    const inpaintBaseCtx = inpaintBaseCanvas.getContext('2d');
-    const inpaintMaskCtx = inpaintMaskCanvas.getContext('2d');
-
-    function openAiInpaintStudio() {
-      const active = canvas.getActiveObject();
-      const targetImg = (active && active.type === 'image') ? active : canvas.getObjects().find(o => o.type === 'image');
-
-      if (!targetImg) {
-        showToast('Import or select a patient photo to run SmileCreo AI.', 'error');
-        return;
-      }
-
-      const imgElem = targetImg.getElement();
-      const maxDim = 800;
-      let w = imgElem.width || 800;
-      let h = imgElem.height || 600;
-      const ratio = w / h;
-
-      if (w > maxDim || h > maxDim) {
-        if (w > h) { w = maxDim; h = Math.round(maxDim / ratio); }
-        else { h = maxDim; w = Math.round(maxDim * ratio); }
-      }
-
-      inpaintBaseCanvas.width = w;
-      inpaintBaseCanvas.height = h;
-      inpaintMaskCanvas.width = w;
-      inpaintMaskCanvas.height = h;
-
-      inpaintBaseCtx.clearRect(0, 0, w, h);
-      inpaintBaseCtx.drawImage(imgElem, 0, 0, w, h);
-
-      clearInpaintMask();
-
-      // Reset Step 2 lock
-      isMaskGenerated = false;
-      const btn = document.getElementById('btnRunInpaint');
-      btn.disabled = true;
-      btn.className = "px-5 py-2.5 bg-gray-700/50 text-gray-400 font-bold rounded-full text-xs cursor-not-allowed border border-white/10 opacity-60 flex items-center gap-1.5";
-      btn.innerHTML = '<span>1. Generate Mask First</span>';
-
-      document.getElementById('clinicalInpaintModal').classList.remove('hidden');
-    }
-
-    function closeAiInpaintStudio() {
-      document.getElementById('clinicalInpaintModal').classList.add('hidden');
-    }
-
-    function clearInpaintMask() {
-      inpaintMaskCtx.clearRect(0, 0, inpaintMaskCanvas.width, inpaintMaskCanvas.height);
-      isMaskGenerated = false;
-      const btn = document.getElementById('btnRunInpaint');
-      btn.disabled = true;
-      btn.className = "px-5 py-2.5 bg-gray-700/50 text-gray-400 font-bold rounded-full text-xs cursor-not-allowed border border-white/10 opacity-60 flex items-center gap-1.5";
-      btn.innerHTML = '<span>1. Generate Mask First</span>';
-    }
-
-    function setMaskDrawMode(mode) {
-      maskDrawMode = mode;
-      document.getElementById('btn-mask-brush').className = (mode === 'brush') ? 'px-2 py-0.5 bg-[#1a73e8] text-white rounded-md font-semibold' : 'px-2 py-0.5 bg-white/10 text-gray-300 rounded-md';
-      document.getElementById('btn-mask-eraser').className = (mode === 'eraser') ? 'px-2 py-0.5 bg-[#1a73e8] text-white rounded-md font-semibold' : 'px-2 py-0.5 bg-white/10 text-gray-300 rounded-md';
-    }
-
-    // Step 1: Auto-generate surgical mask from stencils and curves on canvas
-    function autoGenerateMaskFromStencils() {
-      clearInpaintMask();
-      const w = inpaintMaskCanvas.width;
-      const h = inpaintMaskCanvas.height;
-
-      // Find all stencil objects, drawings, and curves that lie on the canvas
-      const stencils = canvas.getObjects().filter(o => o.type !== 'image' && !o.isInternalHandle);
-      const imgObj = canvas.getObjects().find(o => o.type === 'image');
-
-      if (stencils.length && imgObj) {
-        // Render stencil silhouettes relative to image coordinate space
-        const imgBounds = imgObj.getBoundingRect();
-        const scaleX = w / imgBounds.width;
-        const scaleY = h / imgBounds.height;
-
-        inpaintMaskCtx.save();
-        inpaintMaskCtx.fillStyle = 'rgba(239, 68, 68, 0.75)';
-
-        stencils.forEach(s => {
-          const b = s.getBoundingRect();
-          const rx = (b.left - imgBounds.left) * scaleX;
-          const ry = (b.top - imgBounds.top) * scaleY;
-          const rw = b.width * scaleX;
-          const rh = b.height * scaleY;
-
-          inpaintMaskCtx.beginPath();
-          inpaintMaskCtx.ellipse(rx + rw / 2, ry + rh / 2, Math.max(rw / 2, 8), Math.max(rh / 2, 8), 0, 0, Math.PI * 2);
-          inpaintMaskCtx.fill();
-        });
-        inpaintMaskCtx.restore();
-      } else {
-        // Fallback: Anatomical smile arch zone
-        inpaintMaskCtx.fillStyle = 'rgba(239, 68, 68, 0.75)';
-        inpaintMaskCtx.beginPath();
-        inpaintMaskCtx.ellipse(w * 0.5, h * 0.54, w * 0.24, h * 0.13, 0, 0, Math.PI * 2);
-        inpaintMaskCtx.fill();
-      }
-
-      // Unlock Step 2
-      isMaskGenerated = true;
-      const btn = document.getElementById('btnRunInpaint');
-      btn.disabled = false;
-      btn.className = "px-5 py-2.5 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-bold rounded-full text-xs shadow-lg shadow-[#1a73e8]/40 cursor-pointer flex items-center gap-1.5 transition active:scale-95";
-      btn.innerHTML = '<span>2. Run Precision Veneers AI →</span>';
-
-      showToast('Mask generated from stencils! Ready to run inpainting.', 'success');
-    }
-
-    // Manual Mask Brush & Eraser
-    inpaintMaskCanvas.addEventListener('mousedown', (e) => {
-      isDrawingInpaintMask = true;
-      paintMask(e);
-    });
-    window.addEventListener('mousemove', (e) => {
-      if (isDrawingInpaintMask) paintMask(e);
-    });
-    window.addEventListener('mouseup', () => { 
-      if (isDrawingInpaintMask) {
-        isDrawingInpaintMask = false;
-        isMaskGenerated = true;
-        const btn = document.getElementById('btnRunInpaint');
-        btn.disabled = false;
-        btn.className = "px-5 py-2.5 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-bold rounded-full text-xs shadow-lg shadow-[#1a73e8]/40 cursor-pointer flex items-center gap-1.5 transition active:scale-95";
-        btn.innerHTML = '<span>2. Run Precision Veneers AI →</span>';
-      }
-    });
-
-    function paintMask(e) {
-      const rect = inpaintMaskCanvas.getBoundingClientRect();
-      const scaleX = inpaintMaskCanvas.width / rect.width;
-      const scaleY = inpaintMaskCanvas.height / rect.height;
-      const x = (e.clientX - rect.left) * scaleX;
-      const y = (e.clientY - rect.top) * scaleY;
-      const size = document.getElementById('inpaintBrushSize').value * scaleX;
-
-      inpaintMaskCtx.save();
-      if (maskDrawMode === 'eraser') {
-        inpaintMaskCtx.globalCompositeOperation = 'destination-out';
-        inpaintMaskCtx.beginPath();
-        inpaintMaskCtx.arc(x, y, size / 2, 0, Math.PI * 2);
-        inpaintMaskCtx.fill();
-      } else {
-        inpaintMaskCtx.globalCompositeOperation = 'source-over';
-        inpaintMaskCtx.fillStyle = 'rgba(239, 68, 68, 0.75)';
-        inpaintMaskCtx.beginPath();
-        inpaintMaskCtx.arc(x, y, size / 2, 0, Math.PI * 2);
-        inpaintMaskCtx.fill();
-      }
-      inpaintMaskCtx.restore();
-    }
-
-    // Generate strict binary mask for AI API (Black = Preserve, White = Inpaint)
-    function buildBinaryMaskDataUrl() {
-      const w = inpaintMaskCanvas.width;
-      const h = inpaintMaskCanvas.height;
-      const binaryCanvas = document.createElement('canvas');
-      binaryCanvas.width = w;
-      binaryCanvas.height = h;
-      const bCtx = binaryCanvas.getContext('2d');
-
-      // Fill black
-      bCtx.fillStyle = '#000000';
-      bCtx.fillRect(0, 0, w, h);
-
-      // Check non-transparent pixels in inpaintMaskCanvas
-      const maskData = inpaintMaskCtx.getImageData(0, 0, w, h);
-      const binaryImgData = bCtx.getImageData(0, 0, w, h);
-      const src = maskData.data;
-      const dest = binaryImgData.data;
-
-      for (let i = 0; i < src.length; i += 4) {
-        if (src[i + 3] > 20) { // Painted area
-          dest[i] = 255;
-          dest[i + 1] = 255;
-          dest[i + 2] = 255;
-          dest[i + 3] = 255;
-        }
-      }
-
-      bCtx.putImageData(binaryImgData, 0, 0);
-      return binaryCanvas.toDataURL('image/png').split(',')[1];
-    }
-
-    // High-Resolution Composite blending
-    async function compositeResult(origCanvas, rawAiDataUrl) {
-      return new Promise((resolve) => {
-        const aiImg = new Image();
-        aiImg.onload = () => {
-          const w = origCanvas.width;
-          const h = origCanvas.height;
-
-          const aiLayer = document.createElement('canvas');
-          aiLayer.width = w;
-          aiLayer.height = h;
-          const aiCtx = aiLayer.getContext('2d');
-          aiCtx.drawImage(aiImg, 0, 0, w, h);
-
-          // Blend mask
-          const maskData = inpaintMaskCtx.getImageData(0, 0, w, h);
-          const aiData = aiCtx.getImageData(0, 0, w, h);
-          const origCtx = origCanvas.getContext('2d');
-          const origData = origCtx.getImageData(0, 0, w, h);
-
-          const finalCanvas = document.createElement('canvas');
-          finalCanvas.width = w;
-          finalCanvas.height = h;
-          const fCtx = finalCanvas.getContext('2d');
-
-          // Feathered compositing
-          for (let i = 0; i < maskData.data.length; i += 4) {
-            const alpha = maskData.data[i + 3] / 255;
-            if (alpha > 0) {
-              aiData.data[i] = aiData.data[i] * alpha + origData.data[i] * (1 - alpha);
-              aiData.data[i + 1] = aiData.data[i + 1] * alpha + origData.data[i + 1] * (1 - alpha);
-              aiData.data[i + 2] = aiData.data[i + 2] * alpha + origData.data[i + 2] * (1 - alpha);
-            } else {
-              aiData.data[i] = origData.data[i];
-              aiData.data[i + 1] = origData.data[i + 1];
-              aiData.data[i + 2] = origData.data[i + 2];
-              aiData.data[i + 3] = 255;
-            }
-          }
-
-          fCtx.putImageData(aiData, 0, 0);
-          resolve(finalCanvas.toDataURL('image/jpeg', 0.96));
-        };
-        aiImg.src = rawAiDataUrl;
-      });
-    }
-
-    // Optimized Clinical DSD Prompt Builder
-    function getVeneerPrompt() {
-      const style = document.querySelector('input[name="veneer-style"]:checked')?.value || 'natural';
-      let shade = "natural Vita A1 tooth shade with incisal halo translucency";
-      let shape = "harmonious, symmetrical golden-ratio contours (78% width-to-height ratio)";
-
-      if (style === 'bleach') {
-        shade = "radiant Hollywood BL2 bleach white with realistic enamel surface luster";
-      } else if (style === 'feminine') {
-        shape = "soft rounded incisal embrasures and delicate curvature complementing the lower lip";
-      } else if (style === 'masculine') {
-        shape = "defined rectangular anterior dominance with crisp incisal angles";
-      }
-
-      return `Clinical cosmetic dentistry photography, digital smile design makeover. Replace ONLY the teeth inside the masked area with symmetrical, photorealistic porcelain veneers. Veneer properties: ${shape}, ${shade}, realistic mammelon depth, micro-texture glaze, and healthy pink scalloped gingival margins. Smile curve strictly aligns with the lower lip. 100% preserve patient's skin, lips, face shape, oral posture, and natural ambient lighting. Hyper-realistic DSLR macro dental portrait.`;
-    }
-
-    async function executeClinicalInpaint() {
-      if (!isMaskGenerated) {
-        showToast('Please generate or paint a dental mask first.', 'error');
-        return;
-      }
-
-      const base64Image = inpaintBaseCanvas.toDataURL('image/jpeg', 0.95).split(',')[1];
-      const base64Mask = buildBinaryMaskDataUrl();
-      const prompt = getVeneerPrompt();
-
-      closeAiInpaintStudio();
-      const processingView = document.getElementById('processingView');
-      processingView.classList.remove('hidden');
-
-      let seconds = 0;
-      const timerText = document.getElementById('timerText');
-      const progressBar = document.getElementById('progressBar');
-      const stepText = document.getElementById('processingStepText');
-      stepText.textContent = "Analyzing veneer geometry & smile arc...";
-      timerText.textContent = "Processing... 0s";
-
-      const timer = setInterval(() => {
-        seconds++;
-        timerText.textContent = `Processing... ${seconds}s`;
-        if (seconds === 3) stepText.textContent = "Synthesizing realistic enamel micro-texture...";
-        if (seconds === 6) stepText.textContent = "Perfecting incisal embrasures & translucency...";
-        progressBar.style.width = `${Math.min(25 + seconds * 12, 95)}%`;
-      }, 1000);
-
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 120000);
-
-      try {
-        const response = await fetch('/.netlify/functions/inpaint', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            prompt: prompt,
-            image: base64Image,
-            mask: base64Mask,
-            model: 'gemini-3.1-flash-image'
-          }),
-          signal: controller.signal
-        });
-
-        clearTimeout(timeoutId);
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || "Server error in inpainting");
-
-        const candidateParts = data.candidates?.[0]?.content?.parts || [];
-        let rawAiImgSrc = null;
-
-        candidateParts.forEach((part) => {
-          const inlineImg = part.inlineData || part.inline_data;
-          if (inlineImg && inlineImg.data) {
-            rawAiImgSrc = `data:${inlineImg.mimeType || 'image/jpeg'};base64,${inlineImg.data}`;
-          }
-        });
-
-        if (!rawAiImgSrc) throw new Error("AI returned an empty image. Please verify mask placement.");
-
-        const origDataUrl = inpaintBaseCanvas.toDataURL('image/jpeg', 0.95);
-        const finalCompositeSrc = await compositeResult(inpaintBaseCanvas, rawAiImgSrc);
-
-        setupComparisonSlider(origDataUrl, finalCompositeSrc);
-        showToast('Veneer makeover successfully rendered!', 'success');
-
-      } catch (err) {
-        console.error(err);
-        showToast(err.message || 'Inpainting failed. Please check mask alignment.', 'error');
-      } finally {
-        clearInterval(timer);
-        processingView.classList.add('hidden');
-      }
-    }
-
-    /* ============================================================
-       BEFORE / AFTER SPLIT COMPARISON SLIDER
-       ============================================================ */
-    let compSplitPercent = 0.5;
-    let isCompSliding = false;
-
-    function setupComparisonSlider(origSrc, genSrc) {
-      const origImg = document.getElementById('imgOriginal');
-      const genImg = document.getElementById('imgGenerated');
-      const c = document.getElementById('compareContainer');
-      const wrapper = document.getElementById('compareViewportWrapper');
-
-      let loaded = 0;
-      const check = () => {
-        loaded++;
-        if (loaded === 2) {
-          const natW = genImg.naturalWidth || 600;
-          const natH = genImg.naturalHeight || 600;
-          const ratio = natW / natH;
-
-          document.getElementById('comparisonView').classList.remove('hidden');
-
-          const availW = Math.min(wrapper.clientWidth - 24, 650);
-          const availH = Math.max(220, wrapper.clientHeight - 24);
-
-          let targetW, targetH;
-          if (availW / availH < ratio) {
-            targetW = availW; targetH = Math.round(availW / ratio);
-          } else {
-            targetH = availH; targetW = Math.round(availH * ratio);
-          }
-
-          c.style.width = `${targetW}px`;
-          c.style.height = `${targetH}px`;
-          origImg.style.width = `${targetW}px`;
-          origImg.style.height = `${targetH}px`;
-          genImg.style.width = `${targetW}px`;
-          genImg.style.height = `${targetH}px`;
-
-          compSplitPercent = 0.5;
-          updateSliderSplit();
-        }
-      };
-
-      origImg.onload = check;
-      genImg.onload = check;
-      origImg.src = origSrc;
-      genImg.src = genSrc;
-    }
-
-    function updateSliderSplit() {
-      const c = document.getElementById('compareContainer');
-      const overlay = document.getElementById('imgOverlayWrapper');
-      const handle = document.getElementById('sliderHandle');
-      const w = c.clientWidth;
-
-      const splitX = compSplitPercent * w;
-      overlay.style.width = `${splitX}px`;
-      handle.style.left = `${splitX}px`;
-    }
-
-    const sliderHandle = document.getElementById('sliderHandle');
-    const compareContainer = document.getElementById('compareContainer');
-
-    function updateSplitFromPointer(clientX) {
-      const rect = compareContainer.getBoundingClientRect();
-      const currentX = clientX - rect.left;
-      compSplitPercent = Math.min(Math.max(currentX / rect.width, 0), 1);
-      updateSliderSplit();
-    }
-
-    sliderHandle.addEventListener('mousedown', (e) => {
-      e.stopPropagation();
-      isCompSliding = true;
-    });
-    compareContainer.addEventListener('mousedown', (e) => {
-      isCompSliding = true;
-      updateSplitFromPointer(e.clientX);
-    });
-    window.addEventListener('mousemove', (e) => {
-      if (isCompSliding) updateSplitFromPointer(e.clientX);
-    });
-    window.addEventListener('mouseup', () => { isCompSliding = false; });
-
-    compareContainer.addEventListener('touchstart', (e) => {
-      if (e.touches.length === 1) {
-        isCompSliding = true;
-        updateSplitFromPointer(e.touches[0].clientX);
-      }
-    }, { passive: false });
-
-    window.addEventListener('touchmove', (e) => {
-      if (isCompSliding && e.touches.length === 1) {
-        updateSplitFromPointer(e.touches[0].clientX);
-      }
-    }, { passive: false });
-
-    window.addEventListener('touchend', () => { isCompSliding = false; });
-
-    function closeComparisonView() {
-      document.getElementById('comparisonView').classList.add('hidden');
-    }
-
-    document.getElementById('compDownloadBtn').addEventListener('click', async () => {
-      try {
-        const imgSrc = document.getElementById('imgGenerated').src;
-        const response = await fetch(imgSrc);
-        const blob = await response.blob();
-        const blobUrl = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = blobUrl;
-        link.download = `SmileCreo_Veneers_${Date.now()}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(blobUrl);
-      } catch (e) {
-        showToast('Export failed', 'error');
-      }
-    });
-
-    /* ============================================================
-       EXPORT ENGINE (SELECTION & CANVAS TO PNG / JPEG / SVG)
+       EXPORT ENGINE
        ============================================================ */
     function openExportModal() { 
       const active = canvas.getActiveObject();
       const targetSelect = document.getElementById('export-target');
-      if (active) {
-        targetSelect.value = 'selection';
-      } else {
-        targetSelect.value = 'canvas';
-      }
+      targetSelect.value = active ? 'selection' : 'canvas';
       document.getElementById('export-modal').classList.remove('hidden'); 
     }
     
@@ -2547,7 +2069,7 @@
         if (!b) return;
         b.className = (f === fmt)
           ? 'p-2 border border-[#a8c7fa]/40 bg-[#1a73e8]/30 text-white rounded-xl font-semibold text-center shadow-md'
-          : 'p-2 border border-[#3e4453] bg-[#151821] text-gray-300 rounded-xl font-medium text-center';
+          : 'p-2 border border-[#393e4d] bg-[#13161f] text-gray-300 rounded-xl font-medium text-center';
       });
     }
 
@@ -2558,11 +2080,12 @@
       const filename = `smilecreo-${scope}-${Date.now()}.${activeExportFmt}`;
 
       if (PointEditor.isEditing) PointEditor.stopEditing();
+      if (CropManager.isCropping) CropManager.cancelCrop();
 
       if (scope === 'selection') {
         const active = canvas.getActiveObject();
         if (!active) {
-          showToast('Select an element or choose "Entire Canvas".', 'error');
+          showToast('Select an object or choose Entire Canvas', 'error');
           return;
         }
 
@@ -2585,7 +2108,7 @@
         return;
       }
 
-      // Entire Canvas Export
+      // Entire Canvas
       if (activeExportFmt === 'svg') {
         const svg = canvas.toSVG();
         const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
@@ -2618,7 +2141,7 @@
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      showToast('File exported successfully', 'success');
+      showToast('Export downloaded', 'success');
     }
 
     // Initialize State
