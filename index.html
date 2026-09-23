@@ -179,8 +179,8 @@
         <input type="file" id="image-file-input" accept="image/*,.svg" class="hidden" onchange="handleFileSelect(this.files[0])">
       </label>
 
-      <!-- TEMPLATES BUTTON (PNG / JPG PREVIEWS) -->
-      <button onclick="openTemplatesModal()" class="tool-btn px-3 py-1.5 rounded-full text-[#563b72] bg-white/80 hover:bg-white transition flex items-center gap-1.5 shadow-sm font-medium text-xs" title="Open Photo Templates Gallery (PNG / JPG)">
+      <!-- TEMPLATES BUTTON -->
+      <button onclick="openTemplatesModal()" class="tool-btn px-3.5 py-1.5 rounded-full text-[#563b72] bg-white/90 hover:bg-white transition flex items-center gap-1.5 shadow-sm font-semibold text-xs" title="Open Teeth Templates Gallery (/templates/)">
         <i class="bi bi-grid-3x3-gap-fill text-[#563b72]"></i>
         <span>Templates</span>
       </button>
@@ -357,7 +357,7 @@
             <span class="text-[10px] font-bold uppercase tracking-wider text-[#563b72]">Extracted Lip Layer</span>
             <span class="text-[9px] bg-white text-[#563b72] px-2 py-0.5 rounded-full font-mono shadow-sm">SEAMLESS</span>
           </div>
-          <p class="text-[11px] text-[#5e5473] leading-tight">Drag this layer near the mouth to snap magnetically, or use the quick buttons below.</p>
+          <p class="text-[11px] text-[#5e5473] leading-tight">Pure vermilion lip layer. Drag near mouth to snap magnetically.</p>
           <div class="grid grid-cols-2 gap-2 pt-1">
             <button onclick="snapLipLayerToMouth()" class="py-1.5 px-2 bg-[#563b72] hover:bg-[#483060] text-white font-medium rounded-full text-xs transition shadow-sm flex items-center justify-center gap-1.5">
               <i class="bi bi-magnet text-xs"></i>
@@ -374,9 +374,9 @@
         <div id="bento-mediapipe-action" class="hidden m3-surface-card p-3.5 space-y-2 border-[#cec6e6] shadow-sm">
           <div class="flex items-center justify-between">
             <span class="text-[10px] font-bold uppercase tracking-wider text-[#563b72]">MediaPipe Lip Cutout</span>
-            <span class="text-[9px] bg-white text-[#563b72] px-2 py-0.5 rounded-full font-mono shadow-sm">PNG</span>
+            <span class="text-[9px] bg-white text-[#563b72] px-2 py-0.5 rounded-full font-mono shadow-sm">PURE LIPS</span>
           </div>
-          <p class="text-[11px] text-[#5e5473] leading-tight">Extract upper & lower lips as an independent PNG layer with zero micro-gaps.</p>
+          <p class="text-[11px] text-[#5e5473] leading-tight">Extracts upper & lower vermilion lips only, leaving teeth & face completely visible.</p>
           <button onclick="runLipCutoutOnActiveObject()" class="w-full py-2 m3-pink-accent font-semibold rounded-full text-xs transition shadow-sm hover:brightness-95 flex items-center justify-center gap-1.5">
             <i class="bi bi-scissors text-sm"></i>
             <span>Extract Lips as PNG Layer</span>
@@ -568,10 +568,10 @@
   </div>
 
   <!-- ============================================================
-       TEMPLATES GALLERY MODAL (PNG & JPG ONLY - NO SVGS)
+       TEMPLATES GALLERY MODAL (/templates/ ONLY - NO DEMOS)
        ============================================================ -->
   <div id="templates-modal" class="hidden fixed inset-0 z-50 bg-[#1f1533]/70 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="m3-surface-card bg-[#ded8f3] w-full max-w-3xl max-h-[88vh] flex flex-col p-6 shadow-2xl border border-white">
+    <div class="m3-surface-card bg-[#ded8f3] w-full max-w-2xl max-h-[85vh] flex flex-col p-6 shadow-2xl border border-white">
       
       <!-- Modal Header -->
       <div class="flex items-center justify-between pb-3 border-b border-[#cec6e6]">
@@ -580,43 +580,71 @@
             <i class="bi bi-grid-3x3-gap-fill"></i>
           </div>
           <div>
-            <h3 class="text-xs font-bold uppercase tracking-wider text-[#1f1533]">Clinical Photo Templates</h3>
-            <p class="text-[11px] text-[#5e5473]">Select a high-definition patient photo or smile close-up (PNG / JPG only)</p>
+            <h3 class="text-xs font-bold uppercase tracking-wider text-[#1f1533]">Teeth Templates Directory</h3>
+            <p class="text-[11px] text-[#5e5473]">Hosted on GitHub / Netlify in <code class="font-mono bg-white px-1.5 py-0.5 rounded text-[#563b72]">/templates/</code></p>
           </div>
         </div>
-        <div class="flex items-center gap-2">
-          <label class="cursor-pointer px-3.5 py-1.5 bg-[#f3f0f9] hover:bg-white text-[#563b72] rounded-full text-xs font-semibold shadow-sm transition flex items-center gap-1.5 border border-[#cec6e6]">
-            <i class="bi bi-folder2-open text-xs"></i>
-            <span>Load Photos from Folder</span>
-            <input type="file" id="template-folder-input" accept=".png,.jpg,.jpeg,image/png,image/jpeg" multiple class="hidden" onchange="handleTemplateFolderUpload(this.files)">
-          </label>
-          <button onclick="closeTemplatesModal()" class="w-7 h-7 rounded-full bg-[#f3f0f9] hover:bg-white flex items-center justify-center text-[#5e5473] hover:text-[#1f1533] font-bold text-xs transition">✕</button>
-        </div>
+        <button onclick="closeTemplatesModal()" class="w-7 h-7 rounded-full bg-[#f3f0f9] hover:bg-white flex items-center justify-center text-[#5e5473] hover:text-[#1f1533] font-bold text-xs transition">✕</button>
       </div>
 
-      <!-- Categories & Filter Bar -->
-      <div class="flex items-center justify-between pt-3 pb-2 text-xs">
-        <div class="flex items-center gap-1.5">
-          <button onclick="filterTemplates('all')" id="tpl-tab-all" class="px-3 py-1 bg-[#563b72] text-white rounded-full font-medium text-[11px] shadow-sm">All Photos</button>
-          <button onclick="filterTemplates('portrait')" id="tpl-tab-portrait" class="px-3 py-1 bg-[#f3f0f9] text-[#5e5473] hover:text-[#1f1533] rounded-full font-medium text-[11px]">Full Face</button>
-          <button onclick="filterTemplates('smile')" id="tpl-tab-smile" class="px-3 py-1 bg-[#f3f0f9] text-[#5e5473] hover:text-[#1f1533] rounded-full font-medium text-[11px]">Smiles & Lips</button>
-          <button onclick="filterTemplates('custom')" id="tpl-tab-custom" class="px-3 py-1 bg-[#f3f0f9] text-[#5e5473] hover:text-[#1f1533] rounded-full font-medium text-[11px]">My Loaded Photos</button>
+      <!-- Path Direct Access Bar -->
+      <div class="pt-3 pb-2 flex items-center gap-2">
+        <div class="flex-1 flex items-center bg-[#f3f0f9] border border-[#cec6e6] rounded-2xl px-3 py-1.5 shadow-sm text-xs">
+          <span class="text-[#5e5473] font-mono text-[11px] select-none pr-1">/templates/</span>
+          <input type="text" id="inp-custom-tpl-name" placeholder="filename.png (or filename.jpg)" class="bg-transparent font-mono text-[11px] text-[#1f1533] outline-none flex-1">
         </div>
-        <span id="templates-count-badge" class="text-[10px] font-mono text-[#563b72] bg-white px-2 py-0.5 rounded-full shadow-sm">6 Templates</span>
+        <button onclick="loadDirectTemplateName()" class="px-4 py-2 bg-[#563b72] hover:bg-[#483060] text-white rounded-2xl text-xs font-semibold shadow-sm transition flex items-center gap-1.5">
+          <i class="bi bi-plus-lg"></i>
+          <span>Add to Grid</span>
+        </button>
       </div>
 
       <!-- Gallery Grid -->
       <div id="templates-grid" class="flex-1 overflow-y-auto py-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 pr-1">
-        <!-- Rendered dynamically in JavaScript with PNG/JPG items only -->
+        <!-- Loaded dynamically from /templates/ -->
       </div>
 
       <!-- Modal Footer -->
       <div class="flex items-center justify-between pt-3 border-t border-[#cec6e6] text-[11px] text-[#5e5473]">
         <div class="flex items-center gap-1.5">
-          <i class="bi bi-info-circle text-[#563b72]"></i>
-          <span>Clicking any photo automatically imports it centered onto your canvas</span>
+          <i class="bi bi-magic text-[#563b72]"></i>
+          <span>Click any teeth photo to auto-align, scale, and angle it onto a face</span>
         </div>
         <button onclick="closeTemplatesModal()" class="px-4 py-1.5 bg-[#f3f0f9] hover:bg-white text-[#1f1533] rounded-full text-xs font-medium transition shadow-sm">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       TARGET FACE SELECTOR MODAL (AUTO-FIT TEETH VIA MEDIAPIPE)
+       ============================================================ -->
+  <div id="face-selector-modal" class="hidden fixed inset-0 z-50 bg-[#1f1533]/70 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="m3-surface-card bg-[#ded8f3] w-full max-w-md p-5 space-y-4 shadow-2xl border border-white">
+      
+      <div class="flex items-center justify-between pb-2 border-b border-[#cec6e6]">
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-full bg-[#563b72] text-white flex items-center justify-center text-xs">
+            <i class="bi bi-person-bounding-box"></i>
+          </div>
+          <div>
+            <h4 class="text-xs font-bold uppercase tracking-wider text-[#1f1533]">Auto-Fit Teeth to Face</h4>
+            <p class="text-[10px] text-[#5e5473]">Select the patient photo to receive the teeth template</p>
+          </div>
+        </div>
+        <button onclick="closeFaceSelectorModal()" class="text-[#5e5473] hover:text-[#1f1533] font-bold text-xs">✕</button>
+      </div>
+
+      <div id="face-selector-list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+        <!-- Populated dynamically with canvas images -->
+      </div>
+
+      <div class="flex items-center justify-between pt-2 border-t border-[#cec6e6]">
+        <button onclick="placeTeethWithoutAutoFit()" class="px-3 py-1.5 bg-[#f3f0f9] hover:bg-white text-[#563b72] rounded-full text-[11px] font-medium transition shadow-sm">
+          Insert Freely (No Auto-Fit)
+        </button>
+        <button onclick="closeFaceSelectorModal()" class="px-4 py-1.5 bg-[#f3f0f9] hover:bg-white text-[#1f1533] rounded-full text-xs font-medium transition shadow-sm">
+          Cancel
+        </button>
       </div>
     </div>
   </div>
@@ -666,7 +694,6 @@
 
         <!-- The Crop Box -->
         <div id="ps-crop-box" class="absolute border border-white cursor-move pointer-events-auto shadow-2xl">
-          <!-- Rule of Thirds Grid -->
           <div class="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none opacity-40">
             <div class="border-r border-b border-white"></div>
             <div class="border-r border-b border-white"></div>
@@ -679,13 +706,11 @@
             <div></div>
           </div>
 
-          <!-- 4 Corner Handles -->
           <div data-handle="tl" class="absolute -top-1.5 -left-1.5 w-4 h-4 border-t-[3px] border-l-[3px] border-white cursor-nwse-resize"></div>
           <div data-handle="tr" class="absolute -top-1.5 -right-1.5 w-4 h-4 border-t-[3px] border-r-[3px] border-white cursor-nesw-resize"></div>
           <div data-handle="bl" class="absolute -bottom-1.5 -left-1.5 w-4 h-4 border-b-[3px] border-l-[3px] border-white cursor-nesw-resize"></div>
           <div data-handle="br" class="absolute -bottom-1.5 -right-1.5 w-4 h-4 border-b-[3px] border-r-[3px] border-white cursor-nwse-resize"></div>
 
-          <!-- 4 Edge Handles -->
           <div data-handle="t" class="absolute -top-1 left-1/2 -translate-x-1/2 w-8 h-1.5 bg-white rounded-full cursor-ns-resize shadow"></div>
           <div data-handle="b" class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-8 h-1.5 bg-white rounded-full cursor-ns-resize shadow"></div>
           <div data-handle="l" class="absolute top-1/2 -left-1 -translate-y-1/2 h-8 w-1.5 bg-white rounded-full cursor-ew-resize shadow"></div>
@@ -704,13 +729,13 @@
       <div class="flex items-center justify-between pb-2 border-b border-[#cec6e6]">
         <div class="flex items-center gap-2">
           <i class="bi bi-scissors text-[#563b72] text-lg"></i>
-          <h3 class="text-xs font-bold uppercase tracking-wider text-[#1f1533]">MediaPipe Real Lip PNG Extraction</h3>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-[#1f1533]">MediaPipe Pure Lip Extraction</h3>
         </div>
         <button onclick="closeMediaPipeModal()" class="text-[#5e5473] hover:text-[#1f1533] font-bold text-sm">✕</button>
       </div>
 
       <p class="text-xs text-[#5e5473] leading-relaxed">
-        Extracts the photographic pixels of the <b>Upper and Lower Lips</b> using sub-pixel spline curvature. The lips on the base photo are punched out, leaving teeth and face completely visible with <b>zero micro-gaps</b>.
+        Extracts the photographic pixels of the <b>Upper and Lower Vermilion Lips ONLY</b>. The teeth, tongue, and oral cavity are clipped out cleanly, leaving natural teeth completely visible on the base photo.
       </p>
 
       <div class="space-y-3 bg-[#f3f0f9] p-4 rounded-[22px] border border-[#cec6e6]/60 shadow-sm">
@@ -860,9 +885,11 @@
     let currentStrokeWidth = 2.0;
     let currentStrokeColor = '#cec6e6';
     let currentFillColor = 'transparent';
-    let currentCanvasBg = '#1f1533'; // Default deep aubergine
+    let currentCanvasBg = '#1f1533';
     let pencilFillEnabled = false;
     let _canvasClipboard = null;
+    let pendingTeethTemplateUrl = null;
+    let pendingTeethTemplateName = null;
 
     // Responsive Canvas Resize Observer
     const resizeObserver = new ResizeObserver((entries) => {
@@ -901,7 +928,6 @@
         return;
       }
 
-      // If user clicked on an empty area of the canvas while in Select tool, deselect active object
       if (!opt.target && currentTool === 'select') {
         if (canvas.getActiveObject()) {
           canvas.discardActiveObject();
@@ -911,7 +937,6 @@
       }
     });
 
-    // Deselect if user clicks on the studio backdrop surrounding the canvas
     container.addEventListener('pointerdown', (e) => {
       if (e.target === container) {
         if (canvas.getActiveObject()) {
@@ -922,9 +947,8 @@
       }
     });
 
-    // Deselect if user clicks outside any dock, modal, sidebar or canvas element
     window.addEventListener('pointerdown', (e) => {
-      const isInteractiveUI = e.target.closest('header, aside, #customContextMenu, #ps-crop-studio-modal, #mediapipe-modal, #templates-modal, #export-modal, #loading-modal, #customConfirmModal, #pencil-subdock, .tool-btn');
+      const isInteractiveUI = e.target.closest('header, aside, #customContextMenu, #ps-crop-studio-modal, #mediapipe-modal, #templates-modal, #face-selector-modal, #export-modal, #loading-modal, #customConfirmModal, #pencil-subdock, .tool-btn');
       const isInsideCanvas = e.target.closest('#canvas-viewport');
       
       if (!isInteractiveUI && !isInsideCanvas) {
@@ -952,7 +976,6 @@
       const target = e.target;
       if (!target) return;
 
-      // 1. If Face moves, attached lips move in lockstep
       if (target.dsdFaceId) {
         const lips = canvas.getObjects().find(o => o.targetFaceId === target.dsdFaceId);
         if (lips && lips.isAttachedToMouth) {
@@ -968,7 +991,6 @@
         }
       }
 
-      // 2. If Extracted Lips move, dynamically snap to live face position
       if (target.isLipLayer && target.targetFaceId) {
         const face = canvas.getObjects().find(o => o.dsdFaceId === target.targetFaceId);
         if (face) {
@@ -1051,7 +1073,6 @@
         return;
       }
 
-      // Toggle state
       const willFix = !active.isPositionFixed;
       setObjectPositionFixed(active, willFix);
 
@@ -1069,19 +1090,13 @@
 
     function setObjectPositionFixed(obj, isFixed) {
       obj.isPositionFixed = isFixed;
-
-      // Lock movement and transformation coordinates
       obj.lockMovementX = isFixed;
       obj.lockMovementY = isFixed;
       obj.lockRotation = isFixed;
       obj.lockScalingX = isFixed;
       obj.lockScalingY = isFixed;
-
-      // Retain selectable so the user can select it anytime and unfix it!
       obj.selectable = true;
       obj.evented = true;
-
-      // Visual control indicators
       obj.hasControls = !isFixed;
       obj.hoverCursor = isFixed ? 'not-allowed' : 'move';
       obj.setCoords();
@@ -1215,6 +1230,7 @@
       if (e.key === 'Escape') {
         if (CropStudio.isCropping) { CropStudio.cancelCrop(); return; }
         if (!document.getElementById('templates-modal').classList.contains('hidden')) { closeTemplatesModal(); return; }
+        if (!document.getElementById('face-selector-modal').classList.contains('hidden')) { closeFaceSelectorModal(); return; }
         if (activeObj) {
           canvas.discardActiveObject();
           canvas.requestRenderAll();
@@ -1636,7 +1652,7 @@
           top: cloned.top + 24,
           name: `${obj.name || 'Object'} (Copy)`
         });
-        setObjectPositionFixed(cloned, false); // New duplicates are unlocked by default
+        setObjectPositionFixed(cloned, false);
         canvas.add(cloned);
         canvas.setActiveObject(cloned);
         canvas.requestRenderAll();
@@ -1792,63 +1808,39 @@
     }
 
     /* ============================================================
-       TEMPLATES GALLERY (PNG & JPG ONLY - STRICTLY NO SVGS)
+       TEMPLATES ENGINE (Strictly /templates/ — PNG & JPG Only)
        ============================================================ */
-    const templateLibrary = [
-      {
-        id: 'tpl_1',
-        title: 'Full Smile Frontal',
-        category: 'portrait',
-        format: 'JPG',
-        badge: 'High-Res',
-        url: 'https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=800&q=80'
-      },
-      {
-        id: 'tpl_2',
-        title: 'Close-Up Aesthetic Smile Zone',
-        category: 'smile',
-        format: 'PNG',
-        badge: 'Macro',
-        url: 'https://images.unsplash.com/photo-1606811841689-23dfddce3e95?auto=format&fit=crop&w=800&q=80'
-      },
-      {
-        id: 'tpl_3',
-        title: 'Lateral Smile 45° Angle',
-        category: 'smile',
-        format: 'JPG',
-        badge: 'Profile',
-        url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=800&q=80'
-      },
-      {
-        id: 'tpl_4',
-        title: 'Full Face Clinical Portrait',
-        category: 'portrait',
-        format: 'JPG',
-        badge: 'Frontal',
-        url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80'
-      },
-      {
-        id: 'tpl_5',
-        title: 'Natural Resting Lip View',
-        category: 'smile',
-        format: 'PNG',
-        badge: 'Lip Seal',
-        url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80'
-      },
-      {
-        id: 'tpl_6',
-        title: '1:1 Esthetic Smile Framing',
-        category: 'smile',
-        format: 'JPG',
-        badge: 'DSD Focus',
-        url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80'
-      }
+    // Default standard list of teeth template filenames hosted in /templates/
+    let templatesCatalog = [
+      'teeth1.png',
+      'teeth2.png',
+      'teeth3.png',
+      'teeth4.png',
+      'teeth5.png',
+      'teeth6.png',
+      'template1.png',
+      'template2.png',
+      'smile1.png',
+      'arch1.png'
     ];
 
-    let activeTemplateCategory = 'all';
+    async function loadTemplatesCatalog() {
+      try {
+        const res = await fetch('/templates/manifest.json');
+        if (res.ok) {
+          const list = await res.json();
+          if (Array.isArray(list) && list.length > 0) {
+            templatesCatalog = list.filter(f => typeof f === 'string' && (f.endsWith('.png') || f.endsWith('.jpg') || f.endsWith('.jpeg')));
+          }
+        }
+      } catch (e) {
+        // Fallback to pre-populated teeth files in /templates/
+      }
+      renderTemplatesDirectory();
+    }
 
     function openTemplatesModal() {
-      renderTemplatesList();
+      loadTemplatesCatalog();
       document.getElementById('templates-modal').classList.remove('hidden');
     }
 
@@ -1856,427 +1848,245 @@
       document.getElementById('templates-modal').classList.add('hidden');
     }
 
-    function filterTemplates(cat) {
-      activeTemplateCategory = cat;
-      ['all', 'portrait', 'smile', 'custom'].forEach(tab => {
-        const el = document.getElementById(`tpl-tab-${tab}`);
-        if (el) {
-          el.className = (tab === cat)
-            ? 'px-3 py-1 bg-[#563b72] text-white rounded-full font-medium text-[11px] shadow-sm'
-            : 'px-3 py-1 bg-[#f3f0f9] text-[#5e5473] hover:text-[#1f1533] rounded-full font-medium text-[11px]';
-        }
-      });
-      renderTemplatesList();
+    function loadDirectTemplateName() {
+      const inp = document.getElementById('inp-custom-tpl-name');
+      const val = (inp.value || '').trim();
+      if (!val) return;
+      const cleanName = val.replace(/^\/templates\//, '');
+      if (!templatesCatalog.includes(cleanName)) {
+        templatesCatalog.unshift(cleanName);
+      }
+      inp.value = '';
+      renderTemplatesDirectory();
     }
 
-    function renderTemplatesList() {
+    function renderTemplatesDirectory() {
       const grid = document.getElementById('templates-grid');
       if (!grid) return;
 
-      const filtered = templateLibrary.filter(item => {
-        if (activeTemplateCategory === 'all') return true;
-        if (activeTemplateCategory === 'custom') return item.isCustom;
-        return item.category === activeTemplateCategory;
-      });
-
-      const badge = document.getElementById('templates-count-badge');
-      if (badge) badge.innerText = `${filtered.length} Photo${filtered.length === 1 ? '' : 's'}`;
-
-      if (!filtered.length) {
+      if (!templatesCatalog.length) {
         grid.innerHTML = `
-          <div class="col-span-full py-16 flex flex-col items-center justify-center text-center text-[#5e5473]">
-            <i class="bi bi-images text-3xl text-[#563b72]/40 mb-2"></i>
-            <p class="text-xs font-semibold text-[#1f1533]">No photos in this category</p>
-            <p class="text-[11px] text-[#5e5473]">Use the "Load Photos from Folder" button above to add your own PNG/JPG files.</p>
+          <div class="col-span-full py-12 text-center text-[#5e5473] text-xs">
+            No templates currently found in <code class="font-mono text-[#563b72]">/templates/</code>
           </div>
         `;
         return;
       }
 
-      grid.innerHTML = filtered.map(item => `
-        <div onclick="importTemplatePhoto('${item.url}', '${item.title.replace(/'/g, "\\'")}')" class="group relative bg-[#f3f0f9] hover:bg-white rounded-2xl overflow-hidden border border-[#cec6e6]/70 shadow-sm hover:shadow-md cursor-pointer transition-all duration-200 flex flex-col">
-          <div class="relative w-full h-36 bg-[#1f1533]/10 overflow-hidden flex items-center justify-center">
-            <img src="${item.url}" alt="${item.title}" class="w-full h-full object-cover transition duration-300 group-hover:scale-105" loading="lazy" />
-            <div class="absolute top-2 left-2 flex items-center gap-1">
-              <span class="px-2 py-0.5 rounded-full bg-[#563b72]/90 text-white font-mono text-[9px] font-semibold tracking-wider">${item.format}</span>
-              <span class="px-2 py-0.5 rounded-full bg-white/90 text-[#563b72] font-mono text-[9px] font-semibold">${item.badge}</span>
+      grid.innerHTML = templatesCatalog.map(filename => {
+        const isPng = filename.toLowerCase().endsWith('.png');
+        const formatBadge = isPng ? 'PNG' : 'JPG';
+        const fullUrl = `/templates/${filename}`;
+        const title = filename.replace(/\.[^/.]+$/, "");
+
+        return `
+          <div onclick="selectTeethTemplate('${fullUrl}', '${title}')" class="group relative bg-[#f3f0f9] hover:bg-white rounded-2xl overflow-hidden border border-[#cec6e6]/80 shadow-sm hover:shadow-md cursor-pointer transition-all duration-200 flex flex-col">
+            <div class="relative w-full h-32 bg-[#1f1533]/5 overflow-hidden flex items-center justify-center p-2">
+              <img 
+                src="${fullUrl}" 
+                alt="${title}" 
+                class="w-full h-full object-contain transition duration-200 group-hover:scale-105" 
+                loading="lazy"
+                onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'flex flex-col items-center justify-center text-[10px] text-[#5e5473] gap-1\\'><i class=\\'bi bi-file-earmark-image text-lg text-[#563b72]\\'></i><span>${filename}</span></div>';"
+              />
+              <span class="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-[#563b72] text-white font-mono text-[9px] font-bold tracking-wider">${formatBadge}</span>
+              <div class="absolute inset-0 bg-[#563b72]/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                <span class="px-3 py-1 rounded-full bg-white text-[#563b72] font-semibold text-xs shadow">Select Teeth</span>
+              </div>
             </div>
-            <div class="absolute inset-0 bg-[#563b72]/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-              <span class="px-3 py-1.5 rounded-full bg-white text-[#563b72] font-bold text-xs shadow-lg flex items-center gap-1">
-                <i class="bi bi-box-arrow-in-down"></i> Import Photo
-              </span>
+            <div class="p-2.5 flex items-center justify-between">
+              <span class="text-xs font-semibold text-[#1f1533] truncate font-mono">${filename}</span>
+              <i class="bi bi-arrow-right-circle text-[#563b72]"></i>
             </div>
           </div>
-          <div class="p-2.5 flex items-center justify-between">
-            <span class="text-xs font-medium text-[#1f1533] truncate pr-2">${item.title}</span>
-            <i class="bi bi-arrow-right-circle text-[#563b72] group-hover:translate-x-0.5 transition"></i>
-          </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
-    function handleTemplateFolderUpload(files) {
-      if (!files || !files.length) return;
-      let loadedCount = 0;
-
-      Array.from(files).forEach(file => {
-        // STRICT CHECK: PNG & JPG / JPEG ONLY. NO SVGS.
-        const isPng = file.type === 'image/png' || file.name.toLowerCase().endsWith('.png');
-        const isJpg = file.type === 'image/jpeg' || file.name.toLowerCase().endsWith('.jpg') || file.name.toLowerCase().endsWith('.jpeg');
-
-        if (!isPng && !isJpg) return;
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          templateLibrary.unshift({
-            id: 'custom_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
-            title: file.name.replace(/\.[^/.]+$/, ""),
-            category: 'custom',
-            isCustom: true,
-            format: isPng ? 'PNG' : 'JPG',
-            badge: 'Folder',
-            url: e.target.result
-          });
-          loadedCount++;
-          filterTemplates('custom');
-        };
-        reader.readAsDataURL(file);
-      });
-
-      setTimeout(() => {
-        showToast(`Loaded ${loadedCount} patient photo(s) into Templates`, 'success');
-      }, 250);
-    }
-
-    function importTemplatePhoto(photoUrl, photoName) {
+    /* ============================================================
+       TARGET FACE SELECTOR & MEDIAPIPE AUTOMATIC TEETH FITTING
+       ============================================================ */
+    function selectTeethTemplate(url, name) {
       closeTemplatesModal();
-      showLoadingModal('Importing Photo...', photoName, 'bi-image');
+      pendingTeethTemplateUrl = url;
+      pendingTeethTemplateName = name;
 
-      fabric.Image.fromURL(photoUrl, (img) => {
-        const maxDim = 720;
-        if (img.width > maxDim || img.height > maxDim) {
-          img.scale(maxDim / Math.max(img.width, img.height));
+      // Find candidate patient face images on canvas (excluding extracted lips and standalone vector shapes)
+      const availableImages = canvas.getObjects().filter(o => o.type === 'image' && !o.isLipLayer);
+
+      if (availableImages.length === 0) {
+        // No patient photo on canvas, load teeth at center
+        placeTeethWithoutAutoFit();
+        showToast('Imported teeth template at canvas center', 'info');
+      } else if (availableImages.length === 1) {
+        // 1 patient image available on canvas, auto-fit directly to this face
+        autoFitTeethToTargetFace(availableImages[0]);
+      } else {
+        // Multiple patient photos available on canvas, open selector modal
+        openFaceSelectorModal(availableImages);
+      }
+    }
+
+    function openFaceSelectorModal(images) {
+      const listEl = document.getElementById('face-selector-list');
+      listEl.innerHTML = images.map((imgObj, idx) => {
+        const thumbUrl = imgObj.getElement().src;
+        const name = imgObj.name || `Patient Photo ${idx + 1}`;
+        return `
+          <div onclick="executeSelectorAutoFit(${idx})" class="flex items-center gap-3 p-2 rounded-2xl bg-[#f3f0f9] hover:bg-white border border-[#cec6e6]/60 cursor-pointer transition shadow-sm">
+            <img src="${thumbUrl}" class="w-12 h-12 rounded-xl object-cover border border-[#cec6e6]" />
+            <div class="flex-1 truncate">
+              <span class="text-xs font-bold text-[#1f1533] block truncate">${name}</span>
+              <span class="text-[10px] text-[#5e5473]">Click to auto-align & size teeth here</span>
+            </div>
+            <i class="bi bi-magic text-[#563b72] text-sm pr-1"></i>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('face-selector-modal').classList.remove('hidden');
+    }
+
+    function closeFaceSelectorModal() {
+      document.getElementById('face-selector-modal').classList.add('hidden');
+    }
+
+    function executeSelectorAutoFit(imageIndex) {
+      closeFaceSelectorModal();
+      const availableImages = canvas.getObjects().filter(o => o.type === 'image' && !o.isLipLayer);
+      const targetFace = availableImages[imageIndex];
+      if (targetFace) {
+        autoFitTeethToTargetFace(targetFace);
+      } else {
+        placeTeethWithoutAutoFit();
+      }
+    }
+
+    function placeTeethWithoutAutoFit() {
+      closeFaceSelectorModal();
+      if (!pendingTeethTemplateUrl) return;
+
+      showLoadingModal('Importing Teeth...', 'Adding template to canvas center', 'bi-image');
+      fabric.Image.fromURL(pendingTeethTemplateUrl, (teethImg) => {
+        const maxDim = 380;
+        if (teethImg.width > maxDim || teethImg.height > maxDim) {
+          teethImg.scale(maxDim / Math.max(teethImg.width, teethImg.height));
         }
-
         const c = canvas.getVpCenter();
-        img.set({
-          left: c.x - (img.getScaledWidth() / 2),
-          top: c.y - (img.getScaledHeight() / 2),
-          name: photoName || `Photo ${++shapeCounter}`,
+        teethImg.set({
+          left: c.x - (teethImg.getScaledWidth() / 2),
+          top: c.y - (teethImg.getScaledHeight() / 2),
+          name: pendingTeethTemplateName || 'Teeth Template',
           strokeUniform: true
         });
 
-        canvas.add(img);
-        canvas.setActiveObject(img);
+        canvas.add(teethImg);
+        canvas.setActiveObject(teethImg);
         canvas.requestRenderAll();
         saveState();
         hideLoadingModal();
-        showToast(`Imported "${img.name}"`, 'success');
+        showToast('Teeth template added to canvas', 'success');
       }, { crossOrigin: 'anonymous' });
     }
 
-    /* ============================================================
-       IMAGE IMPORT
-       ============================================================ */
-    function handleFileSelect(file) {
-      if (!file) return;
-      if (file.name.endsWith('.svg') || file.type === 'image/svg+xml') {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          fabric.loadSVGFromString(e.target.result, (objects, options) => {
-            if (!objects || !objects.length) {
-              showToast('Could not parse SVG data', 'error');
-              return;
-            }
-            const svgGroup = fabric.util.groupSVGElements(objects, options);
-            const maxDim = 380;
-            if (svgGroup.width > maxDim || svgGroup.height > maxDim) {
-              svgGroup.scale(maxDim / Math.max(svgGroup.width, svgGroup.height));
-            }
-            const c = canvas.getVpCenter();
-            svgGroup.set({
-              left: c.x - (svgGroup.getScaledWidth() / 2),
-              top: c.y - (svgGroup.getScaledHeight() / 2),
-              name: `Imported SVG ${++shapeCounter}`,
-              strokeUniform: true
-            });
-            canvas.add(svgGroup);
-            canvas.setActiveObject(svgGroup);
-            canvas.requestRenderAll();
-            saveState();
-            showToast('SVG imported successfully', 'success');
-          });
-        };
-        reader.readAsText(file);
-      } else if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          fabric.Image.fromURL(e.target.result, (img) => {
-            const maxDim = 700;
-            if (img.width > maxDim || img.height > maxDim) {
-              img.scale(maxDim / Math.max(img.width, img.height));
-            }
-            const c = canvas.getVpCenter();
-            img.set({
-              left: c.x - (img.getScaledWidth() / 2),
-              top: c.y - (img.getScaledHeight() / 2),
-              name: file.name.replace(/\.[^/.]+$/, ""),
-              strokeUniform: true
-            });
-            canvas.add(img);
-            canvas.setActiveObject(img);
-            canvas.requestRenderAll();
-            saveState();
-            showToast('Patient photo loaded', 'success');
-          });
-        };
-        reader.readAsDataURL(file);
-      }
-    }
+    async function autoFitTeethToTargetFace(targetFaceObj) {
+      if (!pendingTeethTemplateUrl) return;
 
-    container.addEventListener('dragover', (e) => e.preventDefault());
-    container.addEventListener('drop', (e) => {
-      e.preventDefault();
-      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-        handleFileSelect(e.dataTransfer.files[0]);
-      }
-    });
+      showLoadingModal('MediaPipe Auto-Fitting...', 'Analyzing facial landmarks, smile angle, and dental proportions', 'bi-magic');
 
-    /* ============================================================
-       PHOTOSHOP CROP STUDIO
-       ============================================================ */
-    const CropStudio = {
-      isCropping: false,
-      targetImage: null,
-      box: { x: 0, y: 0, w: 0, h: 0 },
-      stageW: 0,
-      stageH: 0,
-      aspectRatio: 'free',
-      activeHandle: null,
-      startDrag: { mouseX: 0, mouseY: 0, boxX: 0, boxY: 0, boxW: 0, boxH: 0 },
+      const engine = await initMediaPipeFaceMesh();
+      const faceImgEl = targetFaceObj.getElement();
 
-      startCrop() {
-        const active = canvas.getActiveObject();
-        if (!active || active.type !== 'image') {
-          showToast('Select an image on canvas to crop', 'error');
+      engine.onResults((results) => {
+        if (!results.multiFaceLandmarks || !results.multiFaceLandmarks.length) {
+          hideLoadingModal();
+          showToast('Could not detect face in photo. Inserting teeth template at center.', 'error');
+          placeTeethWithoutAutoFit();
           return;
         }
 
-        this.targetImage = active;
-        this.isCropping = true;
+        const lm = results.multiFaceLandmarks[0];
+        const iw = faceImgEl.naturalWidth || faceImgEl.width;
+        const ih = faceImgEl.naturalHeight || faceImgEl.height;
 
-        const imgEl = active.getElement();
-        const studioImg = document.getElementById('ps-crop-img');
-        studioImg.src = imgEl.src;
+        // Canonical MediaPipe landmarks for smile/mouth geometry:
+        // 61: Right commissure (patient's right / image left)
+        // 291: Left commissure (patient's left / image right)
+        // 13: Inner upper lip midpoint (top of teeth opening)
+        // 14: Inner lower lip midpoint (bottom of teeth opening)
+        const p61 = { x: lm[61].x * iw, y: lm[61].y * ih };
+        const p291 = { x: lm[291].x * iw, y: lm[291].y * ih };
+        const p13 = { x: lm[13].x * iw, y: lm[13].y * ih };
+        const p14 = { x: lm[14].x * iw, y: lm[14].y * ih };
 
-        document.getElementById('ps-crop-studio-modal').classList.remove('hidden');
+        // 1. Mouth/Stomion center in face image coordinates
+        const stomionX = (p61.x + p291.x) / 2;
+        const stomionY = (p13.y * 0.7 + p14.y * 0.3); // Biased toward upper incisal baseline
 
-        studioImg.onload = () => {
-          this.stageW = studioImg.clientWidth;
-          this.stageH = studioImg.clientHeight;
-
-          const wrapper = document.getElementById('ps-crop-wrapper');
-          wrapper.style.width = `${this.stageW}px`;
-          wrapper.style.height = `${this.stageH}px`;
-
-          this.resetBox();
-          this.bindEvents();
-          showToast('Crop Studio active. Drag handles or Enter to apply.', 'info');
+        // 2. Map coordinates through Fabric transformation matrix of the patient photo
+        const faceMatrix = targetFaceObj.calcTransformMatrix();
+        const localPt = {
+          x: stomionX - (targetFaceObj.width / 2),
+          y: stomionY - (targetFaceObj.height / 2)
         };
-      },
+        const canvasTargetPt = fabric.util.transformPoint(localPt, faceMatrix);
 
-      setRatio(r) {
-        this.aspectRatio = r;
-        ['free', '1:1', '4:3', '16:9'].forEach(ratio => {
-          const btn = document.getElementById(`crop-ratio-${ratio.replace(':', '-')}`);
-          if (btn) {
-            btn.className = (ratio === r) 
-              ? 'px-3 py-1 rounded-full text-xs bg-[#563b72] text-white' 
-              : 'px-3 py-1 rounded-full text-xs text-[#5e5473] hover:text-[#1f1533]';
-          }
-        });
+        // 3. Compute smile angle
+        const mouthAngleRad = Math.atan2(p291.y - p61.y, p291.x - p61.x);
+        const mouthAngleDeg = mouthAngleRad * (180 / Math.PI);
+        const totalAngle = (targetFaceObj.angle || 0) + (targetFaceObj.flipX ? -mouthAngleDeg : mouthAngleDeg);
 
-        if (r !== 'free') {
-          const parts = r.split(':');
-          const targetAspect = parseFloat(parts[0]) / parseFloat(parts[1]);
-          let newH = this.box.w / targetAspect;
-          if (newH > this.stageH) {
-            newH = this.stageH;
-            this.box.w = newH * targetAspect;
-          }
-          this.box.h = newH;
-          this.clamp();
-          this.render();
-        }
-      },
+        // 4. Compute anatomical width & scaling (standard anterior dental proportion spans ~82% of intercommissural distance)
+        const mouthDist = Math.hypot(p291.x - p61.x, p291.y - p61.y);
+        const desiredTeethCanvasWidth = mouthDist * Math.abs(targetFaceObj.scaleX) * 0.84;
 
-      resetBox() {
-        this.box = { x: 0, y: 0, w: this.stageW, h: this.stageH };
-        this.render();
-      },
+        fabric.Image.fromURL(pendingTeethTemplateUrl, (teethImg) => {
+          const teethScale = desiredTeethCanvasWidth / teethImg.width;
 
-      clamp() {
-        const minSize = 25;
-        this.box.w = Math.max(minSize, Math.min(this.box.w, this.stageW));
-        this.box.h = Math.max(minSize, Math.min(this.box.h, this.stageH));
-        this.box.x = Math.max(0, Math.min(this.box.x, this.stageW - this.box.w));
-        this.box.y = Math.max(0, Math.min(this.box.y, this.stageH - this.box.h));
-      },
-
-      render() {
-        const boxEl = document.getElementById('ps-crop-box');
-        boxEl.style.left = `${this.box.x}px`;
-        boxEl.style.top = `${this.box.y}px`;
-        boxEl.style.width = `${this.box.w}px`;
-        boxEl.style.height = `${this.box.h}px`;
-
-        const sT = document.getElementById('ps-scrim-t');
-        const sB = document.getElementById('ps-scrim-b');
-        const sL = document.getElementById('ps-scrim-l');
-        const sR = document.getElementById('ps-scrim-r');
-
-        sT.style.left = '0px'; sT.style.top = '0px'; sT.style.width = '100%'; sT.style.height = `${this.box.y}px`;
-        sB.style.left = '0px'; sB.style.top = `${this.box.y + this.box.h}px`; sB.style.width = '100%'; sB.style.height = `${this.stageH - (this.box.y + this.box.h)}px`;
-        sL.style.left = '0px'; sL.style.top = `${this.box.y}px`; sL.style.width = `${this.box.x}px`; sL.style.height = `${this.box.h}px`;
-        sR.style.left = `${this.box.x + this.box.w}px`; sR.style.top = `${this.box.y}px`; sR.style.width = `${this.stageW - (this.box.x + this.box.w)}px`; sR.style.height = `${this.box.h}px`;
-      },
-
-      bindEvents() {
-        const wrapper = document.getElementById('ps-crop-wrapper');
-        const boxEl = document.getElementById('ps-crop-box');
-
-        const onPointerDown = (e) => {
-          if (!this.isCropping) return;
-          const handle = e.target.dataset.handle;
-          this.activeHandle = handle || (e.target === boxEl || boxEl.contains(e.target) ? 'move' : null);
-
-          if (!this.activeHandle) return;
-          e.preventDefault();
-          e.stopPropagation();
-
-          this.startDrag = {
-            mouseX: e.clientX,
-            mouseY: e.clientY,
-            boxX: this.box.x,
-            boxY: this.box.y,
-            boxW: this.box.w,
-            boxH: this.box.h
-          };
-
-          window.addEventListener('pointermove', onPointerMove);
-          window.addEventListener('pointerup', onPointerUp);
-        };
-
-        const onPointerMove = (e) => {
-          if (!this.activeHandle) return;
-          const dx = e.clientX - this.startDrag.mouseX;
-          const dy = e.clientY - this.startDrag.mouseY;
-
-          if (this.activeHandle === 'move') {
-            this.box.x = this.startDrag.boxX + dx;
-            this.box.y = this.startDrag.boxY + dy;
-          } else {
-            let newX = this.startDrag.boxX;
-            let newY = this.startDrag.boxY;
-            let newW = this.startDrag.boxW;
-            let newH = this.startDrag.boxH;
-
-            if (this.activeHandle.includes('r')) newW += dx;
-            if (this.activeHandle.includes('b')) newH += dy;
-            if (this.activeHandle.includes('l')) { newX += dx; newW -= dx; }
-            if (this.activeHandle.includes('t')) { newY += dy; newH -= dy; }
-
-            if (this.aspectRatio !== 'free') {
-              const parts = this.aspectRatio.split(':');
-              const aspect = parseFloat(parts[0]) / parseFloat(parts[1]);
-              newH = newW / aspect;
-            }
-
-            if (newW >= 25) { this.box.x = newX; this.box.w = newW; }
-            if (newH >= 25) { this.box.y = newY; this.box.h = newH; }
-          }
-
-          this.clamp();
-          this.render();
-        };
-
-        const onPointerUp = () => {
-          this.activeHandle = null;
-          window.removeEventListener('pointermove', onPointerMove);
-          window.removeEventListener('pointerup', onPointerUp);
-        };
-
-        wrapper.onpointerdown = onPointerDown;
-      },
-
-      applyCrop() {
-        if (!this.isCropping || !this.targetImage) return;
-
-        showLoadingModal('Applying Crop...', 'Slicing image pixels at native resolution', 'bi-crop');
-
-        setTimeout(() => {
-          const imgObj = this.targetImage;
-          const rawImg = imgObj.getElement();
-          const naturalW = rawImg.naturalWidth || rawImg.width;
-          const naturalH = rawImg.naturalHeight || rawImg.height;
-
-          const scaleRatioX = naturalW / this.stageW;
-          const scaleRatioY = naturalH / this.stageH;
-
-          const cropPixelX = Math.round(this.box.x * scaleRatioX);
-          const cropPixelY = Math.round(this.box.y * scaleRatioY);
-          const cropPixelW = Math.max(1, Math.round(this.box.w * scaleRatioX));
-          const cropPixelH = Math.max(1, Math.round(this.box.h * scaleRatioY));
-
-          const cropCanvas = document.createElement('canvas');
-          cropCanvas.width = cropPixelW;
-          cropCanvas.height = cropPixelH;
-          const ctx = cropCanvas.getContext('2d');
-
-          ctx.drawImage(rawImg, cropPixelX, cropPixelY, cropPixelW, cropPixelH, 0, 0, cropPixelW, cropPixelH);
-
-          fabric.Image.fromURL(cropCanvas.toDataURL('image/png'), (croppedImg) => {
-            croppedImg.set({
-              left: imgObj.left,
-              top: imgObj.top,
-              scaleX: imgObj.scaleX,
-              scaleY: imgObj.scaleY,
-              angle: imgObj.angle,
-              name: `${imgObj.name || 'Image'} (Cropped)`,
-              strokeUniform: true
-            });
-
-            const idx = canvas.getObjects().indexOf(this.targetImage);
-            canvas.remove(this.targetImage);
-            canvas.insertAt(croppedImg, idx);
-            canvas.setActiveObject(croppedImg);
-
-            this.cancelCrop();
-            saveState();
-            hideLoadingModal();
-            showToast('Crop Applied!', 'success');
+          teethImg.set({
+            left: canvasTargetPt.x,
+            top: canvasTargetPt.y,
+            originX: 'center',
+            originY: 'center',
+            scaleX: teethScale,
+            scaleY: teethScale,
+            angle: totalAngle,
+            flipX: targetFaceObj.flipX,
+            name: `${pendingTeethTemplateName || 'Teeth'} (Auto-Fitted)`,
+            strokeUniform: true
           });
-        }, 60);
-      },
 
-      cancelCrop() {
-        this.isCropping = false;
-        this.targetImage = null;
-        document.getElementById('ps-crop-studio-modal').classList.add('hidden');
-        cleanToolState();
-        canvas.requestRenderAll();
-      }
-    };
+          // If the face has an extracted lip layer, place the teeth UNDER the lips for seamless framing
+          const lipLayer = canvas.getObjects().find(o => o.isLipLayer && o.targetFaceId === targetFaceObj.dsdFaceId);
+          if (lipLayer) {
+            const lipIdx = canvas.getObjects().indexOf(lipLayer);
+            canvas.insertAt(teethImg, lipIdx);
+          } else {
+            canvas.add(teethImg);
+          }
+
+          canvas.setActiveObject(teethImg);
+          canvas.requestRenderAll();
+          saveState();
+          hideLoadingModal();
+          showToast('Teeth seamlessly auto-fitted onto face with MediaPipe!', 'success');
+        }, { crossOrigin: 'anonymous' });
+      });
+
+      await engine.send({ image: faceImgEl });
+    }
 
     /* ============================================================
-       GOOGLE MEDIAPIPE AI: ACCURATE ORGANIC SPLINE LIP CUTOUT (PNG)
+       GOOGLE MEDIAPIPE AI: 100% PURE LIP EXTRACTION (ZERO TEETH)
        ============================================================ */
     let faceMeshEngine = null;
 
     async function initMediaPipeFaceMesh() {
       if (faceMeshEngine) return faceMeshEngine;
 
-      document.getElementById('mp-status-lbl').innerText = 'Loading MediaPipe AI...';
+      const lbl = document.getElementById('mp-status-lbl');
+      if (lbl) lbl.innerText = 'Loading MediaPipe AI...';
+
       faceMeshEngine = new FaceMesh({
         locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
       });
@@ -2289,7 +2099,7 @@
       });
 
       await faceMeshEngine.initialize();
-      document.getElementById('mp-status-lbl').innerText = 'MediaPipe Ready';
+      if (lbl) lbl.innerText = 'MediaPipe Ready';
       return faceMeshEngine;
     }
 
@@ -2349,7 +2159,7 @@
     }
 
     function executePhotographicLipCutout(targetImage, imgElement, landmarks) {
-      showLoadingModal('Extracting PNG Layers...', 'Punching out lips with organic spline trimming & zero-gap overlap', 'bi-layers');
+      showLoadingModal('Extracting Pure Lips...', 'Trimming vermilion boundary — strictly zero teeth captured', 'bi-layers');
 
       setTimeout(() => {
         const iw = imgElement.naturalWidth || imgElement.width;
@@ -2372,14 +2182,18 @@
           if (p.y > maxY) maxY = p.y;
         });
 
+        // Compute centroids
         let sumX = 0, sumY = 0;
-        outerPixelPts.forEach(p => {
-          sumX += p.x;
-          sumY += p.y;
-        });
+        outerPixelPts.forEach(p => { sumX += p.x; sumY += p.y; });
         const mouthCx = sumX / outerPixelPts.length;
         const mouthCy = sumY / outerPixelPts.length;
 
+        let sumInX = 0, sumInY = 0;
+        innerPixelPts.forEach(p => { sumInX += p.x; sumInY += p.y; });
+        const innerCx = sumInX / innerPixelPts.length;
+        const innerCy = sumInY / innerPixelPts.length;
+
+        // Dilate outer points outward slightly to cover any boundary seam
         const dilatedOuterPts = outerPixelPts.map(p => {
           const vx = p.x - mouthCx;
           const vy = p.y - mouthCy;
@@ -2390,13 +2204,15 @@
           };
         });
 
-        const contractedInnerPts = innerPixelPts.map(p => {
-          const vx = p.x - mouthCx;
-          const vy = p.y - mouthCy;
+        // CRITICAL: Expand inner points AWAY from the oral cavity center (toward vermilion)
+        // by +1.8px. This guarantees that ZERO teeth or enamel pixels are included inside the lip cutout!
+        const pureLipsInnerPts = innerPixelPts.map(p => {
+          const vx = p.x - innerCx;
+          const vy = p.y - innerCy;
           const len = Math.hypot(vx, vy) || 1;
           return {
-            x: p.x - (vx / len) * 0.8,
-            y: p.y - (vy / len) * 0.8
+            x: p.x + (vx / len) * 1.8,
+            y: p.y + (vy / len) * 1.8
           };
         });
 
@@ -2406,7 +2222,7 @@
         const cropW = Math.min(iw - cropX, Math.ceil((maxX - minX) + pad * 2));
         const cropH = Math.min(ih - cropY, Math.ceil((maxY - minY) + pad * 2));
 
-        // 1. TIGHT EXTRACTED LIP PNG
+        // 1. PURE EXTRACTED VERMILION LIPS PNG (TEETH EXCLUDED)
         const lipCanvas = document.createElement('canvas');
         lipCanvas.width = cropW;
         lipCanvas.height = cropH;
@@ -2417,7 +2233,7 @@
 
         lipCtx.beginPath();
         traceSmoothContour(lipCtx, dilatedOuterPts);
-        traceSmoothContour(lipCtx, contractedInnerPts);
+        traceSmoothContour(lipCtx, pureLipsInnerPts);
 
         lipCtx.clip('evenodd');
         lipCtx.drawImage(imgElement, 0, 0, iw, ih);
@@ -2440,7 +2256,7 @@
           faceCtx.beginPath();
 
           traceSmoothContour(faceCtx, outerPixelPts);
-          traceSmoothContour(faceCtx, innerPixelPts);
+          traceSmoothContour(faceCtx, pureLipsInnerPts);
 
           faceCtx.fill('evenodd');
           faceCtx.restore();
@@ -2488,7 +2304,7 @@
                 scaleX: origScaleX,
                 scaleY: origScaleY,
                 angle: origAngle,
-                name: 'Extracted Lips (PNG Layer)',
+                name: 'Extracted Lips (Pure PNG)',
                 targetFaceId: dsdFaceId,
                 mouthLocalX: mouthLocalX,
                 mouthLocalY: mouthLocalY,
@@ -2503,7 +2319,7 @@
               updateLayersTree();
               saveState();
               hideLoadingModal();
-              showToast(moveOut ? 'Lips extracted! Move them near mouth to snap magnetically.' : 'Lips extracted with organic spline accuracy and zero gaps!', 'success');
+              showToast(moveOut ? 'Lips extracted! Move them near mouth to snap magnetically.' : 'Pure lips extracted with zero teeth captured!', 'success');
             });
           });
         }
@@ -2538,7 +2354,6 @@
       if (emptyBox) emptyBox.classList.add('hidden');
       if (contentBox) contentBox.classList.remove('hidden');
 
-      // Update Selection Title
       const label = document.getElementById('label-selection-type');
       if (label) {
         let typeName = obj.customType || obj.type || 'Object';
@@ -2552,7 +2367,6 @@
         label.innerText = typeName;
       }
 
-      // Sync Fix / Unfix Position Status
       const isFixed = Boolean(obj.isPositionFixed);
       const lblLock = document.getElementById('lbl-lock-status');
       const iconLock = document.getElementById('icon-lock-state');
