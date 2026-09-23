@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full bg-slate-950">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>SmileCreo Studio — Royal Liquid Edition</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>SmileCreo — Precision Dental Studio & CAD</title>
   
   <!-- Inter Google Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,6 +15,34 @@
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          colors: {
+            primary: {
+              DEFAULT: '#305CDE',
+              dark: '#2347b5',
+              light: '#EEF4FF',
+            },
+            dark: {
+              DEFAULT: '#060913',
+              soft: '#0a1024',
+              navy: '#0d1530'
+            }
+          },
+          boxShadow: {
+            'glass': '0 8px 32px rgba(0, 0, 0, 0.45)',
+            'pill': '0 4px 16px rgba(48, 92, 222, 0.35)',
+          }
+        }
+      }
+    }
+  </script>
+  
   <!-- Fabric.js Canvas Engine -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
   <!-- Supabase Web SDK -->
@@ -22,721 +50,425 @@
 
   <style>
     :root {
+      -webkit-tap-highlight-color: transparent;
       --royal-blue: #305CDE;
-      --royal-hover: #436be8;
       --off-white: #f4f5f8;
       --off-white-muted: #dcdfe8;
     }
-
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      user-select: none;
-      -webkit-user-select: none;
+      font-family: 'Inter', -apple-system, sans-serif;
+      overscroll-behavior: none;
+      touch-action: manipulation;
       background: radial-gradient(circle at 50% 0%, #0d1530 0%, #080c18 55%, #04060c 100%);
       color: var(--off-white);
-      overscroll-behavior: none;
     }
 
-    /* Precision Dot Grid */
-    .studio-canvas-bg {
-      background-color: #060913;
-      background-image: radial-gradient(rgba(244, 245, 248, 0.12) 1.2px, transparent 1.2px);
-      background-size: 24px 24px;
-      transition: background-color 0.25s ease;
-    }
+    /* Custom Modern Scrollbar */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #305CDE; }
 
-    /* Apple Liquid Glass Top Floating Bar */
-    .liquid-top-bar {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.09) 0%, rgba(48, 92, 222, 0.04) 50%, rgba(10, 16, 36, 0.45) 100%);
-      backdrop-filter: blur(36px) saturate(210%);
-      -webkit-backdrop-filter: blur(36px) saturate(210%);
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      border-top: 1px solid rgba(255, 255, 255, 0.35);
-      box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.35), 
-                  0 20px 45px -10px rgba(0, 0, 0, 0.6);
-      border-radius: 20px;
-    }
-
-    /* Bento Liquid Cards */
-    .liquid-bento {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(48, 92, 222, 0.035) 50%, rgba(7, 14, 34, 0.42) 100%);
+    /* Apple Liquid Glass Styling */
+    .liquid-glass {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(48, 92, 222, 0.035) 50%, rgba(7, 14, 34, 0.5) 100%);
       backdrop-filter: blur(28px) saturate(190%);
       -webkit-backdrop-filter: blur(28px) saturate(190%);
       border: 1px solid rgba(255, 255, 255, 0.14);
-      border-top: 1px solid rgba(255, 255, 255, 0.28);
+      border-top: 1px solid rgba(255, 255, 255, 0.3);
       box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.3), 
-                  0 16px 36px -8px rgba(0, 0, 0, 0.5);
-      border-radius: 16px;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .liquid-bento:hover {
-      border-color: rgba(48, 92, 222, 0.45);
-      border-top-color: rgba(255, 255, 255, 0.45);
+                  0 16px 36px -8px rgba(0, 0, 0, 0.55);
     }
 
-    /* Active Tool State */
-    .tool-active {
-      background: #305CDE !important;
-      color: #ffffff !important;
-      border: 1px solid rgba(255, 255, 255, 0.35) !important;
-      box-shadow: 0 4px 18px rgba(48, 92, 222, 0.45) !important;
+    .shutter-btn {
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      background: #FFFFFF;
+      border: 3px solid rgba(11, 18, 32, 0.9);
+      outline: 3px solid #305CDE;
+      transition: transform 0.1s ease;
+    }
+    .shutter-btn:active { transform: scale(0.92); }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      background: transparent;
+      accent-color: #305CDE;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 16px;
+      width: 16px;
+      border-radius: 50%;
+      background: #305CDE;
+      cursor: pointer;
+      margin-top: -5px;
+      box-shadow: 0 2px 6px rgba(48, 92, 222, 0.5);
+      border: 2px solid white;
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 6px;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 9999px;
     }
 
-    /* Drag & Drop Reordering Indicator */
-    .drag-over-top {
-      border-top: 2px solid #305CDE !important;
-    }
-    .drag-over-bottom {
-      border-bottom: 2px solid #305CDE !important;
+    /* Studio Dot Grid */
+    .studio-canvas-bg {
+      background-color: #060913;
+      background-image: radial-gradient(rgba(244, 245, 248, 0.14) 1.2px, transparent 1.2px);
+      background-size: 24px 24px;
     }
 
-    /* Scrollbars */
-    ::-webkit-scrollbar { width: 5px; height: 5px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.18); border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #305CDE; }
+    /* Drag and drop layer feedback */
+    .drag-over-top { border-top: 2px solid #305CDE !important; }
+    .drag-over-bottom { border-bottom: 2px solid #305CDE !important; }
 
-    input[type="range"] { accent-color: #305CDE; }
-    input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
-    input[type="color"]::-webkit-color-swatch { border: none; border-radius: 4px; }
-
-    /* Hide standard number input arrows */
-    input[type=number]::-webkit-inner-spin-button, 
-    input[type=number]::-webkit-outer-spin-button { 
-      -webkit-appearance: none; 
-      margin: 0; 
+    .fade-enter {
+      animation: fadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
-    input[type=number] {
-      -moz-appearance: textfield;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.99); }
+      to { opacity: 1; transform: scale(1); }
     }
   </style>
 </head>
-<body class="h-screen w-screen overflow-hidden flex flex-col antialiased">
+<body class="h-[100dvh] w-screen overflow-hidden flex flex-col antialiased select-none">
 
-  <!-- FLOATING LIQUID GLASS TOP BAR -->
-  <header class="fixed top-3 left-4 right-4 z-40 h-14 liquid-top-bar flex items-center justify-between px-4">
-    
-    <!-- Left: Logo with White Circular Background -->
-    <div class="flex items-center gap-3">
+  <!-- FLOATING MINIMAL HEADER (Camera & Capture Mode) -->
+  <header id="mainHeader" class="absolute top-3 left-4 right-4 z-40 flex items-center justify-between pointer-events-none transition-opacity duration-200">
+    <div class="pointer-events-auto flex items-center gap-3">
       <div class="w-9 h-9 rounded-full bg-white flex items-center justify-center p-1.5 shadow-md border border-white/50">
         <img 
           src="https://smilecreo.codeinblack.online/logosc.svg" 
           alt="SmileCreo Logo" 
           class="w-full h-full object-contain" 
-          onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';"
+          onerror="this.style.display='none'; document.getElementById('logo-fallback-top').style.display='flex';"
         />
-        <div id="logo-fallback" class="hidden w-full h-full rounded-full bg-[#305CDE] items-center justify-center font-bold text-white text-xs">SC</div>
+        <div id="logo-fallback-top" class="hidden w-full h-full rounded-full bg-[#305CDE] items-center justify-center font-bold text-white text-xs">SC</div>
       </div>
-      <div class="flex items-baseline gap-1.5">
-        <span class="text-sm font-bold tracking-wide text-white">SmileCreo</span>
-        <span class="text-[#9cb4f8] font-mono text-[10px] px-1.5 py-0.5 rounded-full bg-white/[0.08] border border-white/[0.15] font-semibold">STUDIO</span>
+      <div class="flex items-baseline gap-1.5 bg-black/40 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
+        <span class="text-xs font-bold tracking-wide text-white">SmileCreo</span>
+        <span class="text-[#9cb4f8] font-mono text-[9px] font-semibold">STUDIO</span>
       </div>
     </div>
 
-    <!-- Center: Unified Tools Dock -->
-    <div class="flex items-center bg-black/25 border border-white/[0.12] rounded-xl p-1 gap-1">
-      <button id="tool-select" onclick="setTool('select')" class="tool-btn tool-active p-2 rounded-lg text-white font-semibold transition" title="Select (V) - Arrow Keys to Nudge">
-        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l7 18 3-7 7-3L3 3z"/></svg>
-      </button>
-      <button id="tool-hand" onclick="setTool('hand')" class="tool-btn p-2 rounded-lg text-[#dcdfe8] hover:text-white hover:bg-white/[0.08] transition" title="Pan Hand (H / Space+Drag)">
-        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 11V6a2 2 0 0 0-4 0v5M14 10V4a2 2 0 0 0-4 0v7M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>
-      </button>
-
-      <div class="w-[1px] h-4 bg-white/[0.15] mx-0.5"></div>
-
-      <!-- Freehand Pencil Tool -->
-      <button id="tool-pencil" onclick="setTool('pencil')" class="tool-btn p-2 rounded-lg text-[#dcdfe8] hover:text-white hover:bg-white/[0.08] transition" title="Pencil (B)">
-        <i class="bi bi-pencil-fill text-xs"></i>
-      </button>
-
-      <!-- Mid Line -->
-      <button onclick="addMidLine()" class="tool-btn p-2 rounded-lg text-[#dcdfe8] hover:text-white hover:bg-white/[0.08] transition" title="Mid Line (L)">
-        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="20" x2="20" y2="4"/></svg>
-      </button>
-
-      <!-- Bézier Curve -->
-      <button onclick="addBezierCurve()" class="tool-btn p-2 rounded-lg text-[#dcdfe8] hover:text-white hover:bg-white/[0.08] transition" title="Bézier Curve (P)">
-        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17c4-8 14-8 18 0"/><circle cx="3" cy="17" r="1.5"/><circle cx="21" cy="17" r="1.5"/><circle cx="12" cy="9.5" r="1.5"/></svg>
-      </button>
-
-      <!-- Note Card -->
-      <button onclick="addNoteCard()" class="tool-btn p-2 rounded-lg text-[#dcdfe8] hover:text-white hover:bg-white/[0.08] transition" title="Note Card Box (N)">
-        <i class="bi bi-sticky-fill text-xs"></i>
-      </button>
-
-      <div class="w-[1px] h-4 bg-white/[0.15] mx-0.5"></div>
-
-      <!-- Basic Shapes -->
-      <button onclick="addRectangle()" class="tool-btn p-2 rounded-lg text-[#dcdfe8] hover:text-white hover:bg-white/[0.08] transition" title="Rectangle (R)">
-        <i class="bi bi-square text-xs"></i>
-      </button>
-      <button onclick="addCircle()" class="tool-btn p-2 rounded-lg text-[#dcdfe8] hover:text-white hover:bg-white/[0.08] transition" title="Circle (O)">
-        <i class="bi bi-circle text-xs"></i>
-      </button>
-      <button onclick="addText()" class="tool-btn p-2 rounded-lg text-[#dcdfe8] hover:text-white hover:bg-white/[0.08] transition" title="Text (T)">
-        <i class="bi bi-type text-sm"></i>
-      </button>
-
-      <div class="w-[1px] h-4 bg-white/[0.15] mx-0.5"></div>
-
-      <!-- Crop & Upload -->
-      <button onclick="FigmaCrop.startCrop()" class="tool-btn p-2 rounded-lg text-[#dcdfe8] hover:text-white hover:bg-white/[0.08] transition" title="Crop Image/SVG (C)">
-        <i class="bi bi-crop text-xs"></i>
-      </button>
-      <label class="tool-btn p-2 rounded-lg text-[#dcdfe8] hover:text-white hover:bg-white/[0.08] cursor-pointer transition" title="Import Image or SVG (I)">
-        <i class="bi bi-image text-xs"></i>
-        <input type="file" id="image-file-input" accept="image/*,.svg" class="hidden" onchange="handleFileSelect(this.files[0])">
-      </label>
-    </div>
-
-    <!-- Right: SmileCreo AI, History, Zoom & Export -->
-    <div class="flex items-center gap-2">
-      <!-- Launch SmileCreo AI -->
-      <button onclick="openAiInpaintStudio()" class="px-3.5 py-1.5 bg-[#305CDE] hover:bg-[#436be8] border border-white/30 text-white font-semibold text-xs rounded-xl shadow-lg shadow-[#305CDE]/40 flex items-center gap-1.5 transition active:scale-95">
-        <i class="bi bi-stars text-yellow-300"></i>
-        <span>SmileCreo AI</span>
-      </button>
-
-      <button onclick="openGallery()" class="p-1.5 px-2 bg-white/[0.08] hover:bg-white/[0.14] border border-white/[0.14] rounded-xl text-xs text-[#dcdfe8] hover:text-white flex items-center gap-1 transition" title="Saved Patient Simulations">
-        <i class="bi bi-folder2-open"></i>
+    <!-- Right Controls -->
+    <div class="flex items-center space-x-2 pointer-events-auto">
+      <button id="navOpenGalleryBtn" class="liquid-glass px-3 py-1.5 rounded-full text-xs font-semibold text-slate-200 hover:text-white shadow-glass transition active:scale-95 flex items-center space-x-1.5">
+        <i class="bi bi-folder2-open text-blue-400"></i>
         <span>Records</span>
       </button>
 
-      <!-- Quick Group Actions -->
-      <div class="flex items-center bg-black/20 border border-white/[0.14] rounded-xl p-0.5">
-        <button onclick="groupSelected()" class="p-1.5 text-[#dcdfe8] hover:text-white rounded-lg hover:bg-white/[0.08] transition" title="Group (Ctrl+G)">
-          <i class="bi bi-union text-xs"></i>
-        </button>
-        <button onclick="ungroupSelected()" class="p-1.5 text-[#dcdfe8] hover:text-white rounded-lg hover:bg-white/[0.08] transition" title="Ungroup (Ctrl+Shift+G)">
-          <i class="bi bi-subtract text-xs"></i>
-        </button>
-      </div>
-
-      <div class="flex items-center bg-black/20 border border-white/[0.14] rounded-xl p-0.5">
-        <button onclick="undo()" id="btn-undo" class="p-1.5 text-[#dcdfe8] hover:text-white rounded-lg hover:bg-white/[0.08] transition" title="Undo (Ctrl+Z)">
-          <i class="bi bi-arrow-counterclockwise text-xs"></i>
-        </button>
-        <button onclick="redo()" id="btn-redo" class="p-1.5 text-[#dcdfe8] hover:text-white rounded-lg hover:bg-white/[0.08] transition" title="Redo (Ctrl+Y)">
-          <i class="bi bi-arrow-clockwise text-xs"></i>
-        </button>
-      </div>
-
-      <div class="flex items-center bg-black/20 border border-white/[0.14] rounded-xl px-2.5 py-1 text-xs">
-        <button onclick="zoomOut()" class="text-[#dcdfe8] hover:text-white px-1 font-bold">-</button>
-        <span id="zoom-level-text" class="px-1.5 font-mono text-[11px] text-white">100%</span>
-        <button onclick="zoomIn()" class="text-[#dcdfe8] hover:text-white px-1 font-bold">+</button>
-      </div>
-
-      <button onclick="openExportModal()" class="p-1.5 px-3 bg-white/[0.08] hover:bg-white/[0.14] border border-white/20 text-white font-medium text-xs rounded-xl shadow transition">
-        Export
+      <button id="navUploadBtn" class="bg-[#305CDE] hover:bg-[#436be8] text-white px-3.5 py-1.5 rounded-full text-xs font-semibold shadow-pill transition active:scale-95 flex items-center space-x-1.5">
+        <i class="bi bi-upload"></i>
+        <span>Upload Photo / SVG</span>
       </button>
+      <input type="file" id="fileInput" class="hidden" accept="image/*,.svg" />
     </div>
   </header>
 
-  <!-- WORKSPACE WRAPPER -->
-  <div class="flex-1 w-full h-full pt-20 px-4 pb-4 flex overflow-hidden relative gap-3.5">
+  <!-- MAIN WORKSPACE -->
+  <main class="relative flex-1 w-full h-full overflow-hidden">
 
-    <!-- LEFT BENTO: Native Drag & Drop Layers -->
-    <aside class="w-68 flex flex-col gap-3.5 z-30 select-none">
-      <div class="liquid-bento flex-1 flex flex-col p-3.5 min-h-[300px] overflow-hidden">
-        <div class="flex items-center justify-between pb-2 border-b border-white/[0.1] mb-2">
-          <div class="flex items-center gap-1.5">
-            <span class="text-[11px] font-bold tracking-wider uppercase text-[#9cb4f8]">Layers</span>
-            <span class="text-[9px] text-[#dcdfe8]/60">(Drag to reorder)</span>
+    <!-- VIEW 1: Camera & Capture Screen -->
+    <div id="cameraView" class="absolute inset-0 flex flex-col justify-between z-10 bg-black">
+      <div class="relative flex-1 w-full h-full flex items-center justify-center overflow-hidden">
+        <video id="cameraFeed" class="absolute w-full h-full object-cover" autoplay playsinline></video>
+        <canvas id="captureCanvas" class="hidden"></canvas>
+      </div>
+
+      <!-- Bottom Action Bar -->
+      <div class="absolute bottom-[max(1.5rem,env(safe-area-inset-bottom))] left-4 right-4 z-20 flex items-center justify-center pointer-events-none">
+        <div class="liquid-glass px-5 py-3 rounded-2xl shadow-glass flex items-center justify-around w-full max-w-sm pointer-events-auto">
+          <!-- Library thumbnail preview -->
+          <button id="openLibraryBtn" class="w-11 h-11 rounded-xl overflow-hidden bg-slate-900 border border-white/20 shadow-md active:scale-95 transition flex items-center justify-center">
+            <div id="galleryThumbImg" class="w-full h-full bg-cover bg-center flex items-center justify-center text-white/70">
+              <i class="bi bi-images text-sm"></i>
+            </div>
+          </button>
+
+          <!-- Shutter Button -->
+          <button id="captureBtn" class="shutter-btn shadow-2xl flex items-center justify-center"></button>
+
+          <!-- Switch Camera -->
+          <button id="switchCameraBtn" class="w-11 h-11 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-xl text-white border border-white/20 active:scale-95 transition">
+            <i class="bi bi-arrow-repeat text-base"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 2: Complete Studio (Dental Masking & CAD Precision Studio) -->
+    <div id="editorView" class="hidden absolute inset-0 bg-[#060913] z-30 flex flex-col justify-between p-3 pt-3 overflow-hidden">
+      
+      <!-- Studio Top Action Bar (Apple Liquid Glass) -->
+      <div class="liquid-glass px-4 py-2 rounded-2xl shadow-glass flex items-center justify-between w-full max-w-6xl mx-auto shrink-0 mb-2 gap-2">
+        <div class="flex items-center gap-2">
+          <button id="cancelEditBtn" class="px-2.5 py-1 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-semibold text-slate-200 hover:text-white flex items-center gap-1 active:opacity-60 transition">
+            <i class="bi bi-chevron-left"></i>
+            <span>Retake</span>
+          </button>
+
+          <!-- Rotate 90° to fix sideways photos -->
+          <button onclick="rotateStudioImage(90)" class="px-2.5 py-1 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-semibold text-[#9cb4f8] hover:text-white flex items-center gap-1 active:scale-95 transition" title="Rotate Photo 90° so jaw is horizontal">
+            <i class="bi bi-arrow-clockwise"></i>
+            <span>Rotate 90°</span>
+          </button>
+        </div>
+
+        <!-- Mode Switcher: Masking vs Move vs Vector CAD -->
+        <div class="flex items-center p-1 bg-black/40 rounded-xl border border-white/15 shadow-inner gap-1">
+          <button id="toolModeMaskBtn" onclick="switchStudioMode('mask')" class="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition bg-[#305CDE] text-white shadow-pill">
+            <i class="bi bi-brush-fill"></i>
+            <span>Mask Brush</span>
+          </button>
+          <button id="toolModePanBtn" onclick="switchStudioMode('pan')" class="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition text-slate-300 hover:text-white">
+            <i class="bi bi-arrows-move"></i>
+            <span>Pan / Move</span>
+          </button>
+          <button id="toolModeCadBtn" onclick="switchStudioMode('cad')" class="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition text-slate-300 hover:text-white">
+            <i class="bi bi-bounding-box"></i>
+            <span>CAD & Vectors</span>
+          </button>
+        </div>
+
+        <!-- Right: Zoom & Reset -->
+        <div class="flex items-center gap-2">
+          <div class="flex items-center bg-black/40 rounded-xl border border-white/15 px-2 py-1 text-xs text-white">
+            <button onclick="zoomStudioOut()" class="w-5 h-5 flex items-center justify-center font-bold text-slate-300 hover:text-white">−</button>
+            <span id="studioZoomLabel" class="px-2 font-mono text-[11px] text-slate-200">100%</span>
+            <button onclick="zoomStudioIn()" class="w-5 h-5 flex items-center justify-center font-bold text-slate-300 hover:text-white">+</button>
+            <button onclick="resetStudioZoom()" class="ml-1 text-[10px] text-[#9cb4f8] hover:text-white">Reset</button>
           </div>
-          <button onclick="deleteSelected()" title="Delete" class="p-1 hover:bg-red-500/25 text-[#dcdfe8] hover:text-red-300 rounded-lg transition">
+
+          <button onclick="clearMask()" class="px-2.5 py-1 text-xs font-semibold text-rose-400 hover:text-rose-300 active:opacity-60">
+            Clear Mask
+          </button>
+        </div>
+      </div>
+
+      <!-- Center Dual Canvas Viewport (Supports Masking & Fabric CAD) -->
+      <div id="editorCanvasWrapper" class="flex-1 min-h-0 w-full flex items-center justify-center overflow-hidden my-auto relative">
+        <div id="canvasContainer" class="relative rounded-2xl overflow-hidden bg-black flex items-center justify-center border border-white/20 shadow-glass" style="touch-action: none;">
+          
+          <!-- Layer 1 & 2: Base Image & Inpainting Mask Canvas -->
+          <div id="editorViewport" class="relative select-none" style="transform-origin: 0 0;">
+            <canvas id="baseCanvas" class="block"></canvas>
+            <canvas id="maskCanvas" class="absolute top-0 left-0 opacity-60"></canvas>
+          </div>
+
+          <!-- Layer 3: Fabric CAD Vector Canvas (Overlay on CAD mode) -->
+          <div id="fabricOverlayWrapper" class="hidden absolute inset-0 z-20 pointer-events-auto">
+            <canvas id="fabricCadCanvas"></canvas>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Floating CAD Floating Toolbar (When CAD mode is toggled) -->
+      <div id="cadToolbar" class="hidden absolute top-20 left-1/2 -translate-x-1/2 liquid-glass rounded-2xl p-1.5 shadow-2xl flex items-center gap-1.5 z-40">
+        <button onclick="setCadTool('select')" id="cad-tool-select" class="p-2 rounded-xl bg-[#305CDE] text-white" title="Select (V)">
+          <i class="bi bi-cursor-fill"></i>
+        </button>
+        <button onclick="addCadRuler()" class="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10" title="Measurement Ruler (mm)">
+          <i class="bi bi-ruler"></i>
+        </button>
+        <button onclick="addCadMidLine()" class="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10" title="Mid Line (L)">
+          <i class="bi bi-slash-lg"></i>
+        </button>
+        <button onclick="addCadBezierCurve()" class="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10" title="Bézier Curve (P)">
+          <i class="bi bi-bezier2"></i>
+        </button>
+        <button onclick="addCadPencil()" id="cad-tool-pencil" class="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10" title="Pencil (B)">
+          <i class="bi bi-pencil-fill"></i>
+        </button>
+        <button onclick="addCadNoteCard()" class="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10" title="Note Box (N)">
+          <i class="bi bi-sticky"></i>
+        </button>
+        <button onclick="startCadCrop()" class="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10" title="Crop (C)">
+          <i class="bi bi-crop"></i>
+        </button>
+        <button onclick="autoGenerateMaskFromCad()" class="px-2.5 py-1.5 bg-[#305CDE] text-white text-xs font-bold rounded-xl shadow-md" title="Convert CAD lines into surgical mask">
+          ⚡ Auto-Mask CAD
+        </button>
+        <button onclick="toggleCadLayers()" class="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10" title="Layers Stack">
+          <i class="bi bi-layers"></i>
+        </button>
+      </div>
+
+      <!-- Floating CAD Layers Drawer (Draggable Reorder) -->
+      <div id="cadLayersDrawer" class="hidden absolute top-36 right-8 w-64 liquid-glass rounded-2xl p-3 shadow-2xl z-40 flex flex-col gap-2 max-h-80 overflow-hidden">
+        <div class="flex items-center justify-between pb-1.5 border-b border-white/10">
+          <span class="text-xs font-bold text-white uppercase tracking-wider">CAD Layers</span>
+          <span class="text-[9px] text-[#9cb4f8]">(Drag to reorder)</span>
+        </div>
+        <div id="cadLayersList" class="flex-1 overflow-y-auto space-y-1 text-xs"></div>
+      </div>
+
+      <!-- Bottom Controls Card: Brush Size + 6 Clinical Treatments + Submit -->
+      <div class="w-full max-w-2xl mx-auto liquid-glass rounded-2xl p-3 shadow-glass border border-white/15 space-y-2 shrink-0 mt-2">
+        
+        <!-- Brush Size Slider (In Brush Mask Mode) -->
+        <div id="brushControlBar" class="flex items-center space-x-3 bg-white/[0.06] px-3 py-1.5 rounded-xl border border-white/10">
+          <span class="text-[11px] font-semibold text-slate-300 shrink-0">Brush Size</span>
+          <input type="range" id="brushSize" min="4" max="70" value="20" class="flex-1" />
+          <span id="brushSizeLabel" class="text-xs font-mono text-slate-300 font-bold shrink-0">20px</span>
+        </div>
+
+        <!-- 6-Column Treatment Options Grid -->
+        <div class="grid grid-cols-6 gap-1.5">
+          <button data-treatment="veneers" class="treatment-pill flex flex-col items-center justify-center py-1.5 px-1 rounded-xl border border-[#305CDE] bg-[#305CDE] text-white transition active:scale-95 shadow-pill">
+            <span class="text-sm">🪞</span>
+            <span class="text-[10px] font-bold mt-0.5 tracking-tight">Veneer</span>
+          </button>
+
+          <button data-treatment="remove_braces" class="treatment-pill flex flex-col items-center justify-center py-1.5 px-1 rounded-xl border border-white/15 bg-white/[0.06] hover:bg-white/[0.12] text-slate-200 transition active:scale-95">
+            <span class="text-sm">🧼</span>
+            <span class="text-[10px] font-bold mt-0.5 tracking-tight">Debrace</span>
+          </button>
+
+          <button data-treatment="implants" class="treatment-pill flex flex-col items-center justify-center py-1.5 px-1 rounded-xl border border-white/15 bg-white/[0.06] hover:bg-white/[0.12] text-slate-200 transition active:scale-95">
+            <span class="text-sm">🦷</span>
+            <span class="text-[10px] font-bold mt-0.5 tracking-tight">Implant</span>
+          </button>
+
+          <button data-treatment="aligners" class="treatment-pill flex flex-col items-center justify-center py-1.5 px-1 rounded-xl border border-white/15 bg-white/[0.06] hover:bg-white/[0.12] text-slate-200 transition active:scale-95">
+            <span class="text-sm">✨</span>
+            <span class="text-[10px] font-bold mt-0.5 tracking-tight">Align</span>
+          </button>
+
+          <button data-treatment="braces" class="treatment-pill flex flex-col items-center justify-center py-1.5 px-1 rounded-xl border border-white/15 bg-white/[0.06] hover:bg-white/[0.12] text-slate-200 transition active:scale-95">
+            <span class="text-sm">🪥</span>
+            <span class="text-[10px] font-bold mt-0.5 tracking-tight">Braces</span>
+          </button>
+
+          <button data-treatment="whitening" class="treatment-pill flex flex-col items-center justify-center py-1.5 px-1 rounded-xl border border-white/15 bg-white/[0.06] hover:bg-white/[0.12] text-slate-200 transition active:scale-95">
+            <span class="text-sm">💎</span>
+            <span class="text-[10px] font-bold mt-0.5 tracking-tight">White</span>
+          </button>
+        </div>
+
+        <!-- Action Button -->
+        <button id="submitBtn" class="w-full bg-[#305CDE] hover:bg-[#436be8] text-white font-bold py-2.5 px-4 rounded-xl shadow-pill transition active:scale-[0.98] flex items-center justify-center space-x-2 text-xs">
+          <span>Restore Tooth & Smile</span>
+          <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-semibold">✦ Precision Neural Engine</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- VIEW 3: Processing Overlay -->
+    <div id="processingView" class="hidden absolute inset-0 bg-black/85 backdrop-blur-xl z-50 flex items-center justify-center p-4">
+      <div class="liquid-glass rounded-3xl p-6 max-w-xs w-full text-center space-y-3.5 fade-enter border border-white/20">
+        <div class="relative w-12 h-12 mx-auto flex items-center justify-center">
+          <div class="absolute inset-0 rounded-full border-3 border-blue-400/30 border-t-[#305CDE] animate-spin"></div>
+          <i class="bi bi-stars text-yellow-300 text-lg"></i>
+        </div>
+        
+        <div class="space-y-0.5">
+          <h3 id="processingStepText" class="text-xs font-bold text-white">Synthesizing smile anatomy...</h3>
+          <p class="text-[10px] text-slate-400">SmileCreo AI Neural Engine</p>
+        </div>
+
+        <div class="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+          <div id="progressBar" class="bg-[#305CDE] h-full rounded-full transition-all duration-300 w-1/4"></div>
+        </div>
+
+        <span id="timerText" class="text-[10px] font-mono text-slate-400 block">Processing... 0s</span>
+      </div>
+    </div>
+
+    <!-- VIEW 4: Comparison Split Slider -->
+    <div id="comparisonView" class="hidden absolute inset-0 bg-black z-40 flex flex-col justify-between p-3 overflow-hidden">
+      <!-- Top Action Bar -->
+      <div class="flex items-center justify-between w-full max-w-2xl mx-auto z-20 shrink-0 mb-2 px-1">
+        <button id="closeComparisonBtn" class="liquid-glass px-3.5 py-1.5 rounded-full text-xs font-semibold text-white flex items-center gap-1.5 active:scale-95 transition">
+          <i class="bi bi-arrow-left"></i>
+          <span id="backBtnText">New Scan</span>
+        </button>
+
+        <div id="autoSaveBadge" class="liquid-glass px-3 py-1 rounded-full text-[11px] font-medium text-white flex items-center gap-1.5">
+          <span id="autoSaveIcon" class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span>
+          <span id="autoSaveText">Auto-saving...</span>
+        </div>
+
+        <div class="flex items-center gap-1.5">
+          <button id="deleteBtn" class="hidden liquid-glass p-1.5 text-rose-400 rounded-full hover:bg-rose-950/40 transition active:scale-95" title="Delete">
             <i class="bi bi-trash3"></i>
           </button>
-        </div>
 
-        <div id="layers-tree" class="flex-1 overflow-y-auto space-y-1 text-xs pr-0.5">
-          <div class="text-[#dcdfe8]/50 text-center py-12 text-[11px]">No active layers</div>
-        </div>
-      </div>
-
-      <!-- Canvas Theme Card -->
-      <div class="liquid-bento p-3.5 space-y-2.5">
-        <span class="text-[10px] font-bold uppercase tracking-wider text-[#9cb4f8] block">Canvas Background</span>
-        <div class="flex items-center justify-between text-xs">
-          <span class="text-[#dcdfe8] text-[11px]">Tone</span>
-          <div class="flex items-center gap-2">
-            <button onclick="setCanvasBg('#060913')" class="w-4 h-4 rounded-full bg-[#060913] border border-white/40 shadow-sm" title="Obsidian"></button>
-            <button onclick="setCanvasBg('#0a1538')" class="w-4 h-4 rounded-full bg-[#0a1538] border border-white/40 shadow-sm" title="Deep Royal"></button>
-            <button onclick="setCanvasBg('#141c30')" class="w-4 h-4 rounded-full bg-[#141c30] border border-white/40 shadow-sm" title="Navy Slate"></button>
-            <button onclick="setCanvasBg('#f4f5f8')" class="w-4 h-4 rounded-full bg-[#f4f5f8] border border-white/70 shadow-sm" title="Off-White"></button>
-          </div>
-        </div>
-        <div class="flex items-center justify-between text-xs pt-1.5 border-t border-white/[0.08]">
-          <span class="text-[#dcdfe8] text-[11px]">Document</span>
-          <button onclick="confirmClearCanvas()" class="text-[10px] text-red-400 hover:text-white transition">Clear All</button>
-        </div>
-      </div>
-    </aside>
-
-    <!-- CENTER CANVAS VIEWPORT -->
-    <main id="canvas-viewport" class="flex-1 studio-canvas-bg relative overflow-hidden flex items-center justify-center rounded-2xl border border-white/[0.1] shadow-2xl">
-      <canvas id="studio-canvas"></canvas>
-
-      <!-- Point Edit Mode Banner -->
-      <div id="point-edit-banner" class="hidden liquid-bento absolute top-4 left-1/2 -translate-x-1/2 px-5 py-2.5 shadow-2xl flex items-center gap-3.5 z-30 text-xs text-white">
-        <span class="w-2 h-2 rounded-full bg-[#305CDE] animate-ping"></span>
-        <span>Point Mode: Drag points, or click <b class="text-[#9cb4f8]">"Pin Point"</b> to lock anchor!</span>
-        <button onclick="PointEditor.togglePinActivePoint()" id="btn-pin-point" class="px-3 py-1 bg-[#305CDE]/30 hover:bg-[#305CDE]/50 text-white border border-white/30 rounded-xl font-semibold text-[11px] transition">
-          📌 Pin Point (Lock Anchor)
-        </button>
-        <button onclick="PointEditor.stopEditing()" class="px-3.5 py-1 bg-[#305CDE] hover:bg-[#436be8] text-white font-semibold rounded-xl text-[11px] transition">Done</button>
-      </div>
-
-      <!-- Mesh Warp Mode Banner -->
-      <div id="mesh-warp-banner" class="hidden liquid-bento absolute top-4 left-1/2 -translate-x-1/2 px-5 py-2.5 shadow-2xl flex items-center gap-3.5 z-30 text-xs text-white">
-        <span class="text-[#9cb4f8] font-semibold">Mesh Warp: Drag corner pins to stretch and perspective-warp texture!</span>
-        <button onclick="WarpManager.commitWarp()" class="px-3.5 py-1 bg-[#305CDE] hover:bg-[#436be8] text-white font-semibold rounded-xl text-[11px] transition">Commit Warp</button>
-        <button onclick="WarpManager.cancelWarp()" class="px-3 py-1 bg-white/[0.12] hover:bg-white/[0.2] text-[#dcdfe8] rounded-xl text-[11px] transition">Cancel</button>
-      </div>
-
-      <!-- Figma Style Crop Mode Banner -->
-      <div id="crop-active-banner" class="hidden liquid-bento absolute top-4 left-1/2 -translate-x-1/2 px-5 py-2.5 shadow-2xl flex items-center gap-3.5 z-30 text-xs text-white">
-        <span class="text-white font-medium">Crop Mode: Resize crop box or drag object. Press Enter to crop!</span>
-        <button onclick="FigmaCrop.applyCrop()" class="px-3.5 py-1 bg-[#305CDE] hover:bg-[#436be8] text-white font-semibold rounded-xl text-[11px] transition">✓ Done Crop (Enter)</button>
-        <button onclick="FigmaCrop.cancelCrop()" class="px-3 py-1 bg-white/[0.12] hover:bg-white/[0.2] text-[#dcdfe8] rounded-xl text-[11px] transition">✕ Cancel (Esc)</button>
-      </div>
-
-      <!-- Clean Bottom Hint Bar -->
-      <div class="liquid-bento absolute bottom-4 left-6 px-4 py-2 rounded-xl text-[11px] text-[#dcdfe8] flex items-center gap-4 pointer-events-none">
-        <span><kbd class="text-white font-mono font-semibold">Arrow Keys</kbd> Move</span>
-        <span><kbd class="text-white font-mono font-semibold">Space+Drag</kbd> Pan</span>
-        <span><kbd class="text-white font-mono font-semibold">Shift+Wheel</kbd> Scroll</span>
-        <span><kbd class="text-white font-mono font-semibold">Ctrl+G</kbd> Group</span>
-      </div>
-    </main>
-
-    <!-- RIGHT BENTO INSPECTOR -->
-    <aside class="w-72 flex flex-col gap-3.5 z-30 select-none overflow-y-auto">
-      <div id="inspector-empty" class="liquid-bento p-6 text-center text-[#dcdfe8]/60 text-xs font-medium">
-        Select an element on canvas to inspect & edit properties
-      </div>
-
-      <div id="inspector-content" class="hidden space-y-3.5">
-        <!-- Quick Actions Card -->
-        <div class="liquid-bento p-3.5 flex items-center justify-between">
-          <span id="label-selection-type" class="text-[11px] font-bold uppercase tracking-wider text-[#9cb4f8]">Object</span>
-          <div class="flex items-center gap-1.5">
-            <button onclick="duplicateSelected()" title="Duplicate (Ctrl+D)" class="p-1.5 hover:bg-white/[0.1] text-[#dcdfe8] rounded-lg transition">
-              <i class="bi bi-copy text-xs"></i>
-            </button>
-            <button onclick="mirrorSelected()" title="Mirror Horizontal" class="p-1.5 hover:bg-white/[0.1] text-[#dcdfe8] rounded-lg transition">
-              <i class="bi bi-symmetry-vertical text-xs"></i>
-            </button>
-            <button onclick="deleteSelected()" title="Delete" class="p-1.5 hover:bg-red-500/25 text-red-300 rounded-lg transition">
-              <i class="bi bi-trash3 text-xs"></i>
-            </button>
-          </div>
-        </div>
-
-        <!-- Note Card Editor -->
-        <div id="bento-note-section" class="hidden liquid-bento p-3.5 space-y-2.5 border-[#305CDE]/50">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-[#9cb4f8] block">Note Card Content</span>
-          <div class="space-y-1.5">
-            <label class="text-[10px] text-[#dcdfe8] block">Title</label>
-            <input type="text" id="inp-note-title" class="w-full bg-white/[0.08] border border-white/[0.14] rounded-xl px-2.5 py-1 text-xs text-white outline-none focus:border-[#305CDE]" oninput="updateNoteText('title', this.value)">
-          </div>
-          <div class="space-y-1.5">
-            <label class="text-[10px] text-[#dcdfe8] block">Body Text</label>
-            <textarea id="inp-note-body" rows="3" class="w-full bg-white/[0.08] border border-white/[0.14] rounded-xl px-2.5 py-1 text-xs text-white outline-none focus:border-[#305CDE] resize-none" oninput="updateNoteText('body', this.value)"></textarea>
-          </div>
-          <div class="flex items-center justify-between text-xs pt-1 border-t border-white/[0.08]">
-            <span class="text-[#dcdfe8] text-[11px]">Corner Radius</span>
-            <div class="flex items-center bg-white/[0.08] rounded-lg border border-white/[0.14] p-0.5">
-              <button onclick="stepVal('inp-note-radius', -2)" class="px-1.5 text-gray-400 hover:text-white"><i class="bi bi-dash-lg"></i></button>
-              <input type="number" id="inp-note-radius" min="0" max="60" value="16" class="w-9 bg-transparent text-center font-mono text-xs text-white outline-none" oninput="applyNoteRadius(this.value)">
-              <button onclick="stepVal('inp-note-radius', 2)" class="px-1.5 text-gray-400 hover:text-white"><i class="bi bi-plus-lg"></i></button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Transform Matrix with Custom UI Steppers -->
-        <div class="liquid-bento p-3.5 space-y-2.5">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-[#9cb4f8] block">Transform Matrix</span>
-          <div class="grid grid-cols-2 gap-2 text-xs">
-            <!-- X -->
-            <div class="flex items-center justify-between bg-white/[0.08] rounded-xl border border-white/[0.14] px-1.5 py-1">
-              <span class="text-[#dcdfe8] text-[11px] font-semibold pl-1">X</span>
-              <div class="flex items-center">
-                <button onclick="stepVal('inp-pos-x', -1)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-dash-lg text-[10px]"></i></button>
-                <input type="number" id="inp-pos-x" class="w-12 bg-transparent text-center font-mono text-white outline-none" oninput="applyTransform('left', this.value)">
-                <button onclick="stepVal('inp-pos-x', 1)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-plus-lg text-[10px]"></i></button>
-              </div>
-            </div>
-            <!-- Y -->
-            <div class="flex items-center justify-between bg-white/[0.08] rounded-xl border border-white/[0.14] px-1.5 py-1">
-              <span class="text-[#dcdfe8] text-[11px] font-semibold pl-1">Y</span>
-              <div class="flex items-center">
-                <button onclick="stepVal('inp-pos-y', -1)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-dash-lg text-[10px]"></i></button>
-                <input type="number" id="inp-pos-y" class="w-12 bg-transparent text-center font-mono text-white outline-none" oninput="applyTransform('top', this.value)">
-                <button onclick="stepVal('inp-pos-y', 1)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-plus-lg text-[10px]"></i></button>
-              </div>
-            </div>
-            <!-- W -->
-            <div class="flex items-center justify-between bg-white/[0.08] rounded-xl border border-white/[0.14] px-1.5 py-1">
-              <span class="text-[#dcdfe8] text-[11px] font-semibold pl-1">W</span>
-              <div class="flex items-center">
-                <button onclick="stepVal('inp-dim-w', -5)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-dash-lg text-[10px]"></i></button>
-                <input type="number" id="inp-dim-w" class="w-12 bg-transparent text-center font-mono text-white outline-none" oninput="applyDimension('width', this.value)">
-                <button onclick="stepVal('inp-dim-w', 5)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-plus-lg text-[10px]"></i></button>
-              </div>
-            </div>
-            <!-- H -->
-            <div class="flex items-center justify-between bg-white/[0.08] rounded-xl border border-white/[0.14] px-1.5 py-1">
-              <span class="text-[#dcdfe8] text-[11px] font-semibold pl-1">H</span>
-              <div class="flex items-center">
-                <button onclick="stepVal('inp-dim-h', -5)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-dash-lg text-[10px]"></i></button>
-                <input type="number" id="inp-dim-h" class="w-12 bg-transparent text-center font-mono text-white outline-none" oninput="applyDimension('height', this.value)">
-                <button onclick="stepVal('inp-dim-h', 5)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-plus-lg text-[10px]"></i></button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Rotation -->
-          <div class="flex items-center justify-between gap-2 pt-1">
-            <div class="flex-1 flex items-center justify-between bg-white/[0.08] rounded-xl border border-white/[0.14] px-2 py-1 text-xs">
-              <span class="text-[#dcdfe8] font-semibold">∡ Angle</span>
-              <div class="flex items-center">
-                <button onclick="stepVal('inp-rotation', -5)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-dash-lg text-[10px]"></i></button>
-                <input type="number" id="inp-rotation" class="w-10 bg-transparent text-center font-mono text-white outline-none" oninput="applyTransform('angle', this.value)">
-                <button onclick="stepVal('inp-rotation', 5)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-plus-lg text-[10px]"></i></button>
-              </div>
-            </div>
-            <button onclick="rotateBy(90)" class="px-2.5 py-1.5 bg-white/[0.08] hover:bg-white/[0.16] border border-white/[0.16] rounded-xl text-xs font-mono text-white transition">⟳ 90°</button>
-          </div>
-        </div>
-
-        <!-- Mid Line & Stroke Precision -->
-        <div class="liquid-bento p-3.5 space-y-2.5">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-[#9cb4f8] block">Mid Line & Stroke</span>
-          <div class="flex items-center justify-between">
-            <div class="flex gap-1.5" id="stroke-preset-container">
-              <button id="btn-stroke-0-5" onclick="applyStrokeWidth(0.5)" class="px-2 py-0.5 bg-white/[0.08] hover:bg-white/[0.16] border border-white/[0.14] rounded-lg text-[10px] text-[#dcdfe8] transition">0.5px</button>
-              <button id="btn-stroke-1" onclick="applyStrokeWidth(1)" class="px-2 py-0.5 bg-[#305CDE] text-white border border-white/40 rounded-lg text-[10px] font-bold shadow-sm transition">1px</button>
-              <button id="btn-stroke-1-5" onclick="applyStrokeWidth(1.5)" class="px-2 py-0.5 bg-white/[0.08] hover:bg-white/[0.16] border border-white/[0.14] rounded-lg text-[10px] text-[#dcdfe8] transition">1.5px</button>
-              <button id="btn-stroke-2" onclick="applyStrokeWidth(2)" class="px-2 py-0.5 bg-white/[0.08] hover:bg-white/[0.16] border border-white/[0.14] rounded-lg text-[10px] text-[#dcdfe8] transition">2px</button>
-            </div>
-            <div class="flex items-center bg-white/[0.08] rounded-lg border border-white/[0.14] p-0.5">
-              <button onclick="stepVal('inp-stroke-width', -0.25)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-dash-lg text-[9px]"></i></button>
-              <input type="number" id="inp-stroke-width" min="0" max="40" step="0.25" value="1" class="w-8 bg-transparent text-center font-mono text-xs text-white outline-none" oninput="applyStrokeWidth(this.value)">
-              <button onclick="stepVal('inp-stroke-width', 0.25)" class="px-1 text-gray-400 hover:text-white"><i class="bi bi-plus-lg text-[9px]"></i></button>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-2 gap-2 text-xs">
-            <div class="flex items-center bg-white/[0.08] p-1.5 rounded-xl border border-white/[0.14] gap-1.5 shadow-inner">
-              <input type="color" id="inp-stroke-picker" value="#305CDE" class="w-5 h-5 bg-transparent cursor-pointer rounded" onchange="applyColor('stroke', this.value)">
-              <input type="text" id="inp-stroke-hex" value="#305CDE" class="w-full bg-transparent font-mono text-[11px] uppercase outline-none text-[#dcdfe8]" onchange="applyColor('stroke', this.value)">
-            </div>
-            <div class="flex items-center bg-white/[0.08] p-1.5 rounded-xl border border-white/[0.14] gap-1.5 shadow-inner">
-              <input type="color" id="inp-fill-picker" class="w-5 h-5 bg-transparent cursor-pointer rounded" onchange="applyColor('fill', this.value)">
-              <span class="text-[#dcdfe8] text-[11px]">Fill</span>
-              <button onclick="applyColor('fill', '')" class="ml-auto text-[10px] text-[#dcdfe8] hover:text-white" title="No Fill"><i class="bi bi-slash-circle"></i></button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Opacity & Transparency -->
-        <div class="liquid-bento p-3.5 space-y-2">
-          <div class="flex justify-between items-center text-xs">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-[#9cb4f8]">Opacity</span>
-            <span id="txt-opacity-val" class="font-mono text-[#9cb4f8] text-xs font-bold">100%</span>
-          </div>
-          <input type="range" id="inp-opacity" min="0" max="100" value="100" class="w-full h-1 bg-white/20 rounded cursor-pointer" oninput="applyOpacity(this.value)">
-        </div>
-
-        <!-- Crop & Warp Studio (Images) -->
-        <div id="bento-image-section" class="hidden liquid-bento p-3.5 space-y-2 border-[#305CDE]/50">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-[#9cb4f8] block">Image Actions</span>
-          <div class="grid grid-cols-2 gap-2">
-            <button onclick="FigmaCrop.startCrop()" class="py-1.5 bg-[#305CDE] hover:bg-[#436be8] text-white font-semibold rounded-xl text-xs transition border border-white/20 shadow-md">
-              Crop (C)
-            </button>
-            <button onclick="WarpManager.startWarp()" class="py-1.5 bg-white/[0.12] hover:bg-white/[0.2] text-white font-semibold rounded-xl text-xs transition border border-white/20">
-              Mesh Warp
-            </button>
-          </div>
-        </div>
-
-        <!-- Point Pinning & Curve Studio -->
-        <div id="bento-curve-section" class="hidden liquid-bento p-3.5 space-y-2 border-[#305CDE]/50">
-          <div class="flex items-center justify-between">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-[#9cb4f8]">Point Anchors</span>
-            <span class="text-[9px] bg-[#305CDE]/30 text-white px-2 py-0.5 rounded-full font-mono border border-white/20">Bézier</span>
-          </div>
-          <p class="text-[10px] text-[#dcdfe8] leading-tight">Pinned points remain locked to canvas space when deforming.</p>
-          <button onclick="PointEditor.toggleEdit()" id="btn-inspector-edit-points" class="w-full py-1.5 bg-[#305CDE] hover:bg-[#436be8] text-white font-semibold rounded-xl text-xs transition border border-white/20 shadow-md">
-            Enter Edit Points Mode
+          <button id="downloadBtn" class="bg-[#305CDE] hover:bg-[#436be8] text-white px-4 py-1.5 rounded-full text-xs font-semibold shadow-pill transition active:scale-95 flex items-center gap-1.5">
+            <i class="bi bi-download"></i>
+            <span>Export WebP</span>
           </button>
         </div>
       </div>
-    </aside>
-  </div>
 
-  <!-- CUSTOM RIGHT-CLICK CONTEXT MENU -->
-  <div id="customContextMenu" class="hidden fixed z-50 liquid-top-bar p-1.5 w-52 shadow-2xl flex flex-col gap-0.5 text-xs">
-    <button onclick="executeContextAction('ungroup')" id="ctx-ungroup" class="px-3 py-1.5 rounded-lg hover:bg-[#305CDE] text-left flex items-center justify-between transition">
-      <span>Ungroup</span>
-      <span class="text-[10px] text-gray-400">Ctrl+Shift+G</span>
-    </button>
-    <button onclick="executeContextAction('group')" id="ctx-group" class="px-3 py-1.5 rounded-lg hover:bg-[#305CDE] text-left flex items-center justify-between transition">
-      <span>Group</span>
-      <span class="text-[10px] text-gray-400">Ctrl+G</span>
-    </button>
-    <div class="h-[1px] bg-white/10 my-0.5"></div>
-    <button onclick="executeContextAction('bringFront')" class="px-3 py-1.5 rounded-lg hover:bg-white/[0.1] text-left transition">Bring to Front</button>
-    <button onclick="executeContextAction('sendBack')" class="px-3 py-1.5 rounded-lg hover:bg-white/[0.1] text-left transition">Send to Back</button>
-    <button onclick="executeContextAction('duplicate')" class="px-3 py-1.5 rounded-lg hover:bg-white/[0.1] text-left flex items-center justify-between transition">
-      <span>Duplicate</span>
-      <span class="text-[10px] text-gray-400">Ctrl+D</span>
-    </button>
-    <div class="h-[1px] bg-white/10 my-0.5"></div>
-    <button onclick="executeContextAction('delete')" class="px-3 py-1.5 rounded-lg hover:bg-red-500/30 text-red-300 text-left flex items-center justify-between transition">
-      <span>Delete</span>
-      <span class="text-[10px] text-gray-400">Del</span>
-    </button>
-  </div>
+      <!-- Comparison Viewport -->
+      <div id="compareViewportWrapper" class="flex-1 min-h-0 w-full flex items-center justify-center overflow-hidden my-auto relative">
+        <div id="compareContainer" class="relative rounded-2xl select-none bg-black overflow-hidden shadow-2xl border border-white/15" style="touch-action: none;">
+          
+          <div id="compareViewport" class="relative select-none" style="transform-origin: 0 0;">
+            <img id="imgOriginal" class="block rounded-2xl pointer-events-none" draggable="false" alt="Original" />
+            
+            <div class="absolute top-2.5 right-2.5 z-10 px-2 py-0.5 bg-black/70 backdrop-blur-md rounded-full text-[9px] font-bold text-white border border-white/20 uppercase">
+              Original
+            </div>
 
-  <!-- INLINE NOTE EDITOR MODAL -->
-  <div id="note-inline-editor" class="hidden fixed z-50 liquid-top-bar p-4 w-80 shadow-2xl flex flex-col gap-2.5">
-    <div class="flex items-center justify-between border-b border-white/[0.12] pb-1.5">
-      <span class="text-xs font-bold text-white">Edit Note</span>
-      <button onclick="closeNoteInlineEditor()" class="text-[#dcdfe8] hover:text-white text-xs">✕</button>
-    </div>
-    <input type="text" id="inline-note-title" class="bg-white/[0.08] border border-white/[0.15] rounded-xl px-2.5 py-1 text-xs text-white outline-none focus:border-[#305CDE]" placeholder="Title">
-    <textarea id="inline-note-body" rows="3" class="bg-white/[0.08] border border-white/[0.15] rounded-xl px-2.5 py-1 text-xs text-white outline-none focus:border-[#305CDE] resize-none" placeholder="Body text"></textarea>
-    <button onclick="saveNoteInlineEditor()" class="py-1 bg-[#305CDE] hover:bg-[#436be8] text-white font-semibold rounded-xl text-xs transition shadow-md">✓ Save Note</button>
-  </div>
-
-  <!-- SMILECREO AI MODAL (Veneers Only & Two-Step Workflow) -->
-  <div id="clinicalInpaintModal" class="hidden fixed inset-0 z-50 bg-[#04060c]/85 backdrop-blur-2xl flex items-center justify-center p-4">
-    <div class="liquid-bento bg-[#0a1538]/95 w-full max-w-lg p-5 space-y-4 shadow-2xl border border-white/20 flex flex-col max-h-[92vh]">
-      
-      <!-- Modal Header -->
-      <div class="flex items-center justify-between pb-2 border-b border-white/[0.12] shrink-0">
-        <div class="flex items-center gap-2">
-          <i class="bi bi-stars text-yellow-300 text-base"></i>
-          <h3 class="text-xs font-bold uppercase tracking-wider text-white">SmileCreo AI — Precision Veneers Engine</h3>
-        </div>
-        <button onclick="closeAiInpaintStudio()" class="text-[#dcdfe8] hover:text-white font-bold text-sm">✕</button>
-      </div>
-
-      <div class="flex-1 overflow-y-auto space-y-3.5 text-xs pr-1">
-        <!-- Step 1 Instruction -->
-        <div class="space-y-1.5">
-          <div class="flex items-center justify-between">
-            <span class="text-[11px] font-semibold text-[#9cb4f8]">Step 1: Dental Mask Conditioning</span>
-            <button onclick="autoGenerateMaskFromStencils()" class="text-[10px] text-white bg-[#305CDE] hover:bg-[#436be8] px-2.5 py-1 rounded-lg border border-white/20 transition active:scale-95 shadow-md">
-              ⚡ 1. Auto-Generate Mask from Stencil
-            </button>
-          </div>
-          <p class="text-[10px] text-[#dcdfe8]/80 leading-normal">
-            Align your dental stencil/outlines over the teeth on canvas, then click the button above to generate a surgical mask boundary.
-          </p>
-        </div>
-
-        <!-- Inpaint Canvas Preview -->
-        <div class="relative w-full aspect-video bg-black rounded-xl overflow-hidden border border-white/15 flex items-center justify-center">
-          <canvas id="inpaintBaseCanvas" class="block max-h-full max-w-full"></canvas>
-          <canvas id="inpaintMaskCanvas" class="absolute inset-0 opacity-60 cursor-crosshair"></canvas>
-          <div class="absolute bottom-2 right-2 flex items-center gap-1.5 bg-black/70 backdrop-blur px-2 py-1 rounded-lg text-[10px]">
-            <span>Brush:</span>
-            <input type="range" id="inpaintBrushSize" min="4" max="50" value="16" class="w-16">
-            <button onclick="clearInpaintMask()" class="text-red-400 hover:text-white ml-1">Clear</button>
-          </div>
-        </div>
-
-        <!-- Treatment: Exclusively Veneers -->
-        <div class="space-y-1">
-          <span class="text-[11px] font-semibold text-[#9cb4f8] block">Clinical Treatment Blueprint</span>
-          <div class="p-2.5 rounded-xl border border-[#305CDE] bg-[#305CDE]/20 text-white flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <span class="text-base">🪞</span>
-              <div>
-                <span class="text-xs font-bold block">Cosmetic Porcelain Veneers (DSD)</span>
-                <span class="text-[10px] text-gray-300">Medically accurate anatomical tooth reconstruction</span>
+            <div id="imgOverlayWrapper" class="absolute top-0 left-0 h-full overflow-hidden rounded-2xl z-10" style="width: 50%;">
+              <img id="imgGenerated" class="block rounded-2xl pointer-events-none max-w-none" draggable="false" alt="Inpainted" />
+              <div class="absolute top-2.5 left-2.5 z-10 px-2 py-0.5 bg-[#305CDE]/90 backdrop-blur-md rounded-full text-[9px] font-bold text-white border border-blue-300/40 uppercase">
+                SmileCreo Restored
               </div>
             </div>
-            <span class="text-[10px] bg-[#305CDE] px-2 py-0.5 rounded-full font-semibold">Active</span>
-          </div>
-        </div>
-
-        <div class="p-2.5 bg-white/[0.05] rounded-xl border border-white/10 text-[10px] space-y-1 text-[#dcdfe8]">
-          <div class="font-semibold text-white flex items-center gap-1">
-            <i class="bi bi-shield-check text-emerald-400"></i> Clinical Parameters:
-          </div>
-          <p>
-            Maintains 78-80% central incisor width-to-height ratio, incisal halo translucency, mamelon anatomy, and 100% facial/lip fidelity.
-          </p>
-        </div>
-      </div>
-
-      <!-- Footer Buttons with Two-Step Lock -->
-      <div class="flex items-center justify-between pt-2 border-t border-white/[0.12] shrink-0">
-        <button onclick="closeAiInpaintStudio()" class="px-4 py-2 bg-white/[0.08] hover:bg-white/[0.14] text-[#dcdfe8] rounded-xl text-xs transition">
-          Cancel
-        </button>
-        <button onclick="executeClinicalInpaint()" id="btnRunInpaint" disabled class="px-5 py-2.5 bg-gray-700/50 text-gray-400 font-bold rounded-xl text-xs cursor-not-allowed border border-white/10 opacity-60 flex items-center gap-1.5 transition">
-          <span>1. Generate Mask First</span>
-        </button>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- PROCESSING VIEW -->
-  <div id="processingView" class="hidden fixed inset-0 bg-black/85 backdrop-blur-xl z-50 flex items-center justify-center p-4">
-    <div class="liquid-bento p-6 max-w-xs w-full text-center space-y-3.5 shadow-2xl border border-white/20">
-      <div class="relative w-12 h-12 mx-auto flex items-center justify-center">
-        <div class="absolute inset-0 rounded-full border-3 border-blue-400/30 border-t-[#305CDE] animate-spin"></div>
-        <i class="bi bi-stars text-yellow-300 text-lg"></i>
-      </div>
-      <div class="space-y-0.5">
-        <h3 id="processingStepText" class="text-xs font-bold text-white">Synthesizing veneer anatomy...</h3>
-        <p class="text-[10px] text-slate-400">SmileCreo AI Neural Engine</p>
-      </div>
-      <div class="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
-        <div id="progressBar" class="bg-[#305CDE] h-full rounded-full transition-all duration-300 w-1/4"></div>
-      </div>
-      <span id="timerText" class="text-[10px] font-mono text-slate-400 block">Processing... 0s</span>
-    </div>
-  </div>
-
-  <!-- BEFORE / AFTER COMPARISON SLIDER -->
-  <div id="comparisonView" class="hidden fixed inset-0 bg-black/95 z-50 flex flex-col justify-between p-3 overflow-hidden">
-    <div class="flex items-center justify-between w-full max-w-lg mx-auto z-20 shrink-0 mb-1 px-1">
-      <button onclick="closeComparisonView()" class="liquid-bento px-3 py-1.5 rounded-full text-[11px] font-semibold text-white flex items-center gap-1 active:scale-95 transition">
-        <span>← Studio</span>
-      </button>
-
-      <div id="autoSaveBadge" class="liquid-bento px-2.5 py-1 rounded-full text-[10px] font-medium text-white/90 flex items-center gap-1.5">
-        <span id="autoSaveIcon" class="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse"></span>
-        <span id="autoSaveText">Auto-saving...</span>
-      </div>
-
-      <button id="compDownloadBtn" class="bg-[#305CDE] hover:bg-[#436be8] text-white px-3 py-1.5 rounded-full text-[11px] font-semibold shadow-md active:scale-95 transition">
-        Export
-      </button>
-    </div>
-
-    <div id="compareViewportWrapper" class="flex-1 min-h-0 w-full flex items-center justify-center overflow-hidden my-auto relative">
-      <div id="compareContainer" class="relative rounded-2xl select-none bg-black overflow-hidden shadow-2xl border border-white/15" style="touch-action: none;">
-        <div id="compareViewport" class="relative select-none" style="transform-origin: 0 0;">
-          <img id="imgOriginal" class="block rounded-2xl pointer-events-none" draggable="false" alt="Original" />
-          <div class="absolute top-2.5 right-2.5 z-10 px-2 py-0.5 bg-black/60 backdrop-blur-md rounded-full text-[9px] font-bold text-white border border-white/20 uppercase">
-            Original
           </div>
 
-          <div id="imgOverlayWrapper" class="absolute top-0 left-0 h-full overflow-hidden rounded-2xl z-10" style="width: 50%;">
-            <img id="imgGenerated" class="block rounded-2xl pointer-events-none max-w-none" draggable="false" alt="Inpainted" />
-            <div class="absolute top-2.5 left-2.5 z-10 px-2 py-0.5 bg-[#305CDE]/85 backdrop-blur-md rounded-full text-[9px] font-bold text-white border border-blue-300/40 uppercase">
-              SmileCreo AI
+          <div id="sliderHandle" class="absolute top-0 bottom-0 flex flex-col items-center justify-center cursor-ew-resize z-20" style="left: 50%; transform: translateX(-50%); width: 36px;">
+            <div class="absolute top-0 bottom-0 w-0.5 bg-white shadow-xl"></div>
+            <div class="relative w-8 h-8 bg-white rounded-full shadow-2xl flex items-center justify-center border border-[#305CDE] text-[#305CDE] active:scale-90 transition">
+              <i class="bi bi-arrows-expand-vertical transform rotate-90 text-sm"></i>
             </div>
           </div>
-        </div>
 
-        <div id="sliderHandle" class="absolute top-0 bottom-0 flex flex-col items-center justify-center cursor-ew-resize z-20" style="left: 50%; transform: translateX(-50%); width: 36px;">
-          <div class="absolute top-0 bottom-0 w-0.5 bg-white shadow-xl"></div>
-          <div class="relative w-7 h-7 bg-white rounded-full shadow-2xl flex items-center justify-center border border-[#305CDE] text-[#305CDE] active:scale-90 transition">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg>
-          </div>
+        </div>
+      </div>
+
+      <div class="text-center text-[11px] font-medium text-white/50 pb-1 shrink-0">
+        Slide horizontally to inspect veneer & orthodontic restoration
+      </div>
+    </div>
+
+    <!-- VIEW 5: Records Gallery -->
+    <div id="libraryView" class="hidden absolute inset-0 bg-[#060913]/95 z-50 flex flex-col p-4">
+      <div class="flex items-center justify-between max-w-xl mx-auto w-full mb-3 shrink-0">
+        <button id="closeLibraryBtn" class="liquid-glass px-3.5 py-1.5 rounded-full text-xs font-semibold text-slate-200 shadow-glass transition active:scale-95 flex items-center gap-1.5">
+          <i class="bi bi-chevron-left"></i>
+          <span>Studio</span>
+        </button>
+        <div class="text-center">
+          <span class="text-xs font-bold text-white uppercase tracking-wider block">Patient Records Archive</span>
+          <span class="text-[9px] text-[#9cb4f8]">Supabase Cloud Sync</span>
+        </div>
+        <div class="w-12"></div>
+      </div>
+
+      <div class="flex-1 overflow-y-auto max-w-xl mx-auto w-full pr-1">
+        <div id="galleryGrid" class="grid grid-cols-2 md:grid-cols-3 gap-3"></div>
+        <div id="emptyGalleryNotice" class="hidden text-center py-20 space-y-2 text-white">
+          <i class="bi bi-folder2 text-3xl text-white/30"></i>
+          <h3 class="text-xs font-bold">No records saved</h3>
+          <p class="text-[11px] text-white/50">Capture or upload a photo to generate records.</p>
         </div>
       </div>
     </div>
 
-    <div class="text-center text-[10px] font-medium text-white/50 pb-0.5 shrink-0">
-      Slide horizontally to inspect veneer restoration
-    </div>
-  </div>
+  </main>
 
-  <!-- RECORDS GALLERY -->
-  <div id="libraryView" class="hidden fixed inset-0 bg-[#060913]/95 z-50 flex flex-col p-4">
-    <div class="flex items-center justify-between max-w-md mx-auto w-full mb-3 shrink-0">
-      <button onclick="closeGallery()" class="liquid-bento px-3 py-1.5 rounded-full text-[11px] font-semibold text-white flex items-center gap-1 active:scale-95 transition">
-        <span>← Studio</span>
-      </button>
-      <div class="text-center">
-        <span class="text-xs font-bold text-white uppercase tracking-wider block">Patient Records</span>
-        <span class="text-[9px] text-[#9cb4f8]">Cloud Archive</span>
-      </div>
-      <div class="w-12"></div>
-    </div>
-
-    <div class="flex-1 overflow-y-auto max-w-md mx-auto w-full pr-0.5">
-      <div id="galleryGrid" class="grid grid-cols-2 gap-2.5"></div>
-      <div id="emptyGalleryNotice" class="hidden text-center py-20 space-y-2 text-white">
-        <h3 class="text-xs font-bold">No saved simulations yet</h3>
-        <p class="text-[11px] text-white/50">Run an inpainting simulation to record results.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- CUSTOM CONFIRMATION DIALOG -->
-  <div id="customConfirmModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="liquid-bento bg-[#0a1538]/95 w-full max-w-xs p-5 space-y-3 shadow-2xl border border-white/20 text-center">
-      <h4 id="confirmModalTitle" class="text-xs font-bold text-white uppercase tracking-wider">Confirm Action</h4>
-      <p id="confirmModalMsg" class="text-xs text-gray-300">Are you sure?</p>
-      <div class="flex justify-center gap-2 pt-2 border-t border-white/10">
-        <button id="confirmCancelBtn" class="px-3 py-1.5 bg-white/[0.08] hover:bg-white/[0.14] text-gray-300 rounded-xl text-xs transition">Cancel</button>
-        <button id="confirmOkBtn" class="px-4 py-1.5 bg-[#305CDE] hover:bg-[#436be8] text-white font-bold rounded-xl text-xs transition shadow-md">Confirm</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- EXPORT MODAL -->
-  <div id="export-modal" class="hidden fixed inset-0 z-50 bg-[#04060c]/80 backdrop-blur-xl flex items-center justify-center p-4">
-    <div class="liquid-bento bg-[#0a1538]/95 w-full max-w-sm p-5 space-y-3.5 shadow-2xl border border-white/20">
-      <div class="flex items-center justify-between pb-2 border-b border-white/[0.12]">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-white">Export Design</h3>
-        <button onclick="closeExportModal()" class="text-[#dcdfe8] hover:text-white font-bold text-sm">✕</button>
-      </div>
-
-      <div class="space-y-2.5 text-xs">
-        <div>
-          <label class="block text-[#dcdfe8] mb-1.5 text-[11px] font-medium">Export Scope</label>
-          <select id="export-target" class="w-full bg-white/[0.08] border border-white/[0.14] rounded-xl p-2 text-white outline-none text-[11px]">
-            <option value="selection">Selected Group / Object Only</option>
-            <option value="canvas">Entire Canvas</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-[#dcdfe8] mb-1.5 text-[11px] font-medium">Format</label>
-          <div class="grid grid-cols-3 gap-2">
-            <button onclick="setExportFormat('png')" id="fmt-png" class="p-2 border border-white/40 bg-[#305CDE]/50 text-white rounded-xl font-semibold text-center shadow-md">PNG</button>
-            <button onclick="setExportFormat('jpeg')" id="fmt-jpeg" class="p-2 border border-white/[0.14] bg-white/[0.08] text-[#dcdfe8] rounded-xl font-medium text-center">JPEG</button>
-            <button onclick="setExportFormat('svg')" id="fmt-svg" class="p-2 border border-white/[0.14] bg-white/[0.08] text-[#dcdfe8] rounded-xl font-medium text-center">SVG</button>
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-[#dcdfe8] mb-1.5 text-[11px] font-medium">Resolution</label>
-          <select id="export-scale" class="w-full bg-white/[0.08] border border-white/[0.14] rounded-xl p-2 text-white outline-none font-mono text-[11px]">
-            <option value="1">1x Standard</option>
-            <option value="2" selected>2x High-Definition (Retina)</option>
-            <option value="3">3x Ultra High-Res</option>
-          </select>
-        </div>
-
-        <div class="flex items-center gap-2 pt-1.5">
-          <input type="checkbox" id="export-transparency" class="rounded border-white/30 text-[#305CDE]" checked>
-          <label for="export-transparency" class="text-white text-[11px]">Transparent Background (PNG)</label>
-        </div>
-      </div>
-
-      <div class="flex justify-end gap-2.5 pt-2.5 border-t border-white/[0.12]">
-        <button onclick="closeExportModal()" class="px-3.5 py-1.5 bg-white/[0.08] hover:bg-white/[0.16] text-[#dcdfe8] rounded-xl text-xs transition">Cancel</button>
-        <button onclick="executeExport()" class="px-4 py-1.5 bg-[#305CDE] hover:bg-[#436be8] text-white font-semibold rounded-xl text-xs shadow-lg shadow-[#305CDE]/50 border border-white/20 transition">Download File</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- FLOATING LIQUID TOAST NOTIFICATION CONTAINER -->
-  <div id="toastContainer" class="fixed bottom-14 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+  <!-- CUSTOM TOAST CONTAINER -->
+  <div id="toastContainer" class="fixed bottom-12 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
   <!-- APPLICATION ENGINE -->
   <script>
@@ -745,1778 +477,554 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxZnp2ZWRycHppaGR0bXdjZHlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2MjE2MjUsImV4cCI6MjEwMjE5NzYyNX0.ZXf3hYfr-qWiUxVhbQA9_VymeoTEoGLHoS8ou8xzCOQ';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Clinical DSD Prompt (Exclusively Veneers)
-    const VENEERS_PROMPT = "High-precision prosthodontic cosmetic dental smile makeover. Medically accurate rehabilitation strictly adhering to underlying dental stencil proportions and dental midline. Replace the teeth in the masked zone with symmetrical, naturally contoured porcelain veneers/enamel restorations. Proportions: Central incisors (#11/#21) must have an anatomical width-to-height ratio of 78-80%, aligned symmetrically with the facial dental midline. Lateral incisors (#12/#22) are 1.2mm shorter at the incisal edge with soft rounded embrasures. Canines (#13/#23) have subtle pointed cusps aligned along the lower lip smile curve. Gingival margins must be healthy, stippled pink, with scalloped zeniths. Enamel shade: Natural VITA Bleach BL2/A1 with realistic incisal halo translucency, subtle vertical developmental lobes, and realistic micro-surface texture. Seamlessly blend with adjacent teeth, lips, and oral mucosa. 100% preservation of facial skin, lip drape, lighting, and camera depth of field.";
+    // --- PROMPTS (Clinical SmileCloud Grade) ---
+    const PROMPTS = {
+      veneers: "High-precision cosmetic dental rehabilitation: Inside the masked area ONLY, replace the teeth with symmetrical, naturally contoured porcelain veneers. Maintain anatomical central incisor width-to-height ratio (78-80%), smooth rounded incisal embrasures, natural enamel micro-translucency, and healthy pink gingival margins. Match natural mouth lighting and lip drape. Do not alter cheek retractors, skin, or unmasked areas.",
+      remove_braces: "Inpaint orthodontic braces removal (debonding): Inside the masked area ONLY, realistically and cleanly remove all orthodontic dental braces, metallic brackets, archwires, elastic bands, and bonding cement residue from the surface of the teeth. Reveal smooth, clean, healthy natural tooth enamel with realistic surface texture, natural dental gloss/reflections, and gum line preservation. Maintain natural tooth anatomy, shading, and alignment as if orthodontic treatment has successfully finished. Do not alter cheek retractors or gums.",
+      implants: "Inpaint clinical dental restoration: Inside the masked zone ONLY, generate a realistic, healthy natural dental crown with anatomical root-emergence profile matching adjacent teeth in shade, enamel translucency, and lighting. Blend seamlessly with the gingival margin.",
+      aligners: "Inpaint orthodontic alignment: Realign and straighten the teeth inside the masked area to form an even, natural dental curve while preserving natural tooth enamel and textures.",
+      braces: "Inpaint orthodontic braces: Add realistic dental bracket attachments and a thin metallic archwire across the teeth inside the masked area with realistic metallic reflections matching the photo lighting.",
+      whitening: "Inpaint clinical teeth whitening: Whiten and brighten the enamel of the teeth in the masked area by 3 shades to clean VITA B1 natural white while preserving natural surface micro-texture and oral shadows."
+    };
 
-    /* ============================================================
-       CANVAS & WORKSPACE INITIALIZATION
-       ============================================================ */
-    const container = document.getElementById('canvas-viewport');
-    const canvas = new fabric.Canvas('studio-canvas', {
-      width: container.clientWidth,
-      height: container.clientHeight,
-      preserveObjectStacking: true,
-      selection: true,
-      fireRightClick: true,
-      stopContextMenu: true,
-      backgroundColor: null
-    });
+    // State Variables
+    let videoStream = null;
+    let currentFacingMode = 'environment';
+    let isDrawingMask = false;
+    let currentOriginalDataUrl = null;
+    let activePromptType = 'veneers';
+    let studioMode = 'mask'; // 'mask', 'pan', 'cad'
+    let currentImageRotation = 0;
 
-    fabric.Object.prototype.set({
-      transparentCorners: false,
-      cornerColor: '#305CDE',
-      cornerStrokeColor: '#ffffff',
-      borderColor: '#305CDE',
-      cornerSize: 7,
-      cornerStyle: 'rect',
-      borderScaleFactor: 1,
-      strokeUniform: true
-    });
+    let isViewingGalleryItem = false;
+    let currentActiveDocId = null;
+    let currentActiveOrigPath = null;
+    let currentActiveGenPath = null;
 
-    let currentTool = 'select';
-    let isPanning = false;
-    let lastX = 0, lastY = 0;
-    let shapeCounter = 0;
-    let activeExportFmt = 'png';
-    let currentEditingNote = null;
-    let currentStrokeWidth = 1;
-    let currentStrokeColor = '#ffffff'; // Default Pencil/Stroke is White
-    let currentCanvasBg = '#060913';
-    let isMaskGenerated = false;
+    // Viewport Zoom & Pan
+    let studioZoom = 1;
+    let studioPanX = 0;
+    let studioPanY = 0;
+    let isStudioPanning = false;
+    let panStartX = 0, panStartY = 0;
+    let panOrigX = 0, panOrigY = 0;
 
-    window.addEventListener('resize', () => {
-      canvas.setWidth(container.clientWidth);
-      canvas.setHeight(container.clientHeight);
-      canvas.requestRenderAll();
-    });
+    // Comparison Slider
+    let compZoom = 1;
+    let compPanX = 0, compPanY = 0;
+    let compSplitPercent = 0.5;
+    let compTargetW = 440, compTargetH = 440;
+    let isCompSliding = false;
 
-    /* ============================================================
-       CUSTOM TOAST & CONFIRM MODAL (No alert/confirm)
-       ============================================================ */
+    // DOM Elements
+    const mainHeader = document.getElementById('mainHeader');
+    const cameraFeed = document.getElementById('cameraFeed');
+    const canvasContainer = document.getElementById('canvasContainer');
+    const editorCanvasWrapper = document.getElementById('editorCanvasWrapper');
+    const editorViewport = document.getElementById('editorViewport');
+    const baseCanvas = document.getElementById('baseCanvas');
+    const maskCanvas = document.getElementById('maskCanvas');
+    const baseCtx = baseCanvas.getContext('2d', { willReadFrequently: true });
+    const maskCtx = maskCanvas.getContext('2d', { willReadFrequently: true });
+
+    const [cameraView, editorView, processingView, comparisonView, libraryView] = 
+      ['cameraView', 'editorView', 'processingView', 'comparisonView', 'libraryView'].map(id => document.getElementById(id));
+
+    // Toast Functionality
     function showToast(msg, type = 'info') {
       const container = document.getElementById('toastContainer');
       const toast = document.createElement('div');
-      toast.className = 'liquid-bento px-4 py-2.5 text-xs text-white shadow-2xl flex items-center gap-2 border border-white/25 pointer-events-auto transition-all duration-300 opacity-0 translate-y-2';
-      
+      toast.className = 'liquid-glass px-4 py-2 text-xs text-white rounded-xl shadow-2xl flex items-center gap-2 border border-white/20 transition-all duration-300 opacity-0 translate-y-2';
       let icon = '<i class="bi bi-info-circle-fill text-blue-400"></i>';
       if (type === 'success') icon = '<i class="bi bi-check-circle-fill text-emerald-400"></i>';
       if (type === 'error') icon = '<i class="bi bi-exclamation-triangle-fill text-rose-400"></i>';
-
       toast.innerHTML = `${icon}<span>${msg}</span>`;
       container.appendChild(toast);
-
-      requestAnimationFrame(() => {
-        toast.classList.remove('opacity-0', 'translate-y-2');
-      });
-
+      requestAnimationFrame(() => toast.classList.remove('opacity-0', 'translate-y-2'));
       setTimeout(() => {
         toast.classList.add('opacity-0', 'translate-y-2');
         setTimeout(() => toast.remove(), 300);
-      }, 3200);
+      }, 3000);
     }
 
-    function showConfirmModal(title, msg, onConfirm) {
-      const modal = document.getElementById('customConfirmModal');
-      document.getElementById('confirmModalTitle').innerText = title;
-      document.getElementById('confirmModalMsg').innerText = msg;
-      modal.classList.remove('hidden');
-
-      const okBtn = document.getElementById('confirmOkBtn');
-      const cancelBtn = document.getElementById('confirmCancelBtn');
-
-      const cleanup = () => {
-        modal.classList.add('hidden');
-        okBtn.onclick = null;
-        cancelBtn.onclick = null;
-      };
-
-      okBtn.onclick = () => {
-        cleanup();
-        onConfirm();
-      };
-      cancelBtn.onclick = cleanup;
+    // --- CAMERA INITIALIZATION ---
+    async function initCamera() {
+      if (videoStream) videoStream.getTracks().forEach(t => t.stop());
+      try {
+        videoStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: currentFacingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
+          audio: false
+        });
+        cameraFeed.srcObject = videoStream;
+      } catch (err) {
+        console.warn("Camera fallback:", err);
+      }
+      loadGalleryThumbnail();
     }
 
-    function confirmClearCanvas() {
-      showConfirmModal('Clear Canvas', 'Are you sure you want to delete all elements?', () => {
-        canvas.clear();
-        canvas.requestRenderAll();
-        updateLayersTree();
-        syncInspector();
-        saveState();
-        showToast('Canvas cleared', 'info');
+    document.getElementById('switchCameraBtn').addEventListener('click', () => {
+      currentFacingMode = currentFacingMode === 'environment' ? 'user' : 'environment';
+      initCamera();
+    });
+
+    // --- TREATMENT PILLS ---
+    const treatmentPills = document.querySelectorAll('.treatment-pill');
+    treatmentPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        activePromptType = pill.getAttribute('data-treatment');
+        treatmentPills.forEach(p => {
+          p.className = 'treatment-pill flex flex-col items-center justify-center py-1.5 px-1 rounded-xl border border-white/15 bg-white/[0.06] hover:bg-white/[0.12] text-slate-200 transition active:scale-95';
+        });
+        pill.className = 'treatment-pill flex flex-col items-center justify-center py-1.5 px-1 rounded-xl border border-[#305CDE] bg-[#305CDE] text-white transition active:scale-95 shadow-pill';
       });
+    });
+
+    // --- ROTATE IMAGE 90° (Fix Sideways Orientation) ---
+    function rotateStudioImage(deg = 90) {
+      currentImageRotation = (currentImageRotation + deg) % 360;
+      const tempBase = document.createElement('canvas');
+      tempBase.width = baseCanvas.height;
+      tempBase.height = baseCanvas.width;
+      const tCtx = tempBase.getContext('2d');
+      tCtx.translate(tempBase.width / 2, tempBase.height / 2);
+      tCtx.rotate((deg * Math.PI) / 180);
+      tCtx.drawImage(baseCanvas, -baseCanvas.width / 2, -baseCanvas.height / 2);
+
+      // Re-prepare with rotated canvas
+      prepareEditor(tempBase, tempBase.width, tempBase.height);
+      showToast('Image rotated 90° upright', 'info');
     }
 
-    /* ============================================================
-       FIGMA-STYLE NAVIGATION: SHIFT + SCROLL VERTICAL
-       ============================================================ */
-    canvas.on('mouse:wheel', (opt) => {
-      const e = opt.e;
-      opt.e.preventDefault();
-      opt.e.stopPropagation();
+    // --- EDITOR MODE SWITCHING (Mask vs Move vs CAD) ---
+    function switchStudioMode(mode) {
+      studioMode = mode;
+      const maskBtn = document.getElementById('toolModeMaskBtn');
+      const panBtn = document.getElementById('toolModePanBtn');
+      const cadBtn = document.getElementById('toolModeCadBtn');
+      const fabricWrapper = document.getElementById('fabricOverlayWrapper');
+      const cadToolbar = document.getElementById('cadToolbar');
+      const brushBar = document.getElementById('brushControlBar');
 
-      if (e.ctrlKey || e.metaKey) {
-        let zoom = canvas.getZoom();
-        zoom *= 0.999 ** e.deltaY;
-        if (zoom > 20) zoom = 20;
-        if (zoom < 0.05) zoom = 0.05;
-        canvas.zoomToPoint({ x: e.offsetX, y: e.offsetY }, zoom);
-        updateZoomBadge();
-      } else if (e.shiftKey) {
-        // Shift + Wheel = Vertical scroll
-        const vpt = canvas.viewportTransform;
-        vpt[5] -= e.deltaY;
-        canvas.requestRenderAll();
+      [maskBtn, panBtn, cadBtn].forEach(b => {
+        b.className = "flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition text-slate-300 hover:text-white";
+      });
+
+      if (mode === 'mask') {
+        maskBtn.className = "flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition bg-[#305CDE] text-white shadow-pill";
+        canvasContainer.style.cursor = 'crosshair';
+        fabricWrapper.classList.add('hidden');
+        cadToolbar.classList.add('hidden');
+        brushBar.classList.remove('hidden');
+      } else if (mode === 'pan') {
+        panBtn.className = "flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition bg-[#305CDE] text-white shadow-pill";
+        canvasContainer.style.cursor = 'grab';
+        fabricWrapper.classList.add('hidden');
+        cadToolbar.classList.add('hidden');
+        brushBar.classList.add('hidden');
+      } else if (mode === 'cad') {
+        cadBtn.className = "flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition bg-[#305CDE] text-white shadow-pill";
+        canvasContainer.style.cursor = 'default';
+        fabricWrapper.classList.remove('hidden');
+        cadToolbar.classList.remove('hidden');
+        brushBar.classList.add('hidden');
+        initFabricCadOverlay();
+      }
+    }
+
+    // --- ZOOM & PAN LOGIC ---
+    function updateStudioTransform() {
+      editorViewport.style.transform = `translate3d(${studioPanX}px, ${studioPanY}px, 0) scale(${studioZoom})`;
+      document.getElementById('studioZoomLabel').textContent = `${Math.round(studioZoom * 100)}%`;
+      if (fabricCadCanvasInstance) {
+        fabricCadCanvasInstance.setViewportTransform([studioZoom, 0, 0, studioZoom, studioPanX, studioPanY]);
+      }
+    }
+
+    function zoomStudioAt(newZoom, cx, cy) {
+      newZoom = Math.min(Math.max(newZoom, 0.5), 10);
+      const factor = newZoom / studioZoom;
+      studioPanX = cx - (cx - studioPanX) * factor;
+      studioPanY = cy - (cy - studioPanY) * factor;
+      studioZoom = newZoom;
+      updateStudioTransform();
+    }
+
+    function zoomStudioIn() {
+      zoomStudioAt(studioZoom + 0.35, canvasContainer.clientWidth / 2, canvasContainer.clientHeight / 2);
+    }
+    function zoomStudioOut() {
+      zoomStudioAt(studioZoom - 0.35, canvasContainer.clientWidth / 2, canvasContainer.clientHeight / 2);
+    }
+    function resetStudioZoom() {
+      studioZoom = 1;
+      studioPanX = 0;
+      studioPanY = 0;
+      updateStudioTransform();
+    }
+
+    // --- PREPARE EDITOR STUDIO ---
+    function prepareEditor(source, origW, origH) {
+      const MAX_SIZE = 1000;
+      let width = origW;
+      let height = origH;
+      const aspectRatio = origW / origH;
+
+      if (origW > origH) {
+        if (origW > MAX_SIZE) {
+          width = MAX_SIZE;
+          height = Math.round(MAX_SIZE / aspectRatio);
+        }
       } else {
-        const vpt = canvas.viewportTransform;
-        vpt[4] -= e.deltaX;
-        vpt[5] -= e.deltaY;
-        canvas.requestRenderAll();
-      }
-    });
-
-    function zoomIn() { canvas.setZoom(Math.min(canvas.getZoom() * 1.25, 20)); updateZoomBadge(); }
-    function zoomOut() { canvas.setZoom(Math.max(canvas.getZoom() / 1.25, 0.05)); updateZoomBadge(); }
-    function resetZoom() { canvas.setViewportTransform([1, 0, 0, 1, 0, 0]); updateZoomBadge(); }
-    function updateZoomBadge() { document.getElementById('zoom-level-text').innerText = `${Math.round(canvas.getZoom() * 100)}%`; }
-
-    /* ============================================================
-       TOOL CLEANUP & SAFETY (Prevents Object Unselectability)
-       ============================================================ */
-    function cleanToolState() {
-      // Ensure all objects remain selectable
-      canvas.forEachObject(o => {
-        if (!o.isInternalHandle) {
-          o.selectable = true;
-          o.evented = true;
+        if (origH > MAX_SIZE) {
+          height = MAX_SIZE;
+          width = Math.round(MAX_SIZE * aspectRatio);
         }
-      });
-    }
-
-    /* ============================================================
-       KEYBOARD SHORTCUTS & ARROW NUDGING (1px, 10px, 0.5px)
-       ============================================================ */
-    window.addEventListener('keydown', (e) => {
-      if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName) || document.activeElement.isContentEditable) {
-        return;
       }
 
-      if ((e.ctrlKey || e.metaKey) && (e.key === 'g' || e.key === 'G')) {
-        e.preventDefault();
-        if (e.shiftKey) ungroupSelected();
-        else groupSelected();
-        return;
-      }
+      baseCanvas.width = width;
+      baseCanvas.height = height;
+      maskCanvas.width = width;
+      maskCanvas.height = height;
 
-      if (e.key.startsWith('Arrow')) {
-        e.preventDefault();
-        const step = e.shiftKey ? 10 : (e.altKey ? 0.5 : 1);
-        let dx = 0, dy = 0;
+      baseCtx.clearRect(0, 0, width, height);
+      baseCtx.drawImage(source, 0, 0, width, height);
+      currentOriginalDataUrl = baseCanvas.toDataURL('image/jpeg', 0.95);
 
-        if (e.key === 'ArrowLeft') dx = -step;
-        if (e.key === 'ArrowRight') dx = step;
-        if (e.key === 'ArrowUp') dy = -step;
-        if (e.key === 'ArrowDown') dy = step;
+      clearMask();
 
-        if (FigmaCrop.isCropping) {
-          FigmaCrop.nudge(dx, dy);
-          return;
-        }
-        if (PointEditor.isEditing && PointEditor.activeNode) {
-          PointEditor.nudge(dx, dy);
-          return;
-        }
-        if (WarpManager.isWarping && WarpManager.activePin) {
-          WarpManager.nudge(dx, dy);
-          return;
-        }
+      mainHeader.classList.add('hidden');
+      editorView.classList.remove('hidden');
+      editorView.classList.add('fade-enter');
 
-        const active = canvas.getActiveObject();
-        if (active) {
-          active.left += dx;
-          active.top += dy;
-          active.setCoords();
-          canvas.requestRenderAll();
-          syncInspector();
-          saveState();
-        }
-        return;
-      }
+      // Desktop Adaptive Display Sizing
+      const availW = Math.min(editorCanvasWrapper.clientWidth - 20, 1100);
+      const availH = Math.max(220, editorCanvasWrapper.clientHeight - 20);
 
-      if (e.key === 'Enter' && FigmaCrop.isCropping) {
-        FigmaCrop.applyCrop();
-        return;
-      }
-      if (e.key === 'Escape' && FigmaCrop.isCropping) {
-        FigmaCrop.cancelCrop();
-        return;
-      }
-
-      if (e.key === 'v' || e.key === 'V') setTool('select');
-      if (e.key === 'h' || e.key === 'H') setTool('hand');
-      if (e.key === 'b' || e.key === 'B') setTool('pencil');
-      if (e.key === 'c' || e.key === 'C') FigmaCrop.startCrop();
-      if (e.key === 'r' || e.key === 'R') addRectangle();
-      if (e.key === 'o' || e.key === 'O') addCircle();
-      if (e.key === 'l' || e.key === 'L') addMidLine();
-      if (e.key === 'p' || e.key === 'P') addBezierCurve();
-      if (e.key === 'n' || e.key === 'N') addNoteCard();
-      if (e.key === 't' || e.key === 'T') addText();
-      if (e.key === 'Delete' || e.key === 'Backspace') deleteSelected();
-
-      if (e.ctrlKey || e.metaKey) {
-        if (e.key === 'z') { e.preventDefault(); undo(); }
-        if (e.key === 'y') { e.preventDefault(); redo(); }
-        if (e.key === 'd') { e.preventDefault(); duplicateSelected(); }
-      }
-    });
-
-    /* ============================================================
-       TOOL MODES (Select, Hand, Pencil)
-       ============================================================ */
-    function setTool(tool) {
-      if (PointEditor.isEditing) PointEditor.stopEditing();
-      if (FigmaCrop.isCropping) FigmaCrop.cancelCrop();
-      cleanToolState();
-      currentTool = tool;
-
-      document.querySelectorAll('.tool-btn').forEach(btn => {
-        btn.classList.remove('tool-active');
-        btn.classList.add('text-[#dcdfe8]');
-      });
-
-      const activeBtn = document.getElementById(`tool-${tool}`);
-      if (activeBtn) {
-        activeBtn.classList.add('tool-active');
-        activeBtn.classList.remove('text-[#dcdfe8]');
-      }
-
-      if (tool === 'pencil') {
-        canvas.isDrawingMode = true;
-        canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
-        canvas.freeDrawingBrush.width = currentStrokeWidth;
-        canvas.freeDrawingBrush.color = currentStrokeColor;
-        canvas.defaultCursor = 'crosshair';
-      } else if (tool === 'hand') {
-        canvas.isDrawingMode = false;
-        canvas.defaultCursor = 'grab';
-        canvas.selection = false;
-        canvas.forEachObject(o => o.selectable = false);
+      let displayW, displayH;
+      if (availW / availH < aspectRatio) {
+        displayW = availW;
+        displayH = Math.round(availW / aspectRatio);
       } else {
-        canvas.isDrawingMode = false;
-        canvas.defaultCursor = 'default';
-        canvas.selection = true;
-        canvas.forEachObject(o => o.selectable = true);
+        displayH = availH;
+        displayW = Math.round(availH * aspectRatio);
       }
+
+      canvasContainer.style.width = `${displayW}px`;
+      canvasContainer.style.height = `${displayH}px`;
+      editorViewport.style.width = `${displayW}px`;
+      editorViewport.style.height = `${displayH}px`;
+      baseCanvas.style.width = `${displayW}px`;
+      baseCanvas.style.height = `${displayH}px`;
+      maskCanvas.style.width = `${displayW}px`;
+      maskCanvas.style.height = `${displayH}px`;
+
+      studioZoom = 1;
+      studioPanX = 0;
+      studioPanY = 0;
+      updateStudioTransform();
+      switchStudioMode('mask');
     }
 
-    canvas.on('path:created', (e) => {
-      const path = e.path;
-      path.set({
-        name: `Drawing ${++shapeCounter}`,
-        strokeUniform: true
-      });
-      updateLayersTree();
-      saveState();
+    document.getElementById('captureBtn').addEventListener('click', () => {
+      if (!cameraFeed.videoWidth) return;
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = cameraFeed.videoWidth;
+      tempCanvas.height = cameraFeed.videoHeight;
+      tempCanvas.getContext('2d').drawImage(cameraFeed, 0, 0);
+      prepareEditor(tempCanvas, tempCanvas.width, tempCanvas.height);
     });
 
-    canvas.on('mouse:down', (opt) => {
-      const evt = opt.e;
-      if (currentTool === 'hand' || evt.spaceKey || evt.button === 1) {
-        isPanning = true;
-        canvas.defaultCursor = 'grabbing';
-        lastX = evt.clientX;
-        lastY = evt.clientY;
+    const fileInput = document.getElementById('fileInput');
+    document.getElementById('navUploadBtn').addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        const img = new Image();
+        img.onload = () => prepareEditor(img, img.naturalWidth, img.naturalHeight);
+        img.src = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    document.getElementById('cancelEditBtn').addEventListener('click', () => {
+      editorView.classList.add('hidden');
+      mainHeader.classList.remove('hidden');
+      fileInput.value = '';
+    });
+
+    function clearMask() {
+      maskCtx.fillStyle = '#000000';
+      maskCtx.fillRect(0, 0, maskCanvas.width, maskCanvas.height);
+    }
+
+    document.getElementById('brushSize').addEventListener('input', (e) => {
+      document.getElementById('brushSizeLabel').textContent = `${e.target.value}px`;
+    });
+
+    // --- MASK DRAWING LOGIC ---
+    function getMaskCoordinates(e) {
+      const rect = maskCanvas.getBoundingClientRect();
+      const scaleX = maskCanvas.width / rect.width;
+      const scaleY = maskCanvas.height / rect.height;
+      return {
+        x: (e.clientX - rect.left) * scaleX,
+        y: (e.clientY - rect.top) * scaleY
+      };
+    }
+
+    canvasContainer.addEventListener('mousedown', (e) => {
+      if (studioMode === 'mask') {
+        isDrawingMask = true;
+        const pos = getMaskCoordinates(e);
+        maskCtx.beginPath();
+        maskCtx.moveTo(pos.x, pos.y);
+      } else if (studioMode === 'pan') {
+        isStudioPanning = true;
+        panStartX = e.clientX;
+        panStartY = e.clientY;
+        panOrigX = studioPanX;
+        panOrigY = studioPanY;
+        canvasContainer.style.cursor = 'grabbing';
       }
     });
 
-    canvas.on('mouse:move', (opt) => {
-      if (isPanning) {
-        const e = opt.e;
-        const vpt = canvas.viewportTransform;
-        vpt[4] += e.clientX - lastX;
-        vpt[5] += e.clientY - lastY;
-        canvas.requestRenderAll();
-        lastX = e.clientX;
-        lastY = e.clientY;
+    window.addEventListener('mousemove', (e) => {
+      if (isDrawingMask && studioMode === 'mask') {
+        const pos = getMaskCoordinates(e);
+        const brushSize = document.getElementById('brushSize').value;
+        const rect = maskCanvas.getBoundingClientRect();
+        const scaleFactor = maskCanvas.width / rect.width;
+
+        maskCtx.lineWidth = brushSize * scaleFactor;
+        maskCtx.lineCap = 'round';
+        maskCtx.lineJoin = 'round';
+        maskCtx.strokeStyle = '#FFFFFF';
+        maskCtx.lineTo(pos.x, pos.y);
+        maskCtx.stroke();
+        maskCtx.beginPath();
+        maskCtx.moveTo(pos.x, pos.y);
+      } else if (isStudioPanning && studioMode === 'pan') {
+        studioPanX = panOrigX + (e.clientX - panStartX);
+        studioPanY = panOrigY + (e.clientY - panStartY);
+        updateStudioTransform();
       }
     });
 
-    canvas.on('mouse:up', () => {
-      if (isPanning) {
-        isPanning = false;
-        canvas.defaultCursor = currentTool === 'hand' ? 'grab' : 'default';
+    window.addEventListener('mouseup', () => {
+      if (isDrawingMask) {
+        isDrawingMask = false;
+        maskCtx.beginPath();
+      }
+      if (isStudioPanning) {
+        isStudioPanning = false;
+        if (studioMode === 'pan') canvasContainer.style.cursor = 'grab';
       }
     });
 
-    /* ============================================================
-       RIGHT CLICK CONTEXT MENU
-       ============================================================ */
-    const contextMenu = document.getElementById('customContextMenu');
-
-    canvas.upperCanvasEl.addEventListener('contextmenu', (e) => {
+    // --- NATURAL FIGMA-STYLE WHEEL NAVIGATION ---
+    canvasContainer.addEventListener('wheel', (e) => {
       e.preventDefault();
-      const pointer = canvas.getPointer(e);
-      const target = canvas.findTarget(e);
-
-      if (target) {
-        canvas.setActiveObject(target);
-        canvas.requestRenderAll();
-        syncInspector();
-      }
-
-      const active = canvas.getActiveObject();
-      const btnGroup = document.getElementById('ctx-group');
-      const btnUngroup = document.getElementById('ctx-ungroup');
-
-      if (active && active.type === 'activeSelection') {
-        btnGroup.style.display = 'flex';
-        btnUngroup.style.display = 'none';
-      } else if (active && active.type === 'group' && active.customType !== 'note-card') {
-        btnGroup.style.display = 'none';
-        btnUngroup.style.display = 'flex';
+      if (e.ctrlKey || e.metaKey) {
+        const rect = canvasContainer.getBoundingClientRect();
+        const cursorX = e.clientX - rect.left;
+        const cursorY = e.clientY - rect.top;
+        const zoomDelta = -Math.sign(e.deltaY) * 0.25;
+        zoomStudioAt(studioZoom + zoomDelta, cursorX, cursorY);
+      } else if (e.shiftKey) {
+        // Shift + Wheel = Horizontal Scroll
+        studioPanX -= e.deltaY;
+        updateStudioTransform();
       } else {
-        btnGroup.style.display = 'none';
-        btnUngroup.style.display = 'none';
+        // Normal Wheel = Vertical & Horizontal Pan
+        studioPanX -= e.deltaX;
+        studioPanY -= e.deltaY;
+        updateStudioTransform();
       }
+    }, { passive: false });
 
-      contextMenu.style.left = `${Math.min(window.innerWidth - 220, e.clientX)}px`;
-      contextMenu.style.top = `${Math.min(window.innerHeight - 240, e.clientY)}px`;
-      contextMenu.classList.remove('hidden');
-    });
+    // --- FABRIC CAD OVERLAY SYSTEM ---
+    let fabricCadCanvasInstance = null;
+    let cadShapeCounter = 0;
 
-    window.addEventListener('click', () => {
-      contextMenu.classList.add('hidden');
-    });
+    function initFabricCadOverlay() {
+      if (!fabricCadCanvasInstance) {
+        fabricCadCanvasInstance = new fabric.Canvas('fabricCadCanvas', {
+          width: baseCanvas.width,
+          height: baseCanvas.height,
+          selection: true,
+          preserveObjectStacking: true
+        });
 
-    function executeContextAction(action) {
-      contextMenu.classList.add('hidden');
-      const active = canvas.getActiveObject();
-      if (!active) return;
-
-      if (action === 'ungroup') ungroupSelected();
-      if (action === 'group') groupSelected();
-      if (action === 'bringFront') {
-        canvas.bringToFront(active);
-        canvas.requestRenderAll();
-        updateLayersTree();
-        saveState();
+        fabricCadCanvasInstance.on('object:added', updateCadLayersList);
+        fabricCadCanvasInstance.on('object:removed', updateCadLayersList);
+        fabricCadCanvasInstance.on('selection:created', updateCadLayersList);
+        fabricCadCanvasInstance.on('selection:cleared', updateCadLayersList);
       }
-      if (action === 'sendBack') {
-        canvas.sendToBack(active);
-        canvas.requestRenderAll();
-        updateLayersTree();
-        saveState();
-      }
-      if (action === 'duplicate') duplicateSelected();
-      if (action === 'delete') deleteSelected();
+      fabricCadCanvasInstance.setWidth(baseCanvas.width);
+      fabricCadCanvasInstance.setHeight(baseCanvas.height);
+      updateStudioTransform();
     }
 
-    function groupSelected() {
-      const active = canvas.getActiveObject();
-      if (!active) return;
-      if (active.type === 'activeSelection') {
-        active.toGroup();
-        active.name = `Group ${++shapeCounter}`;
-        canvas.requestRenderAll();
-        updateLayersTree();
-        syncInspector();
-        saveState();
-        showToast('Group created', 'success');
-      }
-    }
-
-    function ungroupSelected() {
-      const active = canvas.getActiveObject();
-      if (!active) return;
-      if (active.type === 'group' && active.customType !== 'note-card') {
-        active.toActiveSelection();
-        canvas.requestRenderAll();
-        updateLayersTree();
-        syncInspector();
-        saveState();
-        showToast('Ungrouped', 'info');
-      }
-    }
-
-    /* ============================================================
-       ELEMENT GENERATION (Mid Line, Note Box, Shapes)
-       ============================================================ */
-    function addMidLine() {
-      const c = canvas.getCenter();
-      const line = new fabric.Line([c.left - 100, c.top, c.left + 100, c.top], {
-        stroke: currentStrokeColor,
-        strokeWidth: currentStrokeWidth,
-        strokeUniform: true,
-        name: `Mid Line ${++shapeCounter}`
-      });
-      canvas.add(line);
-      canvas.setActiveObject(line);
-      setTool('select');
-      saveState();
-    }
-
-    function addNoteCard() {
-      const c = canvas.getCenter();
-      const cardRect = new fabric.Rect({
-        width: 240,
-        height: 140,
-        rx: 16,
-        ry: 16,
-        fill: 'rgba(10, 18, 48, 0.85)',
+    function addCadMidLine() {
+      initFabricCadOverlay();
+      const line = new fabric.Line([100, 100, 300, 100], {
         stroke: '#305CDE',
         strokeWidth: 1.5,
         strokeUniform: true,
-        originX: 'center',
-        originY: 'center'
+        name: `Mid Line ${++cadShapeCounter}`
       });
+      fabricCadCanvasInstance.add(line);
+      fabricCadCanvasInstance.setActiveObject(line);
+      showToast('Mid Line added', 'success');
+    }
 
-      const tag = new fabric.Text('NOTE', {
-        left: -105,
-        top: -55,
-        fontSize: 9,
-        fontWeight: '700',
-        fill: '#9cb4f8',
-        fontFamily: 'Inter',
-        originX: 'left',
-        originY: 'top',
-        selectable: false
-      });
-
-      const title = new fabric.Text('Design Idea', {
-        left: -105,
-        top: -38,
-        fontSize: 14,
-        fontWeight: '600',
-        fill: '#ffffff',
-        fontFamily: 'Inter',
-        originX: 'left',
-        originY: 'top',
-        selectable: false
-      });
-
-      const body = new fabric.Text('Double-click or use sidebar to edit.\nAdd your project notes here.', {
-        left: -105,
-        top: -12,
-        fontSize: 11,
-        fill: '#dcdfe8',
-        fontFamily: 'Inter',
-        lineHeight: 1.4,
-        originX: 'left',
-        originY: 'top',
-        selectable: false
-      });
-
-      const group = new fabric.Group([cardRect, tag, title, body], {
-        left: c.left,
-        top: c.top,
-        name: `Note Card ${++shapeCounter}`,
-        customType: 'note-card',
-        noteTitle: 'Design Idea',
-        noteBody: 'Double-click or use sidebar to edit.\nAdd your project notes here.',
-        originX: 'center',
-        originY: 'center',
-        subTargetCheck: false,
+    function addCadRuler() {
+      initFabricCadOverlay();
+      const len = 120; // default ~12.0 mm
+      const line = new fabric.Line([100, 200, 100 + len, 200], {
+        stroke: '#ff4757',
+        strokeWidth: 1.5,
         strokeUniform: true
       });
-
-      canvas.add(group);
-      canvas.setActiveObject(group);
-      setTool('select');
-      saveState();
-    }
-
-    function updateNoteText(field, val) {
-      const active = canvas.getActiveObject();
-      if (!active || active.customType !== 'note-card') return;
-
-      if (field === 'title') {
-        active.noteTitle = val;
-        active.item(2).set({ text: val || ' ' });
-      } else if (field === 'body') {
-        active.noteBody = val;
-        active.item(3).set({ text: val || ' ' });
-      }
-      canvas.requestRenderAll();
-      saveState();
-    }
-
-    function applyNoteRadius(val) {
-      const active = canvas.getActiveObject();
-      if (!active || active.customType !== 'note-card') return;
-      const rect = active.item(0);
-      const r = Math.max(parseFloat(val) || 0, 0);
-      rect.set({ rx: r, ry: r });
-      canvas.requestRenderAll();
-      saveState();
-    }
-
-    canvas.on('mouse:dblclick', (opt) => {
-      if (opt.target && opt.target.customType === 'note-card') {
-        openNoteInlineEditor(opt.target);
-      } else if (opt.target && (opt.target.type === 'image' || opt.target.type === 'group')) {
-        FigmaCrop.startCrop();
-      }
-    });
-
-    function openNoteInlineEditor(noteObj) {
-      currentEditingNote = noteObj;
-      const editor = document.getElementById('note-inline-editor');
-      const titleInput = document.getElementById('inline-note-title');
-      const bodyInput = document.getElementById('inline-note-body');
-
-      titleInput.value = noteObj.noteTitle || '';
-      bodyInput.value = noteObj.noteBody || '';
-
-      const bound = noteObj.getBoundingRect();
-      editor.style.left = `${Math.max(20, Math.min(window.innerWidth - 340, bound.left))}px`;
-      editor.style.top = `${Math.max(80, Math.min(window.innerHeight - 250, bound.top))}px`;
-      editor.classList.remove('hidden');
-      titleInput.focus();
-    }
-
-    function closeNoteInlineEditor() {
-      document.getElementById('note-inline-editor').classList.add('hidden');
-      currentEditingNote = null;
-    }
-
-    function saveNoteInlineEditor() {
-      if (!currentEditingNote) return;
-      const t = document.getElementById('inline-note-title').value;
-      const b = document.getElementById('inline-note-body').value;
-
-      currentEditingNote.noteTitle = t;
-      currentEditingNote.noteBody = b;
-      currentEditingNote.item(2).set({ text: t || ' ' });
-      currentEditingNote.item(3).set({ text: b || ' ' });
-
-      canvas.requestRenderAll();
-      syncInspector();
-      saveState();
-      closeNoteInlineEditor();
-    }
-
-    function addBezierCurve() {
-      const c = canvas.getCenter();
-      const p0 = { x: c.left - 110, y: c.top + 35 };
-      const p1 = { x: c.left, y: c.top - 55 };
-      const p2 = { x: c.left + 110, y: c.top + 35 };
-
-      const pathStr = `M ${p0.x} ${p0.y} Q ${p1.x} ${p1.y} ${p2.x} ${p2.y}`;
-      const curve = new fabric.Path(pathStr, {
-        stroke: currentStrokeColor,
-        fill: '',
-        strokeWidth: currentStrokeWidth,
-        strokeLineCap: 'round',
-        strokeUniform: true,
-        objectCaching: false,
-        name: `Curve ${++shapeCounter}`,
-        customType: 'bezier',
-        curvePoints: { p0, p1, p2 },
-        pinnedPoints: {}
-      });
-
-      canvas.add(curve);
-      canvas.setActiveObject(curve);
-      setTool('select');
-      saveState();
-      PointEditor.startEditing(curve);
-    }
-
-    function addRectangle() {
-      const c = canvas.getCenter();
-      const rect = new fabric.Rect({
-        left: c.left - 60,
-        top: c.top - 50,
-        width: 120,
-        height: 100,
-        fill: 'rgba(48, 92, 222, 0.25)',
-        stroke: currentStrokeColor,
-        strokeWidth: currentStrokeWidth,
-        rx: 8,
-        ry: 8,
-        strokeUniform: true,
-        name: `Rectangle ${++shapeCounter}`
-      });
-      canvas.add(rect);
-      canvas.setActiveObject(rect);
-      setTool('select');
-      saveState();
-    }
-
-    function addCircle() {
-      const c = canvas.getCenter();
-      const circle = new fabric.Circle({
-        left: c.left - 50,
-        top: c.top - 50,
-        radius: 50,
-        fill: 'rgba(48, 92, 222, 0.3)',
-        stroke: currentStrokeColor,
-        strokeWidth: currentStrokeWidth,
-        strokeUniform: true,
-        name: `Circle ${++shapeCounter}`
-      });
-      canvas.add(circle);
-      canvas.setActiveObject(circle);
-      setTool('select');
-      saveState();
-    }
-
-    function addText() {
-      const c = canvas.getCenter();
-      const text = new fabric.IText('SmileCreo', {
-        left: c.left - 50,
-        top: c.top - 15,
+      const text = new fabric.Text('12.00 mm', {
+        left: 120,
+        top: 180,
+        fontSize: 12,
+        fill: '#ff4757',
         fontFamily: 'Inter',
-        fontSize: 22,
-        fill: '#ffffff',
-        name: `Text ${++shapeCounter}`
+        fontWeight: 'bold'
       });
-      canvas.add(text);
-      canvas.setActiveObject(text);
-      setTool('select');
-      saveState();
-    }
-
-    /* ============================================================
-       SVG & IMAGE IMPORT SUPPORT
-       ============================================================ */
-    function handleFileSelect(file) {
-      if (!file) return;
-      if (file.name.endsWith('.svg') || file.type === 'image/svg+xml') {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          fabric.loadSVGFromString(e.target.result, (objects, options) => {
-            const svgGroup = fabric.util.groupSVGElements(objects, options);
-            const maxDim = 400;
-            if (svgGroup.width > maxDim || svgGroup.height > maxDim) {
-              svgGroup.scale(maxDim / Math.max(svgGroup.width, svgGroup.height));
-            }
-            const c = canvas.getCenter();
-            svgGroup.set({
-              left: c.left - (svgGroup.getScaledWidth() / 2),
-              top: c.top - (svgGroup.getScaledHeight() / 2),
-              name: file.name.replace('.svg', ''),
-              strokeUniform: true,
-              objectCaching: true,
-              statefullCache: false,
-              noScaleCache: false
-            });
-
-            // Optimize high-path SVGs
-            const numPaths = svgGroup.getObjects ? svgGroup.getObjects().length : 1;
-            if (numPaths > 35) {
-              const scale = 2;
-              const rasterUrl = svgGroup.toDataURL({ multiplier: scale });
-              fabric.Image.fromURL(rasterUrl, (img) => {
-                img.set({
-                  left: svgGroup.left,
-                  top: svgGroup.top,
-                  name: `${svgGroup.name}`,
-                  scaleX: 1 / scale,
-                  scaleY: 1 / scale,
-                  strokeUniform: true
-                });
-                canvas.add(img);
-                canvas.setActiveObject(img);
-                canvas.requestRenderAll();
-                updateLayersTree();
-                saveState();
-              });
-            } else {
-              canvas.add(svgGroup);
-              canvas.setActiveObject(svgGroup);
-              canvas.requestRenderAll();
-              updateLayersTree();
-              saveState();
-            }
-          });
-        };
-        reader.readAsText(file);
-      } else if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          fabric.Image.fromURL(e.target.result, (img) => {
-            const maxDim = 500;
-            if (img.width > maxDim || img.height > maxDim) {
-              img.scale(maxDim / Math.max(img.width, img.height));
-            }
-            const c = canvas.getCenter();
-            img.set({
-              left: c.left - (img.getScaledWidth() / 2),
-              top: c.top - (img.getScaledHeight() / 2),
-              name: file.name.replace(/\.[^/.]+$/, ""),
-              strokeUniform: true
-            });
-            canvas.add(img);
-            canvas.setActiveObject(img);
-            canvas.requestRenderAll();
-            updateLayersTree();
-            saveState();
-          });
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-
-    container.addEventListener('dragover', (e) => e.preventDefault());
-    container.addEventListener('drop', (e) => {
-      e.preventDefault();
-      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-        handleFileSelect(e.dataTransfer.files[0]);
-      }
-    });
-
-    /* ============================================================
-       REAL FIGMA-STYLE CROPPING (Images & SVGs)
-       ============================================================ */
-    const FigmaCrop = {
-      isCropping: false,
-      targetObj: null,
-      cropRect: null,
-      ghostObj: null,
-
-      startCrop() {
-        const active = canvas.getActiveObject();
-        if (!active || (active.type !== 'image' && active.type !== 'group')) {
-          showToast('Select an image or vector SVG to crop.', 'error');
-          return;
-        }
-        if (PointEditor.isEditing) PointEditor.stopEditing();
-        if (WarpManager.isWarping) WarpManager.cancelWarp();
-
-        this.isCropping = true;
-        this.targetObj = active;
-
-        active.clone((cloned) => {
-          this.ghostObj = cloned;
-          cloned.set({
-            opacity: 0.35,
-            selectable: false,
-            evented: false,
-            isInternalHandle: true
-          });
-          canvas.add(cloned);
-          canvas.sendToBack(cloned);
-
-          const w = active.getScaledWidth();
-          const h = active.getScaledHeight();
-
-          this.cropRect = new fabric.Rect({
-            left: active.left,
-            top: active.top,
-            width: w,
-            height: h,
-            fill: 'transparent',
-            stroke: '#ffffff',
-            strokeWidth: 1.5,
-            cornerColor: '#305CDE',
-            cornerStrokeColor: '#ffffff',
-            borderColor: '#305CDE',
-            cornerSize: 9,
-            transparentCorners: false,
-            hasRotatingPoint: false,
-            lockRotation: true,
-            strokeUniform: true,
-            isInternalHandle: true
-          });
-
-          active.set({ selectable: true, evented: true });
-          canvas.add(this.cropRect);
-          canvas.setActiveObject(this.cropRect);
-          document.getElementById('crop-active-banner').classList.remove('hidden');
-          canvas.requestRenderAll();
-        });
-      },
-
-      nudge(dx, dy) {
-        if (!this.cropRect) return;
-        this.cropRect.left += dx;
-        this.cropRect.top += dy;
-        this.cropRect.setCoords();
-        canvas.requestRenderAll();
-      },
-
-      applyCrop() {
-        if (!this.isCropping || !this.targetObj || !this.cropRect) return;
-
-        const obj = this.targetObj;
-        const crop = this.cropRect;
-
-        const cropW = Math.max(crop.getScaledWidth(), 10);
-        const cropH = Math.max(crop.getScaledHeight(), 10);
-
-        const cropCanvas = document.createElement('canvas');
-        cropCanvas.width = cropW;
-        cropCanvas.height = cropH;
-        const ctx = cropCanvas.getContext('2d');
-
-        const origData = obj.toDataURL({ multiplier: 1 });
-        const tempImg = new Image();
-        tempImg.onload = () => {
-          const offsetX = crop.left - obj.left;
-          const offsetY = crop.top - obj.top;
-          ctx.drawImage(tempImg, -offsetX, -offsetY);
-
-          fabric.Image.fromURL(cropCanvas.toDataURL(), (croppedImg) => {
-            croppedImg.set({
-              left: crop.left,
-              top: crop.top,
-              name: `${obj.name || 'Object'} (Cropped)`,
-              strokeUniform: true
-            });
-            const idx = canvas.getObjects().indexOf(this.targetObj);
-            canvas.remove(this.targetObj);
-            canvas.insertAt(croppedImg, idx);
-            canvas.setActiveObject(croppedImg);
-            this.cleanup();
-            saveState();
-            showToast('Crop applied', 'success');
-          });
-        };
-        tempImg.src = origData;
-      },
-
-      cancelCrop() {
-        if (!this.isCropping) return;
-        this.cleanup();
-      },
-
-      cleanup() {
-        if (this.cropRect) canvas.remove(this.cropRect);
-        if (this.ghostObj) canvas.remove(this.ghostObj);
-        this.cropRect = null;
-        this.ghostObj = null;
-        this.targetObj = null;
-        this.isCropping = false;
-        document.getElementById('crop-active-banner').classList.add('hidden');
-        cleanToolState();
-        canvas.requestRenderAll();
-      }
-    };
-
-    /* ============================================================
-       POINT PINNING & EDITING SYSTEM
-       ============================================================ */
-    const PointEditor = {
-      isEditing: false,
-      activeCurve: null,
-      activeNode: null,
-      handles: [],
-      guides: [],
-
-      toggleEdit() {
-        if (this.isEditing) {
-          this.stopEditing();
-        } else {
-          const active = canvas.getActiveObject();
-          if (active && active.customType === 'bezier') {
-            this.startEditing(active);
-          } else {
-            showToast('Select a Bézier curve to edit points.', 'error');
-          }
-        }
-      },
-
-      startEditing(curve) {
-        if (!curve) return;
-        this.stopEditing();
-        this.isEditing = true;
-        this.activeCurve = curve;
-        curve.selectable = false;
-        curve.evented = false;
-
-        const pts = curve.curvePoints;
-        if (!curve.pinnedPoints) curve.pinnedPoints = {};
-
-        const g1 = new fabric.Line([pts.p0.x, pts.p0.y, pts.p1.x, pts.p1.y], {
-          stroke: 'rgba(156, 180, 248, 0.6)', strokeDashArray: [3, 3], selectable: false, evented: false, isInternalHandle: true
-        });
-        const g2 = new fabric.Line([pts.p1.x, pts.p1.y, pts.p2.x, pts.p2.y], {
-          stroke: 'rgba(156, 180, 248, 0.6)', strokeDashArray: [3, 3], selectable: false, evented: false, isInternalHandle: true
-        });
-
-        const h0 = this.createNode(pts.p0.x, pts.p0.y, 'p0');
-        const h1 = this.createNode(pts.p1.x, pts.p1.y, 'p1');
-        const h2 = this.createNode(pts.p2.x, pts.p2.y, 'p2');
-
-        this.guides = [g1, g2];
-        this.handles = [h0, h1, h2];
-
-        canvas.add(g1, g2, h0, h1, h2);
-        canvas.bringToFront(h0);
-        canvas.bringToFront(h1);
-        canvas.bringToFront(h2);
-        canvas.setActiveObject(h1);
-        this.activeNode = h1;
-        canvas.requestRenderAll();
-
-        document.getElementById('point-edit-banner').classList.remove('hidden');
-        document.getElementById('btn-inspector-edit-points').innerText = 'Done Editing Points';
-        this.updatePinButton();
-      },
-
-      createNode(x, y, key) {
-        const isPinned = this.activeCurve.pinnedPoints && this.activeCurve.pinnedPoints[key];
-        const node = new fabric.Circle({
-          left: x,
-          top: y,
-          radius: 7,
-          fill: isPinned ? '#ffffff' : '#305CDE',
-          stroke: isPinned ? '#ef4444' : '#ffffff',
-          strokeWidth: isPinned ? 3 : 2,
-          originX: 'center',
-          originY: 'center',
-          hasBorders: false,
-          hasControls: false,
-          pointKey: key,
-          isPinned: !!isPinned,
-          isInternalHandle: true
-        });
-
-        node.on('selected', () => {
-          this.activeNode = node;
-          this.updatePinButton();
-        });
-
-        node.on('moving', () => {
-          this.activeNode = node;
-          if (node.isPinned) {
-            this.activeCurve.pinnedPoints[node.pointKey] = { x: node.left, y: node.top };
-          }
-          this.rebuildCurve();
-        });
-
-        return node;
-      },
-
-      togglePinActivePoint() {
-        if (!this.activeNode) return;
-        const key = this.activeNode.pointKey;
-        this.activeNode.isPinned = !this.activeNode.isPinned;
-
-        if (this.activeNode.isPinned) {
-          this.activeCurve.pinnedPoints[key] = { x: this.activeNode.left, y: this.activeNode.top };
-          this.activeNode.set({ fill: '#ffffff', stroke: '#ef4444', strokeWidth: 3 });
-        } else {
-          delete this.activeCurve.pinnedPoints[key];
-          this.activeNode.set({ fill: '#305CDE', stroke: '#ffffff', strokeWidth: 2 });
-        }
-        this.updatePinButton();
-        canvas.requestRenderAll();
-      },
-
-      updatePinButton() {
-        const btn = document.getElementById('btn-pin-point');
-        if (this.activeNode && this.activeNode.isPinned) {
-          btn.innerText = '🔒 Point Pinned (Locked)';
-          btn.className = 'px-3 py-1 bg-white text-[#305CDE] rounded-xl font-bold text-[11px] transition shadow-md';
-        } else {
-          btn.innerText = '📌 Pin Point (Lock Anchor)';
-          btn.className = 'px-3 py-1 bg-[#305CDE]/30 hover:bg-[#305CDE]/50 text-white border border-white/30 rounded-xl font-semibold text-[11px] transition';
-        }
-      },
-
-      nudge(dx, dy) {
-        if (!this.activeNode) return;
-        this.activeNode.left += dx;
-        this.activeNode.top += dy;
-        this.activeNode.setCoords();
-        if (this.activeNode.isPinned) {
-          this.activeCurve.pinnedPoints[this.activeNode.pointKey] = { x: this.activeNode.left, y: this.activeNode.top };
-        }
-        this.rebuildCurve();
-      },
-
-      rebuildCurve() {
-        if (!this.activeCurve) return;
-        const p0 = { x: this.handles[0].left, y: this.handles[0].top };
-        const p1 = { x: this.handles[1].left, y: this.handles[1].top };
-        const p2 = { x: this.handles[2].left, y: this.handles[2].top };
-
-        this.guides[0].set({ x1: p0.x, y1: p0.y, x2: p1.x, y2: p1.y });
-        this.guides[1].set({ x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y });
-
-        const pathStr = `M ${p0.x} ${p0.y} Q ${p1.x} ${p1.y} ${p2.x} ${p2.y}`;
-        const stroke = this.activeCurve.stroke;
-        const strokeWidth = this.activeCurve.strokeWidth;
-        const name = this.activeCurve.name;
-        const pinned = { ...this.activeCurve.pinnedPoints };
-        const idx = canvas.getObjects().indexOf(this.activeCurve);
-
-        canvas.remove(this.activeCurve);
-
-        const newCurve = new fabric.Path(pathStr, {
-          stroke: stroke,
-          fill: '',
-          strokeWidth: strokeWidth,
-          strokeLineCap: 'round',
-          strokeUniform: true,
-          objectCaching: false,
-          selectable: false,
-          evented: false,
-          name: name,
-          customType: 'bezier',
-          curvePoints: { p0, p1, p2 },
-          pinnedPoints: pinned
-        });
-
-        this.activeCurve = newCurve;
-        canvas.insertAt(newCurve, idx);
-        canvas.requestRenderAll();
-      },
-
-      stopEditing() {
-        if (!this.isEditing) return;
-        this.handles.forEach(h => canvas.remove(h));
-        this.guides.forEach(g => canvas.remove(g));
-        this.handles = [];
-        this.guides = [];
-        this.activeNode = null;
-
-        if (this.activeCurve) {
-          this.activeCurve.selectable = true;
-          this.activeCurve.evented = true;
-          canvas.setActiveObject(this.activeCurve);
-        }
-
-        this.isEditing = false;
-        this.activeCurve = null;
-        document.getElementById('point-edit-banner').classList.add('hidden');
-        document.getElementById('btn-inspector-edit-points').innerText = 'Enter Edit Points Mode';
-        cleanToolState();
-        canvas.requestRenderAll();
-        saveState();
-      }
-    };
-
-    /* ============================================================
-       IMAGE MESH WARPING
-       ============================================================ */
-    const WarpManager = {
-      isWarping: false,
-      targetImage: null,
-      pins: [],
-      activePin: null,
-      gridLines: [],
-
-      startWarp() {
-        const active = canvas.getActiveObject();
-        if (!active || (active.type !== 'image' && active.type !== 'group')) {
-          showToast('Select an image or vector object to warp.', 'error');
-          return;
-        }
-        if (FigmaCrop.isCropping) FigmaCrop.cancelCrop();
-        this.cancelWarp();
-        this.isWarping = true;
-        this.targetImage = active;
-        active.selectable = false;
-        active.evented = false;
-
-        const w = active.getScaledWidth();
-        const h = active.getScaledHeight();
-        const l = active.left;
-        const t = active.top;
-
-        const corners = [
-          { x: l, y: t, role: 'TL' },
-          { x: l + w, y: t, role: 'TR' },
-          { x: l + w, y: t + h, role: 'BR' },
-          { x: l, y: t + h, role: 'BL' }
-        ];
-
-        this.pins = corners.map((c, i) => {
-          const pin = new fabric.Circle({
-            left: c.x,
-            top: c.y,
-            radius: 8,
-            fill: '#305CDE',
-            stroke: '#ffffff',
-            strokeWidth: 2.5,
-            originX: 'center',
-            originY: 'center',
-            hasBorders: false,
-            hasControls: false,
-            pinIdx: i,
-            isInternalHandle: true
-          });
-          pin.on('selected', () => { this.activePin = pin; });
-          pin.on('moving', () => {
-            this.activePin = pin;
-            this.updatePreview();
-          });
-          return pin;
-        });
-
-        for (let i = 0; i < 4; i++) {
-          const line = new fabric.Line([0, 0, 0, 0], {
-            stroke: 'rgba(156, 180, 248, 0.7)', strokeDashArray: [4, 4], selectable: false, evented: false, isInternalHandle: true
-          });
-          this.gridLines.push(line);
-          canvas.add(line);
-        }
-
-        this.pins.forEach(p => { canvas.add(p); canvas.bringToFront(p); });
-        this.updatePreview();
-
-        document.getElementById('mesh-warp-banner').classList.remove('hidden');
-        canvas.requestRenderAll();
-      },
-
-      nudge(dx, dy) {
-        if (!this.activePin) return;
-        this.activePin.left += dx;
-        this.activePin.top += dy;
-        this.activePin.setCoords();
-        this.updatePreview();
-      },
-
-      updatePreview() {
-        const [pTL, pTR, pBR, pBL] = this.pins;
-        this.gridLines[0].set({ x1: pTL.left, y1: pTL.top, x2: pTR.left, y2: pTR.top });
-        this.gridLines[1].set({ x1: pTR.left, y1: pTR.top, x2: pBR.left, y2: pBR.top });
-        this.gridLines[2].set({ x1: pBR.left, y1: pBR.top, x2: pBL.left, y2: pBL.top });
-        this.gridLines[3].set({ x1: pBL.left, y1: pBL.top, x2: pTL.left, y2: pTL.top });
-        canvas.requestRenderAll();
-      },
-
-      commitWarp() {
-        if (!this.isWarping || !this.targetImage) return;
-        const [pTL, pTR, pBR, pBL] = this.pins;
-        
-        const rawUrl = this.targetImage.toDataURL({ multiplier: 1 });
-        const imgElem = new Image();
-        imgElem.onload = () => {
-          const minX = Math.min(pTL.left, pTR.left, pBR.left, pBL.left);
-          const minY = Math.min(pTL.top, pTR.top, pBR.top, pBL.top);
-          const maxX = Math.max(pTL.left, pTR.left, pBR.left, pBL.left);
-          const maxY = Math.max(pTL.top, pTR.top, pBR.top, pBL.top);
-          const w = Math.max(maxX - minX, 40);
-          const h = Math.max(maxY - minY, 40);
-
-          const offCanvas = document.createElement('canvas');
-          offCanvas.width = w;
-          offCanvas.height = h;
-          const ctx = offCanvas.getContext('2d');
-
-          const uW = imgElem.width;
-          const uH = imgElem.height;
-
-          this.drawTri(ctx, imgElem, 0, 0, uW, 0, 0, uH, pTL.left - minX, pTL.top - minY, pTR.left - minX, pTR.top - minY, pBL.left - minX, pBL.top - minY);
-          this.drawTri(ctx, imgElem, uW, 0, uW, uH, 0, uH, pTR.left - minX, pTR.top - minY, pBR.left - minX, pBR.top - minY, pBL.left - minX, pBL.top - minY);
-
-          fabric.Image.fromURL(offCanvas.toDataURL(), (newImg) => {
-            newImg.set({
-              left: minX,
-              top: minY,
-              name: `${this.targetImage.name} (Warped)`,
-              strokeUniform: true
-            });
-            const idx = canvas.getObjects().indexOf(this.targetImage);
-            canvas.remove(this.targetImage);
-            canvas.insertAt(newImg, idx);
-            canvas.setActiveObject(newImg);
-            this.cleanup();
-            saveState();
-            showToast('Warp committed', 'success');
-          });
-        };
-        imgElem.src = rawUrl;
-      },
-
-      drawTri(ctx, img, u0, v0, u1, v1, u2, v2, x0, y0, x1, y1, x2, y2) {
-        ctx.save();
-        ctx.beginPath();
-        ctx.moveTo(x0, y0);
-        ctx.lineTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.closePath();
-        ctx.clip();
-
-        const denom = u0 * v1 - u0 * v2 - u1 * v0 + u1 * v2 + u2 * v0 - u2 * v1;
-        if (Math.abs(denom) < 0.0001) { ctx.restore(); return; }
-
-        const a = (-v0 * x1 + v0 * x2 + v1 * x0 - v1 * x2 - v2 * x0 + v2 * x1) / denom;
-        const b = (-v0 * y1 + v0 * y2 + v1 * y0 - v1 * y2 - v2 * y0 + v2 * y1) / denom;
-        const c = (u0 * x1 - u0 * x2 - u1 * x0 + u1 * x2 + u2 * x0 - u2 * x1) / denom;
-        const d = (u0 * y1 - u0 * y2 - u1 * y0 + u1 * y2 + u2 * y0 - u2 * y1) / denom;
-        const e = (u0*v1*x2 - u0*v2*x1 - u1*v0*x2 + u1*v2*x0 + u2*v0*x1 - u2*v1*x0) / denom;
-        const f = (u0*v1*y2 - u0*v2*y1 - u1*v0*y2 + u1*v2*y0 + u2*v0*y1 - u2*v1*y0) / denom;
-
-        ctx.transform(a, b, c, d, e, f);
-        ctx.drawImage(img, 0, 0);
-        ctx.restore();
-      },
-
-      cancelWarp() {
-        if (!this.isWarping) return;
-        this.cleanup();
-      },
-
-      cleanup() {
-        this.pins.forEach(p => canvas.remove(p));
-        this.gridLines.forEach(g => canvas.remove(g));
-        this.pins = [];
-        this.gridLines = [];
-        this.activePin = null;
-        this.isWarping = false;
-        this.targetImage = null;
-        document.getElementById('mesh-warp-banner').classList.add('hidden');
-        cleanToolState();
-        canvas.requestRenderAll();
-      }
-    };
-
-    /* ============================================================
-       CUSTOM UI STEPPER HELPER
-       ============================================================ */
-    function stepVal(id, delta) {
-      const el = document.getElementById(id);
-      if (!el) return;
-      let val = parseFloat(el.value) || 0;
-      val = Math.round((val + delta) * 100) / 100;
-      if (el.min !== "" && val < parseFloat(el.min)) val = parseFloat(el.min);
-      if (el.max !== "" && val > parseFloat(el.max)) val = parseFloat(el.max);
-      el.value = val;
-      el.dispatchEvent(new Event('input'));
-    }
-
-    /* ============================================================
-       INSPECTOR & SAFE SYNC (Stroke Preset Buttons Fixed)
-       ============================================================ */
-    function updateStrokeButtonUI(width) {
-      const presets = [0.5, 1, 1.5, 2];
-      presets.forEach(p => {
-        const id = `btn-stroke-${String(p).replace('.', '-')}`;
-        const btn = document.getElementById(id);
-        if (!btn) return;
-        if (Math.abs(width - p) < 0.05) {
-          btn.className = "px-2 py-0.5 bg-[#305CDE] text-white border border-white/40 rounded-lg text-[10px] font-bold shadow-sm transition";
-        } else {
-          btn.className = "px-2 py-0.5 bg-white/[0.08] hover:bg-white/[0.16] border border-white/[0.14] rounded-lg text-[10px] text-[#dcdfe8] transition";
-        }
+      const group = new fabric.Group([line, text], {
+        left: 100,
+        top: 180,
+        name: `Ruler (12.00 mm)`,
+        strokeUniform: true
       });
+      fabricCadCanvasInstance.add(group);
+      fabricCadCanvasInstance.setActiveObject(group);
+      showToast('Measurement Ruler added', 'success');
     }
 
-    function syncInspector() {
-      const obj = canvas.getActiveObject();
-      const emptyBox = document.getElementById('inspector-empty');
-      const contentBox = document.getElementById('inspector-content');
+    function addCadBezierCurve() {
+      initFabricCadOverlay();
+      const p0 = { x: 100, y: 150 };
+      const p1 = { x: 200, y: 50 };
+      const p2 = { x: 300, y: 150 };
+      const curve = new fabric.Path(`M ${p0.x} ${p0.y} Q ${p1.x} ${p1.y} ${p2.x} ${p2.y}`, {
+        stroke: '#305CDE',
+        fill: '',
+        strokeWidth: 2,
+        strokeUniform: true,
+        name: `Bézier Curve ${++cadShapeCounter}`
+      });
+      fabricCadCanvasInstance.add(curve);
+      fabricCadCanvasInstance.setActiveObject(curve);
+      showToast('Bézier Curve added', 'success');
+    }
 
-      if (!obj) {
-        if (emptyBox) emptyBox.classList.remove('hidden');
-        if (contentBox) contentBox.classList.add('hidden');
+    function addCadPencil() {
+      initFabricCadOverlay();
+      fabricCadCanvasInstance.isDrawingMode = true;
+      fabricCadCanvasInstance.freeDrawingBrush = new fabric.PencilBrush(fabricCadCanvasInstance);
+      fabricCadCanvasInstance.freeDrawingBrush.width = 2;
+      fabricCadCanvasInstance.freeDrawingBrush.color = '#ffffff';
+      showToast('Pencil mode active (White stroke)', 'info');
+    }
+
+    function addCadNoteCard() {
+      initFabricCadOverlay();
+      const rect = new fabric.Rect({
+        width: 180, height: 90, rx: 12, ry: 12,
+        fill: 'rgba(10, 18, 48, 0.85)', stroke: '#305CDE', strokeWidth: 1.5, strokeUniform: true
+      });
+      const text = new fabric.Text('Clinical Note:\nTooth restoration', {
+        left: 14, top: 14, fontSize: 11, fill: '#dcdfe8', fontFamily: 'Inter'
+      });
+      const group = new fabric.Group([rect, text], {
+        left: 150, top: 150, name: `Note Card ${++cadShapeCounter}`, strokeUniform: true
+      });
+      fabricCadCanvasInstance.add(group);
+      fabricCadCanvasInstance.setActiveObject(group);
+      showToast('Note Box added', 'success');
+    }
+
+    function autoGenerateMaskFromCad() {
+      if (!fabricCadCanvasInstance || fabricCadCanvasInstance.getObjects().length === 0) {
+        showToast('No CAD stencils on canvas. Drawing default dental mask.', 'info');
+        // Anatomical default smile mask
+        const w = maskCanvas.width, h = maskCanvas.height;
+        maskCtx.fillStyle = '#FFFFFF';
+        maskCtx.beginPath();
+        maskCtx.ellipse(w * 0.5, h * 0.55, w * 0.28, h * 0.16, 0, 0, Math.PI * 2);
+        maskCtx.fill();
+        switchStudioMode('mask');
         return;
       }
 
-      if (emptyBox) emptyBox.classList.add('hidden');
-      if (contentBox) contentBox.classList.remove('hidden');
-
-      const label = document.getElementById('label-selection-type');
-      if (label) label.innerText = obj.customType || obj.type || 'Object';
-
-      safeSetVal('inp-pos-x', Math.round(obj.left || 0));
-      safeSetVal('inp-pos-y', Math.round(obj.top || 0));
-      safeSetVal('inp-dim-w', Math.round(obj.getScaledWidth() || 0));
-      safeSetVal('inp-dim-h', Math.round(obj.getScaledHeight() || 0));
-      safeSetVal('inp-rotation', Math.round(obj.angle || 0));
-
-      const strokeW = obj.strokeWidth || 1;
-      safeSetVal('inp-stroke-width', strokeW);
-      updateStrokeButtonUI(strokeW);
-
-      if (obj.stroke && typeof obj.stroke === 'string') {
-        safeSetVal('inp-stroke-hex', obj.stroke);
-        if (obj.stroke.startsWith('#') && obj.stroke.length === 7) {
-          safeSetVal('inp-stroke-picker', obj.stroke);
-        }
-      }
-
-      const op = Math.round((obj.opacity ?? 1) * 100);
-      safeSetVal('inp-opacity', op);
-      const txtOp = document.getElementById('txt-opacity-val');
-      if (txtOp) txtOp.innerText = `${op}%`;
-
-      const noteSec = document.getElementById('bento-note-section');
-      if (noteSec) {
-        noteSec.style.display = (obj.customType === 'note-card') ? 'block' : 'none';
-        if (obj.customType === 'note-card') {
-          safeSetVal('inp-note-title', obj.noteTitle || '');
-          safeSetVal('inp-note-body', obj.noteBody || '');
-        }
-      }
-
-      const curveSec = document.getElementById('bento-curve-section');
-      if (curveSec) curveSec.style.display = (obj.customType === 'bezier') ? 'block' : 'none';
-
-      const imgSec = document.getElementById('bento-image-section');
-      if (imgSec) imgSec.style.display = (obj.type === 'image' || obj.type === 'group') ? 'block' : 'none';
+      // Convert all CAD vector shapes directly into white mask
+      const cadData = fabricCadCanvasInstance.toDataURL({ multiplier: 1 });
+      const img = new Image();
+      img.onload = () => {
+        maskCtx.fillStyle = '#FFFFFF';
+        maskCtx.drawImage(img, 0, 0);
+        switchStudioMode('mask');
+        showToast('Auto-generated mask from CAD lines!', 'success');
+      };
+      img.src = cadData;
     }
 
-    function safeSetVal(id, val) {
-      const el = document.getElementById(id);
-      if (el && document.activeElement !== el) {
-        el.value = val;
-      }
+    function toggleCadLayers() {
+      const drawer = document.getElementById('cadLayersDrawer');
+      drawer.classList.toggle('hidden');
+      updateCadLayersList();
     }
 
-    canvas.on('selection:created', syncInspector);
-    canvas.on('selection:updated', syncInspector);
-    canvas.on('selection:cleared', () => {
-      if (PointEditor.isEditing) PointEditor.stopEditing();
-      if (FigmaCrop.isCropping) FigmaCrop.cancelCrop();
-      closeNoteInlineEditor();
-      syncInspector();
-    });
-    canvas.on('object:modified', () => { syncInspector(); saveState(); });
-    canvas.on('object:moving', syncInspector);
-    canvas.on('object:scaling', syncInspector);
-    canvas.on('object:rotating', syncInspector);
+    function updateCadLayersList() {
+      if (!fabricCadCanvasInstance) return;
+      const list = document.getElementById('cadLayersList');
+      const objects = fabricCadCanvasInstance.getObjects().slice().reverse();
+      list.innerHTML = '';
 
-    function applyTransform(prop, val) {
-      const obj = canvas.getActiveObject();
-      if (!obj) return;
-      obj.set(prop, parseFloat(val) || 0);
-      obj.setCoords();
-      canvas.requestRenderAll();
-      saveState();
-    }
-
-    function applyDimension(dim, val) {
-      const obj = canvas.getActiveObject();
-      if (!obj) return;
-      const v = Math.max(parseFloat(val) || 1, 1);
-      if (dim === 'width') obj.scaleToWidth(v);
-      else obj.scaleToHeight(v);
-      obj.setCoords();
-      canvas.requestRenderAll();
-      saveState();
-    }
-
-    function rotateBy(deg) {
-      const obj = canvas.getActiveObject();
-      if (!obj) return;
-      obj.rotate(((obj.angle || 0) + deg) % 360);
-      obj.setCoords();
-      canvas.requestRenderAll();
-      syncInspector();
-      saveState();
-    }
-
-    function mirrorSelected() {
-      const obj = canvas.getActiveObject();
-      if (!obj) return;
-      obj.set('flipX', !obj.flipX);
-      canvas.requestRenderAll();
-      saveState();
-    }
-
-    function applyStrokeWidth(w) {
-      const width = parseFloat(w) || 1;
-      currentStrokeWidth = width;
-      updateStrokeButtonUI(width);
-      safeSetVal('inp-stroke-width', width);
-
-      if (canvas.isDrawingMode) {
-        canvas.freeDrawingBrush.width = width;
-      }
-
-      const obj = canvas.getActiveObject();
-      if (!obj) return;
-      obj.set('strokeWidth', width);
-      obj.set('strokeUniform', true);
-      canvas.requestRenderAll();
-      saveState();
-    }
-
-    function applyColor(type, col) {
-      if (type === 'stroke') {
-        currentStrokeColor = col;
-        safeSetVal('inp-stroke-hex', col);
-        safeSetVal('inp-stroke-picker', col);
-        if (canvas.isDrawingMode) {
-          canvas.freeDrawingBrush.color = col;
-        }
-      }
-      const obj = canvas.getActiveObject();
-      if (!obj) return;
-      obj.set(type, col);
-      canvas.requestRenderAll();
-      syncInspector();
-      saveState();
-    }
-
-    function applyOpacity(val) {
-      const obj = canvas.getActiveObject();
-      if (!obj) return;
-      obj.set('opacity', val / 100);
-      const txt = document.getElementById('txt-opacity-val');
-      if (txt) txt.innerText = `${val}%`;
-      canvas.requestRenderAll();
-      saveState();
-    }
-
-    function deleteSelected() {
-      if (PointEditor.isEditing) PointEditor.stopEditing();
-      const active = canvas.getActiveObjects();
-      if (active.length) {
-        active.forEach(o => canvas.remove(o));
-        canvas.discardActiveGroup();
-        cleanToolState();
-        canvas.requestRenderAll();
-        updateLayersTree();
-        syncInspector();
-        saveState();
-      }
-    }
-
-    function duplicateSelected() {
-      const obj = canvas.getActiveObject();
-      if (!obj) return;
-      obj.clone((cloned) => {
-        cloned.set({
-          left: cloned.left + 20,
-          top: cloned.top + 20,
-          name: `${obj.name || 'Object'} (Copy)`
-        });
-        canvas.add(cloned);
-        canvas.setActiveObject(cloned);
-        canvas.requestRenderAll();
-        updateLayersTree();
-        saveState();
-      });
-    }
-
-    function setCanvasBg(col) {
-      currentCanvasBg = col;
-      const viewport = document.getElementById('canvas-viewport');
-      viewport.style.backgroundColor = col;
-
-      if (col === '#f4f5f8') {
-        viewport.style.backgroundImage = 'radial-gradient(rgba(48, 92, 222, 0.22) 1.2px, transparent 1.2px)';
-      } else {
-        viewport.style.backgroundImage = 'radial-gradient(rgba(244, 245, 248, 0.12) 1.2px, transparent 1.2px)';
-      }
-      canvas.requestRenderAll();
-    }
-
-    /* ============================================================
-       NATIVE DRAG-AND-DROP LAYERS REORDERING & INLINE RENAME
-       ============================================================ */
-    let draggedLayerIndex = null;
-
-    function updateLayersTree() {
-      const tree = document.getElementById('layers-tree');
-      if (!tree) return;
-      
-      // Filter out internal handles & clean names
-      const objects = canvas.getObjects().filter(o => !o.isInternalHandle);
-      const reversedObjects = objects.slice().reverse();
-
-      if (!reversedObjects.length) {
-        tree.innerHTML = '<div class="text-[#dcdfe8]/50 text-center py-12 text-[11px]">No active layers</div>';
+      if (objects.length === 0) {
+        list.innerHTML = '<div class="text-white/40 text-center py-6 text-[10px]">No CAD layers</div>';
         return;
       }
 
-      tree.innerHTML = '';
-      const active = canvas.getActiveObject();
-
-      reversedObjects.forEach((obj, uiIdx) => {
-        // Ensure valid name
-        if (!obj.name) obj.name = `Layer ${objects.indexOf(obj) + 1}`;
-
-        const isSel = obj === active;
+      objects.forEach((obj, idx) => {
         const div = document.createElement('div');
         div.draggable = true;
-        div.className = `flex items-center justify-between px-2.5 py-1.5 rounded-xl cursor-grab text-xs transition border ${
-          isSel ? 'bg-[#305CDE]/40 text-white font-semibold border-white/30 shadow-sm' : 'hover:bg-white/[0.08] text-[#dcdfe8] border-transparent'
-        }`;
-
-        let icon = '<i class="bi bi-box"></i>';
-        if (obj.type === 'image') icon = '<i class="bi bi-image"></i>';
-        if (obj.type === 'group') icon = '<i class="bi bi-collection"></i>';
-        if (obj.customType === 'note-card') icon = '<i class="bi bi-sticky"></i>';
-        if (obj.customType === 'bezier') icon = '<i class="bi bi-bezier2"></i>';
-        if (obj.name && obj.name.includes('Drawing')) icon = '<i class="bi bi-pencil"></i>';
-        if (obj.name && obj.name.includes('Mid Line')) icon = '<i class="bi bi-slash-lg"></i>';
-
+        div.className = 'flex items-center justify-between p-1.5 bg-white/5 hover:bg-white/10 rounded-lg cursor-grab border border-white/10';
         div.innerHTML = `
-          <div class="flex items-center gap-2 truncate flex-1 pointer-events-none">
-            <span class="text-[#9cb4f8] text-[11px]">${icon}</span>
-            <span class="truncate layer-title" title="Double click to rename">${obj.name}</span>
-          </div>
-          <button class="text-[#dcdfe8] hover:text-white ml-2 p-0.5" onclick="event.stopPropagation(); toggleVisibility('${obj.name}')">${obj.visible ? '<i class="bi bi-eye"></i>' : '<i class="bi bi-eye-slash text-red-400"></i>'}</button>
+          <span class="truncate flex-1 text-slate-200">${obj.name || 'Object'}</span>
+          <button class="text-rose-400 p-0.5 hover:text-white" onclick="event.stopPropagation(); fabricCadCanvasInstance.remove(obj); updateCadLayersList();"><i class="bi bi-x"></i></button>
         `;
 
-        // Click to select
-        div.onclick = (e) => {
-          canvas.setActiveObject(obj);
-          canvas.requestRenderAll();
-          updateLayersTree();
+        div.onclick = () => {
+          fabricCadCanvasInstance.setActiveObject(obj);
+          fabricCadCanvasInstance.requestRenderAll();
         };
 
-        // Double click to rename
-        div.ondblclick = (e) => {
-          e.stopPropagation();
-          const titleSpan = div.querySelector('.layer-title');
-          const oldName = obj.name;
-          const input = document.createElement('input');
-          input.type = 'text';
-          input.value = oldName;
-          input.className = 'bg-white/10 border border-[#305CDE] rounded px-1 text-xs text-white outline-none w-full';
-          
-          titleSpan.replaceWith(input);
-          input.focus();
-          input.select();
-
-          const saveRename = () => {
-            const newName = input.value.trim() || oldName;
-            obj.name = newName;
-            updateLayersTree();
-            syncInspector();
-            saveState();
-          };
-
-          input.onblur = saveRename;
-          input.onkeydown = (ke) => {
-            if (ke.key === 'Enter') saveRename();
-            if (ke.key === 'Escape') updateLayersTree();
-          };
-        };
-
-        // Native Drag-and-Snap
-        div.ondragstart = (e) => {
-          draggedLayerIndex = uiIdx;
-          e.dataTransfer.setData('text/plain', uiIdx);
-          div.style.opacity = '0.4';
-        };
-
-        div.ondragend = () => {
-          div.style.opacity = '1';
-          document.querySelectorAll('.drag-over-top, .drag-over-bottom').forEach(el => {
-            el.classList.remove('drag-over-top', 'drag-over-bottom');
-          });
-        };
-
-        div.ondragover = (e) => {
-          e.preventDefault();
-          const rect = div.getBoundingClientRect();
-          const midY = rect.top + rect.height / 2;
-          if (e.clientY < midY) {
-            div.classList.add('drag-over-top');
-            div.classList.remove('drag-over-bottom');
-          } else {
-            div.classList.add('drag-over-bottom');
-            div.classList.remove('drag-over-top');
-          }
-        };
-
-        div.ondragleave = () => {
-          div.classList.remove('drag-over-top', 'drag-over-bottom');
-        };
-
+        // Drag to reorder
+        div.ondragstart = (e) => e.dataTransfer.setData('text/plain', idx);
+        div.ondragover = (e) => e.preventDefault();
         div.ondrop = (e) => {
           e.preventDefault();
-          div.classList.remove('drag-over-top', 'drag-over-bottom');
-          const fromUiIdx = draggedLayerIndex;
-          const toUiIdx = uiIdx;
-
-          if (fromUiIdx === null || fromUiIdx === toUiIdx) return;
-
-          // Convert UI reverse index to actual Fabric objects index
-          const total = objects.length;
-          const fromCanvasIdx = canvas.getObjects().indexOf(reversedObjects[fromUiIdx]);
-          const targetObj = reversedObjects[toUiIdx];
-          let toCanvasIdx = canvas.getObjects().indexOf(targetObj);
-
-          const draggedObj = reversedObjects[fromUiIdx];
-          canvas.moveTo(draggedObj, toCanvasIdx);
-          canvas.requestRenderAll();
-          updateLayersTree();
-          saveState();
-          showToast('Layer order updated', 'info');
+          const fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
+          const toIdx = idx;
+          const targetObj = objects[fromIdx];
+          fabricCadCanvasInstance.moveTo(targetObj, objects.length - 1 - toIdx);
+          fabricCadCanvasInstance.requestRenderAll();
+          updateCadLayersList();
         };
 
-        tree.appendChild(div);
+        list.appendChild(div);
       });
     }
 
-    function toggleVisibility(name) {
-      const obj = canvas.getObjects().find(o => o.name === name);
-      if (obj) {
-        obj.visible = !obj.visible;
-        canvas.requestRenderAll();
-        updateLayersTree();
-      }
-    }
-
-    /* ============================================================
-       UNDO & REDO HISTORY
-       ============================================================ */
-    const history = [];
-    let historyIdx = -1;
-    let isHistoryOperating = false;
-
-    function saveState() {
-      if (isHistoryOperating) return;
-      const json = JSON.stringify(canvas.toJSON(['name', 'customType', 'curvePoints', 'pinnedPoints', 'strokeUniform', 'noteTitle', 'noteBody']));
-      history.splice(historyIdx + 1);
-      history.push(json);
-      if (history.length > 40) history.shift();
-      historyIdx = history.length - 1;
-      updateLayersTree();
-    }
-
-    function undo() {
-      if (historyIdx > 0) {
-        isHistoryOperating = true;
-        historyIdx--;
-        canvas.loadFromJSON(history[historyIdx], () => {
-          cleanToolState();
-          canvas.requestRenderAll();
-          isHistoryOperating = false;
-          updateLayersTree();
-          syncInspector();
-        });
-      }
-    }
-
-    function redo() {
-      if (historyIdx < history.length - 1) {
-        isHistoryOperating = true;
-        historyIdx++;
-        canvas.loadFromJSON(history[historyIdx], () => {
-          cleanToolState();
-          canvas.requestRenderAll();
-          isHistoryOperating = false;
-          updateLayersTree();
-          syncInspector();
-        });
-      }
-    }
-
-    /* ============================================================
-       SMILECREO AI INPAINTING (Veneers Only & Two-Step Flow)
-       ============================================================ */
-    let isDrawingInpaintMask = false;
-    const inpaintBaseCanvas = document.getElementById('inpaintBaseCanvas');
-    const inpaintMaskCanvas = document.getElementById('inpaintMaskCanvas');
-    const inpaintBaseCtx = inpaintBaseCanvas.getContext('2d');
-    const inpaintMaskCtx = inpaintMaskCanvas.getContext('2d');
-
-    function openAiInpaintStudio() {
-      const active = canvas.getActiveObject();
-      const targetImg = (active && active.type === 'image') ? active : canvas.getObjects().find(o => o.type === 'image');
-
-      if (!targetImg) {
-        showToast('Import or select a patient photo to run SmileCreo AI.', 'error');
-        return;
-      }
-
-      const imgElem = targetImg.getElement();
-      const maxDim = 800;
-      let w = imgElem.width || 800;
-      let h = imgElem.height || 600;
-      const ratio = w / h;
-
-      if (w > maxDim || h > maxDim) {
-        if (w > h) { w = maxDim; h = Math.round(maxDim / ratio); }
-        else { h = maxDim; w = Math.round(maxDim * ratio); }
-      }
-
-      inpaintBaseCanvas.width = w;
-      inpaintBaseCanvas.height = h;
-      inpaintMaskCanvas.width = w;
-      inpaintMaskCanvas.height = h;
-
-      inpaintBaseCtx.clearRect(0, 0, w, h);
-      inpaintBaseCtx.drawImage(imgElem, 0, 0, w, h);
-
-      clearInpaintMask();
-
-      // Reset Step 2 lock
-      isMaskGenerated = false;
-      const btn = document.getElementById('btnRunInpaint');
-      btn.disabled = true;
-      btn.className = "px-5 py-2.5 bg-gray-700/50 text-gray-400 font-bold rounded-xl text-xs cursor-not-allowed border border-white/10 opacity-60 flex items-center gap-1.5";
-      btn.innerHTML = '<span>1. Generate Mask First</span>';
-
-      document.getElementById('clinicalInpaintModal').classList.remove('hidden');
-    }
-
-    function closeAiInpaintStudio() {
-      document.getElementById('clinicalInpaintModal').classList.add('hidden');
-    }
-
-    function clearInpaintMask() {
-      inpaintMaskCtx.fillStyle = '#000000';
-      inpaintMaskCtx.fillRect(0, 0, inpaintMaskCanvas.width, inpaintMaskCanvas.height);
-      isMaskGenerated = false;
-      const btn = document.getElementById('btnRunInpaint');
-      btn.disabled = true;
-      btn.className = "px-5 py-2.5 bg-gray-700/50 text-gray-400 font-bold rounded-xl text-xs cursor-not-allowed border border-white/10 opacity-60 flex items-center gap-1.5";
-      btn.innerHTML = '<span>1. Generate Mask First</span>';
-    }
-
-    // Step 1: Auto-generate anatomical dental mask
-    function autoGenerateMaskFromStencils() {
-      clearInpaintMask();
-      const w = inpaintMaskCanvas.width;
-      const h = inpaintMaskCanvas.height;
-
-      // Draw anatomical veneer zone mask (central 6 anterior teeth envelope)
-      inpaintMaskCtx.fillStyle = '#FFFFFF';
-      inpaintMaskCtx.beginPath();
-      inpaintMaskCtx.ellipse(w * 0.5, h * 0.56, w * 0.26, h * 0.15, 0, 0, Math.PI * 2);
-      inpaintMaskCtx.fill();
-
-      // Unlock Step 2
-      isMaskGenerated = true;
-      const btn = document.getElementById('btnRunInpaint');
-      btn.disabled = false;
-      btn.className = "px-5 py-2.5 bg-[#305CDE] hover:bg-[#436be8] text-white font-bold rounded-xl text-xs shadow-lg shadow-[#305CDE]/50 cursor-pointer flex items-center gap-1.5 transition active:scale-95";
-      btn.innerHTML = '<span>2. Run Precision Inpainting →</span>';
-
-      showToast('Mask generated! You can now run precision inpainting.', 'success');
-    }
-
-    // Manual Mask Painting on Inpaint Canvas
-    inpaintMaskCanvas.addEventListener('mousedown', (e) => {
-      isDrawingInpaintMask = true;
-      paintMask(e);
-    });
-    window.addEventListener('mousemove', (e) => {
-      if (isDrawingInpaintMask) paintMask(e);
-    });
-    window.addEventListener('mouseup', () => { 
-      if (isDrawingInpaintMask) {
-        isDrawingInpaintMask = false;
-        // Unlock button if user painted manually
-        isMaskGenerated = true;
-        const btn = document.getElementById('btnRunInpaint');
-        btn.disabled = false;
-        btn.className = "px-5 py-2.5 bg-[#305CDE] hover:bg-[#436be8] text-white font-bold rounded-xl text-xs shadow-lg shadow-[#305CDE]/50 cursor-pointer flex items-center gap-1.5 transition active:scale-95";
-        btn.innerHTML = '<span>2. Run Precision Inpainting →</span>';
-      }
-    });
-
-    function paintMask(e) {
-      const rect = inpaintMaskCanvas.getBoundingClientRect();
-      const scaleX = inpaintMaskCanvas.width / rect.width;
-      const scaleY = inpaintMaskCanvas.height / rect.height;
-      const x = (e.clientX - rect.left) * scaleX;
-      const y = (e.clientY - rect.top) * scaleY;
-      const size = document.getElementById('inpaintBrushSize').value * scaleX;
-
-      inpaintMaskCtx.fillStyle = '#FFFFFF';
-      inpaintMaskCtx.beginPath();
-      inpaintMaskCtx.arc(x, y, size / 2, 0, Math.PI * 2);
-      inpaintMaskCtx.fill();
-    }
-
-    // Alpha Feathering & Post-Compositing
-    function createAlphaMaskFeathered(maskCanvas, blurRadius = 2) {
+    // --- ALPHA FEATHERING & COMPOSITING ---
+    function createAlphaMask(maskCanvas, blurRadius = 2) {
       const alphaCanvas = document.createElement('canvas');
       alphaCanvas.width = maskCanvas.width;
       alphaCanvas.height = maskCanvas.height;
@@ -2544,7 +1052,7 @@
       return alphaCanvas;
     }
 
-    async function compositeResult(origCanvas, rawAiDataUrl, maskCanvas) {
+    async function compositeInpaintedResult(origCanvas, rawAiDataUrl, maskCanvas) {
       return new Promise((resolve) => {
         const aiImg = new Image();
         aiImg.onload = () => {
@@ -2557,7 +1065,7 @@
           const aiCtx = aiLayer.getContext('2d');
           aiCtx.drawImage(aiImg, 0, 0, w, h);
 
-          const alphaMask = createAlphaMaskFeathered(maskCanvas, 2);
+          const alphaMask = createAlphaMask(maskCanvas, 2);
           aiCtx.globalCompositeOperation = 'destination-in';
           aiCtx.drawImage(alphaMask, 0, 0);
 
@@ -2576,25 +1084,31 @@
       });
     }
 
-    // Execute Clinical Inpainting Call
-    async function executeClinicalInpaint() {
-      if (!isMaskGenerated) {
-        showToast('Please generate or paint a mask first.', 'error');
+    // --- SUBMIT INPAINTING REQUEST ---
+    document.getElementById('submitBtn').addEventListener('click', async () => {
+      // Validate mask has content
+      const maskPixels = maskCtx.getImageData(0, 0, maskCanvas.width, maskCanvas.height).data;
+      let hasWhite = false;
+      for (let i = 0; i < maskPixels.length; i += 4) {
+        if (maskPixels[i] > 100) { hasWhite = true; break; }
+      }
+
+      if (!hasWhite) {
+        showToast('Please brush over the teeth area or click Auto-Mask CAD first.', 'error');
         return;
       }
 
-      const base64Image = inpaintBaseCanvas.toDataURL('image/jpeg', 0.95).split(',')[1];
-      const base64Mask = inpaintMaskCanvas.toDataURL('image/png').split(',')[1];
+      const promptToUse = PROMPTS[activePromptType] || PROMPTS.veneers;
+      const base64Image = baseCanvas.toDataURL('image/jpeg', 0.95).split(',')[1];
+      const base64Mask = maskCanvas.toDataURL('image/png').split(',')[1];
 
-      closeAiInpaintStudio();
-      const processingView = document.getElementById('processingView');
       processingView.classList.remove('hidden');
-
+      
       let seconds = 0;
       const timerText = document.getElementById('timerText');
       const progressBar = document.getElementById('progressBar');
       const stepText = document.getElementById('processingStepText');
-      stepText.textContent = "Analyzing veneer geometry & smile line...";
+      stepText.textContent = "Synthesizing smile anatomy...";
       timerText.textContent = "Processing... 0s";
 
       const timer = setInterval(() => {
@@ -2613,7 +1127,7 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            prompt: VENEERS_PROMPT,
+            prompt: promptToUse,
             image: base64Image,
             mask: base64Mask,
             model: 'gemini-3.1-flash-image'
@@ -2637,32 +1151,30 @@
 
         if (!rawAiImgSrc) throw new Error("No inpaint returned from AI.");
 
-        const origDataUrl = inpaintBaseCanvas.toDataURL('image/jpeg', 0.95);
-        const finalCompositeSrc = await compositeResult(inpaintBaseCanvas, rawAiImgSrc, inpaintMaskCanvas);
+        const finalCompositeSrc = await compositeInpaintedResult(baseCanvas, rawAiImgSrc, maskCanvas);
 
-        setupComparisonSlider(origDataUrl, finalCompositeSrc);
-        triggerAutoSave(origDataUrl, finalCompositeSrc);
-        showToast('SmileCreo AI restoration complete!', 'success');
+        isViewingGalleryItem = false;
+        document.getElementById('deleteBtn').classList.add('hidden');
+        document.getElementById('backBtnText').textContent = "New Scan";
+
+        setupSliderDimensions(currentOriginalDataUrl, finalCompositeSrc);
+        triggerAutoSave(currentOriginalDataUrl, finalCompositeSrc);
 
       } catch (err) {
         console.error(err);
-        showToast(err.message || 'Inpainting failed. Check dental zone mask.', 'error');
+        showToast("Inpainting failed. Please paint target tooth area clearly.", "error");
       } finally {
         clearInterval(timer);
         processingView.classList.add('hidden');
       }
-    }
+    });
 
-    /* ============================================================
-       BEFORE / AFTER COMPARISON SLIDER
-       ============================================================ */
-    let compSplitPercent = 0.5;
-    let isCompSliding = false;
-
-    function setupComparisonSlider(origSrc, genSrc) {
+    // --- SETUP BEFORE / AFTER SLIDER ---
+    function setupSliderDimensions(origSrc, genSrc) {
       const origImg = document.getElementById('imgOriginal');
       const genImg = document.getElementById('imgGenerated');
       const container = document.getElementById('compareContainer');
+      const viewport = document.getElementById('compareViewport');
       const wrapper = document.getElementById('compareViewportWrapper');
 
       let loaded = 0;
@@ -2673,10 +1185,14 @@
           const natH = genImg.naturalHeight || 600;
           const ratio = natW / natH;
 
-          document.getElementById('comparisonView').classList.remove('hidden');
+          mainHeader.classList.add('hidden');
+          editorView.classList.add('hidden');
+          libraryView.classList.add('hidden');
+          comparisonView.classList.remove('hidden');
+          comparisonView.classList.add('fade-enter');
 
-          const availW = Math.min(wrapper.clientWidth - 24, 600);
-          const availH = Math.max(200, wrapper.clientHeight - 20);
+          const availW = Math.min(wrapper.clientWidth - 20, 680);
+          const availH = Math.max(220, wrapper.clientHeight - 20);
 
           let targetW, targetH;
           if (availW / availH < ratio) {
@@ -2685,15 +1201,23 @@
             targetH = availH; targetW = Math.round(availH * ratio);
           }
 
+          compTargetW = targetW;
+          compTargetH = targetH;
+
           container.style.width = `${targetW}px`;
           container.style.height = `${targetH}px`;
+          viewport.style.width = `${targetW}px`;
+          viewport.style.height = `${targetH}px`;
           origImg.style.width = `${targetW}px`;
           origImg.style.height = `${targetH}px`;
           genImg.style.width = `${targetW}px`;
           genImg.style.height = `${targetH}px`;
 
+          compZoom = 1;
+          compPanX = 0;
+          compPanY = 0;
           compSplitPercent = 0.5;
-          updateSliderSplit();
+          updateCompSlider();
         }
       };
 
@@ -2703,25 +1227,22 @@
       genImg.src = genSrc;
     }
 
-    function updateSliderSplit() {
-      const container = document.getElementById('compareContainer');
+    function updateCompSlider() {
       const overlay = document.getElementById('imgOverlayWrapper');
       const handle = document.getElementById('sliderHandle');
-      const w = container.clientWidth;
-
-      const splitX = compSplitPercent * w;
-      overlay.style.width = `${splitX}px`;
-      handle.style.left = `${splitX}px`;
+      const unscaledSplitX = compSplitPercent * compTargetW;
+      overlay.style.width = `${unscaledSplitX}px`;
+      handle.style.left = `${unscaledSplitX}px`;
     }
 
     const sliderHandle = document.getElementById('sliderHandle');
     const compareContainer = document.getElementById('compareContainer');
 
-    function updateSplitFromPointer(clientX) {
+    function updateSplitFromScreen(clientX) {
       const rect = compareContainer.getBoundingClientRect();
-      const currentX = clientX - rect.left;
-      compSplitPercent = Math.min(Math.max(currentX / rect.width, 0), 1);
-      updateSliderSplit();
+      const currentScreenX = clientX - rect.left;
+      compSplitPercent = Math.min(Math.max(currentScreenX / compTargetW, 0), 1);
+      updateCompSlider();
     }
 
     sliderHandle.addEventListener('mousedown', (e) => {
@@ -2730,33 +1251,28 @@
     });
     compareContainer.addEventListener('mousedown', (e) => {
       isCompSliding = true;
-      updateSplitFromPointer(e.clientX);
+      updateSplitFromScreen(e.clientX);
     });
     window.addEventListener('mousemove', (e) => {
-      if (isCompSliding) updateSplitFromPointer(e.clientX);
+      if (isCompSliding) updateSplitFromScreen(e.clientX);
     });
     window.addEventListener('mouseup', () => { isCompSliding = false; });
 
     compareContainer.addEventListener('touchstart', (e) => {
       if (e.touches.length === 1) {
         isCompSliding = true;
-        updateSplitFromPointer(e.touches[0].clientX);
+        updateSplitFromScreen(e.touches[0].clientX);
       }
     }, { passive: false });
-
     window.addEventListener('touchmove', (e) => {
       if (isCompSliding && e.touches.length === 1) {
-        updateSplitFromPointer(e.touches[0].clientX);
+        updateSplitFromScreen(e.touches[0].clientX);
       }
     }, { passive: false });
-
     window.addEventListener('touchend', () => { isCompSliding = false; });
 
-    function closeComparisonView() {
-      document.getElementById('comparisonView').classList.add('hidden');
-    }
-
-    document.getElementById('compDownloadBtn').addEventListener('click', async () => {
+    // --- DOWNLOAD & AUTOSAVE ---
+    document.getElementById('downloadBtn').addEventListener('click', async () => {
       try {
         const imgSrc = document.getElementById('imgGenerated').src;
         const response = await fetch(imgSrc);
@@ -2764,19 +1280,23 @@
         const blobUrl = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = blobUrl;
-        link.download = `SmileCreo_Veneers_${Date.now()}.webp`;
+        link.download = `SmileCreo_Restoration_${Date.now()}.webp`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(blobUrl);
       } catch (e) {
-        showToast('Export failed', 'error');
+        showToast("Export failed.", "error");
       }
     });
 
-    /* ============================================================
-       SUPABASE AUTOSAVE & RECORDS GALLERY
-       ============================================================ */
+    document.getElementById('closeComparisonBtn').addEventListener('click', () => {
+      comparisonView.classList.add('hidden');
+      if (isViewingGalleryItem) libraryView.classList.remove('hidden');
+      else mainHeader.classList.remove('hidden');
+    });
+
+    // --- SUPABASE AUTOSAVE ---
     async function convertToWebP(src) {
       return new Promise((resolve, reject) => {
         const img = new Image();
@@ -2800,7 +1320,7 @@
     async function triggerAutoSave(originalSrc, finalCompositeSrc) {
       const autoSaveIcon = document.getElementById('autoSaveIcon');
       const autoSaveText = document.getElementById('autoSaveText');
-      autoSaveIcon.className = "w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse";
+      autoSaveIcon.className = "w-2 h-2 rounded-full bg-yellow-400 animate-pulse";
       autoSaveText.textContent = "Auto-saving...";
 
       try {
@@ -2823,21 +1343,41 @@
           generated_image_path: genPath
         }]);
 
-        autoSaveIcon.className = "w-1.5 h-1.5 rounded-full bg-emerald-400";
+        autoSaveIcon.className = "w-2 h-2 rounded-full bg-emerald-400";
         autoSaveText.textContent = "✓ Saved";
+        loadGalleryThumbnail();
       } catch (err) {
         console.error("Autosave error:", err);
-        autoSaveIcon.className = "w-1.5 h-1.5 rounded-full bg-rose-400";
+        autoSaveIcon.className = "w-2 h-2 rounded-full bg-rose-400";
         autoSaveText.textContent = "Local";
       }
     }
 
+    // --- RECORDS GALLERY ---
+    document.getElementById('openLibraryBtn').addEventListener('click', openGallery);
+    document.getElementById('navOpenGalleryBtn').addEventListener('click', openGallery);
+    document.getElementById('closeLibraryBtn').addEventListener('click', () => {
+      libraryView.classList.add('hidden');
+      mainHeader.classList.remove('hidden');
+    });
+
     function openGallery() {
-      document.getElementById('libraryView').classList.remove('hidden');
+      mainHeader.classList.add('hidden');
+      libraryView.classList.remove('hidden');
+      libraryView.classList.add('fade-enter');
       loadGallery();
     }
-    function closeGallery() {
-      document.getElementById('libraryView').classList.add('hidden');
+
+    async function loadGalleryThumbnail() {
+      try {
+        const { data } = await supabaseClient.from('gallery').select('generated_image_path').order('created_at', { ascending: false }).limit(1);
+        if (data && data.length > 0) {
+          const { data: { publicUrl } } = supabaseClient.storage.from('photos').getPublicUrl(data[0].generated_image_path);
+          const thumbEl = document.getElementById('galleryThumbImg');
+          thumbEl.style.backgroundImage = `url('${publicUrl}')`;
+          thumbEl.innerHTML = '';
+        }
+      } catch (e) {}
     }
 
     async function loadGallery() {
@@ -2861,18 +1401,28 @@
           const origUrl = supabaseClient.storage.from('photos').getPublicUrl(rec.original_image_path).data.publicUrl;
 
           const card = document.createElement('div');
-          card.className = "aspect-square rounded-2xl overflow-hidden liquid-bento cursor-pointer transition active:scale-95 border border-white/15 relative group";
+          card.className = "aspect-square rounded-2xl overflow-hidden liquid-glass cursor-pointer transition active:scale-95 border border-white/10 relative group";
           card.innerHTML = `
             <img src="${genUrl}" class="w-full h-full object-cover transition duration-200 group-hover:scale-105" loading="lazy" alt="Simulation" />
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition flex items-end justify-between p-2">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition flex items-end justify-between p-2">
               <span class="text-[9px] font-semibold text-white bg-[#305CDE] px-2 py-0.5 rounded-full">Inspect</span>
               <button class="text-rose-400 hover:text-white p-1 text-xs" onclick="event.stopPropagation(); deleteGalleryRecord('${rec.id}', '${rec.original_image_path}', '${rec.generated_image_path}')"><i class="bi bi-trash3"></i></button>
             </div>
           `;
 
           card.onclick = () => {
-            closeGallery();
-            setupComparisonSlider(origUrl, genUrl);
+            isViewingGalleryItem = true;
+            currentActiveDocId = rec.id;
+            currentActiveOrigPath = rec.original_image_path;
+            currentActiveGenPath = rec.generated_image_path;
+
+            document.getElementById('deleteBtn').classList.remove('hidden');
+            document.getElementById('backBtnText').textContent = "Records";
+            document.getElementById('autoSaveBadge').classList.remove('hidden');
+            document.getElementById('autoSaveIcon').className = "w-2 h-2 rounded-full bg-emerald-400";
+            document.getElementById('autoSaveText').textContent = "Record";
+
+            setupSliderDimensions(origUrl, genUrl);
           };
 
           grid.appendChild(card);
@@ -2883,122 +1433,20 @@
     }
 
     async function deleteGalleryRecord(id, origPath, genPath) {
-      showConfirmModal('Delete Record', 'Delete this clinical restoration record?', async () => {
-        try {
-          await supabaseClient.from('gallery').delete().eq('id', id);
-          if (origPath && genPath) {
-            await supabaseClient.storage.from('photos').remove([origPath, genPath]);
-          }
-          loadGallery();
-          showToast('Record deleted', 'info');
-        } catch (e) {
-          showToast('Failed to delete: ' + e.message, 'error');
+      if (!confirm("Delete this patient simulation?")) return;
+      try {
+        await supabaseClient.from('gallery').delete().eq('id', id);
+        if (origPath && genPath) {
+          await supabaseClient.storage.from('photos').remove([origPath, genPath]);
         }
-      });
-    }
-
-    /* ============================================================
-       EXPORT ENGINE
-       ============================================================ */
-    function openExportModal() { 
-      const active = canvas.getActiveObject();
-      const targetSelect = document.getElementById('export-target');
-      if (active) {
-        targetSelect.value = 'selection';
-      } else {
-        targetSelect.value = 'canvas';
+        loadGallery();
+        showToast('Record deleted', 'info');
+      } catch (e) {
+        showToast("Failed to delete record.", "error");
       }
-      document.getElementById('export-modal').classList.remove('hidden'); 
-    }
-    
-    function closeExportModal() { document.getElementById('export-modal').classList.add('hidden'); }
-
-    function setExportFormat(fmt) {
-      activeExportFmt = fmt;
-      ['png', 'jpeg', 'svg'].forEach(f => {
-        const b = document.getElementById(`fmt-${f}`);
-        if (!b) return;
-        b.className = (f === fmt)
-          ? 'p-2 border border-white/40 bg-[#305CDE]/50 text-white rounded-xl font-semibold text-center shadow-md'
-          : 'p-2 border border-white/[0.14] bg-white/[0.08] text-[#dcdfe8] rounded-xl font-medium text-center';
-      });
     }
 
-    function executeExport() {
-      const scope = document.getElementById('export-target').value;
-      const multiplier = parseFloat(document.getElementById('export-scale').value) || 2;
-      const transparent = document.getElementById('export-transparency').checked;
-      const filename = `smilecreo-${scope}-${Date.now()}.${activeExportFmt}`;
-
-      if (PointEditor.isEditing) PointEditor.stopEditing();
-      if (WarpManager.isWarping) WarpManager.commitWarp();
-      if (FigmaCrop.isCropping) FigmaCrop.cancelCrop();
-      closeNoteInlineEditor();
-
-      if (scope === 'selection') {
-        const active = canvas.getActiveObject();
-        if (!active) {
-          showToast('Select an element/group to export or choose "Entire Canvas".', 'error');
-          return;
-        }
-
-        if (activeExportFmt === 'svg') {
-          const svgStr = active.toSVG();
-          const blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
-          triggerDownload(URL.createObjectURL(blob), filename);
-          closeExportModal();
-          return;
-        }
-
-        const dataUrl = active.toDataURL({
-          format: activeExportFmt,
-          multiplier: multiplier,
-          quality: 0.98
-        });
-
-        triggerDownload(dataUrl, filename);
-        closeExportModal();
-        return;
-      }
-
-      // Entire Canvas Export
-      if (activeExportFmt === 'svg') {
-        const svg = canvas.toSVG();
-        const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
-        triggerDownload(URL.createObjectURL(blob), filename);
-        closeExportModal();
-        return;
-      }
-
-      const origBg = canvas.backgroundColor;
-      canvas.backgroundColor = (activeExportFmt === 'png' && transparent) ? null : currentCanvasBg;
-      canvas.requestRenderAll();
-
-      const dataUrl = canvas.toDataURL({
-        format: activeExportFmt,
-        multiplier: multiplier,
-        quality: 0.98
-      });
-
-      canvas.backgroundColor = origBg;
-      canvas.requestRenderAll();
-
-      triggerDownload(dataUrl, filename);
-      closeExportModal();
-    }
-
-    function triggerDownload(url, name) {
-      const link = document.createElement('a');
-      link.download = name;
-      link.href = url;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      showToast('Export downloaded', 'success');
-    }
-
-    // Initialize initial canvas state
-    saveState();
+    window.addEventListener('load', initCamera);
   </script>
 </body>
 </html>
