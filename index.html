@@ -3,15 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>SmileCreo — Precision Dental Studio & CAD</title>
+  <title>Smile Creo — Precision Dental Studio</title>
   
   <!-- Inter Google Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
-  <!-- Bootstrap Icons CDN -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -24,110 +21,113 @@
           },
           colors: {
             primary: {
-              DEFAULT: '#305CDE',
-              dark: '#2347b5',
+              DEFAULT: '#0B5CFF',
+              dark: '#0647C7',
               light: '#EEF4FF',
             },
             dark: {
-              DEFAULT: '#060913',
-              soft: '#0a1024',
-              navy: '#0d1530'
+              DEFAULT: '#0B1220',
+              soft: '#111827',
+              navy: '#0F172A'
             }
           },
           boxShadow: {
-            'glass': '0 8px 32px rgba(0, 0, 0, 0.45)',
-            'pill': '0 4px 16px rgba(48, 92, 222, 0.35)',
+            'glass': '0 8px 30px rgba(0, 0, 0, 0.35)',
+            'glass-light': '0 6px 20px rgba(15, 23, 42, 0.12)',
+            'pill': '0 3px 14px rgba(11, 92, 255, 0.3)',
           }
         }
       }
     }
   </script>
   
-  <!-- Fabric.js Canvas Engine -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
   <!-- Supabase Web SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root {
       -webkit-tap-highlight-color: transparent;
-      --royal-blue: #305CDE;
-      --off-white: #f4f5f8;
-      --off-white-muted: #dcdfe8;
     }
     body {
       font-family: 'Inter', -apple-system, sans-serif;
       overscroll-behavior: none;
       touch-action: manipulation;
-      background: radial-gradient(circle at 50% 0%, #0d1530 0%, #080c18 55%, #04060c 100%);
-      color: var(--off-white);
     }
 
-    /* Custom Modern Scrollbar */
-    ::-webkit-scrollbar { width: 5px; height: 5px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 9999px; }
-    ::-webkit-scrollbar-thumb:hover { background: #305CDE; }
+    .gpu-accel {
+      transform: translate3d(0, 0, 0);
+      will-change: transform;
+      backface-visibility: hidden;
+    }
 
-    /* Apple Liquid Glass Styling */
-    .liquid-glass {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(48, 92, 222, 0.035) 50%, rgba(7, 14, 34, 0.5) 100%);
-      backdrop-filter: blur(28px) saturate(190%);
-      -webkit-backdrop-filter: blur(28px) saturate(190%);
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      border-top: 1px solid rgba(255, 255, 255, 0.3);
-      box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.3), 
-                  0 16px 36px -8px rgba(0, 0, 0, 0.55);
+    /* Modern Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.6);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.25);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(11, 92, 255, 0.8);
+    }
+
+    .glass-dark {
+      background: rgba(11, 18, 32, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    
+    .glass-light {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.9);
     }
 
     .shutter-btn {
-      width: 62px;
-      height: 62px;
+      width: 60px;
+      height: 60px;
       border-radius: 50%;
       background: #FFFFFF;
       border: 3px solid rgba(11, 18, 32, 0.9);
-      outline: 3px solid #305CDE;
+      outline: 3px solid #0B5CFF;
       transition: transform 0.1s ease;
     }
-    .shutter-btn:active { transform: scale(0.92); }
+    .shutter-btn:active {
+      transform: scale(0.9);
+    }
 
     input[type=range] {
       -webkit-appearance: none;
       background: transparent;
-      accent-color: #305CDE;
     }
     input[type=range]::-webkit-slider-thumb {
       -webkit-appearance: none;
       height: 16px;
       width: 16px;
       border-radius: 50%;
-      background: #305CDE;
+      background: #0B5CFF;
       cursor: pointer;
       margin-top: -5px;
-      box-shadow: 0 2px 6px rgba(48, 92, 222, 0.5);
+      box-shadow: 0 2px 5px rgba(11, 92, 255, 0.4);
       border: 2px solid white;
     }
     input[type=range]::-webkit-slider-runnable-track {
       width: 100%;
-      height: 6px;
+      height: 5px;
       cursor: pointer;
-      background: rgba(255, 255, 255, 0.15);
+      background: #E2E8F0;
       border-radius: 9999px;
     }
 
-    /* Studio Dot Grid */
-    .studio-canvas-bg {
-      background-color: #060913;
-      background-image: radial-gradient(rgba(244, 245, 248, 0.14) 1.2px, transparent 1.2px);
-      background-size: 24px 24px;
-    }
-
-    /* Drag and drop layer feedback */
-    .drag-over-top { border-top: 2px solid #305CDE !important; }
-    .drag-over-bottom { border-bottom: 2px solid #305CDE !important; }
-
     .fade-enter {
-      animation: fadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation: fadeIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
     @keyframes fadeIn {
       from { opacity: 0; transform: scale(0.99); }
@@ -135,38 +135,28 @@
     }
   </style>
 </head>
-<body class="h-[100dvh] w-screen overflow-hidden flex flex-col antialiased select-none">
+<body class="h-[100dvh] w-screen overflow-hidden flex flex-col bg-slate-950 text-slate-900 antialiased select-none">
 
-  <!-- FLOATING MINIMAL HEADER (Camera & Capture Mode) -->
-  <header id="mainHeader" class="absolute top-3 left-4 right-4 z-40 flex items-center justify-between pointer-events-none transition-opacity duration-200">
-    <div class="pointer-events-auto flex items-center gap-3">
-      <div class="w-9 h-9 rounded-full bg-white flex items-center justify-center p-1.5 shadow-md border border-white/50">
-        <img 
-          src="https://smilecreo.codeinblack.online/logosc.svg" 
-          alt="SmileCreo Logo" 
-          class="w-full h-full object-contain" 
-          onerror="this.style.display='none'; document.getElementById('logo-fallback-top').style.display='flex';"
-        />
-        <div id="logo-fallback-top" class="hidden w-full h-full rounded-full bg-[#305CDE] items-center justify-center font-bold text-white text-xs">SC</div>
-      </div>
-      <div class="flex items-baseline gap-1.5 bg-black/40 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
-        <span class="text-xs font-bold tracking-wide text-white">SmileCreo</span>
-        <span class="text-[#9cb4f8] font-mono text-[9px] font-semibold">STUDIO</span>
+  <!-- FLOATING MINIMAL HEADER (Camera Screen Only) -->
+  <header id="mainHeader" class="absolute top-2.5 left-2.5 right-2.5 z-30 flex items-center justify-between pointer-events-none transition-opacity duration-200">
+    <div class="glass-light pointer-events-auto w-8 h-8 rounded-full shadow-glass-light flex items-center justify-center">
+      <div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-white text-[10px] font-bold shadow-sm">
+        ✦
       </div>
     </div>
 
     <!-- Right Controls -->
-    <div class="flex items-center space-x-2 pointer-events-auto">
-      <button id="navOpenGalleryBtn" class="liquid-glass px-3 py-1.5 rounded-full text-xs font-semibold text-slate-200 hover:text-white shadow-glass transition active:scale-95 flex items-center space-x-1.5">
-        <i class="bi bi-folder2-open text-blue-400"></i>
+    <div class="flex items-center space-x-1.5 pointer-events-auto">
+      <button id="navOpenGalleryBtn" class="glass-light px-3 py-1.5 rounded-full text-[11px] font-semibold text-slate-700 hover:text-dark shadow-glass-light transition active:scale-95 flex items-center space-x-1">
+        <svg class="w-3.5 h-3.5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
         <span>Records</span>
       </button>
 
-      <button id="navUploadBtn" class="bg-[#305CDE] hover:bg-[#436be8] text-white px-3.5 py-1.5 rounded-full text-xs font-semibold shadow-pill transition active:scale-95 flex items-center space-x-1.5">
-        <i class="bi bi-upload"></i>
-        <span>Upload Photo / SVG</span>
+      <button id="navUploadBtn" class="bg-primary hover:bg-primary-dark text-white px-3 py-1.5 rounded-full text-[11px] font-semibold shadow-pill transition active:scale-95 flex items-center space-x-1">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+        <span>Upload</span>
       </button>
-      <input type="file" id="fileInput" class="hidden" accept="image/*,.svg" />
+      <input type="file" id="fileInput" class="hidden" accept="image/*" />
     </div>
   </header>
 
@@ -180,13 +170,13 @@
         <canvas id="captureCanvas" class="hidden"></canvas>
       </div>
 
-      <!-- Bottom Action Bar -->
-      <div class="absolute bottom-[max(1.5rem,env(safe-area-inset-bottom))] left-4 right-4 z-20 flex items-center justify-center pointer-events-none">
-        <div class="liquid-glass px-5 py-3 rounded-2xl shadow-glass flex items-center justify-around w-full max-w-sm pointer-events-auto">
+      <!-- Elevated Bottom Action Bar -->
+      <div class="absolute bottom-[max(1.2rem,env(safe-area-inset-bottom))] left-4 right-4 z-20 flex items-center justify-center pointer-events-none">
+        <div class="glass-dark px-4 py-2.5 rounded-2xl shadow-glass flex items-center justify-around w-full max-w-xs pointer-events-auto">
           <!-- Library thumbnail preview -->
-          <button id="openLibraryBtn" class="w-11 h-11 rounded-xl overflow-hidden bg-slate-900 border border-white/20 shadow-md active:scale-95 transition flex items-center justify-center">
+          <button id="openLibraryBtn" class="w-10 h-10 rounded-xl overflow-hidden bg-slate-800 border border-white/20 shadow-md active:scale-95 transition flex items-center justify-center">
             <div id="galleryThumbImg" class="w-full h-full bg-cover bg-center flex items-center justify-center text-white/70">
-              <i class="bi bi-images text-sm"></i>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
             </div>
           </button>
 
@@ -194,327 +184,311 @@
           <button id="captureBtn" class="shutter-btn shadow-2xl flex items-center justify-center"></button>
 
           <!-- Switch Camera -->
-          <button id="switchCameraBtn" class="w-11 h-11 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-xl text-white border border-white/20 active:scale-95 transition">
-            <i class="bi bi-arrow-repeat text-base"></i>
+          <button id="switchCameraBtn" class="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-xl text-white border border-white/20 active:scale-95 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- VIEW 2: Complete Studio (Dental Masking & CAD Precision Studio) -->
-    <div id="editorView" class="hidden absolute inset-0 bg-[#060913] z-30 flex flex-col justify-between p-3 pt-3 overflow-hidden">
+    <!-- VIEW 2: Masking Editor Studio -->
+    <div id="editorView" class="hidden absolute inset-0 bg-slate-950 z-40 flex flex-col justify-between p-2 pt-[max(0.6rem,env(safe-area-inset-top))] pb-[max(0.6rem,env(safe-area-inset-bottom))] overflow-hidden">
       
-      <!-- Studio Top Action Bar (Apple Liquid Glass) -->
-      <div class="liquid-glass px-4 py-2 rounded-2xl shadow-glass flex items-center justify-between w-full max-w-6xl mx-auto shrink-0 mb-2 gap-2">
-        <div class="flex items-center gap-2">
-          <button id="cancelEditBtn" class="px-2.5 py-1 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-semibold text-slate-200 hover:text-white flex items-center gap-1 active:opacity-60 transition">
-            <i class="bi bi-chevron-left"></i>
-            <span>Retake</span>
-          </button>
+      <!-- Top Action Bar -->
+      <div class="glass-light px-3 py-1 rounded-full shadow-glass-light flex items-center justify-between w-full max-w-sm mx-auto shrink-0 mb-1">
+        <button id="cancelEditBtn" class="text-[11px] font-semibold text-slate-600 hover:text-dark flex items-center space-x-0.5 active:opacity-60">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+          <span>Retake</span>
+        </button>
+        <span class="text-[10px] font-bold text-dark tracking-wider uppercase">Paint Tooth Area</span>
+        <button id="clearMaskBtn" class="text-[11px] font-semibold text-primary hover:text-primary-dark active:opacity-60">
+          Reset
+        </button>
+      </div>
 
-          <!-- Rotate 90° to fix sideways photos -->
-          <button onclick="rotateStudioImage(90)" class="px-2.5 py-1 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-semibold text-[#9cb4f8] hover:text-white flex items-center gap-1 active:scale-95 transition" title="Rotate Photo 90° so jaw is horizontal">
-            <i class="bi bi-arrow-clockwise"></i>
-            <span>Rotate 90°</span>
+      <!-- Tool Switcher & Zoom Toolbar -->
+      <div class="w-full max-w-sm mx-auto flex items-center justify-between px-0.5 mb-1 shrink-0">
+        <!-- Switcher -->
+        <div class="flex items-center p-0.5 bg-slate-900/90 rounded-xl border border-white/15 shadow-md space-x-0.5">
+          <button id="editorToolPanBtn" type="button" class="flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 bg-primary text-white shadow-pill">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11"></path></svg>
+            <span>Move</span>
+          </button>
+          <button id="editorToolBrushBtn" type="button" class="flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 text-slate-300 hover:text-white">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+            <span>Brush</span>
           </button>
         </div>
 
-        <!-- Mode Switcher: Masking vs Move vs Vector CAD -->
-        <div class="flex items-center p-1 bg-black/40 rounded-xl border border-white/15 shadow-inner gap-1">
-          <button id="toolModeMaskBtn" onclick="switchStudioMode('mask')" class="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition bg-[#305CDE] text-white shadow-pill">
-            <i class="bi bi-brush-fill"></i>
-            <span>Mask Brush</span>
+        <!-- Zoom -->
+        <div class="flex items-center p-0.5 bg-slate-900/90 rounded-xl border border-white/15 shadow-md space-x-0.5 text-white">
+          <button id="editorZoomOutBtn" type="button" class="w-6 h-6 rounded-lg hover:bg-white/10 flex items-center justify-center font-bold text-xs transition active:scale-90 text-slate-300 hover:text-white">−</button>
+          <button id="editorZoomResetBtn" type="button" class="px-1.5 h-6 rounded-lg hover:bg-white/10 flex items-center justify-center text-[10px] font-mono font-medium text-slate-300 hover:text-white">
+            <span id="editorZoomLabel">100%</span>
           </button>
-          <button id="toolModePanBtn" onclick="switchStudioMode('pan')" class="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition text-slate-300 hover:text-white">
-            <i class="bi bi-arrows-move"></i>
-            <span>Pan / Move</span>
-          </button>
-          <button id="toolModeCadBtn" onclick="switchStudioMode('cad')" class="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition text-slate-300 hover:text-white">
-            <i class="bi bi-bounding-box"></i>
-            <span>CAD & Vectors</span>
-          </button>
-        </div>
-
-        <!-- Right: Zoom & Reset -->
-        <div class="flex items-center gap-2">
-          <div class="flex items-center bg-black/40 rounded-xl border border-white/15 px-2 py-1 text-xs text-white">
-            <button onclick="zoomStudioOut()" class="w-5 h-5 flex items-center justify-center font-bold text-slate-300 hover:text-white">−</button>
-            <span id="studioZoomLabel" class="px-2 font-mono text-[11px] text-slate-200">100%</span>
-            <button onclick="zoomStudioIn()" class="w-5 h-5 flex items-center justify-center font-bold text-slate-300 hover:text-white">+</button>
-            <button onclick="resetStudioZoom()" class="ml-1 text-[10px] text-[#9cb4f8] hover:text-white">Reset</button>
-          </div>
-
-          <button onclick="clearMask()" class="px-2.5 py-1 text-xs font-semibold text-rose-400 hover:text-rose-300 active:opacity-60">
-            Clear Mask
-          </button>
+          <button id="editorZoomInBtn" type="button" class="w-6 h-6 rounded-lg hover:bg-white/10 flex items-center justify-center font-bold text-xs transition active:scale-90 text-slate-300 hover:text-white">+</button>
         </div>
       </div>
 
-      <!-- Center Dual Canvas Viewport (Supports Masking & Fabric CAD) -->
+      <!-- Center Canvas Viewport -->
       <div id="editorCanvasWrapper" class="flex-1 min-h-0 w-full flex items-center justify-center overflow-hidden my-auto relative">
-        <div id="canvasContainer" class="relative rounded-2xl overflow-hidden bg-black flex items-center justify-center border border-white/20 shadow-glass" style="touch-action: none;">
-          
-          <!-- Layer 1 & 2: Base Image & Inpainting Mask Canvas -->
-          <div id="editorViewport" class="relative select-none" style="transform-origin: 0 0;">
+        <div id="canvasContainer" class="relative rounded-2xl overflow-hidden bg-black flex items-center justify-center cursor-grab border border-white/20 shadow-glass" style="touch-action: none;">
+          <div id="editorViewport" class="relative select-none gpu-accel" style="transform-origin: 0 0;">
             <canvas id="baseCanvas" class="block"></canvas>
             <canvas id="maskCanvas" class="absolute top-0 left-0 opacity-60"></canvas>
           </div>
-
-          <!-- Layer 3: Fabric CAD Vector Canvas (Overlay on CAD mode) -->
-          <div id="fabricOverlayWrapper" class="hidden absolute inset-0 z-20 pointer-events-auto">
-            <canvas id="fabricCadCanvas"></canvas>
-          </div>
-
         </div>
       </div>
 
-      <!-- Floating CAD Floating Toolbar (When CAD mode is toggled) -->
-      <div id="cadToolbar" class="hidden absolute top-20 left-1/2 -translate-x-1/2 liquid-glass rounded-2xl p-1.5 shadow-2xl flex items-center gap-1.5 z-40">
-        <button onclick="setCadTool('select')" id="cad-tool-select" class="p-2 rounded-xl bg-[#305CDE] text-white" title="Select (V)">
-          <i class="bi bi-cursor-fill"></i>
-        </button>
-        <button onclick="addCadRuler()" class="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10" title="Measurement Ruler (mm)">
-          <i class="bi bi-ruler"></i>
-        </button>
-        <button onclick="addCadMidLine()" class="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10" title="Mid Line (L)">
-          <i class="bi bi-slash-lg"></i>
-        </button>
-        <button onclick="addCadBezierCurve()" class="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10" title="Bézier Curve (P)">
-          <i class="bi bi-bezier2"></i>
-        </button>
-        <button onclick="addCadPencil()" id="cad-tool-pencil" class="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10" title="Pencil (B)">
-          <i class="bi bi-pencil-fill"></i>
-        </button>
-        <button onclick="addCadNoteCard()" class="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10" title="Note Box (N)">
-          <i class="bi bi-sticky"></i>
-        </button>
-        <button onclick="startCadCrop()" class="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10" title="Crop (C)">
-          <i class="bi bi-crop"></i>
-        </button>
-        <button onclick="autoGenerateMaskFromCad()" class="px-2.5 py-1.5 bg-[#305CDE] text-white text-xs font-bold rounded-xl shadow-md" title="Convert CAD lines into surgical mask">
-          ⚡ Auto-Mask CAD
-        </button>
-        <button onclick="toggleCadLayers()" class="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10" title="Layers Stack">
-          <i class="bi bi-layers"></i>
-        </button>
-      </div>
-
-      <!-- Floating CAD Layers Drawer (Draggable Reorder) -->
-      <div id="cadLayersDrawer" class="hidden absolute top-36 right-8 w-64 liquid-glass rounded-2xl p-3 shadow-2xl z-40 flex flex-col gap-2 max-h-80 overflow-hidden">
-        <div class="flex items-center justify-between pb-1.5 border-b border-white/10">
-          <span class="text-xs font-bold text-white uppercase tracking-wider">CAD Layers</span>
-          <span class="text-[9px] text-[#9cb4f8]">(Drag to reorder)</span>
-        </div>
-        <div id="cadLayersList" class="flex-1 overflow-y-auto space-y-1 text-xs"></div>
-      </div>
-
-      <!-- Bottom Controls Card: Brush Size + 6 Clinical Treatments + Submit -->
-      <div class="w-full max-w-2xl mx-auto liquid-glass rounded-2xl p-3 shadow-glass border border-white/15 space-y-2 shrink-0 mt-2">
-        
-        <!-- Brush Size Slider (In Brush Mask Mode) -->
-        <div id="brushControlBar" class="flex items-center space-x-3 bg-white/[0.06] px-3 py-1.5 rounded-xl border border-white/10">
-          <span class="text-[11px] font-semibold text-slate-300 shrink-0">Brush Size</span>
-          <input type="range" id="brushSize" min="4" max="70" value="20" class="flex-1" />
-          <span id="brushSizeLabel" class="text-xs font-mono text-slate-300 font-bold shrink-0">20px</span>
+      <!-- Bottom Controls Card (6 Treatments: with Veneers & Debrace) -->
+      <div class="w-full max-w-sm mx-auto glass-light rounded-2xl p-2 shadow-glass-light border border-white/80 space-y-1.5 shrink-0 mt-1">
+        <!-- Brush Size Slider -->
+        <div class="flex items-center space-x-2 bg-slate-100/90 px-2.5 py-1 rounded-xl border border-slate-200/80">
+          <span class="text-[10px] font-semibold text-slate-600 shrink-0">Size</span>
+          <input type="range" id="brushSize" min="4" max="60" value="16" class="flex-1" />
+          <span id="brushSizeLabel" class="text-[10px] font-mono text-slate-600 font-medium shrink-0">16px</span>
         </div>
 
-        <!-- 6-Column Treatment Options Grid -->
-        <div class="grid grid-cols-6 gap-1.5">
-          <button data-treatment="veneers" class="treatment-pill flex flex-col items-center justify-center py-1.5 px-1 rounded-xl border border-[#305CDE] bg-[#305CDE] text-white transition active:scale-95 shadow-pill">
-            <span class="text-sm">🪞</span>
-            <span class="text-[10px] font-bold mt-0.5 tracking-tight">Veneer</span>
+        <!-- 6-Column Treatment Options Grid (Zero Overflow) -->
+        <div class="grid grid-cols-6 gap-0.5 sm:gap-1">
+          <button data-treatment="implants" class="treatment-pill flex flex-col items-center justify-center py-1 px-0.5 rounded-xl border border-primary bg-primary text-white transition active:scale-95 shadow-sm">
+            <span class="text-xs leading-none">🦷</span>
+            <span class="text-[9px] font-bold mt-0.5 tracking-tight">Implant</span>
           </button>
 
-          <button data-treatment="remove_braces" class="treatment-pill flex flex-col items-center justify-center py-1.5 px-1 rounded-xl border border-white/15 bg-white/[0.06] hover:bg-white/[0.12] text-slate-200 transition active:scale-95">
-            <span class="text-sm">🧼</span>
-            <span class="text-[10px] font-bold mt-0.5 tracking-tight">Debrace</span>
+          <button data-treatment="aligners" class="treatment-pill flex flex-col items-center justify-center py-1 px-0.5 rounded-xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95">
+            <span class="text-xs leading-none">✨</span>
+            <span class="text-[9px] font-bold mt-0.5 tracking-tight">Align</span>
           </button>
 
-          <button data-treatment="implants" class="treatment-pill flex flex-col items-center justify-center py-1.5 px-1 rounded-xl border border-white/15 bg-white/[0.06] hover:bg-white/[0.12] text-slate-200 transition active:scale-95">
-            <span class="text-sm">🦷</span>
-            <span class="text-[10px] font-bold mt-0.5 tracking-tight">Implant</span>
+          <button data-treatment="braces" class="treatment-pill flex flex-col items-center justify-center py-1 px-0.5 rounded-xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95">
+            <span class="text-xs leading-none">🪥</span>
+            <span class="text-[9px] font-bold mt-0.5 tracking-tight">Brace</span>
           </button>
 
-          <button data-treatment="aligners" class="treatment-pill flex flex-col items-center justify-center py-1.5 px-1 rounded-xl border border-white/15 bg-white/[0.06] hover:bg-white/[0.12] text-slate-200 transition active:scale-95">
-            <span class="text-sm">✨</span>
-            <span class="text-[10px] font-bold mt-0.5 tracking-tight">Align</span>
+          <button data-treatment="remove_braces" class="treatment-pill flex flex-col items-center justify-center py-1 px-0.5 rounded-xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95">
+            <span class="text-xs leading-none">🧼</span>
+            <span class="text-[9px] font-bold mt-0.5 tracking-tight">Debrace</span>
           </button>
 
-          <button data-treatment="braces" class="treatment-pill flex flex-col items-center justify-center py-1.5 px-1 rounded-xl border border-white/15 bg-white/[0.06] hover:bg-white/[0.12] text-slate-200 transition active:scale-95">
-            <span class="text-sm">🪥</span>
-            <span class="text-[10px] font-bold mt-0.5 tracking-tight">Braces</span>
+          <!-- NEW: Veneers Option -->
+          <button data-treatment="veneers" class="treatment-pill flex flex-col items-center justify-center py-1 px-0.5 rounded-xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95">
+            <span class="text-xs leading-none">🪞</span>
+            <span class="text-[9px] font-bold mt-0.5 tracking-tight">Veneer</span>
           </button>
 
-          <button data-treatment="whitening" class="treatment-pill flex flex-col items-center justify-center py-1.5 px-1 rounded-xl border border-white/15 bg-white/[0.06] hover:bg-white/[0.12] text-slate-200 transition active:scale-95">
-            <span class="text-sm">💎</span>
-            <span class="text-[10px] font-bold mt-0.5 tracking-tight">White</span>
+          <button data-treatment="whitening" class="treatment-pill flex flex-col items-center justify-center py-1 px-0.5 rounded-xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95">
+            <span class="text-xs leading-none">💎</span>
+            <span class="text-[9px] font-bold mt-0.5 tracking-tight">White</span>
           </button>
         </div>
 
         <!-- Action Button -->
-        <button id="submitBtn" class="w-full bg-[#305CDE] hover:bg-[#436be8] text-white font-bold py-2.5 px-4 rounded-xl shadow-pill transition active:scale-[0.98] flex items-center justify-center space-x-2 text-xs">
-          <span>Restore Tooth & Smile</span>
-          <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-semibold">✦ Precision Neural Engine</span>
+        <button id="submitBtn" class="w-full bg-primary hover:bg-primary-dark text-white font-semibold py-2.5 px-3 rounded-xl shadow-pill transition active:scale-[0.98] flex items-center justify-center space-x-1.5 text-xs">
+          <span>Restore Tooth</span>
+          <span class="text-[9px] bg-white/20 px-1.5 py-0.5 rounded-full font-medium">✦ Precision Composite</span>
         </button>
       </div>
 
     </div>
 
     <!-- VIEW 3: Processing Overlay -->
-    <div id="processingView" class="hidden absolute inset-0 bg-black/85 backdrop-blur-xl z-50 flex items-center justify-center p-4">
-      <div class="liquid-glass rounded-3xl p-6 max-w-xs w-full text-center space-y-3.5 fade-enter border border-white/20">
+    <div id="processingView" class="hidden absolute inset-0 bg-black/80 backdrop-blur-xl z-50 flex items-center justify-center p-4">
+      <div class="glass-light rounded-3xl p-6 max-w-xs w-full shadow-glass text-center space-y-3.5 fade-enter">
         <div class="relative w-12 h-12 mx-auto flex items-center justify-center">
-          <div class="absolute inset-0 rounded-full border-3 border-blue-400/30 border-t-[#305CDE] animate-spin"></div>
-          <i class="bi bi-stars text-yellow-300 text-lg"></i>
+          <div class="absolute inset-0 rounded-full border-3 border-blue-100 border-t-primary animate-spin"></div>
+          <span class="text-base">✨</span>
         </div>
         
         <div class="space-y-0.5">
-          <h3 id="processingStepText" class="text-xs font-bold text-white">Synthesizing smile anatomy...</h3>
-          <p class="text-[10px] text-slate-400">SmileCreo AI Neural Engine</p>
+          <h3 id="processingStepText" class="text-xs font-bold text-dark">Doing magic it is...</h3>
+          <p class="text-[10px] text-slate-500">Doing magic it is...</p>
         </div>
 
-        <div class="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
-          <div id="progressBar" class="bg-[#305CDE] h-full rounded-full transition-all duration-300 w-1/4"></div>
+        <div class="w-full bg-slate-200/80 h-1.5 rounded-full overflow-hidden">
+          <div id="progressBar" class="bg-primary h-full rounded-full transition-all duration-300 w-1/4"></div>
         </div>
 
-        <span id="timerText" class="text-[10px] font-mono text-slate-400 block">Processing... 0s</span>
+        <span id="timerText" class="text-[10px] font-mono text-slate-400 block">Doing magic it is... 0s</span>
       </div>
     </div>
 
-    <!-- VIEW 4: Comparison Split Slider -->
-    <div id="comparisonView" class="hidden absolute inset-0 bg-black z-40 flex flex-col justify-between p-3 overflow-hidden">
-      <!-- Top Action Bar -->
-      <div class="flex items-center justify-between w-full max-w-2xl mx-auto z-20 shrink-0 mb-2 px-1">
-        <button id="closeComparisonBtn" class="liquid-glass px-3.5 py-1.5 rounded-full text-xs font-semibold text-white flex items-center gap-1.5 active:scale-95 transition">
-          <i class="bi bi-arrow-left"></i>
+    <!-- VIEW 4: Comparison View -->
+    <div id="comparisonView" class="hidden absolute inset-0 bg-black z-40 flex flex-col justify-between p-2 pt-[max(0.6rem,env(safe-area-inset-top))] pb-[max(0.6rem,env(safe-area-inset-bottom))] overflow-hidden">
+      
+      <!-- Top Navigation -->
+      <div class="flex items-center justify-between w-full max-w-sm mx-auto z-20 shrink-0 mb-1 px-1">
+        <button id="closeComparisonBtn" class="glass-dark px-3 py-1.5 rounded-full text-[11px] font-semibold text-white hover:text-slate-200 shadow-glass transition active:scale-95 flex items-center space-x-1">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
           <span id="backBtnText">New Scan</span>
         </button>
 
-        <div id="autoSaveBadge" class="liquid-glass px-3 py-1 rounded-full text-[11px] font-medium text-white flex items-center gap-1.5">
-          <span id="autoSaveIcon" class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span>
+        <div id="autoSaveBadge" class="glass-dark px-2.5 py-1 rounded-full text-[10px] font-medium text-white/90 shadow-glass flex items-center space-x-1.5">
+          <span id="autoSaveIcon" class="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse"></span>
           <span id="autoSaveText">Auto-saving...</span>
         </div>
 
-        <div class="flex items-center gap-1.5">
-          <button id="deleteBtn" class="hidden liquid-glass p-1.5 text-rose-400 rounded-full hover:bg-rose-950/40 transition active:scale-95" title="Delete">
-            <i class="bi bi-trash3"></i>
+        <div class="flex items-center space-x-1">
+          <button id="deleteBtn" class="hidden glass-dark p-1.5 text-rose-400 rounded-full hover:bg-rose-950/40 transition active:scale-95" title="Delete">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
           </button>
 
-          <button id="downloadBtn" class="bg-[#305CDE] hover:bg-[#436be8] text-white px-4 py-1.5 rounded-full text-xs font-semibold shadow-pill transition active:scale-95 flex items-center gap-1.5">
-            <i class="bi bi-download"></i>
-            <span>Export WebP</span>
+          <button id="downloadBtn" class="bg-primary hover:bg-primary-dark text-white px-3 py-1.5 rounded-full text-[11px] font-semibold shadow-pill transition active:scale-95 flex items-center space-x-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+            <span>Export</span>
           </button>
         </div>
       </div>
 
-      <!-- Comparison Viewport -->
+      <!-- Mode & Zoom Bar -->
+      <div class="flex items-center justify-between w-full max-w-sm mx-auto px-1 mb-1 z-20 shrink-0">
+        <div class="flex items-center p-0.5 bg-slate-900/90 rounded-xl border border-white/15 shadow-glass space-x-0.5">
+          <button id="compModeSplitBtn" type="button" class="flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 bg-primary text-white shadow-pill">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg>
+            <span>Slide</span>
+          </button>
+          <button id="compModePanBtn" type="button" class="flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 text-slate-300 hover:text-white">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11"></path></svg>
+            <span>Pan</span>
+          </button>
+        </div>
+
+        <div class="flex items-center p-0.5 bg-slate-900/90 rounded-xl border border-white/15 shadow-glass space-x-0.5 text-white">
+          <button id="compZoomOutBtn" type="button" class="w-6 h-6 rounded-lg hover:bg-white/10 flex items-center justify-center font-bold text-xs transition active:scale-90 text-slate-300 hover:text-white">−</button>
+          <button id="compZoomResetBtn" type="button" class="px-1.5 h-6 rounded-lg hover:bg-white/10 flex items-center justify-center text-[10px] font-mono font-medium text-slate-300 hover:text-white">
+            <span id="compZoomLabel">100%</span>
+          </button>
+          <button id="compZoomInBtn" type="button" class="w-6 h-6 rounded-lg hover:bg-white/10 flex items-center justify-center font-bold text-xs transition active:scale-90 text-slate-300 hover:text-white">+</button>
+        </div>
+      </div>
+
+      <!-- Max-Area Viewport -->
       <div id="compareViewportWrapper" class="flex-1 min-h-0 w-full flex items-center justify-center overflow-hidden my-auto relative">
         <div id="compareContainer" class="relative rounded-2xl select-none bg-black overflow-hidden shadow-2xl border border-white/15" style="touch-action: none;">
           
-          <div id="compareViewport" class="relative select-none" style="transform-origin: 0 0;">
+          <div id="compareViewport" class="relative select-none gpu-accel" style="transform-origin: 0 0;">
             <img id="imgOriginal" class="block rounded-2xl pointer-events-none" draggable="false" alt="Original" />
             
-            <div class="absolute top-2.5 right-2.5 z-10 px-2 py-0.5 bg-black/70 backdrop-blur-md rounded-full text-[9px] font-bold text-white border border-white/20 uppercase">
+            <div class="absolute top-2.5 right-2.5 z-10 px-2 py-0.5 bg-black/60 backdrop-blur-md rounded-full text-[9px] font-bold tracking-wider text-white border border-white/20 uppercase">
               Original
             </div>
 
             <div id="imgOverlayWrapper" class="absolute top-0 left-0 h-full overflow-hidden rounded-2xl z-10" style="width: 50%;">
               <img id="imgGenerated" class="block rounded-2xl pointer-events-none max-w-none" draggable="false" alt="Inpainted" />
-              <div class="absolute top-2.5 left-2.5 z-10 px-2 py-0.5 bg-[#305CDE]/90 backdrop-blur-md rounded-full text-[9px] font-bold text-white border border-blue-300/40 uppercase">
-                SmileCreo Restored
+              
+              <div class="absolute top-2.5 left-2.5 z-10 px-2 py-0.5 bg-primary/85 backdrop-blur-md rounded-full text-[9px] font-bold tracking-wider text-white border border-blue-300/40 uppercase">
+                Inpainted
               </div>
             </div>
           </div>
 
-          <div id="sliderHandle" class="absolute top-0 bottom-0 flex flex-col items-center justify-center cursor-ew-resize z-20" style="left: 50%; transform: translateX(-50%); width: 36px;">
+          <div id="sliderHandle" class="absolute top-0 bottom-0 flex flex-col items-center justify-center cursor-ew-resize z-20 transition-opacity duration-150" style="left: 50%; transform: translateX(-50%); width: 36px;">
             <div class="absolute top-0 bottom-0 w-0.5 bg-white shadow-xl"></div>
-            <div class="relative w-8 h-8 bg-white rounded-full shadow-2xl flex items-center justify-center border border-[#305CDE] text-[#305CDE] active:scale-90 transition">
-              <i class="bi bi-arrows-expand-vertical transform rotate-90 text-sm"></i>
+            <div class="relative w-7 h-7 bg-white rounded-full shadow-2xl flex items-center justify-center border border-primary text-primary active:scale-90 transition">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg>
             </div>
           </div>
 
         </div>
       </div>
 
-      <div class="text-center text-[11px] font-medium text-white/50 pb-1 shrink-0">
-        Slide horizontally to inspect veneer & orthodontic restoration
+      <div class="text-center text-[10px] font-medium text-white/50 pb-0.5 shrink-0">
+        Zoom & slide to inspect dental restoration
       </div>
     </div>
 
     <!-- VIEW 5: Records Gallery -->
-    <div id="libraryView" class="hidden absolute inset-0 bg-[#060913]/95 z-50 flex flex-col p-4">
-      <div class="flex items-center justify-between max-w-xl mx-auto w-full mb-3 shrink-0">
-        <button id="closeLibraryBtn" class="liquid-glass px-3.5 py-1.5 rounded-full text-xs font-semibold text-slate-200 shadow-glass transition active:scale-95 flex items-center gap-1.5">
-          <i class="bi bi-chevron-left"></i>
+    <div id="libraryView" class="hidden absolute inset-0 bg-slate-950 z-40 flex flex-col p-3 pt-[max(0.6rem,env(safe-area-inset-top))] pb-[max(0.6rem,env(safe-area-inset-bottom))]">
+      <div class="flex items-center justify-between max-w-sm mx-auto w-full mb-2 shrink-0">
+        <button id="closeLibraryBtn" class="glass-light px-3 py-1.5 rounded-full text-[11px] font-semibold text-slate-700 shadow-glass-light transition active:scale-95 flex items-center space-x-1">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
           <span>Studio</span>
         </button>
         <div class="text-center">
-          <span class="text-xs font-bold text-white uppercase tracking-wider block">Patient Records Archive</span>
-          <span class="text-[9px] text-[#9cb4f8]">Supabase Cloud Sync</span>
+          <span class="text-xs font-bold text-white uppercase tracking-wider block">Records</span>
+          <span class="text-[9px] text-white/60">Tap to inspect</span>
         </div>
         <div class="w-12"></div>
       </div>
 
-      <div class="flex-1 overflow-y-auto max-w-xl mx-auto w-full pr-1">
-        <div id="galleryGrid" class="grid grid-cols-2 md:grid-cols-3 gap-3"></div>
-        <div id="emptyGalleryNotice" class="hidden text-center py-20 space-y-2 text-white">
-          <i class="bi bi-folder2 text-3xl text-white/30"></i>
+      <div class="flex-1 overflow-y-auto max-w-sm mx-auto w-full pr-0.5">
+        <div id="galleryGrid" class="grid grid-cols-2 gap-2"></div>
+        
+        <div id="emptyGalleryNotice" class="hidden text-center py-16 space-y-2 text-white">
+          <div class="w-8 h-8 rounded-xl bg-white/10 text-white flex items-center justify-center mx-auto text-sm font-bold">✦</div>
           <h3 class="text-xs font-bold">No records saved</h3>
-          <p class="text-[11px] text-white/50">Capture or upload a photo to generate records.</p>
+          <p class="text-[11px] text-white/50">Capture a photo to generate records.</p>
         </div>
       </div>
     </div>
 
   </main>
 
-  <!-- CUSTOM TOAST CONTAINER -->
-  <div id="toastContainer" class="fixed bottom-12 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
-
-  <!-- APPLICATION ENGINE -->
   <script>
     // --- SUPABASE CONFIG ---
     const SUPABASE_URL = 'https://lqfzvedrpzihdtmwcdyk.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxZnp2ZWRycHppaGR0bXdjZHlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2MjE2MjUsImV4cCI6MjEwMjE5NzYyNX0.ZXf3hYfr-qWiUxVhbQA9_VymeoTEoGLHoS8ou8xzCOQ';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // --- PROMPTS (Clinical SmileCloud Grade) ---
+    // --- PROMPTS (Implants, Aligners, Braces, Debrace, Veneers, Whitening) ---
     const PROMPTS = {
-      veneers: "High-precision cosmetic dental rehabilitation: Inside the masked area ONLY, replace the teeth with symmetrical, naturally contoured porcelain veneers. Maintain anatomical central incisor width-to-height ratio (78-80%), smooth rounded incisal embrasures, natural enamel micro-translucency, and healthy pink gingival margins. Match natural mouth lighting and lip drape. Do not alter cheek retractors, skin, or unmasked areas.",
-      remove_braces: "Inpaint orthodontic braces removal (debonding): Inside the masked area ONLY, realistically and cleanly remove all orthodontic dental braces, metallic brackets, archwires, elastic bands, and bonding cement residue from the surface of the teeth. Reveal smooth, clean, healthy natural tooth enamel with realistic surface texture, natural dental gloss/reflections, and gum line preservation. Maintain natural tooth anatomy, shading, and alignment as if orthodontic treatment has successfully finished. Do not alter cheek retractors or gums.",
-      implants: "Inpaint clinical dental restoration: Inside the masked zone ONLY, generate a realistic, healthy natural dental crown with anatomical root-emergence profile matching adjacent teeth in shade, enamel translucency, and lighting. Blend seamlessly with the gingival margin.",
+      implants: "Inpaint dental restoration: Inside the masked area, generate a realistic, healthy natural tooth that matches the adjacent teeth in size, curvature, color shade, enamel translucency, and lighting. Blend cleanly with the gum line.",
       aligners: "Inpaint orthodontic alignment: Realign and straighten the teeth inside the masked area to form an even, natural dental curve while preserving natural tooth enamel and textures.",
       braces: "Inpaint orthodontic braces: Add realistic dental bracket attachments and a thin metallic archwire across the teeth inside the masked area with realistic metallic reflections matching the photo lighting.",
-      whitening: "Inpaint clinical teeth whitening: Whiten and brighten the enamel of the teeth in the masked area by 3 shades to clean VITA B1 natural white while preserving natural surface micro-texture and oral shadows."
+      remove_braces: "Inpaint orthodontic braces removal (debonding): Inside the masked area, realistically and cleanly remove all orthodontic dental braces, metallic brackets, archwires, elastic bands, and bonding cement residue from the surface of the teeth. Reveal smooth, clean, healthy natural tooth enamel with realistic surface texture, natural dental gloss/reflections, and gum line preservation. Maintain natural tooth anatomy, shading, and alignment as if orthodontic treatment has successfully finished.",
+      veneers: "Inpaint cosmetic porcelain veneers: Inside the masked area, reconstruct the teeth with premium cosmetic porcelain veneers. Create perfectly aligned, symmetrically contoured teeth with rounded incisal embrasures. Add realistic incisal enamel translucency at the biting edges and a lifelike reflective, glossy glazed coating with natural specular highlights matching the mouth lighting. Seamlessly integrate with healthy pink gingival margins for a stunning, natural cosmetic smile.",
+      whitening: "Inpaint teeth whitening: Whiten and brighten the enamel of the teeth in the masked area by 3 shades to a clean natural white while preserving natural surface texture and shadows."
     };
 
     // State Variables
     let videoStream = null;
     let currentFacingMode = 'environment';
-    let isDrawingMask = false;
+    let isDrawing = false;
     let currentOriginalDataUrl = null;
-    let activePromptType = 'veneers';
-    let studioMode = 'mask'; // 'mask', 'pan', 'cad'
-    let currentImageRotation = 0;
+    let activePromptType = 'implants';
 
     let isViewingGalleryItem = false;
     let currentActiveDocId = null;
     let currentActiveOrigPath = null;
     let currentActiveGenPath = null;
 
-    // Viewport Zoom & Pan
-    let studioZoom = 1;
-    let studioPanX = 0;
-    let studioPanY = 0;
-    let isStudioPanning = false;
-    let panStartX = 0, panStartY = 0;
-    let panOrigX = 0, panOrigY = 0;
+    // Editor Zoom & Pan
+    let currentEditorTool = 'pan';
+    let editorZoom = 1;
+    let editorPanX = 0;
+    let editorPanY = 0;
+    let isEditorPanning = false;
+    let editorPanStartX = 0;
+    let editorPanStartY = 0;
+    let editorPanOrigX = 0;
+    let editorPanOrigY = 0;
+    let editorInitialPinchDist = 0;
+    let editorInitialPinchZoom = 1;
+    let editorPinchMidX = 0;
+    let editorPinchMidY = 0;
+    let cachedEditorRect = null;
+    let editorRafPending = false;
 
-    // Comparison Slider
+    // Comparison Zoom & Pan
+    let compMode = 'split';
     let compZoom = 1;
-    let compPanX = 0, compPanY = 0;
+    let compPanX = 0;
+    let compPanY = 0;
     let compSplitPercent = 0.5;
-    let compTargetW = 440, compTargetH = 440;
+    let compTargetW = 320;
+    let compTargetH = 320;
     let isCompSliding = false;
+    let isCompPanning = false;
+    let compPanStartX = 0;
+    let compPanStartY = 0;
+    let compPanOrigX = 0;
+    let compPanOrigY = 0;
+    let compInitialPinchDist = 0;
+    let compInitialPinchZoom = 1;
+    let compPinchMidX = 0;
+    let compPinchMidY = 0;
+    let cachedCompRect = null;
+    let compRafPending = false;
 
     // DOM Elements
     const mainHeader = document.getElementById('mainHeader');
@@ -526,30 +500,31 @@
     const maskCanvas = document.getElementById('maskCanvas');
     const baseCtx = baseCanvas.getContext('2d', { willReadFrequently: true });
     const maskCtx = maskCanvas.getContext('2d', { willReadFrequently: true });
+    
+    const brushSizeInput = document.getElementById('brushSize');
+    const brushSizeLabel = document.getElementById('brushSizeLabel');
+    const editorToolPanBtn = document.getElementById('editorToolPanBtn');
+    const editorToolBrushBtn = document.getElementById('editorToolBrushBtn');
+    const editorZoomInBtn = document.getElementById('editorZoomInBtn');
+    const editorZoomOutBtn = document.getElementById('editorZoomOutBtn');
+    const editorZoomResetBtn = document.getElementById('editorZoomResetBtn');
+    const editorZoomLabel = document.getElementById('editorZoomLabel');
+
+    const compModeSplitBtn = document.getElementById('compModeSplitBtn');
+    const compModePanBtn = document.getElementById('compModePanBtn');
+    const compZoomInBtn = document.getElementById('compZoomInBtn');
+    const compZoomOutBtn = document.getElementById('compZoomOutBtn');
+    const compZoomResetBtn = document.getElementById('compZoomResetBtn');
+    const compZoomLabel = document.getElementById('compZoomLabel');
 
     const [cameraView, editorView, processingView, comparisonView, libraryView] = 
       ['cameraView', 'editorView', 'processingView', 'comparisonView', 'libraryView'].map(id => document.getElementById(id));
 
-    // Toast Functionality
-    function showToast(msg, type = 'info') {
-      const container = document.getElementById('toastContainer');
-      const toast = document.createElement('div');
-      toast.className = 'liquid-glass px-4 py-2 text-xs text-white rounded-xl shadow-2xl flex items-center gap-2 border border-white/20 transition-all duration-300 opacity-0 translate-y-2';
-      let icon = '<i class="bi bi-info-circle-fill text-blue-400"></i>';
-      if (type === 'success') icon = '<i class="bi bi-check-circle-fill text-emerald-400"></i>';
-      if (type === 'error') icon = '<i class="bi bi-exclamation-triangle-fill text-rose-400"></i>';
-      toast.innerHTML = `${icon}<span>${msg}</span>`;
-      container.appendChild(toast);
-      requestAnimationFrame(() => toast.classList.remove('opacity-0', 'translate-y-2'));
-      setTimeout(() => {
-        toast.classList.add('opacity-0', 'translate-y-2');
-        setTimeout(() => toast.remove(), 300);
-      }, 3000);
-    }
-
-    // --- CAMERA INITIALIZATION ---
+    // --- CAMERA INIT ---
     async function initCamera() {
-      if (videoStream) videoStream.getTracks().forEach(t => t.stop());
+      if (videoStream) {
+        videoStream.getTracks().forEach(t => t.stop());
+      }
       try {
         videoStream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: currentFacingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
@@ -567,104 +542,97 @@
       initCamera();
     });
 
-    // --- TREATMENT PILLS ---
+    // --- TREATMENT TOGGLES ---
     const treatmentPills = document.querySelectorAll('.treatment-pill');
     treatmentPills.forEach(pill => {
       pill.addEventListener('click', () => {
         activePromptType = pill.getAttribute('data-treatment');
         treatmentPills.forEach(p => {
-          p.className = 'treatment-pill flex flex-col items-center justify-center py-1.5 px-1 rounded-xl border border-white/15 bg-white/[0.06] hover:bg-white/[0.12] text-slate-200 transition active:scale-95';
+          p.className = 'treatment-pill flex flex-col items-center justify-center py-1 px-0.5 rounded-xl border border-slate-200 bg-white/70 hover:bg-white text-slate-700 transition active:scale-95';
         });
-        pill.className = 'treatment-pill flex flex-col items-center justify-center py-1.5 px-1 rounded-xl border border-[#305CDE] bg-[#305CDE] text-white transition active:scale-95 shadow-pill';
+        pill.className = 'treatment-pill flex flex-col items-center justify-center py-1 px-0.5 rounded-xl border border-primary bg-primary text-white transition active:scale-95 shadow-sm';
       });
     });
 
-    // --- ROTATE IMAGE 90° (Fix Sideways Orientation) ---
-    function rotateStudioImage(deg = 90) {
-      currentImageRotation = (currentImageRotation + deg) % 360;
-      const tempBase = document.createElement('canvas');
-      tempBase.width = baseCanvas.height;
-      tempBase.height = baseCanvas.width;
-      const tCtx = tempBase.getContext('2d');
-      tCtx.translate(tempBase.width / 2, tempBase.height / 2);
-      tCtx.rotate((deg * Math.PI) / 180);
-      tCtx.drawImage(baseCanvas, -baseCanvas.width / 2, -baseCanvas.height / 2);
-
-      // Re-prepare with rotated canvas
-      prepareEditor(tempBase, tempBase.width, tempBase.height);
-      showToast('Image rotated 90° upright', 'info');
+    // --- TOOL SWITCHING ---
+    function setEditorTool(tool) {
+      currentEditorTool = tool;
+      if (tool === 'brush') {
+        editorToolBrushBtn.className = "flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 bg-primary text-white shadow-pill";
+        editorToolPanBtn.className = "flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 text-slate-300 hover:text-white";
+        canvasContainer.className = "relative rounded-2xl overflow-hidden bg-black flex items-center justify-center cursor-crosshair border border-white/20 shadow-glass";
+      } else {
+        editorToolPanBtn.className = "flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 bg-primary text-white shadow-pill";
+        editorToolBrushBtn.className = "flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 text-slate-300 hover:text-white";
+        canvasContainer.className = "relative rounded-2xl overflow-hidden bg-black flex items-center justify-center cursor-grab border border-white/20 shadow-glass";
+      }
     }
 
-    // --- EDITOR MODE SWITCHING (Mask vs Move vs CAD) ---
-    function switchStudioMode(mode) {
-      studioMode = mode;
-      const maskBtn = document.getElementById('toolModeMaskBtn');
-      const panBtn = document.getElementById('toolModePanBtn');
-      const cadBtn = document.getElementById('toolModeCadBtn');
-      const fabricWrapper = document.getElementById('fabricOverlayWrapper');
-      const cadToolbar = document.getElementById('cadToolbar');
-      const brushBar = document.getElementById('brushControlBar');
+    editorToolPanBtn.addEventListener('click', () => setEditorTool('pan'));
+    editorToolBrushBtn.addEventListener('click', () => setEditorTool('brush'));
 
-      [maskBtn, panBtn, cadBtn].forEach(b => {
-        b.className = "flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition text-slate-300 hover:text-white";
+    // --- EDITOR ZOOM & PAN ENGINE ---
+    function clampEditorPan() {
+      const contW = canvasContainer.clientWidth;
+      const contH = canvasContainer.clientHeight;
+      const contentW = contW * editorZoom;
+      const contentH = contH * editorZoom;
+
+      if (editorZoom <= 1) {
+        editorPanX = 0;
+        editorPanY = 0;
+        return;
+      }
+
+      const minX = contW - contentW - 30;
+      const maxX = 30;
+      const minY = contH - contentH - 30;
+      const maxY = 30;
+
+      editorPanX = Math.min(Math.max(editorPanX, minX), maxX);
+      editorPanY = Math.min(Math.max(editorPanY, minY), maxY);
+    }
+
+    function updateEditorTransform() {
+      if (editorRafPending) return;
+      editorRafPending = true;
+      requestAnimationFrame(() => {
+        clampEditorPan();
+        editorViewport.style.transform = `translate3d(${editorPanX}px, ${editorPanY}px, 0) scale(${editorZoom})`;
+        editorZoomLabel.textContent = `${Math.round(editorZoom * 100)}%`;
+        editorRafPending = false;
       });
-
-      if (mode === 'mask') {
-        maskBtn.className = "flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition bg-[#305CDE] text-white shadow-pill";
-        canvasContainer.style.cursor = 'crosshair';
-        fabricWrapper.classList.add('hidden');
-        cadToolbar.classList.add('hidden');
-        brushBar.classList.remove('hidden');
-      } else if (mode === 'pan') {
-        panBtn.className = "flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition bg-[#305CDE] text-white shadow-pill";
-        canvasContainer.style.cursor = 'grab';
-        fabricWrapper.classList.add('hidden');
-        cadToolbar.classList.add('hidden');
-        brushBar.classList.add('hidden');
-      } else if (mode === 'cad') {
-        cadBtn.className = "flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition bg-[#305CDE] text-white shadow-pill";
-        canvasContainer.style.cursor = 'default';
-        fabricWrapper.classList.remove('hidden');
-        cadToolbar.classList.remove('hidden');
-        brushBar.classList.add('hidden');
-        initFabricCadOverlay();
-      }
     }
 
-    // --- ZOOM & PAN LOGIC ---
-    function updateStudioTransform() {
-      editorViewport.style.transform = `translate3d(${studioPanX}px, ${studioPanY}px, 0) scale(${studioZoom})`;
-      document.getElementById('studioZoomLabel').textContent = `${Math.round(studioZoom * 100)}%`;
-      if (fabricCadCanvasInstance) {
-        fabricCadCanvasInstance.setViewportTransform([studioZoom, 0, 0, studioZoom, studioPanX, studioPanY]);
-      }
+    function zoomEditorAt(newZoom, centerX, centerY) {
+      newZoom = Math.min(Math.max(newZoom, 1), 6);
+      if (Math.abs(newZoom - editorZoom) < 0.001) return;
+      
+      const factor = newZoom / editorZoom;
+      editorPanX = centerX - (centerX - editorPanX) * factor;
+      editorPanY = centerY - (centerY - editorPanY) * factor;
+      editorZoom = newZoom;
+      updateEditorTransform();
     }
 
-    function zoomStudioAt(newZoom, cx, cy) {
-      newZoom = Math.min(Math.max(newZoom, 0.5), 10);
-      const factor = newZoom / studioZoom;
-      studioPanX = cx - (cx - studioPanX) * factor;
-      studioPanY = cy - (cy - studioPanY) * factor;
-      studioZoom = newZoom;
-      updateStudioTransform();
-    }
+    editorZoomInBtn.addEventListener('click', () => {
+      zoomEditorAt(editorZoom + 0.5, canvasContainer.clientWidth / 2, canvasContainer.clientHeight / 2);
+    });
 
-    function zoomStudioIn() {
-      zoomStudioAt(studioZoom + 0.35, canvasContainer.clientWidth / 2, canvasContainer.clientHeight / 2);
-    }
-    function zoomStudioOut() {
-      zoomStudioAt(studioZoom - 0.35, canvasContainer.clientWidth / 2, canvasContainer.clientHeight / 2);
-    }
-    function resetStudioZoom() {
-      studioZoom = 1;
-      studioPanX = 0;
-      studioPanY = 0;
-      updateStudioTransform();
-    }
+    editorZoomOutBtn.addEventListener('click', () => {
+      zoomEditorAt(editorZoom - 0.5, canvasContainer.clientWidth / 2, canvasContainer.clientHeight / 2);
+    });
 
-    // --- PREPARE EDITOR STUDIO ---
+    editorZoomResetBtn.addEventListener('click', () => {
+      editorZoom = 1;
+      editorPanX = 0;
+      editorPanY = 0;
+      updateEditorTransform();
+    });
+
+    // --- IMAGE SCALING ENGINE ---
     function prepareEditor(source, origW, origH) {
-      const MAX_SIZE = 1000;
+      const MAX_SIZE = 800;
       let width = origW;
       let height = origH;
       const aspectRatio = origW / origH;
@@ -696,9 +664,8 @@
       editorView.classList.remove('hidden');
       editorView.classList.add('fade-enter');
 
-      // Desktop Adaptive Display Sizing
-      const availW = Math.min(editorCanvasWrapper.clientWidth - 20, 1100);
-      const availH = Math.max(220, editorCanvasWrapper.clientHeight - 20);
+      const availW = Math.min(editorCanvasWrapper.clientWidth - 12, 420);
+      const availH = Math.max(160, editorCanvasWrapper.clientHeight - 8);
 
       let displayW, displayH;
       if (availW / availH < aspectRatio) {
@@ -718,11 +685,11 @@
       maskCanvas.style.width = `${displayW}px`;
       maskCanvas.style.height = `${displayH}px`;
 
-      studioZoom = 1;
-      studioPanX = 0;
-      studioPanY = 0;
-      updateStudioTransform();
-      switchStudioMode('mask');
+      editorZoom = 1;
+      editorPanX = 0;
+      editorPanY = 0;
+      updateEditorTransform();
+      setEditorTool('pan');
     }
 
     document.getElementById('captureBtn').addEventListener('click', () => {
@@ -758,284 +725,174 @@
       maskCtx.fillStyle = '#000000';
       maskCtx.fillRect(0, 0, maskCanvas.width, maskCanvas.height);
     }
+    document.getElementById('clearMaskBtn').addEventListener('click', clearMask);
 
-    document.getElementById('brushSize').addEventListener('input', (e) => {
-      document.getElementById('brushSizeLabel').textContent = `${e.target.value}px`;
+    brushSizeInput.addEventListener('input', (e) => {
+      brushSizeLabel.textContent = `${e.target.value}px`;
     });
 
-    // --- MASK DRAWING LOGIC ---
-    function getMaskCoordinates(e) {
-      const rect = maskCanvas.getBoundingClientRect();
-      const scaleX = maskCanvas.width / rect.width;
-      const scaleY = maskCanvas.height / rect.height;
-      return {
-        x: (e.clientX - rect.left) * scaleX,
-        y: (e.clientY - rect.top) * scaleY
+    function getCanvasCoordinates(canvas, evt, rect) {
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      let clientX = evt.clientX;
+      let clientY = evt.clientY;
+      if (evt.touches && evt.touches.length > 0) {
+        clientX = evt.touches[0].clientX;
+        clientY = evt.touches[0].clientY;
+      }
+      return { 
+        x: (clientX - rect.left) * scaleX, 
+        y: (clientY - rect.top) * scaleY 
       };
     }
 
+    function startDraw(e) {
+      if (currentEditorTool !== 'brush') return;
+      e.preventDefault();
+      isDrawing = true;
+      cachedEditorRect = maskCanvas.getBoundingClientRect();
+      const pos = getCanvasCoordinates(maskCanvas, e, cachedEditorRect);
+      maskCtx.beginPath();
+      maskCtx.moveTo(pos.x, pos.y);
+      draw(e);
+    }
+
+    function endDraw(e) {
+      if (!isDrawing) return;
+      if (e && e.cancelable) e.preventDefault();
+      isDrawing = false;
+      cachedEditorRect = null;
+      maskCtx.beginPath();
+    }
+
+    function draw(e) {
+      if (!isDrawing || currentEditorTool !== 'brush') return;
+      if (e.cancelable) e.preventDefault();
+      if (!cachedEditorRect) cachedEditorRect = maskCanvas.getBoundingClientRect();
+      const pos = getCanvasCoordinates(maskCanvas, e, cachedEditorRect);
+      const scaleFactor = maskCanvas.width / cachedEditorRect.width;
+      maskCtx.lineWidth = brushSizeInput.value * scaleFactor;
+      maskCtx.lineCap = 'round';
+      maskCtx.lineJoin = 'round';
+      maskCtx.strokeStyle = '#FFFFFF';
+      maskCtx.lineTo(pos.x, pos.y);
+      maskCtx.stroke();
+      maskCtx.beginPath();
+      maskCtx.moveTo(pos.x, pos.y);
+    }
+
+    function getTouchesDist(t1, t2) {
+      const dx = t1.clientX - t2.clientX;
+      const dy = t1.clientY - t2.clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    // --- MOUSE & TOUCH EVENT LISTENERS ---
     canvasContainer.addEventListener('mousedown', (e) => {
-      if (studioMode === 'mask') {
-        isDrawingMask = true;
-        const pos = getMaskCoordinates(e);
-        maskCtx.beginPath();
-        maskCtx.moveTo(pos.x, pos.y);
-      } else if (studioMode === 'pan') {
-        isStudioPanning = true;
-        panStartX = e.clientX;
-        panStartY = e.clientY;
-        panOrigX = studioPanX;
-        panOrigY = studioPanY;
+      if (currentEditorTool === 'brush') {
+        startDraw(e);
+      } else {
+        isEditorPanning = true;
+        editorPanStartX = e.clientX;
+        editorPanStartY = e.clientY;
+        editorPanOrigX = editorPanX;
+        editorPanOrigY = editorPanY;
         canvasContainer.style.cursor = 'grabbing';
       }
     });
 
     window.addEventListener('mousemove', (e) => {
-      if (isDrawingMask && studioMode === 'mask') {
-        const pos = getMaskCoordinates(e);
-        const brushSize = document.getElementById('brushSize').value;
-        const rect = maskCanvas.getBoundingClientRect();
-        const scaleFactor = maskCanvas.width / rect.width;
-
-        maskCtx.lineWidth = brushSize * scaleFactor;
-        maskCtx.lineCap = 'round';
-        maskCtx.lineJoin = 'round';
-        maskCtx.strokeStyle = '#FFFFFF';
-        maskCtx.lineTo(pos.x, pos.y);
-        maskCtx.stroke();
-        maskCtx.beginPath();
-        maskCtx.moveTo(pos.x, pos.y);
-      } else if (isStudioPanning && studioMode === 'pan') {
-        studioPanX = panOrigX + (e.clientX - panStartX);
-        studioPanY = panOrigY + (e.clientY - panStartY);
-        updateStudioTransform();
+      if (isDrawing && currentEditorTool === 'brush') {
+        draw(e);
+      } else if (isEditorPanning) {
+        editorPanX = editorPanOrigX + (e.clientX - editorPanStartX);
+        editorPanY = editorPanOrigY + (e.clientY - editorPanStartY);
+        updateEditorTransform();
       }
     });
 
-    window.addEventListener('mouseup', () => {
-      if (isDrawingMask) {
-        isDrawingMask = false;
-        maskCtx.beginPath();
-      }
-      if (isStudioPanning) {
-        isStudioPanning = false;
-        if (studioMode === 'pan') canvasContainer.style.cursor = 'grab';
+    window.addEventListener('mouseup', (e) => {
+      if (isDrawing) endDraw(e);
+      if (isEditorPanning) {
+        isEditorPanning = false;
+        if (currentEditorTool === 'pan') canvasContainer.style.cursor = 'grab';
       }
     });
 
-    // --- NATURAL FIGMA-STYLE WHEEL NAVIGATION ---
-    canvasContainer.addEventListener('wheel', (e) => {
-      e.preventDefault();
-      if (e.ctrlKey || e.metaKey) {
-        const rect = canvasContainer.getBoundingClientRect();
-        const cursorX = e.clientX - rect.left;
-        const cursorY = e.clientY - rect.top;
-        const zoomDelta = -Math.sign(e.deltaY) * 0.25;
-        zoomStudioAt(studioZoom + zoomDelta, cursorX, cursorY);
-      } else if (e.shiftKey) {
-        // Shift + Wheel = Horizontal Scroll
-        studioPanX -= e.deltaY;
-        updateStudioTransform();
-      } else {
-        // Normal Wheel = Vertical & Horizontal Pan
-        studioPanX -= e.deltaX;
-        studioPanY -= e.deltaY;
-        updateStudioTransform();
+    canvasContainer.addEventListener('touchstart', (e) => {
+      cachedEditorRect = canvasContainer.getBoundingClientRect();
+      if (e.touches.length === 2) {
+        if (isDrawing) endDraw(e);
+        isEditorPanning = false;
+        editorInitialPinchDist = getTouchesDist(e.touches[0], e.touches[1]);
+        editorInitialPinchZoom = editorZoom;
+        editorPinchMidX = ((e.touches[0].clientX + e.touches[1].clientX) / 2) - cachedEditorRect.left;
+        editorPinchMidY = ((e.touches[0].clientY + e.touches[1].clientY) / 2) - cachedEditorRect.top;
+      } else if (e.touches.length === 1) {
+        if (currentEditorTool === 'brush') {
+          startDraw(e);
+        } else {
+          isEditorPanning = true;
+          editorPanStartX = e.touches[0].clientX;
+          editorPanStartY = e.touches[0].clientY;
+          editorPanOrigX = editorPanX;
+          editorPanOrigY = editorPanY;
+        }
       }
     }, { passive: false });
 
-    // --- FABRIC CAD OVERLAY SYSTEM ---
-    let fabricCadCanvasInstance = null;
-    let cadShapeCounter = 0;
-
-    function initFabricCadOverlay() {
-      if (!fabricCadCanvasInstance) {
-        fabricCadCanvasInstance = new fabric.Canvas('fabricCadCanvas', {
-          width: baseCanvas.width,
-          height: baseCanvas.height,
-          selection: true,
-          preserveObjectStacking: true
-        });
-
-        fabricCadCanvasInstance.on('object:added', updateCadLayersList);
-        fabricCadCanvasInstance.on('object:removed', updateCadLayersList);
-        fabricCadCanvasInstance.on('selection:created', updateCadLayersList);
-        fabricCadCanvasInstance.on('selection:cleared', updateCadLayersList);
-      }
-      fabricCadCanvasInstance.setWidth(baseCanvas.width);
-      fabricCadCanvasInstance.setHeight(baseCanvas.height);
-      updateStudioTransform();
-    }
-
-    function addCadMidLine() {
-      initFabricCadOverlay();
-      const line = new fabric.Line([100, 100, 300, 100], {
-        stroke: '#305CDE',
-        strokeWidth: 1.5,
-        strokeUniform: true,
-        name: `Mid Line ${++cadShapeCounter}`
-      });
-      fabricCadCanvasInstance.add(line);
-      fabricCadCanvasInstance.setActiveObject(line);
-      showToast('Mid Line added', 'success');
-    }
-
-    function addCadRuler() {
-      initFabricCadOverlay();
-      const len = 120; // default ~12.0 mm
-      const line = new fabric.Line([100, 200, 100 + len, 200], {
-        stroke: '#ff4757',
-        strokeWidth: 1.5,
-        strokeUniform: true
-      });
-      const text = new fabric.Text('12.00 mm', {
-        left: 120,
-        top: 180,
-        fontSize: 12,
-        fill: '#ff4757',
-        fontFamily: 'Inter',
-        fontWeight: 'bold'
-      });
-      const group = new fabric.Group([line, text], {
-        left: 100,
-        top: 180,
-        name: `Ruler (12.00 mm)`,
-        strokeUniform: true
-      });
-      fabricCadCanvasInstance.add(group);
-      fabricCadCanvasInstance.setActiveObject(group);
-      showToast('Measurement Ruler added', 'success');
-    }
-
-    function addCadBezierCurve() {
-      initFabricCadOverlay();
-      const p0 = { x: 100, y: 150 };
-      const p1 = { x: 200, y: 50 };
-      const p2 = { x: 300, y: 150 };
-      const curve = new fabric.Path(`M ${p0.x} ${p0.y} Q ${p1.x} ${p1.y} ${p2.x} ${p2.y}`, {
-        stroke: '#305CDE',
-        fill: '',
-        strokeWidth: 2,
-        strokeUniform: true,
-        name: `Bézier Curve ${++cadShapeCounter}`
-      });
-      fabricCadCanvasInstance.add(curve);
-      fabricCadCanvasInstance.setActiveObject(curve);
-      showToast('Bézier Curve added', 'success');
-    }
-
-    function addCadPencil() {
-      initFabricCadOverlay();
-      fabricCadCanvasInstance.isDrawingMode = true;
-      fabricCadCanvasInstance.freeDrawingBrush = new fabric.PencilBrush(fabricCadCanvasInstance);
-      fabricCadCanvasInstance.freeDrawingBrush.width = 2;
-      fabricCadCanvasInstance.freeDrawingBrush.color = '#ffffff';
-      showToast('Pencil mode active (White stroke)', 'info');
-    }
-
-    function addCadNoteCard() {
-      initFabricCadOverlay();
-      const rect = new fabric.Rect({
-        width: 180, height: 90, rx: 12, ry: 12,
-        fill: 'rgba(10, 18, 48, 0.85)', stroke: '#305CDE', strokeWidth: 1.5, strokeUniform: true
-      });
-      const text = new fabric.Text('Clinical Note:\nTooth restoration', {
-        left: 14, top: 14, fontSize: 11, fill: '#dcdfe8', fontFamily: 'Inter'
-      });
-      const group = new fabric.Group([rect, text], {
-        left: 150, top: 150, name: `Note Card ${++cadShapeCounter}`, strokeUniform: true
-      });
-      fabricCadCanvasInstance.add(group);
-      fabricCadCanvasInstance.setActiveObject(group);
-      showToast('Note Box added', 'success');
-    }
-
-    function autoGenerateMaskFromCad() {
-      if (!fabricCadCanvasInstance || fabricCadCanvasInstance.getObjects().length === 0) {
-        showToast('No CAD stencils on canvas. Drawing default dental mask.', 'info');
-        // Anatomical default smile mask
-        const w = maskCanvas.width, h = maskCanvas.height;
-        maskCtx.fillStyle = '#FFFFFF';
-        maskCtx.beginPath();
-        maskCtx.ellipse(w * 0.5, h * 0.55, w * 0.28, h * 0.16, 0, 0, Math.PI * 2);
-        maskCtx.fill();
-        switchStudioMode('mask');
-        return;
-      }
-
-      // Convert all CAD vector shapes directly into white mask
-      const cadData = fabricCadCanvasInstance.toDataURL({ multiplier: 1 });
-      const img = new Image();
-      img.onload = () => {
-        maskCtx.fillStyle = '#FFFFFF';
-        maskCtx.drawImage(img, 0, 0);
-        switchStudioMode('mask');
-        showToast('Auto-generated mask from CAD lines!', 'success');
-      };
-      img.src = cadData;
-    }
-
-    function toggleCadLayers() {
-      const drawer = document.getElementById('cadLayersDrawer');
-      drawer.classList.toggle('hidden');
-      updateCadLayersList();
-    }
-
-    function updateCadLayersList() {
-      if (!fabricCadCanvasInstance) return;
-      const list = document.getElementById('cadLayersList');
-      const objects = fabricCadCanvasInstance.getObjects().slice().reverse();
-      list.innerHTML = '';
-
-      if (objects.length === 0) {
-        list.innerHTML = '<div class="text-white/40 text-center py-6 text-[10px]">No CAD layers</div>';
-        return;
-      }
-
-      objects.forEach((obj, idx) => {
-        const div = document.createElement('div');
-        div.draggable = true;
-        div.className = 'flex items-center justify-between p-1.5 bg-white/5 hover:bg-white/10 rounded-lg cursor-grab border border-white/10';
-        div.innerHTML = `
-          <span class="truncate flex-1 text-slate-200">${obj.name || 'Object'}</span>
-          <button class="text-rose-400 p-0.5 hover:text-white" onclick="event.stopPropagation(); fabricCadCanvasInstance.remove(obj); updateCadLayersList();"><i class="bi bi-x"></i></button>
-        `;
-
-        div.onclick = () => {
-          fabricCadCanvasInstance.setActiveObject(obj);
-          fabricCadCanvasInstance.requestRenderAll();
-        };
-
-        // Drag to reorder
-        div.ondragstart = (e) => e.dataTransfer.setData('text/plain', idx);
-        div.ondragover = (e) => e.preventDefault();
-        div.ondrop = (e) => {
+    canvasContainer.addEventListener('touchmove', (e) => {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        const dist = getTouchesDist(e.touches[0], e.touches[1]);
+        const targetZoom = editorInitialPinchZoom * (dist / editorInitialPinchDist);
+        zoomEditorAt(targetZoom, editorPinchMidX, editorPinchMidY);
+      } else if (e.touches.length === 1) {
+        if (isDrawing && currentEditorTool === 'brush') {
+          draw(e);
+        } else if (isEditorPanning) {
           e.preventDefault();
-          const fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
-          const toIdx = idx;
-          const targetObj = objects[fromIdx];
-          fabricCadCanvasInstance.moveTo(targetObj, objects.length - 1 - toIdx);
-          fabricCadCanvasInstance.requestRenderAll();
-          updateCadLayersList();
-        };
+          editorPanX = editorPanOrigX + (e.touches[0].clientX - editorPanStartX);
+          editorPanY = editorPanOrigY + (e.touches[0].clientY - editorPanStartY);
+          updateEditorTransform();
+        }
+      }
+    }, { passive: false });
 
-        list.appendChild(div);
-      });
-    }
+    canvasContainer.addEventListener('touchend', (e) => {
+      if (e.touches.length < 2) editorInitialPinchDist = 0;
+      if (e.touches.length === 0) {
+        if (isDrawing) endDraw(e);
+        isEditorPanning = false;
+        cachedEditorRect = null;
+      }
+    });
 
-    // --- ALPHA FEATHERING & COMPOSITING ---
+    canvasContainer.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const rect = canvasContainer.getBoundingClientRect();
+      const cursorX = e.clientX - rect.left;
+      const cursorY = e.clientY - rect.top;
+      const zoomDelta = -Math.sign(e.deltaY) * 0.25;
+      zoomEditorAt(editorZoom + zoomDelta, cursorX, cursorY);
+    }, { passive: false });
+
+    // --- COMPOSITING & AUTOSAVE ---
     function createAlphaMask(maskCanvas, blurRadius = 2) {
       const alphaCanvas = document.createElement('canvas');
       alphaCanvas.width = maskCanvas.width;
       alphaCanvas.height = maskCanvas.height;
       const aCtx = alphaCanvas.getContext('2d');
+      
       aCtx.drawImage(maskCanvas, 0, 0);
-
       const imgData = aCtx.getImageData(0, 0, alphaCanvas.width, alphaCanvas.height);
       const d = imgData.data;
+      
       for (let i = 0; i < d.length; i += 4) {
         const brightness = (d[i] + d[i+1] + d[i+2]) / 3;
-        d[i] = 255; d[i+1] = 255; d[i+2] = 255;
+        d[i] = 255;
+        d[i+1] = 255;
+        d[i+2] = 255;
         d[i+3] = brightness;
       }
       aCtx.putImageData(imgData, 0, 0);
@@ -1084,21 +941,68 @@
       });
     }
 
-    // --- SUBMIT INPAINTING REQUEST ---
+    async function convertToWebP(src) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = 'Anonymous';
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.naturalWidth || img.width;
+          canvas.height = img.naturalHeight || img.height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+          canvas.toBlob((blob) => {
+            if (blob) resolve(blob);
+            else reject(new Error("Conversion failed"));
+          }, 'image/webp', 0.88);
+        };
+        img.onerror = reject;
+        img.src = src;
+      });
+    }
+
+    async function triggerAutoSave(originalSrc, finalCompositeSrc) {
+      const autoSaveBadge = document.getElementById('autoSaveBadge');
+      const autoSaveIcon = document.getElementById('autoSaveIcon');
+      const autoSaveText = document.getElementById('autoSaveText');
+
+      autoSaveBadge.classList.remove('hidden');
+      autoSaveIcon.className = "w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse";
+      autoSaveText.textContent = "Auto-saving...";
+
+      try {
+        const timestamp = Date.now();
+        const origPath = `original_${timestamp}.webp`;
+        const genPath = `generated_${timestamp}.webp`;
+
+        const [origBlob, genBlob] = await Promise.all([
+          convertToWebP(originalSrc),
+          convertToWebP(finalCompositeSrc)
+        ]);
+
+        await Promise.all([
+          supabaseClient.storage.from('photos').upload(origPath, origBlob, { contentType: 'image/webp' }),
+          supabaseClient.storage.from('photos').upload(genPath, genBlob, { contentType: 'image/webp' })
+        ]);
+
+        await supabaseClient.from('gallery').insert([{
+          original_image_path: origPath,
+          generated_image_path: genPath
+        }]);
+
+        autoSaveIcon.className = "w-1.5 h-1.5 rounded-full bg-emerald-400";
+        autoSaveText.textContent = "✓ Saved";
+        loadGalleryThumbnail();
+      } catch (err) {
+        console.error("Autosave error:", err);
+        autoSaveIcon.className = "w-1.5 h-1.5 rounded-full bg-rose-400";
+        autoSaveText.textContent = "Saved locally";
+      }
+    }
+
+    // --- SUBMISSION HANDLER ---
     document.getElementById('submitBtn').addEventListener('click', async () => {
-      // Validate mask has content
-      const maskPixels = maskCtx.getImageData(0, 0, maskCanvas.width, maskCanvas.height).data;
-      let hasWhite = false;
-      for (let i = 0; i < maskPixels.length; i += 4) {
-        if (maskPixels[i] > 100) { hasWhite = true; break; }
-      }
-
-      if (!hasWhite) {
-        showToast('Please brush over the teeth area or click Auto-Mask CAD first.', 'error');
-        return;
-      }
-
-      const promptToUse = PROMPTS[activePromptType] || PROMPTS.veneers;
+      const promptToUse = PROMPTS[activePromptType];
       const base64Image = baseCanvas.toDataURL('image/jpeg', 0.95).split(',')[1];
       const base64Mask = maskCanvas.toDataURL('image/png').split(',')[1];
 
@@ -1108,14 +1012,14 @@
       const timerText = document.getElementById('timerText');
       const progressBar = document.getElementById('progressBar');
       const stepText = document.getElementById('processingStepText');
-      stepText.textContent = "Synthesizing smile anatomy...";
-      timerText.textContent = "Processing... 0s";
+      
+      stepText.textContent = "Doing magic it is...";
+      timerText.textContent = "Doing magic it is... 0s";
 
       const timer = setInterval(() => {
         seconds++;
-        timerText.textContent = `Processing... ${seconds}s`;
-        if (seconds === 3) stepText.textContent = "Reconstructing enamel micro-texture...";
-        if (seconds === 7) stepText.textContent = "Sculpting incisal embrasures & translucency...";
+        timerText.textContent = `Doing magic it is... ${seconds}s`;
+        stepText.textContent = "Doing magic it is...";
         progressBar.style.width = `${Math.min(20 + seconds * 10, 95)}%`;
       }, 1000);
 
@@ -1162,27 +1066,116 @@
 
       } catch (err) {
         console.error(err);
-        showToast("Inpainting failed. Please paint target tooth area clearly.", "error");
+        alert("Inpainting failed. Please paint target tooth area clearly.");
       } finally {
         clearInterval(timer);
         processingView.classList.add('hidden');
       }
     });
 
-    // --- SETUP BEFORE / AFTER SLIDER ---
+    // --- COMPARISON TOOL MODE (PAN VS SLIDE SEPARATION) ---
+    function setCompMode(mode) {
+      compMode = mode;
+      const slider = document.getElementById('sliderHandle');
+      const container = document.getElementById('compareContainer');
+
+      if (mode === 'pan') {
+        compModePanBtn.className = "flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 bg-primary text-white shadow-pill";
+        compModeSplitBtn.className = "flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 text-slate-300 hover:text-white";
+        container.style.cursor = 'grab';
+        
+        slider.style.pointerEvents = 'none';
+        slider.style.opacity = '0.35';
+      } else {
+        compModeSplitBtn.className = "flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 bg-primary text-white shadow-pill";
+        compModePanBtn.className = "flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 text-slate-300 hover:text-white";
+        container.style.cursor = 'ew-resize';
+        
+        slider.style.pointerEvents = 'auto';
+        slider.style.opacity = '1';
+      }
+    }
+
+    compModeSplitBtn.addEventListener('click', () => setCompMode('split'));
+    compModePanBtn.addEventListener('click', () => setCompMode('pan'));
+
+    function clampCompPan() {
+      if (compZoom <= 1) {
+        compPanX = 0;
+        compPanY = 0;
+        return;
+      }
+      const minX = compTargetW * (1 - compZoom) - 30;
+      const maxX = 30;
+      const minY = compTargetH * (1 - compZoom) - 30;
+      const maxY = 30;
+
+      compPanX = Math.min(Math.max(compPanX, minX), maxX);
+      compPanY = Math.min(Math.max(compPanY, minY), maxY);
+    }
+
+    function updateCompTransform() {
+      if (compRafPending) return;
+      compRafPending = true;
+      requestAnimationFrame(() => {
+        clampCompPan();
+        const viewport = document.getElementById('compareViewport');
+        const overlay = document.getElementById('imgOverlayWrapper');
+        const slider = document.getElementById('sliderHandle');
+
+        viewport.style.transform = `translate3d(${compPanX}px, ${compPanY}px, 0) scale(${compZoom})`;
+        compZoomLabel.textContent = `${Math.round(compZoom * 100)}%`;
+
+        const unscaledSplitX = compSplitPercent * compTargetW;
+        overlay.style.width = `${unscaledSplitX}px`;
+
+        const screenSplitX = compPanX + (unscaledSplitX * compZoom);
+        slider.style.left = `${screenSplitX}px`;
+        compRafPending = false;
+      });
+    }
+
+    function zoomCompAt(newZoom, centerX, centerY) {
+      newZoom = Math.min(Math.max(newZoom, 1), 6);
+      if (Math.abs(newZoom - compZoom) < 0.001) return;
+
+      const factor = newZoom / compZoom;
+      compPanX = centerX - (centerX - compPanX) * factor;
+      compPanY = centerY - (centerY - compPanY) * factor;
+      compZoom = newZoom;
+      updateCompTransform();
+    }
+
+    compZoomInBtn.addEventListener('click', () => {
+      zoomCompAt(compZoom + 0.5, compTargetW / 2, compTargetH / 2);
+    });
+
+    compZoomOutBtn.addEventListener('click', () => {
+      zoomCompAt(compZoom - 0.5, compTargetW / 2, compTargetH / 2);
+    });
+
+    compZoomResetBtn.addEventListener('click', () => {
+      compZoom = 1;
+      compPanX = 0;
+      compPanY = 0;
+      setCompMode('split');
+      updateCompTransform();
+    });
+
+    // --- SETUP SLIDER DIMENSIONS ---
     function setupSliderDimensions(origSrc, genSrc) {
       const origImg = document.getElementById('imgOriginal');
       const genImg = document.getElementById('imgGenerated');
       const container = document.getElementById('compareContainer');
       const viewport = document.getElementById('compareViewport');
-      const wrapper = document.getElementById('compareViewportWrapper');
+      const compareViewportWrapper = document.getElementById('compareViewportWrapper');
 
       let loaded = 0;
       const check = () => {
         loaded++;
         if (loaded === 2) {
-          const natW = genImg.naturalWidth || 600;
-          const natH = genImg.naturalHeight || 600;
+          const natW = genImg.naturalWidth || 512;
+          const natH = genImg.naturalHeight || 512;
           const ratio = natW / natH;
 
           mainHeader.classList.add('hidden');
@@ -1191,14 +1184,16 @@
           comparisonView.classList.remove('hidden');
           comparisonView.classList.add('fade-enter');
 
-          const availW = Math.min(wrapper.clientWidth - 20, 680);
-          const availH = Math.max(220, wrapper.clientHeight - 20);
+          const availW = Math.min(compareViewportWrapper.clientWidth - 12, 440);
+          const availH = Math.max(180, compareViewportWrapper.clientHeight - 8);
 
           let targetW, targetH;
           if (availW / availH < ratio) {
-            targetW = availW; targetH = Math.round(availW / ratio);
+            targetW = availW;
+            targetH = Math.round(availW / ratio);
           } else {
-            targetH = availH; targetW = Math.round(availH * ratio);
+            targetH = availH;
+            targetW = Math.round(availH * ratio);
           }
 
           compTargetW = targetW;
@@ -1217,7 +1212,10 @@
           compPanX = 0;
           compPanY = 0;
           compSplitPercent = 0.5;
-          updateCompSlider();
+          setCompMode('split');
+          updateCompTransform();
+
+          setTimeout(initComparisons, 20);
         }
       };
 
@@ -1227,51 +1225,132 @@
       genImg.src = genSrc;
     }
 
-    function updateCompSlider() {
-      const overlay = document.getElementById('imgOverlayWrapper');
-      const handle = document.getElementById('sliderHandle');
-      const unscaledSplitX = compSplitPercent * compTargetW;
-      overlay.style.width = `${unscaledSplitX}px`;
-      handle.style.left = `${unscaledSplitX}px`;
-    }
+    function initComparisons() {
+      const container = document.getElementById('compareContainer');
+      const slider = document.getElementById('sliderHandle');
 
-    const sliderHandle = document.getElementById('sliderHandle');
-    const compareContainer = document.getElementById('compareContainer');
+      function updateSplitFromScreen(clientX) {
+        if (compMode !== 'split') return;
+        if (!cachedCompRect) cachedCompRect = container.getBoundingClientRect();
+        const currentScreenX = clientX - cachedCompRect.left;
+        const unscaledX = (currentScreenX - compPanX) / compZoom;
+        compSplitPercent = Math.min(Math.max(unscaledX / compTargetW, 0), 1);
+        updateCompTransform();
+      }
 
-    function updateSplitFromScreen(clientX) {
-      const rect = compareContainer.getBoundingClientRect();
-      const currentScreenX = clientX - rect.left;
-      compSplitPercent = Math.min(Math.max(currentScreenX / compTargetW, 0), 1);
-      updateCompSlider();
-    }
-
-    sliderHandle.addEventListener('mousedown', (e) => {
-      e.stopPropagation();
-      isCompSliding = true;
-    });
-    compareContainer.addEventListener('mousedown', (e) => {
-      isCompSliding = true;
-      updateSplitFromScreen(e.clientX);
-    });
-    window.addEventListener('mousemove', (e) => {
-      if (isCompSliding) updateSplitFromScreen(e.clientX);
-    });
-    window.addEventListener('mouseup', () => { isCompSliding = false; });
-
-    compareContainer.addEventListener('touchstart', (e) => {
-      if (e.touches.length === 1) {
+      slider.onmousedown = (e) => {
+        if (compMode !== 'split') return;
+        e.stopPropagation();
         isCompSliding = true;
-        updateSplitFromScreen(e.touches[0].clientX);
-      }
-    }, { passive: false });
-    window.addEventListener('touchmove', (e) => {
-      if (isCompSliding && e.touches.length === 1) {
-        updateSplitFromScreen(e.touches[0].clientX);
-      }
-    }, { passive: false });
-    window.addEventListener('touchend', () => { isCompSliding = false; });
+        cachedCompRect = container.getBoundingClientRect();
+      };
+      slider.ontouchstart = (e) => {
+        if (compMode !== 'split') return;
+        e.stopPropagation();
+        isCompSliding = true;
+        cachedCompRect = container.getBoundingClientRect();
+      };
 
-    // --- DOWNLOAD & AUTOSAVE ---
+      container.onmousedown = (e) => {
+        cachedCompRect = container.getBoundingClientRect();
+        if (compMode === 'pan') {
+          isCompPanning = true;
+          isCompSliding = false;
+          compPanStartX = e.clientX;
+          compPanStartY = e.clientY;
+          compPanOrigX = compPanX;
+          compPanOrigY = compPanY;
+          container.style.cursor = 'grabbing';
+        } else if (compMode === 'split') {
+          isCompSliding = true;
+          isCompPanning = false;
+          updateSplitFromScreen(e.clientX);
+        }
+      };
+
+      window.addEventListener('mousemove', (e) => {
+        if (isCompSliding && compMode === 'split') {
+          updateSplitFromScreen(e.clientX);
+        } else if (isCompPanning && compMode === 'pan') {
+          compPanX = compPanOrigX + (e.clientX - compPanStartX);
+          compPanY = compPanOrigY + (e.clientY - compPanStartY);
+          updateCompTransform();
+        }
+      });
+
+      window.addEventListener('mouseup', () => {
+        isCompSliding = false;
+        if (isCompPanning) {
+          isCompPanning = false;
+          if (compMode === 'pan') container.style.cursor = 'grab';
+        }
+        cachedCompRect = null;
+      });
+
+      container.addEventListener('touchstart', (e) => {
+        cachedCompRect = container.getBoundingClientRect();
+        if (e.touches.length === 2) {
+          isCompSliding = false;
+          isCompPanning = false;
+          compInitialPinchDist = getTouchesDist(e.touches[0], e.touches[1]);
+          compInitialPinchZoom = compZoom;
+          compPinchMidX = ((e.touches[0].clientX + e.touches[1].clientX) / 2) - cachedCompRect.left;
+          compPinchMidY = ((e.touches[0].clientY + e.touches[1].clientY) / 2) - cachedCompRect.top;
+        } else if (e.touches.length === 1) {
+          if (compMode === 'pan') {
+            isCompPanning = true;
+            isCompSliding = false;
+            compPanStartX = e.touches[0].clientX;
+            compPanStartY = e.touches[0].clientY;
+            compPanOrigX = compPanX;
+            compPanOrigY = compPanY;
+          } else if (compMode === 'split') {
+            isCompSliding = true;
+            isCompPanning = false;
+            updateSplitFromScreen(e.touches[0].clientX);
+          }
+        }
+      }, { passive: false });
+
+      container.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 2) {
+          e.preventDefault();
+          const dist = getTouchesDist(e.touches[0], e.touches[1]);
+          const targetZoom = compInitialPinchZoom * (dist / compInitialPinchDist);
+          zoomCompAt(targetZoom, compPinchMidX, compPinchMidY);
+        } else if (e.touches.length === 1) {
+          if (isCompSliding && compMode === 'split') {
+            e.preventDefault();
+            updateSplitFromScreen(e.touches[0].clientX);
+          } else if (isCompPanning && compMode === 'pan') {
+            e.preventDefault();
+            compPanX = compPanOrigX + (e.touches[0].clientX - compPanStartX);
+            compPanY = compPanOrigY + (e.touches[0].clientY - compPanStartY);
+            updateCompTransform();
+          }
+        }
+      }, { passive: false });
+
+      container.addEventListener('touchend', (e) => {
+        if (e.touches.length < 2) compInitialPinchDist = 0;
+        if (e.touches.length === 0) {
+          isCompSliding = false;
+          isCompPanning = false;
+          cachedCompRect = null;
+        }
+      });
+
+      container.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const rect = container.getBoundingClientRect();
+        const cursorX = e.clientX - rect.left;
+        const cursorY = e.clientY - rect.top;
+        const zoomDelta = -Math.sign(e.deltaY) * 0.25;
+        zoomCompAt(compZoom + zoomDelta, cursorX, cursorY);
+      }, { passive: false });
+    }
+
+    // --- DOWNLOAD ---
     document.getElementById('downloadBtn').addEventListener('click', async () => {
       try {
         const imgSrc = document.getElementById('imgGenerated').src;
@@ -1280,80 +1359,26 @@
         const blobUrl = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = blobUrl;
-        link.download = `SmileCreo_Restoration_${Date.now()}.webp`;
+        link.download = `SmileCreo_Inpaint_${Date.now()}.webp`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(blobUrl);
       } catch (e) {
-        showToast("Export failed.", "error");
+        alert("Export failed.");
       }
     });
 
     document.getElementById('closeComparisonBtn').addEventListener('click', () => {
       comparisonView.classList.add('hidden');
-      if (isViewingGalleryItem) libraryView.classList.remove('hidden');
-      else mainHeader.classList.remove('hidden');
+      if (isViewingGalleryItem) {
+        libraryView.classList.remove('hidden');
+      } else {
+        mainHeader.classList.remove('hidden');
+      }
     });
 
-    // --- SUPABASE AUTOSAVE ---
-    async function convertToWebP(src) {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.crossOrigin = 'Anonymous';
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = img.naturalWidth || img.width;
-          canvas.height = img.naturalHeight || img.height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0);
-          canvas.toBlob((blob) => {
-            if (blob) resolve(blob);
-            else reject(new Error("Conversion failed"));
-          }, 'image/webp', 0.90);
-        };
-        img.onerror = reject;
-        img.src = src;
-      });
-    }
-
-    async function triggerAutoSave(originalSrc, finalCompositeSrc) {
-      const autoSaveIcon = document.getElementById('autoSaveIcon');
-      const autoSaveText = document.getElementById('autoSaveText');
-      autoSaveIcon.className = "w-2 h-2 rounded-full bg-yellow-400 animate-pulse";
-      autoSaveText.textContent = "Auto-saving...";
-
-      try {
-        const timestamp = Date.now();
-        const origPath = `original_${timestamp}.webp`;
-        const genPath = `generated_${timestamp}.webp`;
-
-        const [origBlob, genBlob] = await Promise.all([
-          convertToWebP(originalSrc),
-          convertToWebP(finalCompositeSrc)
-        ]);
-
-        await Promise.all([
-          supabaseClient.storage.from('photos').upload(origPath, origBlob, { contentType: 'image/webp' }),
-          supabaseClient.storage.from('photos').upload(genPath, genBlob, { contentType: 'image/webp' })
-        ]);
-
-        await supabaseClient.from('gallery').insert([{
-          original_image_path: origPath,
-          generated_image_path: genPath
-        }]);
-
-        autoSaveIcon.className = "w-2 h-2 rounded-full bg-emerald-400";
-        autoSaveText.textContent = "✓ Saved";
-        loadGalleryThumbnail();
-      } catch (err) {
-        console.error("Autosave error:", err);
-        autoSaveIcon.className = "w-2 h-2 rounded-full bg-rose-400";
-        autoSaveText.textContent = "Local";
-      }
-    }
-
-    // --- RECORDS GALLERY ---
+    // --- GALLERY ---
     document.getElementById('openLibraryBtn').addEventListener('click', openGallery);
     document.getElementById('navOpenGalleryBtn').addEventListener('click', openGallery);
     document.getElementById('closeLibraryBtn').addEventListener('click', () => {
@@ -1401,12 +1426,13 @@
           const origUrl = supabaseClient.storage.from('photos').getPublicUrl(rec.original_image_path).data.publicUrl;
 
           const card = document.createElement('div');
-          card.className = "aspect-square rounded-2xl overflow-hidden liquid-glass cursor-pointer transition active:scale-95 border border-white/10 relative group";
+          card.className = "aspect-square rounded-2xl overflow-hidden glass-dark cursor-pointer transition active:scale-95 border border-white/10 relative group";
           card.innerHTML = `
             <img src="${genUrl}" class="w-full h-full object-cover transition duration-200 group-hover:scale-105" loading="lazy" alt="Simulation" />
             <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition flex items-end justify-between p-2">
-              <span class="text-[9px] font-semibold text-white bg-[#305CDE] px-2 py-0.5 rounded-full">Inspect</span>
-              <button class="text-rose-400 hover:text-white p-1 text-xs" onclick="event.stopPropagation(); deleteGalleryRecord('${rec.id}', '${rec.original_image_path}', '${rec.generated_image_path}')"><i class="bi bi-trash3"></i></button>
+              <span class="text-[9px] font-semibold text-white bg-primary/80 px-2 py-0.5 rounded-full">
+                Inspect
+              </span>
             </div>
           `;
 
@@ -1419,7 +1445,7 @@
             document.getElementById('deleteBtn').classList.remove('hidden');
             document.getElementById('backBtnText').textContent = "Records";
             document.getElementById('autoSaveBadge').classList.remove('hidden');
-            document.getElementById('autoSaveIcon').className = "w-2 h-2 rounded-full bg-emerald-400";
+            document.getElementById('autoSaveIcon').className = "w-1.5 h-1.5 rounded-full bg-emerald-400";
             document.getElementById('autoSaveText').textContent = "Record";
 
             setupSliderDimensions(origUrl, genUrl);
@@ -1432,19 +1458,21 @@
       }
     }
 
-    async function deleteGalleryRecord(id, origPath, genPath) {
-      if (!confirm("Delete this patient simulation?")) return;
+    document.getElementById('deleteBtn').addEventListener('click', async () => {
+      if (!confirm("Delete this simulation?")) return;
       try {
-        await supabaseClient.from('gallery').delete().eq('id', id);
-        if (origPath && genPath) {
-          await supabaseClient.storage.from('photos').remove([origPath, genPath]);
+        await supabaseClient.from('gallery').delete().eq('id', currentActiveDocId);
+        if (currentActiveOrigPath && currentActiveGenPath) {
+          await supabaseClient.storage.from('photos').remove([currentActiveOrigPath, currentActiveGenPath]);
         }
+        comparisonView.classList.add('hidden');
+        libraryView.classList.remove('hidden');
         loadGallery();
-        showToast('Record deleted', 'info');
+        loadGalleryThumbnail();
       } catch (e) {
-        showToast("Failed to delete record.", "error");
+        alert("Failed to delete: " + e.message);
       }
-    }
+    });
 
     window.addEventListener('load', initCamera);
   </script>
