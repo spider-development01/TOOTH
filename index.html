@@ -106,6 +106,7 @@
     ::-webkit-scrollbar-thumb { background: rgba(86, 59, 114, 0.2); border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--m3-primary); }
 
+    /* Custom M3 Form Elements */
     input[type="range"] { accent-color: var(--m3-primary); }
     input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
     input[type="color"]::-webkit-color-swatch { border: none; border-radius: 6px; }
@@ -116,6 +117,64 @@
       margin: 0; 
     }
     input[type=number] { -moz-appearance: textfield; }
+
+    .m3-select-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+    .m3-select-input {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 100%;
+      background-color: var(--m3-surface-gray);
+      border: 1px solid var(--m3-outline);
+      border-radius: 16px;
+      padding: 9px 34px 9px 14px;
+      font-size: 12px;
+      color: var(--m3-text-primary);
+      outline: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .m3-select-input:focus {
+      border-color: var(--m3-primary);
+      box-shadow: 0 0 0 1px var(--m3-primary);
+    }
+    .m3-select-chevron {
+      position: absolute;
+      right: 12px;
+      pointer-events: none;
+      color: var(--m3-primary);
+      font-size: 10px;
+    }
+
+    .m3-checkbox {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border: 1.5px solid var(--m3-outline);
+      border-radius: 6px;
+      background-color: #ffffff;
+      cursor: pointer;
+      display: grid;
+      place-content: center;
+      transition: all 0.15s ease-in-out;
+    }
+    .m3-checkbox:checked {
+      background-color: var(--m3-primary);
+      border-color: var(--m3-primary);
+    }
+    .m3-checkbox:checked::before {
+      content: "";
+      width: 9px;
+      height: 5px;
+      border-left: 2px solid #ffffff;
+      border-bottom: 2px solid #ffffff;
+      transform: rotate(-45deg) translate(1px, -1px);
+    }
   </style>
 </head>
 <body class="h-screen w-screen overflow-hidden flex flex-col antialiased select-none">
@@ -125,8 +184,8 @@
        ============================================================ -->
   <header class="fixed top-3 left-4 right-4 z-40 h-14 m3-pill-bar flex items-center justify-between px-3.5 shadow-md">
     
-    <!-- Brand & Supabase Settings -->
-    <div class="flex items-center gap-2.5 pl-1.5">
+    <!-- Brand, Supabase Settings & External Nav -->
+    <div class="flex items-center gap-2 pl-1">
       <div class="w-8 h-8 rounded-full bg-[#ded8f3] flex items-center justify-center p-1 shadow-inner cursor-pointer" onclick="openSupabaseConfigModal()" title="Supabase Database Settings">
         <img 
           src="https://smilecreo.codeinblack.online/logosc.svg" 
@@ -136,11 +195,20 @@
         />
         <div id="logo-fallback" class="hidden w-full h-full rounded-full bg-[#563b72] items-center justify-center font-bold text-white text-[10px]">SC</div>
       </div>
-      <div class="flex items-center gap-1.5">
+      <div class="flex items-center gap-1.5 mr-1">
         <span class="text-xs font-bold tracking-tight text-[#1f1533]">SmileCreo</span>
         <span class="text-[9px] font-bold text-[#563b72] bg-[#ded8f3] px-2 py-0.5 rounded-full font-mono">DSD</span>
-        <button onclick="openSupabaseConfigModal()" class="ml-1 text-[11px] text-[#5e5473] hover:text-[#563b72] p-1 rounded-full transition" title="Supabase Connection Settings">
-          <i class="bi bi-database-gear"></i>
+      </div>
+
+      <!-- Navigation to Videos & 3D Models in the same tab -->
+      <div class="flex items-center bg-[#ded8f3]/50 rounded-full p-0.5 gap-0.5 ml-1">
+        <button onclick="window.location.href='videos.html'" class="px-2.5 py-1 rounded-full text-[#563b72] hover:bg-white text-[11px] font-semibold transition flex items-center gap-1" title="Videos Studio">
+          <i class="bi bi-play-circle-fill text-xs text-[#563b72]"></i>
+          <span>Videos</span>
+        </button>
+        <button onclick="window.location.href='models.html'" class="px-2.5 py-1 rounded-full text-[#563b72] hover:bg-white text-[11px] font-semibold transition flex items-center gap-1" title="3D Models Viewer">
+          <i class="bi bi-box-fill text-xs text-[#563b72]"></i>
+          <span>3D Models</span>
         </button>
       </div>
     </div>
@@ -179,14 +247,17 @@
         <i class="bi bi-slash-lg"></i>
       </button>
 
-      <!-- Shapes -->
-      <button onclick="addRectangle()" class="tool-btn px-3 py-1.5 rounded-full text-[#5e5473] hover:text-[#1f1533] hover:bg-white/60 transition" title="Rectangle (R)">
+      <!-- Shapes: Rect, Circle, Triangle -->
+      <button onclick="addRectangle()" class="tool-btn px-2.5 py-1.5 rounded-full text-[#5e5473] hover:text-[#1f1533] hover:bg-white/60 transition" title="Rectangle (R)">
         <i class="bi bi-square"></i>
       </button>
-      <button onclick="addCircle()" class="tool-btn px-3 py-1.5 rounded-full text-[#5e5473] hover:text-[#1f1533] hover:bg-white/60 transition" title="Circle (O)">
+      <button onclick="addCircle()" class="tool-btn px-2.5 py-1.5 rounded-full text-[#5e5473] hover:text-[#1f1533] hover:bg-white/60 transition" title="Circle (O)">
         <i class="bi bi-circle"></i>
       </button>
-      <button onclick="addText()" class="tool-btn px-3 py-1.5 rounded-full text-[#5e5473] hover:text-[#1f1533] hover:bg-white/60 transition" title="Text (T)">
+      <button onclick="addTriangle()" class="tool-btn px-2.5 py-1.5 rounded-full text-[#5e5473] hover:text-[#1f1533] hover:bg-white/60 transition" title="Triangle (Y)">
+        <i class="bi bi-triangle"></i>
+      </button>
+      <button onclick="addText()" class="tool-btn px-2.5 py-1.5 rounded-full text-[#5e5473] hover:text-[#1f1533] hover:bg-white/60 transition" title="Text (T)">
         <i class="bi bi-type"></i>
       </button>
 
@@ -241,7 +312,7 @@
       </div>
 
       <!-- SAVE RECORD BUTTON -->
-      <button onclick="openSaveRecordModal()" class="px-3.5 py-1.5 m3-pink-accent font-semibold text-xs rounded-full transition shadow-sm active:scale-95 flex items-center gap-1.5" title="Save Patient Record to Database">
+      <button onclick="openSaveRecordModal()" class="px-3.5 py-1.5 m3-pink-accent font-semibold text-xs rounded-full transition shadow-sm active:scale-95 flex items-center gap-1.5" title="Save Whole Patient Treatment to Database">
         <i class="bi bi-cloud-arrow-up-fill"></i>
         <span>Save Record</span>
       </button>
@@ -633,7 +704,7 @@
           </div>
           <div>
             <h4 class="text-xs font-bold uppercase tracking-wider text-[#1f1533]">Supabase Connection</h4>
-            <p class="text-[10px] text-[#5e5473]">Connect your existing project</p>
+            <p class="text-[10px] text-[#5e5473]">Connected to your personal database</p>
           </div>
         </div>
         <button onclick="closeSupabaseConfigModal()" class="w-7 h-7 rounded-full bg-[#f3f0f9] hover:bg-white flex items-center justify-center text-[#5e5473] hover:text-[#1f1533] font-bold text-xs transition">✕</button>
@@ -642,21 +713,21 @@
       <div class="space-y-3 text-xs">
         <div>
           <label class="block text-[11px] font-semibold text-[#563b72] mb-1">Project URL</label>
-          <input type="text" id="cfg-supabase-url" placeholder="https://xyz.supabase.co" class="w-full bg-[#f3f0f9] border border-[#cec6e6] rounded-2xl p-2.5 font-mono text-xs text-[#1f1533] outline-none">
+          <input type="text" id="cfg-supabase-url" class="w-full bg-[#f3f0f9] border border-[#cec6e6] rounded-2xl p-2.5 font-mono text-xs text-[#1f1533] outline-none">
         </div>
         <div>
           <label class="block text-[11px] font-semibold text-[#563b72] mb-1">Anon Public API Key</label>
-          <input type="password" id="cfg-supabase-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6..." class="w-full bg-[#f3f0f9] border border-[#cec6e6] rounded-2xl p-2.5 font-mono text-xs text-[#1f1533] outline-none">
+          <input type="password" id="cfg-supabase-key" class="w-full bg-[#f3f0f9] border border-[#cec6e6] rounded-2xl p-2.5 font-mono text-xs text-[#1f1533] outline-none">
         </div>
         <div class="p-2.5 rounded-xl bg-white/70 border border-[#cec6e6]/60 text-[11px] text-[#5e5473]">
           <i class="bi bi-shield-check text-[#563b72] mr-1"></i>
-          Uses your active <b>"photos"</b> storage bucket safely. Your existing <b>"gallery"</b> table is completely untouched.
+          Configured with your existing <b>"photos"</b> storage bucket. Your existing <b>"gallery"</b> table is completely untouched.
         </div>
       </div>
 
       <div class="flex items-center justify-end gap-2 pt-2 border-t border-[#cec6e6]">
         <button onclick="closeSupabaseConfigModal()" class="px-4 py-1.5 bg-[#f3f0f9] hover:bg-white text-[#1f1533] rounded-full text-xs font-medium transition shadow-sm">Cancel</button>
-        <button onclick="saveSupabaseConfig()" class="px-5 py-1.5 bg-[#563b72] hover:bg-[#483060] text-white font-semibold rounded-full text-xs shadow-sm transition">Connect</button>
+        <button onclick="saveSupabaseConfig()" class="px-5 py-1.5 bg-[#563b72] hover:bg-[#483060] text-white font-semibold rounded-full text-xs shadow-sm transition">Update</button>
       </div>
     </div>
   </div>
@@ -673,7 +744,7 @@
           </div>
           <div>
             <h4 class="text-xs font-bold uppercase tracking-wider text-[#1f1533]">Save Patient Record</h4>
-            <p class="text-[10px] text-[#5e5473]">Save layout and treatment plan to database</p>
+            <p class="text-[10px] text-[#5e5473]">Save whole canvas DSD plan to database</p>
           </div>
         </div>
         <button onclick="closeSaveRecordModal()" class="w-7 h-7 rounded-full bg-[#f3f0f9] hover:bg-white flex items-center justify-center text-[#5e5473] hover:text-[#1f1533] font-bold text-xs transition">✕</button>
@@ -681,12 +752,12 @@
 
       <!-- Preview Snapshot -->
       <div class="flex items-center gap-3 bg-[#f3f0f9] p-3 rounded-2xl border border-[#cec6e6]/60">
-        <div class="w-20 h-16 rounded-xl overflow-hidden bg-[#1f1533] border border-[#cec6e6] shrink-0 flex items-center justify-center">
+        <div class="w-24 h-16 rounded-xl overflow-hidden bg-[#1f1533] border border-[#cec6e6] shrink-0 flex items-center justify-center">
           <img id="save-record-thumb" src="" alt="Thumbnail" class="w-full h-full object-contain" />
         </div>
         <div class="text-[11px] text-[#5e5473] space-y-0.5">
-          <span class="font-bold text-[#1f1533] block">Canvas Snapshot Generated</span>
-          <span class="text-[10px] block">Includes patient photo, smile arch, and reference guides</span>
+          <span class="font-bold text-[#1f1533] block">Whole Canvas Snapshot</span>
+          <span class="text-[10px] block">Saves all patient photos, smile arches, midline guides & drawings.</span>
         </div>
       </div>
 
@@ -704,11 +775,14 @@
           </div>
           <div>
             <label class="block text-[11px] font-semibold text-[#563b72] mb-1">Gender</label>
-            <select id="rec-patient-gender" class="w-full bg-[#f3f0f9] border border-[#cec6e6] rounded-2xl p-2.5 text-xs text-[#1f1533] outline-none">
-              <option value="Female">Female</option>
-              <option value="Male">Male</option>
-              <option value="Other">Other</option>
-            </select>
+            <div class="m3-select-wrapper">
+              <select id="rec-patient-gender" class="m3-select-input">
+                <option value="Female">Female</option>
+                <option value="Male">Male</option>
+                <option value="Other">Other</option>
+              </select>
+              <i class="bi bi-chevron-down m3-select-chevron"></i>
+            </div>
           </div>
           <div>
             <label class="block text-[11px] font-semibold text-[#563b72] mb-1">Date</label>
@@ -718,7 +792,7 @@
 
         <div>
           <label class="block text-[11px] font-semibold text-[#563b72] mb-1">Clinical Notes (Optional)</label>
-          <textarea id="rec-patient-notes" rows="2" placeholder="e.g., Upper incisors elongated, midline aligned with facial center" class="w-full bg-[#f3f0f9] border border-[#cec6e6] rounded-2xl p-2.5 text-xs text-[#1f1533] outline-none resize-none"></textarea>
+          <textarea id="rec-patient-notes" rows="2" placeholder="e.g., Upper incisors elongated by 1.5mm, smile arch flattened" class="w-full bg-[#f3f0f9] border border-[#cec6e6] rounded-2xl p-2.5 text-xs text-[#1f1533] outline-none resize-none"></textarea>
         </div>
 
         <div class="flex items-center justify-end gap-2 pt-2 border-t border-[#cec6e6]">
@@ -805,11 +879,14 @@
           </div>
           <div>
             <label class="block text-[11px] font-semibold text-[#563b72] mb-1">Gender</label>
-            <select id="edit-rec-gender" class="w-full bg-[#f3f0f9] border border-[#cec6e6] rounded-2xl p-2.5 text-xs text-[#1f1533] outline-none">
-              <option value="Female">Female</option>
-              <option value="Male">Male</option>
-              <option value="Other">Other</option>
-            </select>
+            <div class="m3-select-wrapper">
+              <select id="edit-rec-gender" class="m3-select-input">
+                <option value="Female">Female</option>
+                <option value="Male">Male</option>
+                <option value="Other">Other</option>
+              </select>
+              <i class="bi bi-chevron-down m3-select-chevron"></i>
+            </div>
           </div>
         </div>
         <div>
@@ -1003,11 +1080,11 @@
         <div class="space-y-2">
           <label class="flex items-center justify-between p-3 rounded-2xl bg-[#f3f0f9] hover:bg-white cursor-pointer shadow-sm">
             <span class="text-[#1f1533]">Punch out lips from base photo (keep teeth & face)</span>
-            <input type="checkbox" id="mp-punch-base" checked class="rounded text-[#563b72]">
+            <input type="checkbox" id="mp-punch-base" checked class="m3-checkbox">
           </label>
           <label class="flex items-center justify-between p-3 rounded-2xl bg-[#f3f0f9] hover:bg-white cursor-pointer shadow-sm">
             <span class="text-[#1f1533]">Move extracted lips beside face (Out of Frame)</span>
-            <input type="checkbox" id="mp-move-out" checked class="rounded text-[#563b72]">
+            <input type="checkbox" id="mp-move-out" checked class="m3-checkbox">
           </label>
         </div>
       </div>
@@ -1060,10 +1137,13 @@
       <div class="space-y-3 text-xs">
         <div>
           <label class="block text-[#5e5473] mb-1.5 text-[11px] font-medium">Scope</label>
-          <select id="export-target" class="w-full bg-[#f3f0f9] border border-[#cec6e6] rounded-2xl p-2.5 text-[#1f1533] outline-none text-[11px] shadow-sm">
-            <option value="selection">Selected Object Only</option>
-            <option value="canvas">Entire Canvas</option>
-          </select>
+          <div class="m3-select-wrapper">
+            <select id="export-target" class="m3-select-input">
+              <option value="selection">Selected Object Only</option>
+              <option value="canvas">Entire Canvas</option>
+            </select>
+            <i class="bi bi-chevron-down m3-select-chevron"></i>
+          </div>
         </div>
 
         <div>
@@ -1077,16 +1157,19 @@
 
         <div>
           <label class="block text-[#5e5473] mb-1.5 text-[11px] font-medium">Resolution</label>
-          <select id="export-scale" class="w-full bg-[#f3f0f9] border border-[#cec6e6] rounded-2xl p-2.5 text-[#1f1533] outline-none font-mono text-[11px] shadow-sm">
-            <option value="1">1x Standard</option>
-            <option value="2" selected>2x High-Definition</option>
-            <option value="3">3x Ultra High-Res</option>
-          </select>
+          <div class="m3-select-wrapper">
+            <select id="export-scale" class="m3-select-input font-mono">
+              <option value="1">1x Standard</option>
+              <option value="2" selected>2x High-Definition</option>
+              <option value="3">3x Ultra High-Res</option>
+            </select>
+            <i class="bi bi-chevron-down m3-select-chevron"></i>
+          </div>
         </div>
 
         <div class="flex items-center gap-2 pt-1">
-          <input type="checkbox" id="export-transparency" class="rounded text-[#563b72]" checked>
-          <label for="export-transparency" class="text-[#1f1533] text-[11px]">Transparent Background</label>
+          <input type="checkbox" id="export-transparency" class="m3-checkbox" checked>
+          <label for="export-transparency" class="text-[#1f1533] text-[11px] cursor-pointer">Transparent Background</label>
         </div>
       </div>
 
@@ -1103,10 +1186,10 @@
        APPLICATION CORE JAVASCRIPT
        ============================================================ -->
   <script>
+    // Optimized Fabric limits for smooth rendering
     fabric.perfLimitSizeTotal = 16777216;
-    fabric.maxCacheSideLimit = 8192;
+    fabric.maxCacheSideLimit = 4096;
     fabric.minCachePrimitiveLimit = 256;
-    fabric.Object.prototype.objectCaching = false;
 
     const container = document.getElementById('canvas-viewport');
     const canvas = new fabric.Canvas('studio-canvas', {
@@ -1114,20 +1197,26 @@
       height: container.clientHeight || 600,
       preserveObjectStacking: true,
       selection: true,
+      selectionColor: 'rgba(86, 59, 114, 0.16)',     // Aubergine translucent fill
+      selectionBorderColor: '#563b72',                 // Dark Aubergine selection box
+      selectionLineWidth: 1.5,
+      selectionDashArray: [4, 4],
       fireRightClick: true,
       stopContextMenu: true,
       backgroundColor: null
     });
 
+    // Aubergine Circular Handles & Clean Focus Styling
     fabric.Object.prototype.set({
       transparentCorners: false,
       cornerColor: '#563b72',
       cornerStrokeColor: '#ffffff',
       borderColor: '#563b72',
-      cornerSize: 7,
-      cornerStyle: 'rect',
-      borderScaleFactor: 1,
-      strokeUniform: true
+      cornerSize: 8,
+      cornerStyle: 'circle',
+      borderScaleFactor: 1.5,
+      strokeUniform: true,
+      borderDashArray: [3, 3]
     });
 
     let currentTool = 'select';
@@ -1155,22 +1244,45 @@
     });
     resizeObserver.observe(container);
 
-    canvas.on('object:added', () => updateLayersTree());
-    canvas.on('object:removed', () => { updateLayersTree(); syncInspector(); });
-    canvas.on('selection:created', () => { syncInspector(); updateLayersTree(); });
-    canvas.on('selection:updated', () => { syncInspector(); updateLayersTree(); });
-    canvas.on('selection:cleared', () => { syncInspector(); updateLayersTree(); });
+    // Performance Optimization: Debounce Layer Tree & Inspector updates
+    let layerUpdateFrame = null;
+    function scheduleLayersUpdate() {
+      if (layerUpdateFrame) cancelAnimationFrame(layerUpdateFrame);
+      layerUpdateFrame = requestAnimationFrame(() => {
+        updateLayersTree();
+      });
+    }
+
+    let inspectorUpdateFrame = null;
+    function scheduleInspectorSync() {
+      if (inspectorUpdateFrame) cancelAnimationFrame(inspectorUpdateFrame);
+      inspectorUpdateFrame = requestAnimationFrame(() => {
+        syncInspector();
+      });
+    }
+
+    canvas.on('object:added', scheduleLayersUpdate);
+    canvas.on('object:removed', () => { scheduleLayersUpdate(); scheduleInspectorSync(); });
+    canvas.on('selection:created', () => { scheduleInspectorSync(); scheduleLayersUpdate(); });
+    canvas.on('selection:updated', () => { scheduleInspectorSync(); scheduleLayersUpdate(); });
+    canvas.on('selection:cleared', () => { scheduleInspectorSync(); scheduleLayersUpdate(); });
 
     /* ============================================================
-       SUPABASE SERVICE: USES YOUR EXISTING 'photos' BUCKET
+       SUPABASE SERVICE: PRE-CONFIGURED WITH YOUR CREDENTIALS
        ============================================================ */
+    const DEFAULT_SUPABASE_URL = "https://lqfzvedrpzihdtmwcdyk.supabase.co";
+    const DEFAULT_SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxZnp2ZWRycHppaGR0bXdjZHlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2MjE2MjUsImV4cCI6MjEwMjE5NzYyNX0.ZXf3hYfr-qWiUxVhbQA9_VymeoTEoGLHoS8ou8xzCOQ";
+
     const SupabaseService = {
       client: null,
       bucketName: 'photos',
 
       init() {
-        const url = localStorage.getItem('smilecreo_supabase_url');
-        const key = localStorage.getItem('smilecreo_supabase_key');
+        const url = localStorage.getItem('smilecreo_supabase_url') || DEFAULT_SUPABASE_URL;
+        const key = localStorage.getItem('smilecreo_supabase_key') || DEFAULT_SUPABASE_ANON;
+        localStorage.setItem('smilecreo_supabase_url', url);
+        localStorage.setItem('smilecreo_supabase_key', key);
+
         if (url && key && window.supabase) {
           try {
             this.client = window.supabase.createClient(url, key);
@@ -1343,8 +1455,8 @@
     SupabaseService.init();
 
     function openSupabaseConfigModal() {
-      document.getElementById('cfg-supabase-url').value = localStorage.getItem('smilecreo_supabase_url') || '';
-      document.getElementById('cfg-supabase-key').value = localStorage.getItem('smilecreo_supabase_key') || '';
+      document.getElementById('cfg-supabase-url').value = localStorage.getItem('smilecreo_supabase_url') || DEFAULT_SUPABASE_URL;
+      document.getElementById('cfg-supabase-key').value = localStorage.getItem('smilecreo_supabase_key') || DEFAULT_SUPABASE_ANON;
       document.getElementById('supabase-config-modal').classList.remove('hidden');
     }
 
@@ -1356,30 +1468,39 @@
       const url = document.getElementById('cfg-supabase-url').value.trim();
       const key = document.getElementById('cfg-supabase-key').value.trim();
       if (url) localStorage.setItem('smilecreo_supabase_url', url);
-      else localStorage.removeItem('smilecreo_supabase_url');
       if (key) localStorage.setItem('smilecreo_supabase_key', key);
-      else localStorage.removeItem('smilecreo_supabase_key');
       SupabaseService.init();
       closeSupabaseConfigModal();
-      showToast(SupabaseService.isConnected() ? 'Connected to Supabase!' : 'Using local browser storage fallback', 'success');
+      showToast(SupabaseService.isConnected() ? 'Supabase connected!' : 'Using local fallback', 'success');
     }
 
     /* ============================================================
-       SAVE PATIENT RECORD LOGIC
+       SAVE WHOLE PATIENT RECORD (FIXED: NO SELECTION REQUIRED)
        ============================================================ */
     let currentRecordThumbDataUrl = '';
 
     function openSaveRecordModal() {
       if (canvas.getObjects().length === 0) {
-        showToast('Canvas is empty. Add elements before saving.', 'error');
+        showToast('Canvas is empty. Add a photo or design before saving.', 'error');
         return;
       }
+
+      // Temporarily discard active selection so no transform handles appear on the thumbnail
+      const prevActive = canvas.getActiveObject();
+      canvas.discardActiveObject();
+      canvas.requestRenderAll();
 
       currentRecordThumbDataUrl = canvas.toDataURL({
         format: 'png',
         multiplier: 0.45,
         quality: 0.85
       });
+
+      // Restore active selection for the user
+      if (prevActive) {
+        canvas.setActiveObject(prevActive);
+        canvas.requestRenderAll();
+      }
 
       document.getElementById('save-record-thumb').src = currentRecordThumbDataUrl;
       document.getElementById('rec-patient-date').value = new Date().toISOString().split('T')[0];
@@ -1417,6 +1538,7 @@
           if (uploadedUrl) previewUrl = uploadedUrl;
         }
 
+        // Entire canvas serialized so the whole session restores exactly as designed
         const serializedCanvas = canvas.toJSON([
           'name', 'customType', 'strokeUniform', 'strokeDashArray', 
           'dsdFaceId', 'targetFaceId', 'mouthLocalX', 'mouthLocalY', 
@@ -1540,7 +1662,7 @@
       const rec = loadedRecordsCache.find(r => String(r.id) === String(id));
       if (!rec) return;
 
-      showConfirmModal('Load Patient Record', `Load layout for "${rec.patient_name}"? This replaces current canvas objects.`, () => {
+      showConfirmModal('Load Patient Record', `Load layout for "${rec.patient_name}"? This restores the entire session on your canvas.`, () => {
         closeRecordsModal();
         showLoadingModal('Restoring Session...', 'Loading patient DSD layout', 'bi-arrow-clockwise');
         setTimeout(() => {
@@ -1819,6 +1941,7 @@
         if (obj.type === 'image') icon = `<i class="bi bi-image ${isSel ? 'text-white' : 'text-[#563b72]'}"></i>`;
         if (obj.isLipLayer) icon = `<i class="bi bi-scissors ${isSel ? 'text-white' : 'text-[#563b72]'}"></i>`;
         if (obj.type === 'group') icon = `<i class="bi bi-collection ${isSel ? 'text-white' : 'text-[#563b72]'}"></i>`;
+        if (obj.type === 'triangle') icon = `<i class="bi bi-triangle ${isSel ? 'text-white' : 'text-[#563b72]'}"></i>`;
         if (obj.type === 'line' || obj.customType === 'line') icon = `<i class="bi bi-dash-lg ${isSel ? 'text-white' : 'text-[#563b72]'}"></i>`;
         if (obj.customType === 'midline') icon = `<i class="bi bi-slash-lg ${isSel ? 'text-white' : 'text-[#563b72]'}"></i>`;
 
@@ -2566,6 +2689,7 @@
       if (e.key === 'm' || e.key === 'M') addMidline();
       if (e.key === 'r' || e.key === 'R') addRectangle();
       if (e.key === 'o' || e.key === 'O') addCircle();
+      if (e.key === 'y' || e.key === 'Y') addTriangle();
       if (e.key === 't' || e.key === 'T') addText();
 
       if (e.ctrlKey || e.metaKey) {
@@ -3061,6 +3185,26 @@
       saveState();
     }
 
+    function addTriangle() {
+      const c = canvas.getVpCenter();
+      const triangle = new fabric.Triangle({
+        left: c.x - 50,
+        top: c.y - 45,
+        width: 100,
+        height: 90,
+        fill: currentFillColor === 'transparent' ? 'rgba(206,198,230,0.2)' : currentFillColor,
+        stroke: currentStrokeColor,
+        strokeWidth: currentStrokeWidth,
+        strokeUniform: true,
+        name: `Triangle ${++shapeCounter}`
+      });
+      canvas.add(triangle);
+      canvas.setActiveObject(triangle);
+      setTool('select');
+      saveState();
+      showToast('Triangle added (Y)', 'success');
+    }
+
     function addText() {
       const c = canvas.getVpCenter();
       const text = new fabric.IText('SmileCreo DSD', {
@@ -3457,8 +3601,8 @@
     }
 
     canvas.on('object:modified', () => { syncInspector(); saveState(); });
-    canvas.on('object:scaling', syncInspector);
-    canvas.on('object:rotating', syncInspector);
+    canvas.on('object:scaling', scheduleInspectorSync);
+    canvas.on('object:rotating', scheduleInspectorSync);
 
     function applyTransform(prop, val) {
       const obj = canvas.getActiveObject();
