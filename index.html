@@ -811,17 +811,27 @@
         <button onclick="closeSaveRecordModal()" class="w-7 h-7 rounded-full bg-[#f3f0f9] hover:bg-white flex items-center justify-center text-[#5e5473] hover:text-[#1f1533] font-bold text-xs transition">✕</button>
       </div>
 
-      <!-- Scope / Group Target Selector -->
-      <div class="space-y-1">
-        <label class="block text-[11px] font-semibold text-[#563b72]">What group would you like to save? *</label>
-        <div class="m3-select-wrapper">
-          <select id="rec-save-target-select" onchange="onSaveRecordTargetChange(this.value)" class="m3-select-input font-medium">
-            <option value="whole_canvas">Entire Canvas (All Elements & Guides)</option>
-            <option value="active_selection">Active Selection / Current Group</option>
-          </select>
-          <i class="bi bi-chevron-down m3-select-chevron"></i>
-        </div>
+<!-- Scope / Group Target Selector (Material 3 Custom Popover) -->
+<div class="relative space-y-1">
+  <label class="block text-[11px] font-semibold text-[#563b72]">What group would you like to save? *</label>
+  <input type="hidden" id="rec-save-target-val" value="whole_canvas">
+
+  <!-- M3 Trigger Button -->
+  <div id="save-target-trigger" onclick="toggleSaveTargetDropdown()" class="m3-date-input-field flex items-center justify-between cursor-pointer py-2 px-3.5 bg-[#f3f0f9] hover:bg-white border border-[#cec6e6] rounded-2xl transition shadow-sm">
+    <div class="flex items-center gap-2.5 truncate">
+      <div id="save-target-icon-badge" class="w-6 h-6 rounded-full bg-[#ded8f3] text-[#563b72] flex items-center justify-center text-xs shrink-0">
+        <i class="bi bi-aspect-ratio-fill"></i>
       </div>
+      <span id="save-target-display-title" class="font-medium text-xs text-[#1f1533] truncate">Entire Canvas (All Elements & Guides)</span>
+    </div>
+    <i id="save-target-chevron" class="bi bi-chevron-down text-[10px] text-[#563b72] transition-transform duration-200 shrink-0 ml-2"></i>
+  </div>
+
+  <!-- M3 Floating Options Menu -->
+  <div id="save-target-popover" class="hidden absolute top-full left-0 right-0 mt-1.5 z-50 bg-[#fdfcff] border border-[#cec6e6] rounded-2xl shadow-xl p-1.5 space-y-1 max-h-56 overflow-y-auto">
+    <!-- Populated dynamically with M3 styled option tiles -->
+  </div>
+</div>
 
       <!-- Preview Snapshot Container -->
       <div class="flex items-center gap-3 bg-[#f3f0f9] p-3 rounded-2xl border border-[#cec6e6]/60">
@@ -1804,42 +1814,135 @@
       document.getElementById('save-record-modal').classList.add('hidden');
     }
 
-    function populateSaveRecordTargets() {
-      const select = document.getElementById('rec-save-target-select');
-      select.innerHTML = '';
+/* ============================================================
+   MATERIAL 3 CUSTOM GROUP/TARGET SELECTOR
+   ============================================================ */
+function toggleSaveTargetDropdown() {
+  const popover = document.getElementById('save-target-popover');
+  const chevron = document.getElementById('save-target-chevron');
+  const trigger = document.getElementById('save-target-trigger');
+  
+  const isOpening = popover.classList.contains('hidden');
+  
+  // Close any open calendars
+  document.querySelectorAll('.m3-calendar-popover').forEach(p => p.classList.add('hidden'));
 
-      const optAll = document.createElement('option');
-      optAll.value = 'whole_canvas';
-      optAll.innerText = 'Entire Canvas (All Elements & Guides)';
-      select.appendChild(optAll);
+  if (isOpening) {
+    popover.classList.remove('hidden');
+    chevron.classList.add('rotate-180');
+    trigger.classList.add('border-[#563b72]', 'bg-white', 'ring-1', 'ring-[#563b72]');
+  } else {
+    popover.classList.add('hidden');
+    chevron.classList.remove('rotate-180');
+    trigger.classList.remove('border-[#563b72]', 'bg-white', 'ring-1', 'ring-[#563b72]');
+  }
+}
 
-      const active = canvas.getActiveObject();
-      if (active) {
-        const optActive = document.createElement('option');
-        optActive.value = 'active_selection';
-        const label = active.name || (active.type === 'activeSelection' ? 'Current Multi-Selection' : 'Active Element');
-        optActive.innerText = `Active: ${label}`;
-        select.appendChild(optActive);
-      }
+function selectSaveTarget(val, title, iconClass) {
+  document.getElementById('rec-save-target-val').value = val;
+  document.getElementById('save-target-display-title').innerText = title;
+  document.getElementById('save-target-icon-badge').innerHTML = `<i class="bi ${iconClass}"></i>`;
 
-      const topObjects = canvas.getObjects();
-      topObjects.forEach((obj, idx) => {
-        if (!obj.name) obj.name = `Layer ${idx + 1}`;
-        const opt = document.createElement('option');
-        opt.value = `obj_${obj.__uid || idx}`;
-        let typeStr = obj.type === 'image' ? 'Photo' : (obj.type === 'group' ? 'Group' : 'Layer');
-        opt.innerText = `${typeStr}: ${obj.name}`;
-        select.appendChild(opt);
-      });
+  // Close dropdown
+  toggleSaveTargetDropdown();
 
-      if (active) {
-        select.value = 'active_selection';
-      } else {
-        select.value = 'whole_canvas';
-      }
+  // Highlight active row in popover
+  document.querySelectorAll('.save-target-row').forEach(row => {
+    const isSelected = row.getAttribute('data-val') === val;
+    row.className = isSelected 
+      ? 'save-target-row flex items-center justify-between p-2 rounded-xl text-xs bg-[#563b72] text-white font-medium cursor-pointer shadow-sm'
+      : 'save-target-row flex items-center justify-between p-2 rounded-xl text-xs hover:bg-[#ded8f3]/60 text-[#1f1533] cursor-pointer transition';
+    const check = row.querySelector('.check-mark');
+    if (check) check.style.opacity = isSelected ? '1' : '0';
+  });
 
-      onSaveRecordTargetChange(select.value);
+  // Trigger thumbnail/canvas data snapshot
+  onSaveRecordTargetChange(val);
+}
+
+function populateSaveRecordTargets() {
+  const popover = document.getElementById('save-target-popover');
+  popover.innerHTML = '';
+
+  const active = canvas.getActiveObject();
+  let defaultVal = 'whole_canvas';
+  let defaultTitle = 'Entire Canvas (All Elements & Guides)';
+  let defaultIcon = 'bi-aspect-ratio-fill';
+
+  // Build target options list
+  const options = [
+    {
+      val: 'whole_canvas',
+      title: 'Entire Canvas (All Elements & Guides)',
+      sub: 'All photos, smile curves, midline & markers',
+      icon: 'bi-aspect-ratio-fill'
     }
+  ];
+
+  if (active) {
+    const actLabel = active.name || (active.type === 'activeSelection' ? 'Current Multi-Selection' : 'Active Element');
+    options.push({
+      val: 'active_selection',
+      title: `Selection: ${actLabel}`,
+      sub: 'Selected layer/group only',
+      icon: 'bi-bounding-box-circles'
+    });
+    defaultVal = 'active_selection';
+    defaultTitle = `Selection: ${actLabel}`;
+    defaultIcon = 'bi-bounding-box-circles';
+  }
+
+  canvas.getObjects().forEach((obj, idx) => {
+    if (!obj.name) obj.name = `Layer ${idx + 1}`;
+    let icon = 'bi-square';
+    if (obj.type === 'image') icon = 'bi-image';
+    if (obj.isLipLayer) icon = 'bi-scissors';
+    if (obj.type === 'group') icon = 'bi-collection';
+
+    options.push({
+      val: `obj_${obj.__uid || idx}`,
+      title: obj.name,
+      sub: `${obj.type.toUpperCase()} Layer`,
+      icon: icon
+    });
+  });
+
+  // Render M3 option items
+  options.forEach(opt => {
+    const isSelected = opt.val === defaultVal;
+    const item = document.createElement('div');
+    item.setAttribute('data-val', opt.val);
+    item.className = isSelected 
+      ? 'save-target-row flex items-center justify-between p-2 rounded-xl text-xs bg-[#563b72] text-white font-medium cursor-pointer shadow-sm'
+      : 'save-target-row flex items-center justify-between p-2 rounded-xl text-xs hover:bg-[#ded8f3]/60 text-[#1f1533] cursor-pointer transition';
+
+    item.innerHTML = `
+      <div class="flex items-center gap-2.5 truncate">
+        <div class="w-6 h-6 rounded-lg ${isSelected ? 'bg-white/20 text-white' : 'bg-[#ded8f3] text-[#563b72]'} flex items-center justify-center text-xs shrink-0">
+          <i class="bi ${opt.icon}"></i>
+        </div>
+        <div class="truncate">
+          <span class="block font-semibold text-xs leading-tight truncate">${esc(opt.title)}</span>
+          <span class="block text-[10px] ${isSelected ? 'text-white/80' : 'text-[#5e5473]'} leading-none mt-0.5 truncate">${esc(opt.sub)}</span>
+        </div>
+      </div>
+      <i class="bi bi-check2 check-mark text-sm ml-2" style="opacity: ${isSelected ? '1' : '0'};"></i>
+    `;
+
+    item.onclick = (e) => {
+      e.stopPropagation();
+      selectSaveTarget(opt.val, opt.title, opt.icon);
+    };
+
+    popover.appendChild(item);
+  });
+
+  // Initialize selected values
+  document.getElementById('rec-save-target-val').value = defaultVal;
+  document.getElementById('save-target-display-title').innerText = defaultTitle;
+  document.getElementById('save-target-icon-badge').innerHTML = `<i class="bi ${defaultIcon}"></i>`;
+  onSaveRecordTargetChange(defaultVal);
+}
 
     function onSaveRecordTargetChange(targetVal) {
       const thumbImg = document.getElementById('save-record-thumb');
