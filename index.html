@@ -26,6 +26,9 @@
   <!-- Fabric.js Canvas Engine -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
   
+  <!-- Supabase JS Client CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <!-- Google MediaPipe Face Mesh & Camera CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
@@ -85,6 +88,16 @@
       background-size: 24px 24px;
     }
 
+    .checkerboard-pattern {
+      background-color: #f7f5fb;
+      background-image: linear-gradient(45deg, #ded8f3 25%, transparent 25%),
+                        linear-gradient(-45deg, #ded8f3 25%, transparent 25%),
+                        linear-gradient(45deg, transparent 75%, #ded8f3 75%),
+                        linear-gradient(-45deg, transparent 75%, #ded8f3 75%);
+      background-size: 16px 16px;
+      background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+    }
+
     .drag-over-top { border-top: 2px solid var(--m3-primary) !important; }
     .drag-over-bottom { border-bottom: 2px solid var(--m3-primary) !important; }
 
@@ -112,9 +125,9 @@
        ============================================================ -->
   <header class="fixed top-3 left-4 right-4 z-40 h-14 m3-pill-bar flex items-center justify-between px-3.5 shadow-md">
     
-    <!-- Brand -->
+    <!-- Brand & Supabase Settings -->
     <div class="flex items-center gap-2.5 pl-1.5">
-      <div class="w-8 h-8 rounded-full bg-[#ded8f3] flex items-center justify-center p-1 shadow-inner">
+      <div class="w-8 h-8 rounded-full bg-[#ded8f3] flex items-center justify-center p-1 shadow-inner cursor-pointer" onclick="openSupabaseConfigModal()" title="Supabase Database Settings">
         <img 
           src="https://smilecreo.codeinblack.online/logosc.svg" 
           alt="SmileCreo" 
@@ -126,6 +139,9 @@
       <div class="flex items-center gap-1.5">
         <span class="text-xs font-bold tracking-tight text-[#1f1533]">SmileCreo</span>
         <span class="text-[9px] font-bold text-[#563b72] bg-[#ded8f3] px-2 py-0.5 rounded-full font-mono">DSD</span>
+        <button onclick="openSupabaseConfigModal()" class="ml-1 text-[11px] text-[#5e5473] hover:text-[#563b72] p-1 rounded-full transition" title="Supabase Connection Settings">
+          <i class="bi bi-database-gear"></i>
+        </button>
       </div>
     </div>
 
@@ -189,7 +205,7 @@
       </label>
 
       <!-- TEMPLATES BUTTON -->
-      <button onclick="openTemplatesModal()" class="tool-btn px-3.5 py-1.5 rounded-full text-[#563b72] bg-white/90 hover:bg-white transition flex items-center gap-1.5 shadow-sm font-semibold text-xs" title="Open Teeth Templates Gallery (/templates/)">
+      <button onclick="openTemplatesModal()" class="tool-btn px-3.5 py-1.5 rounded-full text-[#563b72] bg-white/90 hover:bg-white transition flex items-center gap-1.5 shadow-sm font-semibold text-xs" title="Open Teeth Templates Library">
         <i class="bi bi-grid-3x3-gap-fill text-[#563b72]"></i>
         <span>Templates</span>
       </button>
@@ -199,9 +215,15 @@
         <i class="bi bi-scissors"></i>
         <span>Extract Lips</span>
       </button>
+
+      <!-- PATIENT RECORDS DATABASE BUTTON -->
+      <button onclick="openRecordsModal()" class="tool-btn px-3.5 py-1.5 rounded-full text-[#563b72] bg-white/90 hover:bg-white transition flex items-center gap-1.5 shadow-sm font-semibold text-xs" title="Open Patient Records Database">
+        <i class="bi bi-folder2-open text-[#563b72]"></i>
+        <span>Records</span>
+      </button>
     </div>
 
-    <!-- Right Controls: Undo/Redo, Zoom, Export -->
+    <!-- Right Controls: Undo/Redo, Zoom, Save Record & Export -->
     <div class="flex items-center gap-2 pr-1">
       <div class="flex items-center bg-[#ded8f3]/60 rounded-full p-0.5">
         <button onclick="undo()" id="btn-undo" class="p-1.5 text-[#5e5473] hover:text-[#1f1533] rounded-full hover:bg-white/60 transition" title="Undo (Ctrl+Z)">
@@ -218,6 +240,13 @@
         <button onclick="zoomIn()" class="text-[#5e5473] hover:text-[#1f1533] px-1 font-bold">+</button>
       </div>
 
+      <!-- SAVE RECORD BUTTON -->
+      <button onclick="openSaveRecordModal()" class="px-3.5 py-1.5 m3-pink-accent font-semibold text-xs rounded-full transition shadow-sm active:scale-95 flex items-center gap-1.5" title="Save Patient Record to Database">
+        <i class="bi bi-cloud-arrow-up-fill"></i>
+        <span>Save Record</span>
+      </button>
+
+      <!-- EXPORT BUTTON -->
       <button onclick="openExportModal()" class="px-4 py-1.5 bg-[#563b72] hover:bg-[#483060] text-white font-semibold text-xs rounded-full transition shadow-sm active:scale-95">
         Export
       </button>
@@ -235,7 +264,7 @@
         <div class="flex items-center justify-between pb-2.5 border-b border-[#cec6e6]/60 mb-2">
           <div class="flex items-center gap-1.5">
             <span class="text-xs font-bold tracking-wider uppercase text-[#563b72]">Layers</span>
-            <span class="text-[10px] text-[#5e5473]">(Drag to order)</span>
+            <span class="text-[10px] text-[#5e5473]">(Double click or pencil to rename)</span>
           </div>
           <button onclick="deleteSelected()" title="Delete Selected (Del / Backspace)" class="p-1 hover:bg-red-500/10 text-[#5e5473] hover:text-red-600 rounded-lg transition">
             <i class="bi bi-trash3 text-xs"></i>
@@ -343,7 +372,7 @@
           </div>
         </div>
 
-        <!-- PULL NEAR TEETH BENTO (VISIBLE FOR ALL IMAGES) -->
+        <!-- PULL NEAR TEETH BENTO -->
         <div id="bento-pull-teeth" class="hidden m3-surface-card p-3.5 space-y-2 border border-[#cec6e6]/80 shadow-sm">
           <div class="flex items-center justify-between">
             <span class="text-[10px] font-bold uppercase tracking-wider text-[#563b72] flex items-center gap-1.5">
@@ -421,7 +450,6 @@
         <div class="m3-surface-card p-3.5 space-y-2.5 shadow-sm">
           <span class="text-[10px] font-bold uppercase tracking-wider text-[#563b72] block">Transform Matrix</span>
           <div class="grid grid-cols-2 gap-2 text-xs">
-            <!-- X -->
             <div class="flex items-center justify-between bg-[#f3f0f9] rounded-2xl border border-[#cec6e6]/60 px-2.5 py-1 shadow-sm">
               <span class="text-[#5e5473] text-[11px] font-semibold">X</span>
               <div class="flex items-center">
@@ -430,7 +458,6 @@
                 <button onclick="stepVal('inp-pos-x', 1)" class="px-1 text-[#5e5473] hover:text-[#1f1533]"><i class="bi bi-plus-lg text-[10px]"></i></button>
               </div>
             </div>
-            <!-- Y -->
             <div class="flex items-center justify-between bg-[#f3f0f9] rounded-2xl border border-[#cec6e6]/60 px-2.5 py-1 shadow-sm">
               <span class="text-[#5e5473] text-[11px] font-semibold">Y</span>
               <div class="flex items-center">
@@ -439,7 +466,6 @@
                 <button onclick="stepVal('inp-pos-y', 1)" class="px-1 text-[#5e5473] hover:text-[#1f1533]"><i class="bi bi-plus-lg text-[10px]"></i></button>
               </div>
             </div>
-            <!-- W -->
             <div class="flex items-center justify-between bg-[#f3f0f9] rounded-2xl border border-[#cec6e6]/60 px-2.5 py-1 shadow-sm">
               <span class="text-[#5e5473] text-[11px] font-semibold">W</span>
               <div class="flex items-center">
@@ -448,7 +474,6 @@
                 <button onclick="stepVal('inp-dim-w', 5)" class="px-1 text-[#5e5473] hover:text-[#1f1533]"><i class="bi bi-plus-lg text-[10px]"></i></button>
               </div>
             </div>
-            <!-- H -->
             <div class="flex items-center justify-between bg-[#f3f0f9] rounded-2xl border border-[#cec6e6]/60 px-2.5 py-1 shadow-sm">
               <span class="text-[#5e5473] text-[11px] font-semibold">H</span>
               <div class="flex items-center">
@@ -459,7 +484,7 @@
             </div>
           </div>
 
-          <!-- Rotation & Quick Action -->
+          <!-- Rotation -->
           <div class="flex items-center justify-between gap-2 pt-0.5">
             <div class="flex-1 flex items-center justify-between bg-[#f3f0f9] rounded-2xl border border-[#cec6e6]/60 px-2.5 py-1 text-xs shadow-sm">
               <span class="text-[#5e5473] font-medium flex items-center gap-1">
@@ -477,7 +502,7 @@
           </div>
         </div>
 
-        <!-- Color, Stroke & Outline Control (HIDDEN FOR IMAGES & LIPS) -->
+        <!-- Styling Section -->
         <div id="bento-styling-section" class="m3-surface-card p-3.5 space-y-3 shadow-sm">
           <span class="text-[10px] font-bold uppercase tracking-wider text-[#563b72] block">Styling</span>
 
@@ -597,7 +622,261 @@
   </div>
 
   <!-- ============================================================
-       PULL NEAR TEETH SELECTOR MODAL (MATERIAL 3)
+       SUPABASE CONFIGURATION MODAL
+       ============================================================ -->
+  <div id="supabase-config-modal" class="hidden fixed inset-0 z-50 bg-[#1f1533]/70 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="m3-surface-card bg-[#ded8f3] w-full max-w-md p-6 space-y-4 shadow-2xl border border-white">
+      <div class="flex items-center justify-between pb-2 border-b border-[#cec6e6]">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-[#563b72] text-white flex items-center justify-center text-sm shadow-sm">
+            <i class="bi bi-database-check"></i>
+          </div>
+          <div>
+            <h4 class="text-xs font-bold uppercase tracking-wider text-[#1f1533]">Supabase Connection</h4>
+            <p class="text-[10px] text-[#5e5473]">Connect your existing project</p>
+          </div>
+        </div>
+        <button onclick="closeSupabaseConfigModal()" class="w-7 h-7 rounded-full bg-[#f3f0f9] hover:bg-white flex items-center justify-center text-[#5e5473] hover:text-[#1f1533] font-bold text-xs transition">✕</button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block text-[11px] font-semibold text-[#563b72] mb-1">Project URL</label>
+          <input type="text" id="cfg-supabase-url" placeholder="https://xyz.supabase.co" class="w-full bg-[#f3f0f9] border border-[#cec6e6] rounded-2xl p-2.5 font-mono text-xs text-[#1f1533] outline-none">
+        </div>
+        <div>
+          <label class="block text-[11px] font-semibold text-[#563b72] mb-1">Anon Public API Key</label>
+          <input type="password" id="cfg-supabase-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6..." class="w-full bg-[#f3f0f9] border border-[#cec6e6] rounded-2xl p-2.5 font-mono text-xs text-[#1f1533] outline-none">
+        </div>
+        <div class="p-2.5 rounded-xl bg-white/70 border border-[#cec6e6]/60 text-[11px] text-[#5e5473]">
+          <i class="bi bi-shield-check text-[#563b72] mr-1"></i>
+          Uses your active <b>"photos"</b> storage bucket safely. Your existing <b>"gallery"</b> table is completely untouched.
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-2 border-t border-[#cec6e6]">
+        <button onclick="closeSupabaseConfigModal()" class="px-4 py-1.5 bg-[#f3f0f9] hover:bg-white text-[#1f1533] rounded-full text-xs font-medium transition shadow-sm">Cancel</button>
+        <button onclick="saveSupabaseConfig()" class="px-5 py-1.5 bg-[#563b72] hover:bg-[#483060] text-white font-semibold rounded-full text-xs shadow-sm transition">Connect</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       SAVE RECORD MODAL
+       ============================================================ -->
+  <div id="save-record-modal" class="hidden fixed inset-0 z-50 bg-[#1f1533]/70 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="m3-surface-card bg-[#ded8f3] w-full max-w-md p-6 space-y-4 shadow-2xl border border-white">
+      <div class="flex items-center justify-between pb-2 border-b border-[#cec6e6]">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full m3-pink-accent flex items-center justify-center text-sm shadow-sm">
+            <i class="bi bi-person-vcard-fill"></i>
+          </div>
+          <div>
+            <h4 class="text-xs font-bold uppercase tracking-wider text-[#1f1533]">Save Patient Record</h4>
+            <p class="text-[10px] text-[#5e5473]">Save layout and treatment plan to database</p>
+          </div>
+        </div>
+        <button onclick="closeSaveRecordModal()" class="w-7 h-7 rounded-full bg-[#f3f0f9] hover:bg-white flex items-center justify-center text-[#5e5473] hover:text-[#1f1533] font-bold text-xs transition">✕</button>
+      </div>
+
+      <!-- Preview Snapshot -->
+      <div class="flex items-center gap-3 bg-[#f3f0f9] p-3 rounded-2xl border border-[#cec6e6]/60">
+        <div class="w-20 h-16 rounded-xl overflow-hidden bg-[#1f1533] border border-[#cec6e6] shrink-0 flex items-center justify-center">
+          <img id="save-record-thumb" src="" alt="Thumbnail" class="w-full h-full object-contain" />
+        </div>
+        <div class="text-[11px] text-[#5e5473] space-y-0.5">
+          <span class="font-bold text-[#1f1533] block">Canvas Snapshot Generated</span>
+          <span class="text-[10px] block">Includes patient photo, smile arch, and reference guides</span>
+        </div>
+      </div>
+
+      <!-- Patient Data Inputs -->
+      <form id="form-save-record" onsubmit="event.preventDefault(); submitPatientRecord();" class="space-y-3 text-xs">
+        <div>
+          <label class="block text-[11px] font-semibold text-[#563b72] mb-1">Patient Name *</label>
+          <input type="text" id="rec-patient-name" required placeholder="e.g. Sarah Jenkins" class="w-full bg-[#f3f0f9] border border-[#cec6e6] rounded-2xl p-2.5 text-xs text-[#1f1533] outline-none">
+        </div>
+
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="block text-[11px] font-semibold text-[#563b72] mb-1">Age</label>
+            <input type="number" id="rec-patient-age" min="1" max="120" placeholder="32" class="w-full bg-[#f3f0f9] border border-[#cec6e6] rounded-2xl p-2.5 text-xs text-[#1f1533] outline-none font-mono">
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-[#563b72] mb-1">Gender</label>
+            <select id="rec-patient-gender" class="w-full bg-[#f3f0f9] border border-[#cec6e6] rounded-2xl p-2.5 text-xs text-[#1f1533] outline-none">
+              <option value="Female">Female</option>
+              <option value="Male">Male</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-[#563b72] mb-1">Date</label>
+            <input type="date" id="rec-patient-date" class="w-full bg-[#f3f0f9] border border-[#cec6e6] rounded-2xl p-2 text-xs text-[#1f1533] outline-none font-mono">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-[#563b72] mb-1">Clinical Notes (Optional)</label>
+          <textarea id="rec-patient-notes" rows="2" placeholder="e.g., Upper incisors elongated, midline aligned with facial center" class="w-full bg-[#f3f0f9] border border-[#cec6e6] rounded-2xl p-2.5 text-xs text-[#1f1533] outline-none resize-none"></textarea>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-[#cec6e6]">
+          <button type="button" onclick="closeSaveRecordModal()" class="px-4 py-1.5 bg-[#f3f0f9] hover:bg-white text-[#1f1533] rounded-full text-xs font-medium transition shadow-sm">Cancel</button>
+          <button type="submit" class="px-5 py-1.5 bg-[#563b72] hover:bg-[#483060] text-white font-semibold rounded-full text-xs shadow-sm transition flex items-center gap-1.5">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>Save to Database</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       PATIENT RECORDS DATABASE MODAL
+       ============================================================ -->
+  <div id="records-modal" class="hidden fixed inset-0 z-50 bg-[#1f1533]/70 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="m3-surface-card bg-[#ded8f3] w-full max-w-4xl max-h-[88vh] flex flex-col p-6 shadow-2xl border border-white">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-3 border-b border-[#cec6e6]">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-[#563b72] text-white flex items-center justify-center text-sm shadow-sm">
+            <i class="bi bi-folder2-open"></i>
+          </div>
+          <div>
+            <h3 class="text-xs font-bold uppercase tracking-wider text-[#1f1533]">Patient Records Database</h3>
+            <p class="text-[11px] text-[#5e5473]">Manage patient treatments, restore DSD sessions, and download previews</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="refreshRecordsList()" class="px-3 py-1 bg-[#f3f0f9] hover:bg-white text-[#563b72] rounded-full text-xs font-medium shadow-sm transition flex items-center gap-1">
+            <i class="bi bi-arrow-clockwise"></i> Refresh
+          </button>
+          <button onclick="closeRecordsModal()" class="w-7 h-7 rounded-full bg-[#f3f0f9] hover:bg-white flex items-center justify-center text-[#5e5473] hover:text-[#1f1533] font-bold text-xs transition">✕</button>
+        </div>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="pt-3 pb-2 flex items-center gap-2">
+        <div class="flex-1 flex items-center bg-[#f3f0f9] border border-[#cec6e6] rounded-2xl px-3 py-1.5 shadow-sm text-xs">
+          <i class="bi bi-search text-[#5e5473] mr-2"></i>
+          <input type="text" id="rec-search-query" oninput="filterRecordsList(this.value)" placeholder="Search by patient name or clinical notes..." class="bg-transparent text-xs text-[#1f1533] outline-none flex-1">
+        </div>
+      </div>
+
+      <!-- Records Grid Container -->
+      <div id="records-grid" class="flex-1 overflow-y-auto py-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 pr-1">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="flex items-center justify-between pt-3 border-t border-[#cec6e6] text-[11px] text-[#5e5473]">
+        <div class="flex items-center gap-1.5">
+          <i class="bi bi-cloud-check text-[#563b72]"></i>
+          <span id="records-count-lbl">Loaded 0 patient records</span>
+        </div>
+        <button onclick="closeRecordsModal()" class="px-4 py-1.5 bg-[#f3f0f9] hover:bg-white text-[#1f1533] rounded-full text-xs font-medium transition shadow-sm">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       EDIT PATIENT RECORD MODAL
+       ============================================================ -->
+  <div id="edit-record-modal" class="hidden fixed inset-0 z-50 bg-[#1f1533]/70 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="m3-surface-card bg-[#ded8f3] w-full max-w-sm p-6 space-y-4 shadow-2xl border border-white">
+      <div class="flex items-center justify-between pb-2 border-b border-[#cec6e6]">
+        <h4 class="text-xs font-bold uppercase tracking-wider text-[#1f1533]">Edit Patient Details</h4>
+        <button onclick="closeEditRecordModal()" class="w-7 h-7 rounded-full bg-[#f3f0f9] hover:bg-white flex items-center justify-center text-[#5e5473] hover:text-[#1f1533] font-bold text-xs transition">✕</button>
+      </div>
+
+      <input type="hidden" id="edit-rec-id">
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block text-[11px] font-semibold text-[#563b72] mb-1">Patient Name</label>
+          <input type="text" id="edit-rec-name" class="w-full bg-[#f3f0f9] border border-[#cec6e6] rounded-2xl p-2.5 text-xs text-[#1f1533] outline-none">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[11px] font-semibold text-[#563b72] mb-1">Age</label>
+            <input type="number" id="edit-rec-age" class="w-full bg-[#f3f0f9] border border-[#cec6e6] rounded-2xl p-2.5 text-xs text-[#1f1533] outline-none font-mono">
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-[#563b72] mb-1">Gender</label>
+            <select id="edit-rec-gender" class="w-full bg-[#f3f0f9] border border-[#cec6e6] rounded-2xl p-2.5 text-xs text-[#1f1533] outline-none">
+              <option value="Female">Female</option>
+              <option value="Male">Male</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-[11px] font-semibold text-[#563b72] mb-1">Date</label>
+          <input type="date" id="edit-rec-date" class="w-full bg-[#f3f0f9] border border-[#cec6e6] rounded-2xl p-2 text-xs text-[#1f1533] outline-none font-mono">
+        </div>
+        <div>
+          <label class="block text-[11px] font-semibold text-[#563b72] mb-1">Clinical Notes</label>
+          <textarea id="edit-rec-notes" rows="2" class="w-full bg-[#f3f0f9] border border-[#cec6e6] rounded-2xl p-2.5 text-xs text-[#1f1533] outline-none resize-none"></textarea>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-2 border-t border-[#cec6e6]">
+        <button onclick="closeEditRecordModal()" class="px-4 py-1.5 bg-[#f3f0f9] hover:bg-white text-[#1f1533] rounded-full text-xs font-medium transition shadow-sm">Cancel</button>
+        <button onclick="saveUpdatedRecordDetails()" class="px-5 py-1.5 bg-[#563b72] hover:bg-[#483060] text-white font-semibold rounded-full text-xs shadow-sm transition">Update</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       TEETH TEMPLATES GALLERY MODAL
+       ============================================================ -->
+  <div id="templates-modal" class="hidden fixed inset-0 z-50 bg-[#1f1533]/70 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="m3-surface-card bg-[#ded8f3] w-full max-w-3xl max-h-[88vh] flex flex-col p-6 shadow-2xl border border-white">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-3 border-b border-[#cec6e6]">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-[#563b72] flex items-center justify-center text-white text-sm shadow-sm">
+            <i class="bi bi-grid-3x3-gap-fill"></i>
+          </div>
+          <div>
+            <h3 class="text-xs font-bold uppercase tracking-wider text-[#1f1533]">Teeth Templates Library</h3>
+            <p class="text-[11px] text-[#5e5473]">Upload custom teeth arches and smile templates</p>
+          </div>
+        </div>
+        <button onclick="closeTemplatesModal()" class="w-7 h-7 rounded-full bg-[#f3f0f9] hover:bg-white flex items-center justify-center text-[#5e5473] hover:text-[#1f1533] font-bold text-xs transition">✕</button>
+      </div>
+
+      <!-- Action & Upload Bar -->
+      <div class="pt-3 pb-2 flex items-center justify-between gap-3">
+        <label class="px-4 py-2 bg-[#563b72] hover:bg-[#483060] text-white rounded-2xl text-xs font-semibold shadow-sm transition flex items-center gap-2 cursor-pointer active:scale-95">
+          <i class="bi bi-cloud-arrow-up-fill text-sm"></i>
+          <span>Upload Teeth Template (PNG / SVG)</span>
+          <input type="file" id="inp-upload-template" accept="image/png,image/jpeg,image/svg+xml" class="hidden" onchange="handleTemplateUpload(this.files[0])">
+        </label>
+        <span class="text-[11px] text-[#5e5473]">Stored safely in your "photos" bucket</span>
+      </div>
+
+      <!-- Gallery Grid -->
+      <div id="templates-grid" class="flex-1 overflow-y-auto py-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 pr-1">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="flex items-center justify-between pt-3 border-t border-[#cec6e6] text-[11px] text-[#5e5473]">
+        <div class="flex items-center gap-1.5">
+          <i class="bi bi-magic text-[#563b72]"></i>
+          <span>Click any teeth template to auto-align, scale, and angle it onto a face</span>
+        </div>
+        <button onclick="closeTemplatesModal()" class="px-4 py-1.5 bg-[#f3f0f9] hover:bg-white text-[#1f1533] rounded-full text-xs font-medium transition shadow-sm">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       PULL NEAR TEETH SELECTOR MODAL
        ============================================================ -->
   <div id="pull-teeth-modal" class="hidden fixed inset-0 z-50 bg-[#1f1533]/70 backdrop-blur-md flex items-center justify-center p-4">
     <div class="m3-surface-card bg-[#ded8f3] w-full max-w-md p-6 space-y-4 shadow-2xl border border-white">
@@ -627,58 +906,9 @@
   </div>
 
   <!-- ============================================================
-       TEMPLATES GALLERY MODAL (/templates/ ONLY - NO DEMOS)
-       ============================================================ -->
-  <div id="templates-modal" class="hidden fixed inset-0 z-50 bg-[#1f1533]/70 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="m3-surface-card bg-[#ded8f3] w-full max-w-2xl max-h-[85vh] flex flex-col p-6 shadow-2xl border border-white">
-      
-      <!-- Modal Header -->
-      <div class="flex items-center justify-between pb-3 border-b border-[#cec6e6]">
-        <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-full bg-[#563b72] flex items-center justify-center text-white text-sm shadow-sm">
-            <i class="bi bi-grid-3x3-gap-fill"></i>
-          </div>
-          <div>
-            <h3 class="text-xs font-bold uppercase tracking-wider text-[#1f1533]">Teeth Templates Directory</h3>
-            <p class="text-[11px] text-[#5e5473]">Hosted on GitHub / Netlify in <code class="font-mono bg-white px-1.5 py-0.5 rounded text-[#563b72]">/templates/</code></p>
-          </div>
-        </div>
-        <button onclick="closeTemplatesModal()" class="w-7 h-7 rounded-full bg-[#f3f0f9] hover:bg-white flex items-center justify-center text-[#5e5473] hover:text-[#1f1533] font-bold text-xs transition">✕</button>
-      </div>
-
-      <!-- Path Direct Access Bar -->
-      <div class="pt-3 pb-2 flex items-center gap-2">
-        <div class="flex-1 flex items-center bg-[#f3f0f9] border border-[#cec6e6] rounded-2xl px-3 py-1.5 shadow-sm text-xs">
-          <span class="text-[#5e5473] font-mono text-[11px] select-none pr-1">/templates/</span>
-          <input type="text" id="inp-custom-tpl-name" placeholder="filename.png (or filename.jpg)" class="bg-transparent font-mono text-[11px] text-[#1f1533] outline-none flex-1">
-        </div>
-        <button onclick="loadDirectTemplateName()" class="px-4 py-2 bg-[#563b72] hover:bg-[#483060] text-white rounded-2xl text-xs font-semibold shadow-sm transition flex items-center gap-1.5">
-          <i class="bi bi-plus-lg"></i>
-          <span>Add to Grid</span>
-        </button>
-      </div>
-
-      <!-- Gallery Grid -->
-      <div id="templates-grid" class="flex-1 overflow-y-auto py-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 pr-1">
-        <!-- Loaded dynamically from /templates/ -->
-      </div>
-
-      <!-- Modal Footer -->
-      <div class="flex items-center justify-between pt-3 border-t border-[#cec6e6] text-[11px] text-[#5e5473]">
-        <div class="flex items-center gap-1.5">
-          <i class="bi bi-magic text-[#563b72]"></i>
-          <span>Click any teeth photo to auto-align, scale, and angle it onto a face</span>
-        </div>
-        <button onclick="closeTemplatesModal()" class="px-4 py-1.5 bg-[#f3f0f9] hover:bg-white text-[#1f1533] rounded-full text-xs font-medium transition shadow-sm">Close</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ============================================================
        PHOTOSHOP CROP STUDIO MODAL
        ============================================================ -->
   <div id="ps-crop-studio-modal" class="hidden fixed inset-0 z-50 bg-[#1f1533]/85 backdrop-blur-xl flex flex-col select-none overflow-hidden">
-    <!-- Header -->
     <div class="h-14 bg-[#f3f0f9] border-b border-[#cec6e6]/60 px-5 flex items-center justify-between text-xs text-[#1f1533] shadow-md z-50">
       <div class="flex items-center gap-3">
         <span class="font-bold flex items-center gap-2 text-[#563b72] text-sm">
@@ -706,18 +936,15 @@
       </div>
     </div>
 
-    <!-- Interactive Working Stage -->
     <div id="ps-crop-stage-container" class="relative flex-1 w-full h-full flex items-center justify-center p-6 overflow-hidden">
       <div id="ps-crop-wrapper" class="relative shadow-2xl overflow-hidden rounded-2xl">
         <img id="ps-crop-img" class="block max-h-[78vh] max-w-[78vw] object-contain pointer-events-none" />
         
-        <!-- Scrim Panels -->
         <div id="ps-scrim-t" class="absolute bg-black/70 pointer-events-none"></div>
         <div id="ps-scrim-b" class="absolute bg-black/70 pointer-events-none"></div>
         <div id="ps-scrim-l" class="absolute bg-black/70 pointer-events-none"></div>
         <div id="ps-scrim-r" class="absolute bg-black/70 pointer-events-none"></div>
 
-        <!-- The Crop Box -->
         <div id="ps-crop-box" class="absolute border border-white cursor-move pointer-events-auto shadow-2xl">
           <div class="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none opacity-40">
             <div class="border-r border-b border-white"></div>
@@ -793,7 +1020,7 @@
   </div>
 
   <!-- ============================================================
-       LOADING MODAL
+       LOADING & CONFIRM MODALS
        ============================================================ -->
   <div id="loading-modal" class="hidden fixed inset-0 z-50 bg-[#1f1533]/50 backdrop-blur-md flex items-center justify-center p-4 transition-all duration-300">
     <div class="m3-surface-card bg-[#f3f0f9] p-6 shadow-2xl flex flex-col items-center gap-4 text-center max-w-xs w-full border border-white">
@@ -802,8 +1029,8 @@
         <i id="loading-modal-icon" class="bi bi-file-earmark-image text-xl text-[#563b72]"></i>
       </div>
       <div class="space-y-1">
-        <h4 id="loading-modal-title" class="text-sm font-bold text-[#1f1533] tracking-wide">Generating...</h4>
-        <p id="loading-modal-subtitle" class="text-xs text-[#5e5473]">Processing layout</p>
+        <h4 id="loading-modal-title" class="text-sm font-bold text-[#1f1533] tracking-wide">Processing...</h4>
+        <p id="loading-modal-subtitle" class="text-xs text-[#5e5473]">Working...</p>
       </div>
       <div class="w-full bg-[#ded8f3] rounded-full h-1.5 overflow-hidden">
         <div id="loading-modal-bar" class="bg-[#563b72] h-full w-3/4 animate-pulse rounded-full"></div>
@@ -811,7 +1038,18 @@
     </div>
   </div>
 
-  <!-- EXPORT DIALOG (PNG, JPEG, SVG) -->
+  <div id="customConfirmModal" class="hidden fixed inset-0 z-50 bg-[#1f1533]/60 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="m3-surface-card bg-[#f3f0f9] w-full max-w-xs p-6 space-y-3 shadow-2xl border border-white text-center">
+      <h4 id="confirmModalTitle" class="text-xs font-bold text-[#1f1533] uppercase tracking-wider">Confirm Action</h4>
+      <p id="confirmModalMsg" class="text-xs text-[#5e5473]">Are you sure?</p>
+      <div class="flex justify-center gap-2 pt-2 border-t border-[#cec6e6]/60">
+        <button id="confirmCancelBtn" class="px-4 py-1.5 bg-[#ded8f3] text-[#1f1533] rounded-full text-xs font-medium transition">Cancel</button>
+        <button id="confirmOkBtn" class="px-5 py-1.5 bg-[#563b72] hover:bg-[#483060] text-white font-bold rounded-full text-xs transition shadow-sm">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPORT MODAL -->
   <div id="export-modal" class="hidden fixed inset-0 z-50 bg-[#1f1533]/60 backdrop-blur-md flex items-center justify-center p-4">
     <div class="m3-surface-card bg-[#ded8f3] w-full max-w-sm p-6 space-y-3.5 shadow-2xl border border-white">
       <div class="flex items-center justify-between pb-2 border-b border-[#cec6e6]">
@@ -859,19 +1097,6 @@
     </div>
   </div>
 
-  <!-- CONFIRM MODAL -->
-  <div id="customConfirmModal" class="hidden fixed inset-0 z-50 bg-[#1f1533]/60 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="m3-surface-card bg-[#f3f0f9] w-full max-w-xs p-6 space-y-3 shadow-2xl border border-white text-center">
-      <h4 id="confirmModalTitle" class="text-xs font-bold text-[#1f1533] uppercase tracking-wider">Confirm Action</h4>
-      <p id="confirmModalMsg" class="text-xs text-[#5e5473]">Are you sure?</p>
-      <div class="flex justify-center gap-2 pt-2 border-t border-[#cec6e6]/60">
-        <button id="confirmCancelBtn" class="px-4 py-1.5 bg-[#ded8f3] text-[#1f1533] rounded-full text-xs font-medium transition">Cancel</button>
-        <button id="confirmOkBtn" class="px-5 py-1.5 bg-[#563b72] hover:bg-[#483060] text-white font-bold rounded-full text-xs transition shadow-sm">Confirm</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- TOAST CONTAINER -->
   <div id="toastContainer" class="fixed bottom-12 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
   <!-- ============================================================
@@ -916,8 +1141,6 @@
     let currentCanvasBg = '#1f1533';
     let pencilFillEnabled = false;
     let _canvasClipboard = null;
-    let pendingTeethTemplateUrl = null;
-    let pendingTeethTemplateName = null;
 
     // Responsive Canvas Resize Observer
     const resizeObserver = new ResizeObserver((entries) => {
@@ -932,12 +1155,801 @@
     });
     resizeObserver.observe(container);
 
-    // Synchronization of Layers Tree with Canvas
     canvas.on('object:added', () => updateLayersTree());
     canvas.on('object:removed', () => { updateLayersTree(); syncInspector(); });
     canvas.on('selection:created', () => { syncInspector(); updateLayersTree(); });
     canvas.on('selection:updated', () => { syncInspector(); updateLayersTree(); });
     canvas.on('selection:cleared', () => { syncInspector(); updateLayersTree(); });
+
+    /* ============================================================
+       SUPABASE SERVICE: USES YOUR EXISTING 'photos' BUCKET
+       ============================================================ */
+    const SupabaseService = {
+      client: null,
+      bucketName: 'photos',
+
+      init() {
+        const url = localStorage.getItem('smilecreo_supabase_url');
+        const key = localStorage.getItem('smilecreo_supabase_key');
+        if (url && key && window.supabase) {
+          try {
+            this.client = window.supabase.createClient(url, key);
+          } catch (e) {
+            console.error('Supabase init failed:', e);
+          }
+        }
+      },
+
+      isConnected() {
+        return Boolean(this.client);
+      },
+
+      async uploadImageBlob(subFolder, fileName, blob) {
+        if (!this.isConnected()) return null;
+        try {
+          const path = `${subFolder}/${fileName}`;
+          const { error } = await this.client.storage.from(this.bucketName).upload(path, blob, {
+            upsert: true,
+            contentType: blob.type || 'image/png'
+          });
+          if (error) throw error;
+          const { data: pubData } = this.client.storage.from(this.bucketName).getPublicUrl(path);
+          return pubData.publicUrl;
+        } catch (e) {
+          console.warn(`Storage upload to ${this.bucketName}/${subFolder} failed:`, e);
+          return null;
+        }
+      },
+
+      async saveRecord(recordData) {
+        if (this.isConnected()) {
+          const { data, error } = await this.client
+            .from('patient_records')
+            .insert([recordData])
+            .select();
+          if (error) throw error;
+          return data[0];
+        } else {
+          const localList = JSON.parse(localStorage.getItem('smilecreo_local_records') || '[]');
+          const newRec = {
+            id: 'local_' + Date.now(),
+            created_at: new Date().toISOString(),
+            ...recordData
+          };
+          localList.unshift(newRec);
+          localStorage.setItem('smilecreo_local_records', JSON.stringify(localList));
+          return newRec;
+        }
+      },
+
+      async getRecords() {
+        if (this.isConnected()) {
+          const { data, error } = await this.client
+            .from('patient_records')
+            .select('*')
+            .order('created_at', { ascending: false });
+          if (error) throw error;
+          return data;
+        } else {
+          return JSON.parse(localStorage.getItem('smilecreo_local_records') || '[]');
+        }
+      },
+
+      async updateRecord(id, updates) {
+        if (this.isConnected()) {
+          const { data, error } = await this.client
+            .from('patient_records')
+            .update(updates)
+            .eq('id', id)
+            .select();
+          if (error) throw error;
+          return data[0];
+        } else {
+          const localList = JSON.parse(localStorage.getItem('smilecreo_local_records') || '[]');
+          const idx = localList.findIndex(r => r.id === id);
+          if (idx !== -1) {
+            localList[idx] = { ...localList[idx], ...updates };
+            localStorage.setItem('smilecreo_local_records', JSON.stringify(localList));
+            return localList[idx];
+          }
+          return null;
+        }
+      },
+
+      async deleteRecord(id) {
+        if (this.isConnected()) {
+          const { error } = await this.client
+            .from('patient_records')
+            .delete()
+            .eq('id', id);
+          if (error) throw error;
+        } else {
+          let localList = JSON.parse(localStorage.getItem('smilecreo_local_records') || '[]');
+          localList = localList.filter(r => r.id !== id);
+          localStorage.setItem('smilecreo_local_records', JSON.stringify(localList));
+        }
+      },
+
+      async getTemplates() {
+        if (this.isConnected()) {
+          const { data, error } = await this.client
+            .from('teeth_templates')
+            .select('*')
+            .order('created_at', { ascending: false });
+          if (error) throw error;
+          return data;
+        } else {
+          return JSON.parse(localStorage.getItem('smilecreo_local_templates') || '[]');
+        }
+      },
+
+      async saveTemplate(templateData) {
+        if (this.isConnected()) {
+          const { data, error } = await this.client
+            .from('teeth_templates')
+            .insert([templateData])
+            .select();
+          if (error) throw error;
+          return data[0];
+        } else {
+          const list = JSON.parse(localStorage.getItem('smilecreo_local_templates') || '[]');
+          const newTpl = {
+            id: 'local_tpl_' + Date.now(),
+            created_at: new Date().toISOString(),
+            ...templateData
+          };
+          list.unshift(newTpl);
+          localStorage.setItem('smilecreo_local_templates', JSON.stringify(list));
+          return newTpl;
+        }
+      },
+
+      async updateTemplate(id, title) {
+        if (this.isConnected()) {
+          const { data, error } = await this.client
+            .from('teeth_templates')
+            .update({ title: title })
+            .eq('id', id)
+            .select();
+          if (error) throw error;
+          return data[0];
+        } else {
+          const list = JSON.parse(localStorage.getItem('smilecreo_local_templates') || '[]');
+          const idx = list.findIndex(t => t.id === id);
+          if (idx !== -1) {
+            list[idx].title = title;
+            localStorage.setItem('smilecreo_local_templates', JSON.stringify(list));
+            return list[idx];
+          }
+          return null;
+        }
+      },
+
+      async deleteTemplate(id) {
+        if (this.isConnected()) {
+          const { error } = await this.client
+            .from('teeth_templates')
+            .delete()
+            .eq('id', id);
+          if (error) throw error;
+        } else {
+          let list = JSON.parse(localStorage.getItem('smilecreo_local_templates') || '[]');
+          list = list.filter(t => t.id !== id);
+          localStorage.setItem('smilecreo_local_templates', JSON.stringify(list));
+        }
+      }
+    };
+
+    SupabaseService.init();
+
+    function openSupabaseConfigModal() {
+      document.getElementById('cfg-supabase-url').value = localStorage.getItem('smilecreo_supabase_url') || '';
+      document.getElementById('cfg-supabase-key').value = localStorage.getItem('smilecreo_supabase_key') || '';
+      document.getElementById('supabase-config-modal').classList.remove('hidden');
+    }
+
+    function closeSupabaseConfigModal() {
+      document.getElementById('supabase-config-modal').classList.add('hidden');
+    }
+
+    function saveSupabaseConfig() {
+      const url = document.getElementById('cfg-supabase-url').value.trim();
+      const key = document.getElementById('cfg-supabase-key').value.trim();
+      if (url) localStorage.setItem('smilecreo_supabase_url', url);
+      else localStorage.removeItem('smilecreo_supabase_url');
+      if (key) localStorage.setItem('smilecreo_supabase_key', key);
+      else localStorage.removeItem('smilecreo_supabase_key');
+      SupabaseService.init();
+      closeSupabaseConfigModal();
+      showToast(SupabaseService.isConnected() ? 'Connected to Supabase!' : 'Using local browser storage fallback', 'success');
+    }
+
+    /* ============================================================
+       SAVE PATIENT RECORD LOGIC
+       ============================================================ */
+    let currentRecordThumbDataUrl = '';
+
+    function openSaveRecordModal() {
+      if (canvas.getObjects().length === 0) {
+        showToast('Canvas is empty. Add elements before saving.', 'error');
+        return;
+      }
+
+      currentRecordThumbDataUrl = canvas.toDataURL({
+        format: 'png',
+        multiplier: 0.45,
+        quality: 0.85
+      });
+
+      document.getElementById('save-record-thumb').src = currentRecordThumbDataUrl;
+      document.getElementById('rec-patient-date').value = new Date().toISOString().split('T')[0];
+      document.getElementById('save-record-modal').classList.remove('hidden');
+    }
+
+    function closeSaveRecordModal() {
+      document.getElementById('save-record-modal').classList.add('hidden');
+    }
+
+    async function submitPatientRecord() {
+      const name = document.getElementById('rec-patient-name').value.trim();
+      const age = parseInt(document.getElementById('rec-patient-age').value) || null;
+      const gender = document.getElementById('rec-patient-gender').value;
+      const date = document.getElementById('rec-patient-date').value || new Date().toISOString().split('T')[0];
+      const notes = document.getElementById('rec-patient-notes').value.trim();
+
+      if (!name) {
+        showToast('Please enter patient name', 'error');
+        return;
+      }
+
+      closeSaveRecordModal();
+      showLoadingModal('Saving Record...', 'Storing treatment plan in database', 'bi-cloud-arrow-up');
+
+      try {
+        let previewUrl = currentRecordThumbDataUrl;
+
+        if (SupabaseService.isConnected()) {
+          const res = await fetch(currentRecordThumbDataUrl);
+          const blob = await res.blob();
+          const cleanName = name.toLowerCase().replace(/[^a-z0-9]/g, '_');
+          const fileName = `${cleanName}_${Date.now()}.png`;
+          const uploadedUrl = await SupabaseService.uploadImageBlob('records', fileName, blob);
+          if (uploadedUrl) previewUrl = uploadedUrl;
+        }
+
+        const serializedCanvas = canvas.toJSON([
+          'name', 'customType', 'strokeUniform', 'strokeDashArray', 
+          'dsdFaceId', 'targetFaceId', 'mouthLocalX', 'mouthLocalY', 
+          'isLipLayer', 'isAttachedToMouth', 'isPositionFixed', 
+          'lockMovementX', 'lockMovementY', 'lockRotation', 
+          'lockScalingX', 'lockScalingY', 'hasControls', 'hoverCursor'
+        ]);
+
+        const record = {
+          patient_name: name,
+          age: age,
+          gender: gender,
+          record_date: date,
+          notes: notes,
+          preview_url: previewUrl,
+          canvas_data: serializedCanvas
+        };
+
+        await SupabaseService.saveRecord(record);
+        hideLoadingModal();
+        showToast(`Record for ${name} saved successfully!`, 'success');
+        document.getElementById('form-save-record').reset();
+      } catch (err) {
+        hideLoadingModal();
+        showToast(`Save failed: ${err.message || 'Error occurred'}`, 'error');
+      }
+    }
+
+    /* ============================================================
+       PATIENT RECORDS DATABASE VIEWER
+       ============================================================ */
+    let loadedRecordsCache = [];
+
+    async function openRecordsModal() {
+      document.getElementById('records-modal').classList.remove('hidden');
+      await refreshRecordsList();
+    }
+
+    function closeRecordsModal() {
+      document.getElementById('records-modal').classList.add('hidden');
+    }
+
+    async function refreshRecordsList() {
+      showLoadingModal('Loading Records...', 'Fetching patients from database', 'bi-folder2-open');
+      try {
+        loadedRecordsCache = await SupabaseService.getRecords();
+        renderRecordsGrid(loadedRecordsCache);
+      } catch (err) {
+        showToast('Error loading records: ' + (err.message || ''), 'error');
+      } finally {
+        hideLoadingModal();
+      }
+    }
+
+    function filterRecordsList(q) {
+      const query = (q || '').toLowerCase();
+      const filtered = loadedRecordsCache.filter(r => 
+        (r.patient_name && r.patient_name.toLowerCase().includes(query)) ||
+        (r.notes && r.notes.toLowerCase().includes(query))
+      );
+      renderRecordsGrid(filtered);
+    }
+
+    function renderRecordsGrid(records) {
+      const grid = document.getElementById('records-grid');
+      const countLbl = document.getElementById('records-count-lbl');
+      countLbl.innerText = `Showing ${records.length} patient records`;
+
+      if (!records.length) {
+        grid.innerHTML = `
+          <div class="col-span-full py-16 text-center text-[#5e5473] text-xs space-y-2">
+            <i class="bi bi-folder-x text-3xl text-[#563b72]"></i>
+            <p>No patient records found.</p>
+            <p class="text-[10px]">Click <b>"Save Record"</b> in the top dock to save the current DSD canvas.</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = records.map(r => {
+        const idStr = String(r.id);
+        const previewSrc = r.preview_url || 'https://via.placeholder.com/300x180?text=No+Preview';
+        const dateStr = r.record_date || (r.created_at ? r.created_at.split('T')[0] : 'N/A');
+        const ageBadge = r.age ? `${r.age} yrs` : 'Age N/A';
+
+        return `
+          <div class="m3-surface-card bg-[#f3f0f9] hover:bg-white border border-[#cec6e6]/80 p-3 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between rounded-2xl group">
+            <div class="space-y-2">
+              <div class="relative w-full h-36 bg-[#1f1533] rounded-xl overflow-hidden flex items-center justify-center border border-[#cec6e6]">
+                <img src="${previewSrc}" alt="${r.patient_name}" class="w-full h-full object-contain pointer-events-none" />
+                <span class="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-[#563b72] text-white font-mono text-[9px] font-bold shadow">${dateStr}</span>
+                <span class="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-white text-[#563b72] font-semibold text-[9px] shadow">${r.gender || 'Female'}</span>
+              </div>
+              <div>
+                <div class="flex items-center justify-between">
+                  <h4 class="text-xs font-bold text-[#1f1533] truncate group-hover:text-[#563b72]">${r.patient_name}</h4>
+                  <span class="text-[10px] text-[#5e5473] font-mono">${ageBadge}</span>
+                </div>
+                ${r.notes ? `<p class="text-[10px] text-[#5e5473] truncate mt-0.5 italic">"${r.notes}"</p>` : ''}
+              </div>
+            </div>
+
+            <div class="grid grid-cols-4 gap-1 pt-3 border-t border-[#cec6e6]/60 mt-3">
+              <button onclick="loadRecordToCanvas('${idStr}')" class="col-span-2 py-1.5 px-2 bg-[#563b72] hover:bg-[#483060] text-white rounded-xl text-[11px] font-semibold transition flex items-center justify-center gap-1 shadow-sm" title="Load into Canvas">
+                <i class="bi bi-box-arrow-in-down"></i>
+                <span>Open DSD</span>
+              </button>
+              <button onclick="openEditRecordModal('${idStr}')" class="py-1.5 px-1 bg-[#ded8f3]/60 hover:bg-[#ded8f3] text-[#1f1533] rounded-xl text-[10px] transition flex items-center justify-center" title="Edit Patient Details">
+                <i class="bi bi-pencil-square"></i>
+              </button>
+              <button onclick="downloadRecordPreview('${idStr}')" class="py-1.5 px-1 bg-[#ded8f3]/60 hover:bg-[#ded8f3] text-[#1f1533] rounded-xl text-[10px] transition flex items-center justify-center" title="Download Image Preview">
+                <i class="bi bi-download"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function loadRecordToCanvas(id) {
+      const rec = loadedRecordsCache.find(r => String(r.id) === String(id));
+      if (!rec) return;
+
+      showConfirmModal('Load Patient Record', `Load layout for "${rec.patient_name}"? This replaces current canvas objects.`, () => {
+        closeRecordsModal();
+        showLoadingModal('Restoring Session...', 'Loading patient DSD layout', 'bi-arrow-clockwise');
+        setTimeout(() => {
+          canvas.loadFromJSON(rec.canvas_data, () => {
+            cleanToolState();
+            canvas.requestRenderAll();
+            updateLayersTree();
+            syncInspector();
+            saveState();
+            hideLoadingModal();
+            showToast(`Loaded ${rec.patient_name}'s smile design session`, 'success');
+          });
+        }, 50);
+      });
+    }
+
+    function downloadRecordPreview(id) {
+      const rec = loadedRecordsCache.find(r => String(r.id) === String(id));
+      if (!rec || !rec.preview_url) return;
+      const cleanName = (rec.patient_name || 'Patient').toLowerCase().replace(/\s+/g, '_');
+      triggerDownload(rec.preview_url, `${cleanName}_dsd_preview.png`);
+    }
+
+    function openEditRecordModal(id) {
+      const rec = loadedRecordsCache.find(r => String(r.id) === String(id));
+      if (!rec) return;
+
+      document.getElementById('edit-rec-id').value = rec.id;
+      document.getElementById('edit-rec-name').value = rec.patient_name || '';
+      document.getElementById('edit-rec-age').value = rec.age || '';
+      document.getElementById('edit-rec-gender').value = rec.gender || 'Female';
+      document.getElementById('edit-rec-date').value = rec.record_date || (rec.created_at ? rec.created_at.split('T')[0] : '');
+      document.getElementById('edit-rec-notes').value = rec.notes || '';
+      document.getElementById('edit-record-modal').classList.remove('hidden');
+    }
+
+    function closeEditRecordModal() {
+      document.getElementById('edit-record-modal').classList.add('hidden');
+    }
+
+    async function saveUpdatedRecordDetails() {
+      const id = document.getElementById('edit-rec-id').value;
+      const name = document.getElementById('edit-rec-name').value.trim();
+      const age = parseInt(document.getElementById('edit-rec-age').value) || null;
+      const gender = document.getElementById('edit-rec-gender').value;
+      const date = document.getElementById('edit-rec-date').value;
+      const notes = document.getElementById('edit-rec-notes').value.trim();
+
+      if (!name) {
+        showToast('Patient name is required', 'error');
+        return;
+      }
+
+      closeEditRecordModal();
+      showLoadingModal('Updating...', 'Saving patient details', 'bi-pencil');
+      try {
+        await SupabaseService.updateRecord(id, {
+          patient_name: name,
+          age: age,
+          gender: gender,
+          record_date: date,
+          notes: notes
+        });
+        await refreshRecordsList();
+        showToast('Patient details updated!', 'success');
+      } catch (err) {
+        showToast('Update failed: ' + (err.message || ''), 'error');
+      } finally {
+        hideLoadingModal();
+      }
+    }
+
+    /* ============================================================
+       TEETH TEMPLATES GALLERY
+       ============================================================ */
+    let dynamicTemplates = [];
+
+    async function openTemplatesModal() {
+      document.getElementById('templates-modal').classList.remove('hidden');
+      await refreshTemplatesGallery();
+    }
+
+    function closeTemplatesModal() {
+      document.getElementById('templates-modal').classList.add('hidden');
+    }
+
+    async function refreshTemplatesGallery() {
+      showLoadingModal('Loading Templates...', 'Retrieving teeth templates', 'bi-grid-3x3-gap-fill');
+      try {
+        dynamicTemplates = await SupabaseService.getTemplates();
+        renderTemplatesGallery();
+      } catch (err) {
+        console.error(err);
+      } finally {
+        hideLoadingModal();
+      }
+    }
+
+    function renderTemplatesGallery() {
+      const grid = document.getElementById('templates-grid');
+      if (!grid) return;
+
+      if (!dynamicTemplates.length) {
+        grid.innerHTML = `
+          <div class="col-span-full py-16 text-center text-[#5e5473] text-xs space-y-2">
+            <i class="bi bi-box2 text-3xl text-[#563b72]"></i>
+            <p>Your Teeth Templates library is currently empty.</p>
+            <p class="text-[10px]">Click the <b>"Upload Teeth Template"</b> button above to upload PNG or SVG smile arches.</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = dynamicTemplates.map(tpl => {
+        const idStr = String(tpl.id);
+        const titleSafe = tpl.title.replace(/"/g, '&quot;');
+        return `
+          <div class="group relative bg-[#f3f0f9] hover:bg-white rounded-2xl overflow-hidden border border-[#cec6e6]/80 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between p-2.5">
+            <div onclick="selectTeethTemplate('${tpl.image_url}', '${titleSafe}')" class="cursor-pointer">
+              <div class="checkerboard-pattern relative w-full h-32 rounded-xl overflow-hidden flex items-center justify-center p-2.5 border border-[#cec6e6]">
+                <img 
+                  src="${tpl.image_url}" 
+                  alt="${titleSafe}" 
+                  class="max-w-full max-h-full object-contain transition duration-200 group-hover:scale-105 pointer-events-none" 
+                  loading="lazy"
+                />
+                <div class="absolute inset-0 bg-[#563b72]/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                  <span class="px-3 py-1 rounded-full bg-white text-[#563b72] font-semibold text-xs shadow">Select Teeth</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-2 flex items-center justify-between gap-1">
+              <div class="flex-1 truncate">
+                <input 
+                  type="text" 
+                  value="${titleSafe}" 
+                  onchange="updateTemplateTitle('${idStr}', this.value)"
+                  class="w-full bg-transparent hover:bg-white focus:bg-white border border-transparent focus:border-[#563b72] rounded-lg px-1.5 py-0.5 text-xs font-semibold text-[#1f1533] outline-none truncate transition"
+                  title="Click to rename template"
+                />
+              </div>
+              <button onclick="deleteTeethTemplate('${idStr}')" class="p-1 text-[#5e5473] hover:text-red-600 rounded-lg hover:bg-red-50 transition" title="Delete Template">
+                <i class="bi bi-trash3 text-xs"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function handleTemplateUpload(file) {
+      if (!file) return;
+      const isImg = file.type.startsWith('image/') || file.name.endsWith('.svg');
+      if (!isImg) {
+        showToast('Please upload a valid PNG, JPG, or SVG image file.', 'error');
+        return;
+      }
+
+      showLoadingModal('Uploading Template...', 'Saving teeth template to library', 'bi-cloud-arrow-up');
+
+      try {
+        let imageUrl = '';
+        if (SupabaseService.isConnected()) {
+          const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+          const fileName = `${Date.now()}_${safeName}`;
+          imageUrl = await SupabaseService.uploadImageBlob('templates', fileName, file);
+        }
+
+        if (!imageUrl) {
+          imageUrl = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.readAsDataURL(file);
+          });
+        }
+
+        const title = file.name.replace(/\.[^/.]+$/, "") || 'Custom Teeth Template';
+        await SupabaseService.saveTemplate({
+          title: title,
+          file_name: file.name,
+          image_url: imageUrl
+        });
+
+        await refreshTemplatesGallery();
+        showToast('Template uploaded successfully!', 'success');
+      } catch (err) {
+        showToast('Upload error: ' + (err.message || ''), 'error');
+      } finally {
+        hideLoadingModal();
+        const input = document.getElementById('inp-upload-template');
+        if (input) input.value = '';
+      }
+    }
+
+    async function updateTemplateTitle(id, newTitle) {
+      const cleanTitle = (newTitle || '').trim();
+      if (!cleanTitle) return;
+      try {
+        await SupabaseService.updateTemplate(id, cleanTitle);
+        showToast('Template renamed', 'success');
+      } catch (e) {
+        showToast('Rename failed', 'error');
+      }
+    }
+
+    function deleteTeethTemplate(id) {
+      showConfirmModal('Delete Template', 'Are you sure you want to remove this teeth template?', async () => {
+        try {
+          await SupabaseService.deleteTemplate(id);
+          await refreshTemplatesGallery();
+          showToast('Template deleted', 'info');
+        } catch (e) {
+          showToast('Delete failed', 'error');
+        }
+      });
+    }
+
+    function selectTeethTemplate(url, name) {
+      closeTemplatesModal();
+      showLoadingModal('Importing Teeth...', 'Adding template to canvas', 'bi-image');
+
+      fabric.Image.fromURL(url, (teethImg) => {
+        const maxDim = 380;
+        if (teethImg.width > maxDim || teethImg.height > maxDim) {
+          teethImg.scale(maxDim / Math.max(teethImg.width, teethImg.height));
+        }
+        const c = canvas.getVpCenter();
+        teethImg.set({
+          left: c.x - (teethImg.getScaledWidth() / 2),
+          top: c.y - (teethImg.getScaledHeight() / 2),
+          name: name || 'Teeth Template',
+          strokeUniform: true
+        });
+
+        canvas.add(teethImg);
+        canvas.setActiveObject(teethImg);
+        canvas.requestRenderAll();
+        saveState();
+        hideLoadingModal();
+        showToast('Teeth template added. Click "Pull near teeth" to auto-align!', 'success');
+      }, { crossOrigin: 'anonymous' });
+    }
+
+    /* ============================================================
+       LAYERS TREE WITH INLINE RENAMING
+       ============================================================ */
+    let draggedLayerIndex = null;
+
+    function updateLayersTree() {
+      const tree = document.getElementById('layers-tree');
+      if (!tree) return;
+      
+      const objects = canvas.getObjects().filter(o => !o.isInternalHandle);
+      const reversedObjects = objects.slice().reverse();
+
+      if (!reversedObjects.length) {
+        tree.innerHTML = '<div class="text-[#5e5473] text-center py-12 text-[11px]">No active layers</div>';
+        return;
+      }
+
+      tree.innerHTML = '';
+      const activeObjects = canvas.getActiveObjects();
+
+      reversedObjects.forEach((obj, uiIdx) => {
+        if (!obj.name) obj.name = `Layer ${objects.indexOf(obj) + 1}`;
+
+        const isSel = activeObjects.includes(obj);
+        const div = document.createElement('div');
+        div.draggable = !obj.isPositionFixed;
+        div.className = `flex items-center justify-between px-3 py-2 rounded-2xl cursor-grab text-xs transition shadow-sm ${
+          isSel ? 'bg-[#563b72] text-white font-semibold' : 'bg-[#f3f0f9] hover:bg-[#e8e4f3] text-[#1f1533]'
+        }`;
+
+        let icon = `<i class="bi bi-bezier2 ${isSel ? 'text-white' : 'text-[#563b72]'}"></i>`;
+        if (obj.type === 'image') icon = `<i class="bi bi-image ${isSel ? 'text-white' : 'text-[#563b72]'}"></i>`;
+        if (obj.isLipLayer) icon = `<i class="bi bi-scissors ${isSel ? 'text-white' : 'text-[#563b72]'}"></i>`;
+        if (obj.type === 'group') icon = `<i class="bi bi-collection ${isSel ? 'text-white' : 'text-[#563b72]'}"></i>`;
+        if (obj.type === 'line' || obj.customType === 'line') icon = `<i class="bi bi-dash-lg ${isSel ? 'text-white' : 'text-[#563b72]'}"></i>`;
+        if (obj.customType === 'midline') icon = `<i class="bi bi-slash-lg ${isSel ? 'text-white' : 'text-[#563b72]'}"></i>`;
+
+        const lockIcon = obj.isPositionFixed 
+          ? `<i class="bi bi-pin-angle-fill ${isSel ? 'text-amber-200' : 'text-amber-600'} text-[11px]" title="Position Fixed"></i>` 
+          : '';
+
+        div.innerHTML = `
+          <div class="flex items-center gap-2 truncate flex-1 pointer-events-none">
+            <span class="text-[11px]">${icon}</span>
+            <span class="truncate layer-title" title="Double click to rename">${obj.name}</span>
+            ${lockIcon}
+          </div>
+          <div class="flex items-center gap-1.5 ml-2">
+            <button class="${isSel ? 'text-white/80 hover:text-white' : 'text-[#5e5473] hover:text-[#563b72]'} p-0.5" onclick="event.stopPropagation(); triggerRenameFromBtn(this)" title="Rename Layer">
+              <i class="bi bi-pencil text-[10px]"></i>
+            </button>
+            <button class="${isSel ? 'text-white/80 hover:text-white' : 'text-[#5e5473] hover:text-[#1f1533]'} p-0.5" onclick="event.stopPropagation(); toggleLayerVisibility('${obj.name}')" title="Toggle Visibility">
+              ${obj.visible ? '<i class="bi bi-eye"></i>' : '<i class="bi bi-eye-slash text-red-500"></i>'}
+            </button>
+          </div>
+        `;
+
+        div.onclick = (e) => {
+          e.stopPropagation();
+          canvas.setActiveObject(obj);
+          canvas.requestRenderAll();
+          syncInspector();
+          updateLayersTree();
+        };
+
+        const initiateRename = (e) => {
+          if (e) e.stopPropagation();
+          const titleSpan = div.querySelector('.layer-title');
+          if (!titleSpan) return;
+          const oldName = obj.name;
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.value = oldName;
+          input.className = 'bg-[#ded8f3] border border-[#563b72] rounded-lg px-1.5 py-0.5 text-xs text-[#1f1533] outline-none w-full pointer-events-auto';
+          
+          titleSpan.replaceWith(input);
+          input.focus();
+          input.select();
+
+          const saveRename = () => {
+            const finalVal = input.value.trim();
+            obj.name = finalVal || oldName;
+            updateLayersTree();
+            syncInspector();
+            saveState();
+          };
+
+          input.onblur = saveRename;
+          input.onkeydown = (ke) => {
+            if (ke.key === 'Enter') saveRename();
+            if (ke.key === 'Escape') updateLayersTree();
+          };
+        };
+
+        div.ondblclick = initiateRename;
+        div.triggerRename = initiateRename;
+
+        div.ondragstart = (e) => {
+          draggedLayerIndex = uiIdx;
+          e.dataTransfer.setData('text/plain', uiIdx);
+          div.style.opacity = '0.4';
+        };
+
+        div.ondragend = () => {
+          div.style.opacity = '1';
+          document.querySelectorAll('.drag-over-top, .drag-over-bottom').forEach(el => {
+            el.classList.remove('drag-over-top', 'drag-over-bottom');
+          });
+        };
+
+        div.ondragover = (e) => {
+          e.preventDefault();
+          const rect = div.getBoundingClientRect();
+          const midY = rect.top + rect.height / 2;
+          if (e.clientY < midY) {
+            div.classList.add('drag-over-top');
+            div.classList.remove('drag-over-bottom');
+          } else {
+            div.classList.add('drag-over-bottom');
+            div.classList.remove('drag-over-top');
+          }
+        };
+
+        div.ondragleave = () => {
+          div.classList.remove('drag-over-top', 'drag-over-bottom');
+        };
+
+        div.ondrop = (e) => {
+          e.preventDefault();
+          div.classList.remove('drag-over-top', 'drag-over-bottom');
+          const fromUiIdx = draggedLayerIndex;
+          const toUiIdx = uiIdx;
+
+          if (fromUiIdx === null || fromUiIdx === toUiIdx) return;
+
+          const draggedObj = reversedObjects[fromUiIdx];
+          const targetObj = reversedObjects[toUiIdx];
+          const toCanvasIdx = canvas.getObjects().indexOf(targetObj);
+
+          canvas.moveTo(draggedObj, toCanvasIdx);
+          canvas.requestRenderAll();
+          updateLayersTree();
+          saveState();
+          showToast('Layer reordered', 'info');
+        };
+
+        tree.appendChild(div);
+      });
+    }
+
+    function triggerRenameFromBtn(btnEl) {
+      const parentRow = btnEl.closest('.cursor-grab');
+      if (parentRow && parentRow.triggerRename) {
+        parentRow.triggerRename();
+      }
+    }
+
+    function toggleLayerVisibility(name) {
+      const obj = canvas.getObjects().find(o => o.name === name);
+      if (obj) {
+        obj.visible = !obj.visible;
+        canvas.requestRenderAll();
+        updateLayersTree();
+      }
+    }
 
     /* ============================================================
        IMAGE & SVG IMPORT ENGINE
@@ -1059,7 +2071,7 @@
     });
 
     window.addEventListener('pointerdown', (e) => {
-      const isInteractiveUI = e.target.closest('header, aside, #customContextMenu, #ps-crop-studio-modal, #mediapipe-modal, #templates-modal, #pull-teeth-modal, #export-modal, #loading-modal, #customConfirmModal, #pencil-subdock, .tool-btn');
+      const isInteractiveUI = e.target.closest('header, aside, #customContextMenu, #ps-crop-studio-modal, #mediapipe-modal, #templates-modal, #pull-teeth-modal, #export-modal, #loading-modal, #customConfirmModal, #pencil-subdock, #save-record-modal, #records-modal, #edit-record-modal, #supabase-config-modal, .tool-btn');
       const isInsideCanvas = e.target.closest('#canvas-viewport');
       
       if (!isInteractiveUI && !isInsideCanvas) {
@@ -1223,7 +2235,6 @@
         return;
       }
 
-      // Filter other available images on canvas that act as the patient face photo
       const candidateFaces = canvas.getObjects().filter(o => o.type === 'image' && o !== activeObj && !o.isLipLayer);
 
       if (candidateFaces.length === 0) {
@@ -1231,13 +2242,11 @@
         return;
       }
 
-      // If only 1 patient photo exists, immediately auto-fit to it
       if (candidateFaces.length === 1) {
         executePullNearTeethOnFace(activeObj, candidateFaces[0]);
         return;
       }
 
-      // If multiple, show the selector modal
       const listEl = document.getElementById('pull-teeth-faces-list');
       listEl.innerHTML = candidateFaces.map((faceObj, idx) => {
         const thumbUrl = faceObj.getElement().src;
@@ -1290,21 +2299,14 @@
         const iw = faceImgEl.naturalWidth || faceImgEl.width;
         const ih = faceImgEl.naturalHeight || faceImgEl.height;
 
-        // Canonical MediaPipe landmarks:
-        // 61: Right commissure (image left)
-        // 291: Left commissure (image right)
-        // 13: Inner upper lip midpoint (top of teeth opening)
-        // 14: Inner lower lip midpoint (bottom of teeth opening)
         const p61 = { x: lm[61].x * iw, y: lm[61].y * ih };
         const p291 = { x: lm[291].x * iw, y: lm[291].y * ih };
         const p13 = { x: lm[13].x * iw, y: lm[13].y * ih };
         const p14 = { x: lm[14].x * iw, y: lm[14].y * ih };
 
-        // 1. Mouth/Stomion center in face coordinates (biased toward upper incisal baseline)
         const stomionX = (p61.x + p291.x) / 2;
         const stomionY = (p13.y * 0.72 + p14.y * 0.28);
 
-        // 2. Map coordinates through Fabric transformation matrix of the patient photo
         const faceMatrix = targetFaceObj.calcTransformMatrix();
         const localPt = {
           x: stomionX - (targetFaceObj.width / 2),
@@ -1312,17 +2314,14 @@
         };
         const canvasTargetPt = fabric.util.transformPoint(localPt, faceMatrix);
 
-        // 3. Compute smile angle & head tilt
         const mouthAngleRad = Math.atan2(p291.y - p61.y, p291.x - p61.x);
         const mouthAngleDeg = mouthAngleRad * (180 / Math.PI);
         const totalAngle = (targetFaceObj.angle || 0) + (targetFaceObj.flipX ? -mouthAngleDeg : mouthAngleDeg);
 
-        // 4. Compute anatomical width & scaling (standard anterior dental proportion spans ~84% of intercommissural distance)
         const mouthDist = Math.hypot(p291.x - p61.x, p291.y - p61.y);
         const desiredTeethCanvasWidth = mouthDist * Math.abs(targetFaceObj.scaleX) * 0.84;
         const teethScale = desiredTeethCanvasWidth / teethObj.width;
 
-        // 5. Apply seamless transform directly to the teeth PNG
         teethObj.set({
           originX: 'center',
           originY: 'center',
@@ -1336,7 +2335,6 @@
           strokeUniform: true
         });
 
-        // 6. Link to face & slip under extracted lips if present for 10/10 seamless framing
         const dsdId = targetFaceObj.dsdFaceId || ('face_' + Date.now());
         targetFaceObj.dsdFaceId = dsdId;
         teethObj.targetFaceId = dsdId;
@@ -1490,6 +2488,8 @@
         if (CropStudio.isCropping) { CropStudio.cancelCrop(); return; }
         if (!document.getElementById('templates-modal').classList.contains('hidden')) { closeTemplatesModal(); return; }
         if (!document.getElementById('pull-teeth-modal').classList.contains('hidden')) { closePullNearTeethModal(); return; }
+        if (!document.getElementById('records-modal').classList.contains('hidden')) { closeRecordsModal(); return; }
+        if (!document.getElementById('save-record-modal').classList.contains('hidden')) { closeSaveRecordModal(); return; }
         if (activeObj) {
           canvas.discardActiveObject();
           canvas.requestRenderAll();
@@ -1572,6 +2572,7 @@
         if (e.key === 'z' || e.key === 'Z') { e.preventDefault(); undo(); }
         if (e.key === 'y' || e.key === 'Y') { e.preventDefault(); redo(); }
         if (e.key === 'd' || e.key === 'D') { e.preventDefault(); duplicateSelected(); }
+        if (e.key === 's' || e.key === 'S') { e.preventDefault(); openSaveRecordModal(); }
       }
     });
 
@@ -2077,127 +3078,6 @@
     }
 
     /* ============================================================
-       TEMPLATES DIRECTORY (/templates/ STRICTLY — NO DEMO PHOTOS)
-       ============================================================ */
-    let templatesCatalog = [
-      'teeth1.png',
-      'teeth2.png',
-      'teeth3.png',
-      'teeth4.png',
-      'teeth5.png',
-      'teeth6.png',
-      'template1.png',
-      'template2.png',
-      'smile1.png',
-      'arch1.png'
-    ];
-
-    async function loadTemplatesCatalog() {
-      try {
-        const res = await fetch('/templates/manifest.json');
-        if (res.ok) {
-          const list = await res.json();
-          if (Array.isArray(list) && list.length > 0) {
-            templatesCatalog = list.filter(f => typeof f === 'string' && (f.endsWith('.png') || f.endsWith('.jpg') || f.endsWith('.jpeg')));
-          }
-        }
-      } catch (e) {
-        // Fallback to pre-populated teeth files in /templates/
-      }
-      renderTemplatesDirectory();
-    }
-
-    function openTemplatesModal() {
-      loadTemplatesCatalog();
-      document.getElementById('templates-modal').classList.remove('hidden');
-    }
-
-    function closeTemplatesModal() {
-      document.getElementById('templates-modal').classList.add('hidden');
-    }
-
-    function loadDirectTemplateName() {
-      const inp = document.getElementById('inp-custom-tpl-name');
-      const val = (inp.value || '').trim();
-      if (!val) return;
-      const cleanName = val.replace(/^\/templates\//, '');
-      if (!templatesCatalog.includes(cleanName)) {
-        templatesCatalog.unshift(cleanName);
-      }
-      inp.value = '';
-      renderTemplatesDirectory();
-    }
-
-    function renderTemplatesDirectory() {
-      const grid = document.getElementById('templates-grid');
-      if (!grid) return;
-
-      if (!templatesCatalog.length) {
-        grid.innerHTML = `
-          <div class="col-span-full py-12 text-center text-[#5e5473] text-xs">
-            No templates currently found in <code class="font-mono text-[#563b72]">/templates/</code>
-          </div>
-        `;
-        return;
-      }
-
-      grid.innerHTML = templatesCatalog.map(filename => {
-        const isPng = filename.toLowerCase().endsWith('.png');
-        const formatBadge = isPng ? 'PNG' : 'JPG';
-        const fullUrl = `/templates/${filename}`;
-        const title = filename.replace(/\.[^/.]+$/, "");
-
-        return `
-          <div onclick="selectTeethTemplate('${fullUrl}', '${title}')" class="group relative bg-[#f3f0f9] hover:bg-white rounded-2xl overflow-hidden border border-[#cec6e6]/80 shadow-sm hover:shadow-md cursor-pointer transition-all duration-200 flex flex-col">
-            <div class="relative w-full h-32 bg-[#1f1533]/5 overflow-hidden flex items-center justify-center p-2">
-              <img 
-                src="${fullUrl}" 
-                alt="${title}" 
-                class="w-full h-full object-contain transition duration-200 group-hover:scale-105" 
-                loading="lazy"
-                onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'flex flex-col items-center justify-center text-[10px] text-[#5e5473] gap-1\\'><i class=\\'bi bi-file-earmark-image text-lg text-[#563b72]\\'></i><span>${filename}</span></div>';"
-              />
-              <span class="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-[#563b72] text-white font-mono text-[9px] font-bold tracking-wider">${formatBadge}</span>
-              <div class="absolute inset-0 bg-[#563b72]/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-                <span class="px-3 py-1 rounded-full bg-white text-[#563b72] font-semibold text-xs shadow">Select Teeth</span>
-              </div>
-            </div>
-            <div class="p-2.5 flex items-center justify-between">
-              <span class="text-xs font-semibold text-[#1f1533] truncate font-mono">${filename}</span>
-              <i class="bi bi-arrow-right-circle text-[#563b72]"></i>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function selectTeethTemplate(url, name) {
-      closeTemplatesModal();
-      showLoadingModal('Importing Teeth...', 'Adding template to canvas', 'bi-image');
-
-      fabric.Image.fromURL(url, (teethImg) => {
-        const maxDim = 380;
-        if (teethImg.width > maxDim || teethImg.height > maxDim) {
-          teethImg.scale(maxDim / Math.max(teethImg.width, teethImg.height));
-        }
-        const c = canvas.getVpCenter();
-        teethImg.set({
-          left: c.x - (teethImg.getScaledWidth() / 2),
-          top: c.y - (teethImg.getScaledHeight() / 2),
-          name: name || 'Teeth Template',
-          strokeUniform: true
-        });
-
-        canvas.add(teethImg);
-        canvas.setActiveObject(teethImg);
-        canvas.requestRenderAll();
-        saveState();
-        hideLoadingModal();
-        showToast('Teeth template added. Click "Pull near teeth" to auto-align!', 'success');
-      }, { crossOrigin: 'anonymous' });
-    }
-
-    /* ============================================================
        GOOGLE MEDIAPIPE AI: 100% PURE LIP EXTRACTION (ZERO TEETH)
        ============================================================ */
     let faceMeshEngine = null;
@@ -2323,8 +3203,6 @@
           };
         });
 
-        // Expand inner points AWAY from the oral cavity center (toward vermilion)
-        // by +1.8px so that ZERO teeth or enamel pixels are included inside the lip cutout
         const pureLipsInnerPts = innerPixelPts.map(p => {
           const vx = p.x - innerCx;
           const vy = p.y - innerCy;
@@ -2341,7 +3219,6 @@
         const cropW = Math.min(iw - cropX, Math.ceil((maxX - minX) + pad * 2));
         const cropH = Math.min(ih - cropY, Math.ceil((maxY - minY) + pad * 2));
 
-        // 1. PURE EXTRACTED VERMILION LIPS PNG (TEETH EXCLUDED)
         const lipCanvas = document.createElement('canvas');
         lipCanvas.width = cropW;
         lipCanvas.height = cropH;
@@ -2360,7 +3237,6 @@
 
         const tightLipsDataUrl = lipCanvas.toDataURL('image/png');
 
-        // 2. BASE PHOTO PUNCH-OUT
         let faceWithoutLipsDataUrl = null;
         if (punchBase) {
           const faceCanvas = document.createElement('canvas');
@@ -2486,7 +3362,6 @@
         label.innerText = typeName;
       }
 
-      // Show "Pull near teeth" button for all normal images (excluding extracted lip layers)
       const bentoPullTeeth = document.getElementById('bento-pull-teeth');
       if (bentoPullTeeth) {
         bentoPullTeeth.style.display = (obj.type === 'image' && !obj.isLipLayer) ? 'block' : 'none';
@@ -2757,155 +3632,6 @@
 
       canvas.requestRenderAll();
       showToast('Backdrop updated', 'info');
-    }
-
-    /* ============================================================
-       PERFECTLY SYNCED LAYERS TREE
-       ============================================================ */
-    let draggedLayerIndex = null;
-
-    function updateLayersTree() {
-      const tree = document.getElementById('layers-tree');
-      if (!tree) return;
-      
-      const objects = canvas.getObjects().filter(o => !o.isInternalHandle);
-      const reversedObjects = objects.slice().reverse();
-
-      if (!reversedObjects.length) {
-        tree.innerHTML = '<div class="text-[#5e5473] text-center py-12 text-[11px]">No active layers</div>';
-        return;
-      }
-
-      tree.innerHTML = '';
-      const activeObjects = canvas.getActiveObjects();
-
-      reversedObjects.forEach((obj, uiIdx) => {
-        if (!obj.name) obj.name = `Layer ${objects.indexOf(obj) + 1}`;
-
-        const isSel = activeObjects.includes(obj);
-        const div = document.createElement('div');
-        div.draggable = !obj.isPositionFixed;
-        div.className = `flex items-center justify-between px-3 py-2 rounded-2xl cursor-grab text-xs transition shadow-sm ${
-          isSel ? 'bg-[#563b72] text-white font-semibold' : 'bg-[#f3f0f9] hover:bg-[#e8e4f3] text-[#1f1533]'
-        }`;
-
-        let icon = `<i class="bi bi-bezier2 ${isSel ? 'text-white' : 'text-[#563b72]'}"></i>`;
-        if (obj.type === 'image') icon = `<i class="bi bi-image ${isSel ? 'text-white' : 'text-[#563b72]'}"></i>`;
-        if (obj.isLipLayer) icon = `<i class="bi bi-scissors ${isSel ? 'text-white' : 'text-[#563b72]'}"></i>`;
-        if (obj.type === 'group') icon = `<i class="bi bi-collection ${isSel ? 'text-white' : 'text-[#563b72]'}"></i>`;
-        if (obj.type === 'line' || obj.customType === 'line') icon = `<i class="bi bi-dash-lg ${isSel ? 'text-white' : 'text-[#563b72]'}"></i>`;
-        if (obj.customType === 'midline') icon = `<i class="bi bi-slash-lg ${isSel ? 'text-white' : 'text-[#563b72]'}"></i>`;
-
-        const lockIcon = obj.isPositionFixed 
-          ? `<i class="bi bi-pin-angle-fill ${isSel ? 'text-amber-200' : 'text-amber-600'} text-[11px]" title="Position Fixed"></i>` 
-          : '';
-
-        div.innerHTML = `
-          <div class="flex items-center gap-2 truncate flex-1 pointer-events-none">
-            <span class="text-[11px]">${icon}</span>
-            <span class="truncate layer-title" title="Double-click to rename">${obj.name}</span>
-            ${lockIcon}
-          </div>
-          <button class="${isSel ? 'text-white/80 hover:text-white' : 'text-[#5e5473] hover:text-[#1f1533]'} ml-2 p-0.5" onclick="event.stopPropagation(); toggleLayerVisibility('${obj.name}')">
-            ${obj.visible ? '<i class="bi bi-eye"></i>' : '<i class="bi bi-eye-slash text-red-500"></i>'}
-          </button>
-        `;
-
-        div.onclick = (e) => {
-          e.stopPropagation();
-          canvas.setActiveObject(obj);
-          canvas.requestRenderAll();
-          syncInspector();
-          updateLayersTree();
-        };
-
-        div.ondblclick = (e) => {
-          e.stopPropagation();
-          const titleSpan = div.querySelector('.layer-title');
-          const oldName = obj.name;
-          const input = document.createElement('input');
-          input.type = 'text';
-          input.value = oldName;
-          input.className = 'bg-[#ded8f3] border border-[#563b72] rounded-lg px-1.5 text-xs text-[#1f1533] outline-none w-full';
-          
-          titleSpan.replaceWith(input);
-          input.focus();
-          input.select();
-
-          const saveRename = () => {
-            obj.name = input.value.trim() || oldName;
-            updateLayersTree();
-            syncInspector();
-            saveState();
-          };
-
-          input.onblur = saveRename;
-          input.onkeydown = (ke) => {
-            if (ke.key === 'Enter') saveRename();
-            if (ke.key === 'Escape') updateLayersTree();
-          };
-        };
-
-        div.ondragstart = (e) => {
-          draggedLayerIndex = uiIdx;
-          e.dataTransfer.setData('text/plain', uiIdx);
-          div.style.opacity = '0.4';
-        };
-
-        div.ondragend = () => {
-          div.style.opacity = '1';
-          document.querySelectorAll('.drag-over-top, .drag-over-bottom').forEach(el => {
-            el.classList.remove('drag-over-top', 'drag-over-bottom');
-          });
-        };
-
-        div.ondragover = (e) => {
-          e.preventDefault();
-          const rect = div.getBoundingClientRect();
-          const midY = rect.top + rect.height / 2;
-          if (e.clientY < midY) {
-            div.classList.add('drag-over-top');
-            div.classList.remove('drag-over-bottom');
-          } else {
-            div.classList.add('drag-over-bottom');
-            div.classList.remove('drag-over-top');
-          }
-        };
-
-        div.ondragleave = () => {
-          div.classList.remove('drag-over-top', 'drag-over-bottom');
-        };
-
-        div.ondrop = (e) => {
-          e.preventDefault();
-          div.classList.remove('drag-over-top', 'drag-over-bottom');
-          const fromUiIdx = draggedLayerIndex;
-          const toUiIdx = uiIdx;
-
-          if (fromUiIdx === null || fromUiIdx === toUiIdx) return;
-
-          const draggedObj = reversedObjects[fromUiIdx];
-          const targetObj = reversedObjects[toUiIdx];
-          const toCanvasIdx = canvas.getObjects().indexOf(targetObj);
-
-          canvas.moveTo(draggedObj, toCanvasIdx);
-          canvas.requestRenderAll();
-          updateLayersTree();
-          saveState();
-          showToast('Layer reordered', 'info');
-        };
-
-        tree.appendChild(div);
-      });
-    }
-
-    function toggleLayerVisibility(name) {
-      const obj = canvas.getObjects().find(o => o.name === name);
-      if (obj) {
-        obj.visible = !obj.visible;
-        canvas.requestRenderAll();
-        updateLayersTree();
-      }
     }
 
     /* ============================================================
@@ -3283,7 +4009,7 @@
       showToast('Export downloaded successfully', 'success');
     }
 
-    // Save initial state
+    // Save initial canvas state
     saveState();
   </script>
 </body>
