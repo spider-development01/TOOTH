@@ -249,6 +249,41 @@
       color: var(--m3-primary);
       font-weight: 700;
     }
+
+  /* Custom Save Target Row Styling */
+.save-target-row {
+  color: #1f1533;
+  transition: all 0.15s ease;
+}
+.save-target-row:hover:not(.is-selected) {
+  background-color: rgba(222, 216, 243, 0.6);
+}
+.save-target-row .row-icon-box {
+  background-color: #ded8f3;
+  color: #563b72;
+}
+.save-target-row .row-subtitle {
+  color: #5e5473;
+}
+.save-target-row .check-mark {
+  opacity: 0;
+}
+
+/* Active / Selected State */
+.save-target-row.is-selected {
+  background-color: #563b72 !important;
+  color: #ffffff !important;
+}
+.save-target-row.is-selected .row-icon-box {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+}
+.save-target-row.is-selected .row-subtitle {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+.save-target-row.is-selected .check-mark {
+  opacity: 1 !important;
+}
   </style>
 </head>
 <body class="h-screen w-screen overflow-hidden flex flex-col antialiased select-none">
@@ -1846,14 +1881,10 @@ function selectSaveTarget(val, title, iconClass) {
   // Close dropdown
   toggleSaveTargetDropdown();
 
-  // Highlight active row in popover
+  // Cleanly toggle active state on all rows without breaking child colors
   document.querySelectorAll('.save-target-row').forEach(row => {
     const isSelected = row.getAttribute('data-val') === val;
-    row.className = isSelected 
-      ? 'save-target-row flex items-center justify-between p-2 rounded-xl text-xs bg-[#563b72] text-white font-medium cursor-pointer shadow-sm'
-      : 'save-target-row flex items-center justify-between p-2 rounded-xl text-xs hover:bg-[#ded8f3]/60 text-[#1f1533] cursor-pointer transition';
-    const check = row.querySelector('.check-mark');
-    if (check) check.style.opacity = isSelected ? '1' : '0';
+    row.classList.toggle('is-selected', isSelected);
   });
 
   // Trigger thumbnail/canvas data snapshot
@@ -1869,7 +1900,6 @@ function populateSaveRecordTargets() {
   let defaultTitle = 'Entire Canvas (All Elements & Guides)';
   let defaultIcon = 'bi-aspect-ratio-fill';
 
-  // Build target options list
   const options = [
     {
       val: 'whole_canvas',
@@ -1907,26 +1937,23 @@ function populateSaveRecordTargets() {
     });
   });
 
-  // Render M3 option items
   options.forEach(opt => {
     const isSelected = opt.val === defaultVal;
     const item = document.createElement('div');
     item.setAttribute('data-val', opt.val);
-    item.className = isSelected 
-      ? 'save-target-row flex items-center justify-between p-2 rounded-xl text-xs bg-[#563b72] text-white font-medium cursor-pointer shadow-sm'
-      : 'save-target-row flex items-center justify-between p-2 rounded-xl text-xs hover:bg-[#ded8f3]/60 text-[#1f1533] cursor-pointer transition';
+    item.className = `save-target-row flex items-center justify-between p-2 rounded-xl text-xs cursor-pointer ${isSelected ? 'is-selected' : ''}`;
 
     item.innerHTML = `
       <div class="flex items-center gap-2.5 truncate">
-        <div class="w-6 h-6 rounded-lg ${isSelected ? 'bg-white/20 text-white' : 'bg-[#ded8f3] text-[#563b72]'} flex items-center justify-center text-xs shrink-0">
+        <div class="row-icon-box w-6 h-6 rounded-lg flex items-center justify-center text-xs shrink-0 transition">
           <i class="bi ${opt.icon}"></i>
         </div>
         <div class="truncate">
           <span class="block font-semibold text-xs leading-tight truncate">${esc(opt.title)}</span>
-          <span class="block text-[10px] ${isSelected ? 'text-white/80' : 'text-[#5e5473]'} leading-none mt-0.5 truncate">${esc(opt.sub)}</span>
+          <span class="row-subtitle block text-[10px] leading-none mt-0.5 truncate transition">${esc(opt.sub)}</span>
         </div>
       </div>
-      <i class="bi bi-check2 check-mark text-sm ml-2" style="opacity: ${isSelected ? '1' : '0'};"></i>
+      <i class="bi bi-check2 check-mark text-sm ml-2 transition-opacity"></i>
     `;
 
     item.onclick = (e) => {
@@ -1937,7 +1964,6 @@ function populateSaveRecordTargets() {
     popover.appendChild(item);
   });
 
-  // Initialize selected values
   document.getElementById('rec-save-target-val').value = defaultVal;
   document.getElementById('save-target-display-title').innerText = defaultTitle;
   document.getElementById('save-target-icon-badge').innerHTML = `<i class="bi ${defaultIcon}"></i>`;
